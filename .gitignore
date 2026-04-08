@@ -1,4 +1,26 @@
+# Dependencies
+node_modules/
 
+# Build
+dist/
+build/
+.next/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
+Thumbs.db
 
+# Reference materials (not part of harness-stack)
 raw/
