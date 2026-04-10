@@ -1,4 +1,4 @@
-Load and execute the h-plan skill for planning and task breakdown.
+Load and execute the hs-plan skill for planning and task breakdown.
 
 Read the skill definition at skills/02-plan/plan/SKILL.md and follow its Process section step by step.
 
@@ -11,4 +11,4 @@ Steps:
 6. Ensure no task touches more than ~5 files
 7. Present plan for human review before implementation
 
-For complex features, consult the h-architect subagent for architectural guidance.
+For complex features, consult the hs-architect subagent for architectural guidance.

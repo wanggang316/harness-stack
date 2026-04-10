@@ -1,9 +1,9 @@
 ---
-name: h-architecture
-description: Designs system architecture. Use when making architectural decisions, designing new systems, or evaluating technical approaches. Use before h-plan for complex features.
+name: hs-architecture
+description: Designs system architecture. Use when making architectural decisions, designing new systems, or evaluating technical approaches. Use before hs-plan for complex features.
 ---
 
-# h-architecture: Architecture Design
+# hs-architecture: Architecture Design
 
 ## Overview
 
@@ -14,7 +14,7 @@ Design system architecture with clear boundaries, dependency directions, and tec
 - Designing a new system or major feature
 - Making technology choices (database, framework, etc.)
 - Evaluating multiple technical approaches
-- Before h-plan for complex, multi-component features
+- Before hs-plan for complex, multi-component features
 - When existing architecture needs significant changes
 
 **Don't use when**: Simple features that fit existing patterns. Follow existing architecture instead.
@@ -106,9 +106,9 @@ DEPENDENCY RULES:
 - External services accessed only through adapters
 ```
 
-### Step 6: Validate with h-architect Subagent
+### Step 6: Validate with hs-architect Subagent
 
-For complex decisions, consult the h-architect subagent for a second opinion on:
+For complex decisions, consult the hs-architect subagent for a second opinion on:
 - Scalability concerns
 - Security implications
 - Maintainability trade-offs

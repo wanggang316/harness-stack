@@ -1,4 +1,4 @@
-Load and execute the h-review skill for code review and quality.
+Load and execute the hs-review skill for code review and quality.
 
 Read the skill definition at skills/05-review/review/SKILL.md and follow its Process section step by step.
 
@@ -11,6 +11,6 @@ Review code across five axes:
 
 Categorize findings as: Critical, Important, Suggestion, Nit, FYI.
 
-For deep security analysis, consult h-security skill.
-For deep performance analysis, consult h-performance-engineer subagent.
-For test coverage concerns, consult h-test-engineer subagent.
+For deep security analysis, consult hs-security skill.
+For deep performance analysis, consult hs-performance-engineer subagent.
+For test coverage concerns, consult hs-test-engineer subagent.

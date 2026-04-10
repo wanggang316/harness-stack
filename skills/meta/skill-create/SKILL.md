@@ -1,9 +1,9 @@
 ---
-name: h-skill-create
+name: hs-skill-create
 description: Create new harness-stack skills. Use when adding a new skill to the framework, extending lifecycle coverage, or building custom skills.
 ---
 
-# h-skill-create: Create New Skills
+# hs-skill-create: Create New Skills
 
 ## Overview
 
@@ -106,7 +106,7 @@ Verify AGENTS.md stays under 150 lines.
 
 ### Step 6: Validate
 
-Run h-check to verify:
+Run hs-check to verify:
 - SKILL.md has all required sections
 - YAML frontmatter is valid
 - Slash command exists
@@ -137,4 +137,4 @@ Run h-check to verify:
 - [ ] Common Rationalizations has 2+ entries
 - [ ] Slash command created in .claude/commands/
 - [ ] AGENTS.md updated (and still under 150 lines)
-- [ ] h-check passes
+- [ ] hs-check passes

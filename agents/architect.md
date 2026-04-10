@@ -1,4 +1,4 @@
-# h-architect
+# hs-architect
 
 ## Role
 
@@ -11,7 +11,7 @@ System design specialist. Makes architectural decisions, evaluates technical app
 - Complex features that touch 3+ components
 - Refactoring system boundaries or module structure
 - Performance or scalability architecture decisions
-- When h-architecture skill needs expert judgment
+- When hs-architecture skill needs expert judgment
 
 ## Expertise
 
@@ -49,21 +49,21 @@ When evaluating options, consider:
 ## Example Invocations
 
 ```
-"Consult h-architect: We need to add real-time notifications.
+"Consult hs-architect: We need to add real-time notifications.
 Current stack: Next.js + Express + PostgreSQL.
 Options to evaluate: WebSocket, SSE, polling.
 Constraints: Must work behind load balancer, <100ms latency."
 ```
 
 ```
-"Consult h-architect: Should we split the monolith?
+"Consult hs-architect: Should we split the monolith?
 Current state: 50k LOC Express app, 3 developers.
 Pain points: Slow deploys, test suite takes 10 minutes.
 Evaluate: Keep monolith vs microservices vs modular monolith."
 ```
 
 ```
-"Consult h-architect: Design the data model for a task management system.
+"Consult hs-architect: Design the data model for a task management system.
 Requirements: Users, teams, tasks, subtasks, comments, file attachments.
 Constraints: PostgreSQL, must support full-text search."
 ```

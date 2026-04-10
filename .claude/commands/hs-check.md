@@ -1,4 +1,4 @@
-Load and execute the h-check skill to validate harness-stack structure.
+Load and execute the hs-check skill to validate harness-stack structure.
 
 Read the skill definition at skills/meta/check/SKILL.md and follow its Process section step by step.
 

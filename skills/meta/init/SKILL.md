@@ -1,9 +1,9 @@
 ---
-name: h-init
+name: hs-init
 description: Initialize harness-stack in any project. Use when setting up harness for the first time in a new or existing project.
 ---
 
-# h-init: Initialize harness-stack
+# hs-init: Initialize harness-stack
 
 ## Overview
 
@@ -17,7 +17,7 @@ Scaffolds the complete harness-stack structure into any project, creating skills
 - Bootstrapping a fresh repository
 
 **Don't use when**:
-- harness-stack already exists (use h-check instead)
+- harness-stack already exists (use hs-check instead)
 - Only need specific skills (copy manually)
 
 ## Process
@@ -51,7 +51,7 @@ mkdir -p examples
 ### Step 3: Generate AGENTS.md
 
 Create entry point map (100-150 lines) pointing to:
-- Meta-skills (h-init, h-check, h-score, h-skill-create)
+- Meta-skills (hs-init, hs-check, hs-score, hs-skill-create)
 - Lifecycle skills by phase
 - Subagents
 - Documentation
@@ -60,19 +60,19 @@ Create entry point map (100-150 lines) pointing to:
 
 Copy all SKILL.md files from harness-stack:
 - `skills/meta/` → 4 meta-skills
-- `skills/01-define/` → h-spec
-- `skills/02-plan/` → h-plan, h-architecture
-- `skills/03-build/` → h-build, h-tdd
-- `skills/04-verify/` → h-debug
-- `skills/05-review/` → h-review, h-security
-- `skills/06-ship/` → h-git, h-ship
+- `skills/01-define/` → hs-spec
+- `skills/02-plan/` → hs-plan, hs-architecture
+- `skills/03-build/` → hs-build, hs-tdd
+- `skills/04-verify/` → hs-debug
+- `skills/05-review/` → hs-review, hs-security
+- `skills/06-ship/` → hs-git, hs-ship
 
 ### Step 5: Copy Agent Personas
 
 Copy agent definitions:
-- `agents/h-architect.md`
-- `agents/h-code-reviewer.md`
-- `agents/h-test-engineer.md`
+- `agents/hs-architect.md`
+- `agents/hs-code-reviewer.md`
+- `agents/hs-test-engineer.md`
 
 ### Step 6: Configure Claude Code Integration
 
@@ -109,7 +109,7 @@ Create `.claude/hooks/hooks.json`:
 
 ### Step 8: Verify Installation
 
-Run h-check to validate structure:
+Run hs-check to validate structure:
 ```bash
 # Check AGENTS.md exists and is under 150 lines
 wc -l AGENTS.md
@@ -119,16 +119,16 @@ ls skills/meta/
 ls skills/01-define/
 
 # Test Claude Code integration
-# In Claude Code: /h-check
+# In Claude Code: /hs-check
 ```
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "I'll just copy the files I need" | Incomplete setup leads to broken references and missing dependencies. Use h-init for complete structure. |
+| "I'll just copy the files I need" | Incomplete setup leads to broken references and missing dependencies. Use hs-init for complete structure. |
 | "I don't need all the skills" | You don't know what you'll need later. Install everything, use what you need. Disk space is cheap. |
-| "I'll create the structure manually" | Manual setup is error-prone. h-init ensures consistency and completeness. |
+| "I'll create the structure manually" | Manual setup is error-prone. hs-init ensures consistency and completeness. |
 | "My project is too different" | harness-stack is platform-agnostic. It adapts to your project type. |
 
 ## Red Flags
@@ -147,7 +147,7 @@ ls skills/01-define/
 - [ ] .claude/commands/ has 8+ command files
 - [ ] .claude/hooks/hooks.json configured
 - [ ] docs/ structure complete
-- [ ] /h-check runs without errors
+- [ ] /hs-check runs without errors
 - [ ] SessionStart hook loads AGENTS.md
 
 ## Implementation Notes
@@ -160,7 +160,7 @@ ls skills/01-define/
 4. Preserve existing files (don't overwrite)
 5. Report what was created and next steps
 
-**Next steps after h-init**:
-- Run `/h-check` to validate
+**Next steps after hs-init**:
+- Run `/hs-check` to validate
 - Read `docs/golden-rules.md`
-- Try `/h-spec` for your first feature
+- Try `/hs-spec` for your first feature

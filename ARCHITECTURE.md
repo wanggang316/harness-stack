@@ -67,11 +67,11 @@ Plus **Meta-skills** that manage harness itself.
 
 Specialized subagents for complex judgment:
 
-- **h-architect** - System design, technical decisions
-- **h-code-reviewer** - PR review, quality enforcement
-- **h-test-engineer** - Test strategy, coverage analysis
-- **h-security-auditor** - Security review, OWASP compliance
-- **h-performance-engineer** - Performance optimization
+- **hs-architect** - System design, technical decisions
+- **hs-code-reviewer** - PR review, quality enforcement
+- **hs-test-engineer** - Test strategy, coverage analysis
+- **hs-security-auditor** - Security review, OWASP compliance
+- **hs-performance-engineer** - Performance optimization
 - **h-doc-gardener** - Documentation maintenance
 
 ## Skill Anatomy
@@ -121,24 +121,24 @@ Every verification checklist requires concrete proof before proceeding.
 Skills never hardcode framework commands. Read config or ask user once.
 
 ### 5. Self-Bootstrapping
-harness can improve itself using its own skills (h-skill-create, h-check).
+harness can improve itself using its own skills (hs-skill-create, hs-check).
 
 ## Workflow Example
 
 ```
 Human: "Implement user login"
   ↓
-Agent: /h-spec (write specification)
+Agent: /hs-spec (write specification)
   ↓
-Agent: /h-plan (break into tasks, consult h-architect)
+Agent: /hs-plan (break into tasks, consult hs-architect)
   ↓
-Agent: /h-build (incremental implementation)
+Agent: /hs-build (incremental implementation)
   ↓
-Agent: /h-tdd (write tests)
+Agent: /hs-tdd (write tests)
   ↓
-Agent: /h-review (quality check, consult h-code-reviewer)
+Agent: /hs-review (quality check, consult hs-code-reviewer)
   ↓
-Agent: /h-ship (deploy, consult h-git)
+Agent: /hs-ship (deploy, consult hs-git)
   ↓
 Result: Feature complete and deployed
 ```
@@ -151,8 +151,8 @@ Result: Feature complete and deployed
 - Skills invoked via `/h-xxx`
 
 ### CI/CD
-- GitHub Actions can run h-check
-- Quality gates via h-score
+- GitHub Actions can run hs-check
+- Quality gates via hs-score
 - Automated validation
 
 ## References

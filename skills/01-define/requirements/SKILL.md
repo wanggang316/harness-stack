@@ -1,22 +1,22 @@
 ---
-name: h-requirements
-description: Gathers and clarifies requirements. Use when requirements are vague, incomplete, or only exist as a conversation. Use before h-spec when the problem space needs exploration.
+name: hs-requirements
+description: Gathers and clarifies requirements. Use when requirements are vague, incomplete, or only exist as a conversation. Use before hs-spec when the problem space needs exploration.
 ---
 
-# h-requirements: Requirements Gathering
+# hs-requirements: Requirements Gathering
 
 ## Overview
 
-Extract, clarify, and structure requirements from vague inputs. Transforms "I want a dashboard" into concrete, testable requirements that h-spec can formalize.
+Extract, clarify, and structure requirements from vague inputs. Transforms "I want a dashboard" into concrete, testable requirements that hs-spec can formalize.
 
 ## When to Use
 
 - Requirements exist only as a vague idea or conversation
 - Stakeholder needs are unclear or conflicting
-- Before writing a spec (h-spec) when the problem space needs exploration
+- Before writing a spec (hs-spec) when the problem space needs exploration
 - When inheriting a project with undocumented requirements
 
-**Don't use when**: Requirements are already clear and documented. Go straight to h-spec.
+**Don't use when**: Requirements are already clear and documented. Go straight to hs-spec.
 
 ## Process
 
@@ -78,9 +78,9 @@ Use MoSCoW:
 - **Could have** — Nice to have
 - **Won't have** — Explicitly excluded
 
-### Step 6: Hand Off to h-spec
+### Step 6: Hand Off to hs-spec
 
-Package requirements into a format h-spec can consume:
+Package requirements into a format hs-spec can consume:
 - User stories with acceptance criteria
 - Scope boundaries
 - Priority ranking

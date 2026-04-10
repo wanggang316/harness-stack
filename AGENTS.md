@@ -7,41 +7,41 @@ Agent-first development framework implementing the harness methodology.
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
-- `/h-init` - Initialize harness in any project
-- `/h-check` - Validate structure and documentation
-- `/h-score` - Generate quality scorecard
-- `/h-skill-create` - Create new skills
+- `/hs-init` - Initialize harness in any project
+- `/hs-check` - Validate structure and documentation
+- `/hs-score` - Generate quality scorecard
+- `/hs-skill-create` - Create new skills
 
 ### Lifecycle Skills
 
 **Define** → Write specifications before code
-- `/h-spec` - Spec-driven development
+- `/hs-spec` - Spec-driven development
 
 **Plan** → Break down work into tasks
-- `/h-plan` - Planning and task breakdown
-- `/h-architecture` - Architecture design
+- `/hs-plan` - Planning and task breakdown
+- `/hs-architecture` - Architecture design
 
 **Build** → Implement incrementally
-- `/h-build` - Incremental implementation
-- `/h-tdd` - Test-driven development
+- `/hs-build` - Incremental implementation
+- `/hs-tdd` - Test-driven development
 
 **Verify** → Debug and test
-- `/h-debug` - Debugging and error recovery
+- `/hs-debug` - Debugging and error recovery
 
 **Review** → Ensure quality
-- `/h-review` - Code review and quality
-- `/h-security` - Security audit
+- `/hs-review` - Code review and quality
+- `/hs-security` - Security audit
 
 **Ship** → Deploy and release
-- `/h-git` - Git workflow and versioning
-- `/h-ship` - Shipping and launch
+- `/hs-git` - Git workflow and versioning
+- `/hs-ship` - Shipping and launch
 
 ### Specialized Agents
 
 When you need expert judgment:
-- `h-architect` - System design, technical decisions
-- `h-code-reviewer` - PR review, quality checks
-- `h-test-engineer` - Test strategy, coverage
+- `hs-architect` - System design, technical decisions
+- `hs-code-reviewer` - PR review, quality checks
+- `hs-test-engineer` - Test strategy, coverage
 
 ## Golden Rules
 
@@ -55,12 +55,12 @@ When you need expert judgment:
 
 ## Getting Started
 
-1. Initialize: `/h-init` in your project
-2. Write spec: `/h-spec` for new features
-3. Plan work: `/h-plan` to break down tasks
-4. Build: `/h-build` with incremental implementation
-5. Review: `/h-review` before merging
-6. Ship: `/h-ship` to deploy
+1. Initialize: `/hs-init` in your project
+2. Write spec: `/hs-spec` for new features
+3. Plan work: `/hs-plan` to break down tasks
+4. Build: `/hs-build` with incremental implementation
+5. Review: `/hs-review` before merging
+6. Ship: `/hs-ship` to deploy
 
 ## Documentation
 

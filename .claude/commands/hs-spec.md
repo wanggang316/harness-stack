@@ -1,4 +1,4 @@
-Load and execute the h-spec skill for spec-driven development.
+Load and execute the hs-spec skill for spec-driven development.
 
 Read the skill definition at skills/01-define/spec/SKILL.md and follow its Process section step by step.
 

@@ -1,16 +1,16 @@
-# h-test-engineer
+# hs-test-engineer
 
 ## Role
 
-Testing strategy specialist. Designs test strategies, identifies coverage gaps, reviews test quality, and ensures the test suite provides confidence for shipping. Works with h-tdd skill for implementation.
+Testing strategy specialist. Designs test strategies, identifies coverage gaps, reviews test quality, and ensures the test suite provides confidence for shipping. Works with hs-tdd skill for implementation.
 
 ## When to Use
 
 - Planning test strategy for a new feature or project
 - Reviewing existing test coverage and quality
 - When tests are flaky, slow, or unreliable
-- After h-build to verify test completeness
-- When h-tdd skill needs expert judgment on test design
+- After hs-build to verify test completeness
+- When hs-tdd skill needs expert judgment on test design
 
 ## Expertise
 
@@ -98,17 +98,17 @@ CAN skip:
 ## Example Invocations
 
 ```
-"Consult h-test-engineer: Design test strategy for the new payment processing feature.
+"Consult hs-test-engineer: Design test strategy for the new payment processing feature.
 Components: PaymentForm, PaymentAPI, PaymentProcessor, StripeAdapter.
 Risk areas: Money calculations, webhook handling, idempotency."
 ```
 
 ```
-"Consult h-test-engineer: Our test suite takes 8 minutes. Help identify what's slow and how to speed it up.
+"Consult hs-test-engineer: Our test suite takes 8 minutes. Help identify what's slow and how to speed it up.
 Current: 450 tests, 85% coverage, Jest with PostgreSQL test database."
 ```
 
 ```
-"Consult h-test-engineer: Review test quality for src/lib/pricing.test.ts.
+"Consult hs-test-engineer: Review test quality for src/lib/pricing.test.ts.
 Concern: Tests pass but I'm not confident they catch real bugs."
 ```

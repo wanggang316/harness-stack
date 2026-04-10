@@ -1,4 +1,4 @@
-Load and execute the h-build skill for incremental implementation.
+Load and execute the hs-build skill for incremental implementation.
 
 Read the skill definition at skills/03-build/build/SKILL.md and follow its Process section step by step.
 

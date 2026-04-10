@@ -18,7 +18,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 
 ```bash
 # In Claude Code, run:
-/h-init
+/hs-init
 ```
 
 This initializes harness-stack in your project, creating the full structure.
@@ -28,30 +28,30 @@ This initializes harness-stack in your project, creating the full structure.
 ### Meta (Manage harness itself)
 | Command | Description |
 |---------|-------------|
-| `/h-init` | Initialize harness in any project |
-| `/h-check` | Validate structure and docs |
-| `/h-score` | Generate quality scorecard |
-| `/h-skill-create` | Create new skills |
+| `/hs-init` | Initialize harness in any project |
+| `/hs-check` | Validate structure and docs |
+| `/hs-score` | Generate quality scorecard |
+| `/hs-skill-create` | Create new skills |
 
 ### Lifecycle (Full development workflow)
 | Phase | Command | Description |
 |-------|---------|-------------|
-| Define | `/h-spec` | Spec-driven development |
-| Plan | `/h-plan` | Planning and task breakdown |
-| Build | `/h-build` | Incremental implementation |
-| Build | `/h-tdd` | Test-driven development |
-| Verify | `/h-debug` | Debugging and error recovery |
-| Review | `/h-review` | Code review and quality |
-| Review | `/h-security` | Security audit |
-| Ship | `/h-git` | Git workflow and versioning |
-| Ship | `/h-ship` | Shipping and launch |
+| Define | `/hs-spec` | Spec-driven development |
+| Plan | `/hs-plan` | Planning and task breakdown |
+| Build | `/hs-build` | Incremental implementation |
+| Build | `/hs-tdd` | Test-driven development |
+| Verify | `/hs-debug` | Debugging and error recovery |
+| Review | `/hs-review` | Code review and quality |
+| Review | `/hs-security` | Security audit |
+| Ship | `/hs-git` | Git workflow and versioning |
+| Ship | `/hs-ship` | Shipping and launch |
 
 ### Subagents (Expert judgment)
 | Agent | Expertise |
 |-------|-----------|
-| `h-architect` | System design, technical decisions |
-| `h-code-reviewer` | PR review, quality checks |
-| `h-test-engineer` | Test strategy, coverage |
+| `hs-architect` | System design, technical decisions |
+| `hs-code-reviewer` | PR review, quality checks |
+| `hs-test-engineer` | Test strategy, coverage |
 
 ## Naming Convention
 

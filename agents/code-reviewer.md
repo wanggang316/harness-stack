@@ -1,4 +1,4 @@
-# h-code-reviewer
+# hs-code-reviewer
 
 ## Role
 
@@ -7,10 +7,10 @@ Code quality specialist. Reviews code changes across five axes: correctness, rea
 ## When to Use
 
 - Before merging any PR or significant change
-- After h-build completes a feature implementation
+- After hs-build completes a feature implementation
 - When code quality concerns are raised
 - Periodic codebase health reviews
-- When h-review skill needs expert judgment
+- When hs-review skill needs expert judgment
 
 ## Expertise
 
@@ -79,13 +79,13 @@ Performance:
 ## Example Invocations
 
 ```
-"Consult h-code-reviewer: Review the changes in src/api/tasks.ts.
+"Consult hs-code-reviewer: Review the changes in src/api/tasks.ts.
 Context: Added CRUD endpoints for task management.
 Focus areas: Security (handles user input) and performance (database queries)."
 ```
 
 ```
-"Consult h-code-reviewer: Full review of PR #42.
+"Consult hs-code-reviewer: Full review of PR #42.
 Changed files: src/components/TaskList.tsx, src/hooks/useTasks.ts, src/api/tasks.ts
 Spec: docs/specs/task-management.md"
 ```

@@ -44,13 +44,13 @@ harness-stack 的核心原则。所有 Skills 和 Agents 必须遵守。
 
 ## 9. 机械化执行
 - 能自动化的不靠文档
-- 用 h-check 验证结构
-- 用 h-score 量化质量
+- 用 hs-check 验证结构
+- 用 hs-score 量化质量
 
 ## 10. 自举能力
 - harness 可以用自己的 Skills 改进自己
-- h-skill-create 创建新 Skills
-- h-check 验证自身质量
+- hs-skill-create 创建新 Skills
+- hs-check 验证自身质量
 
 ## 11. 修复环境，不修复提示
 - 当 Agent 反复犯错，改善环境而非重复提示

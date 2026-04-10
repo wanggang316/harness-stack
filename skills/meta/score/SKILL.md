@@ -1,9 +1,9 @@
 ---
-name: h-score
+name: hs-score
 description: Generate quality scorecard for harness-stack. Use when assessing project health, tracking improvement, or reporting quality metrics.
 ---
 
-# h-score: Quality Scorecard
+# hs-score: Quality Scorecard
 
 ## Overview
 
@@ -18,8 +18,8 @@ Generates a quality scorecard measuring harness-stack completeness, documentatio
 - After adding new skills or docs
 
 **Don't use when**:
-- harness-stack not initialized (use h-init first)
-- Need specific validation (use h-check instead)
+- harness-stack not initialized (use hs-init first)
+- Need specific validation (use hs-check instead)
 
 ## Process
 
@@ -28,12 +28,12 @@ Generates a quality scorecard measuring harness-stack completeness, documentatio
 ```
 Score each lifecycle phase (0-100):
 
-Define:  Has h-spec? (+50) Has h-requirements? (+50)
-Plan:    Has h-plan? (+50) Has h-architecture? (+50)
-Build:   Has h-build? (+50) Has h-tdd? (+50)
-Verify:  Has h-debug? (+100)
-Review:  Has h-review? (+50) Has h-security? (+50)
-Ship:    Has h-git? (+50) Has h-ship? (+50)
+Define:  Has hs-spec? (+50) Has hs-requirements? (+50)
+Plan:    Has hs-plan? (+50) Has hs-architecture? (+50)
+Build:   Has hs-build? (+50) Has hs-tdd? (+50)
+Verify:  Has hs-debug? (+100)
+Review:  Has hs-review? (+50) Has hs-security? (+50)
+Ship:    Has hs-git? (+50) Has hs-ship? (+50)
 
 Lifecycle Coverage = average of all phases
 ```
@@ -69,9 +69,9 @@ Documentation Health = sum of applicable points
 ### Step 4: Measure Agent Coverage
 
 ```
-+34 points: h-architect exists
-+33 points: h-code-reviewer exists
-+33 points: h-test-engineer exists
++34 points: hs-architect exists
++33 points: hs-code-reviewer exists
++33 points: hs-test-engineer exists
 
 Agent Coverage = sum
 ```
@@ -98,7 +98,7 @@ A: 90-100  |  B: 80-89  |  C: 70-79  |  D: 60-69  |  F: <60
 ### Step 7: Generate Report
 
 ```
-=== h-score Report ===
+=== hs-score Report ===
 
 Lifecycle Coverage:  85/100  ████████░░
 Skill Quality:       92/100  █████████░
@@ -110,7 +110,7 @@ Overall: 87/100 — Grade: B
 
 Top Improvements:
 1. (+10) Create docs/architecture.md
-2. (+5)  Add Common Rationalizations to h-debug
+2. (+5)  Add Common Rationalizations to hs-debug
 3. (+5)  Fix 2 broken links in docs/
 ```
 

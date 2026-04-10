@@ -1,9 +1,9 @@
 ---
-name: h-check
+name: hs-check
 description: Validate harness-stack structure and documentation. Use when verifying project setup, before merging, or as part of CI.
 ---
 
-# h-check: Validate Structure
+# hs-check: Validate Structure
 
 ## Overview
 
@@ -12,13 +12,13 @@ Validates that harness-stack structure is complete and correct. Checks file exis
 ## When to Use
 
 **Use when**:
-- After running h-init to verify setup
+- After running hs-init to verify setup
 - Before merging PRs that touch skills/docs
 - As periodic health check
 - In CI pipelines
 
 **Don't use when**:
-- harness-stack not yet initialized (use h-init first)
+- harness-stack not yet initialized (use hs-init first)
 
 ## Process
 
@@ -26,7 +26,7 @@ Validates that harness-stack structure is complete and correct. Checks file exis
 
 ```bash
 # Must exist
-test -f AGENTS.md || echo "FAIL: AGENTS.md missing. FIX: Run /h-init"
+test -f AGENTS.md || echo "FAIL: AGENTS.md missing. FIX: Run /hs-init"
 
 # Must be under 150 lines
 LINES=$(wc -l < AGENTS.md)
@@ -66,7 +66,7 @@ For each agent file in `agents/`:
 test -d .claude/commands/ || echo "FAIL: .claude/commands/ missing"
 
 # Each skill has a corresponding command
-for skill in h-init h-check h-score h-spec h-plan h-build h-review h-ship; do
+for skill in hs-init hs-check hs-score hs-spec hs-plan hs-build hs-review hs-ship; do
   test -f ".claude/commands/$skill.md" || echo "FAIL: Missing command $skill.md"
 done
 
@@ -97,7 +97,7 @@ done
 
 Output format:
 ```
-=== h-check Report ===
+=== hs-check Report ===
 ✓ AGENTS.md: OK (87 lines)
 ✓ Skills: 12/12 valid
 ✓ Agents: 3/3 valid
@@ -118,11 +118,11 @@ Score: 11/12 checks passed
 |---|---|
 | "It's just a small change, no need to check" | Small changes break links and structure. Always check. |
 | "I'll fix the warnings later" | Warnings become errors. Fix now while context is fresh. |
-| "The CI will catch it" | CI runs h-check too, but catching locally is faster. |
+| "The CI will catch it" | CI runs hs-check too, but catching locally is faster. |
 
 ## Red Flags
 
-- h-check never run after changes
+- hs-check never run after changes
 - Warnings ignored for multiple commits
 - AGENTS.md growing beyond 150 lines
 - Skills missing required sections

@@ -1,4 +1,4 @@
-Load and execute the h-score skill to generate a quality scorecard.
+Load and execute the hs-score skill to generate a quality scorecard.
 
 Read the skill definition at skills/meta/score/SKILL.md and follow its Process section step by step.
 
