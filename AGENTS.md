@@ -65,7 +65,7 @@ When you need expert judgment:
 ## Documentation
 
 - [Golden Rules](docs/golden-rules.md) - Core principles
-- [Architecture](docs/architecture.md) - System design
+- [Architecture](ARCHITECTURE.md) - System design
 - [Getting Started](docs/index.md) - Quick start guide
 - [References](docs/references/) - Checklists and patterns
 

@@ -70,9 +70,6 @@ Specialized subagents for complex judgment:
 - **h-architect** - System design, technical decisions
 - **h-code-reviewer** - PR review, quality enforcement
 - **h-test-engineer** - Test strategy, coverage analysis
-- **h-security-auditor** - Security review, OWASP compliance
-- **h-performance-engineer** - Performance optimization
-- **h-doc-gardener** - Documentation maintenance
 
 ## Skill Anatomy
 
