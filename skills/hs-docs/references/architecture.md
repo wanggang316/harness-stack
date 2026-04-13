@@ -70,6 +70,17 @@ Dependencies flow left to right only. UI can import Service, but Service cannot 
 - `src/api/` — HTTP route handlers
 - `src/workers/` — Background job processors
 
+## Technology Choices
+
+| Technology | Purpose | Rationale |
+|---|---|---|
+| TypeScript + Node.js 20 | Runtime | Widely supported, agents reason about it well |
+| commander | CLI framework | Simple, no magic, well-documented |
+| tsup | Bundler | Fast ESM builds, handles shebang banner |
+| yaml | YAML parsing | Lint rules are YAML for human and agent readability |
+| vitest | Test runner | Fast, compatible with ESM, minimal config |
+| biome | Linter/formatter | Single tool for both, fast, opinionated defaults |
+
 ```
 
 ## Key Principles
