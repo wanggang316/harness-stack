@@ -11,7 +11,7 @@ System design specialist. Makes architectural decisions, evaluates technical app
 - Complex features that touch 3+ components
 - Refactoring system boundaries or module structure
 - Performance or scalability architecture decisions
-- When hs-architecture skill needs expert judgment
+- When hs-design skill needs expert judgment
 
 ## Expertise
 

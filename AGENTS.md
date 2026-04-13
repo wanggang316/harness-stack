@@ -20,7 +20,6 @@ Agent-first development framework implementing the harness methodology.
 
 **Plan** → Break down work into tasks
 - `/hs-plan` - Planning and task breakdown
-- `/hs-architecture` - Architecture design
 
 **Build** → Implement incrementally
 - `/hs-build` - Incremental implementation

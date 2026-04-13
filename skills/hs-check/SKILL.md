@@ -66,7 +66,7 @@ For each agent file in `agents/`:
 test -d .claude/commands/ || echo "FAIL: .claude/commands/ missing"
 
 # Each skill has a corresponding command
-for skill in hs-init hs-check hs-score hs-spec hs-plan hs-build hs-review hs-ship; do
+for skill in hs-init hs-check hs-score hs-spec hs-design hs-plan hs-build hs-review hs-ship; do
   test -f ".claude/commands/$skill.md" || echo "FAIL: Missing command $skill.md"
 done
 

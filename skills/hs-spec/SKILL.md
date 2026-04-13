@@ -152,8 +152,8 @@ SPEC READY FOR REVIEW:
 ```
 
 With approved spec, proceed to:
+- `/hs-design` for technical design decisions
 - `/hs-plan` for task breakdown
-- `/hs-architecture` for design decisions
 - `/hs-build` for implementation
 
 ## Keeping the Spec Alive
