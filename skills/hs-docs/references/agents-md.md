@@ -35,6 +35,8 @@ The project entry point for AI agents. A map, not a manual — under 150 lines, 
 
 ## Quick Start
 
+<!-- The 3-4 commands an agent needs to build, test, and lint -->
+
 \```bash
 npm run build
 npm run lint
@@ -43,11 +45,13 @@ npm test
 
 ## Architecture Overview
 
-[One paragraph: what the system does, architectural style, key domains. Link to full architecture doc.]
+<!-- One paragraph: what the system does, architectural style, key domains -->
 
 See [Architecture](docs/architecture.md) for domains, layers, and dependency rules.
 
 ## Repository Structure
+
+<!-- Directory tree with one-line comment per directory. Reflect actual layout -->
 
 \```
 project/
@@ -63,6 +67,8 @@ project/
 
 ## Golden Rules
 
+<!-- Top 5 rules inline. Link to full list for the rest -->
+
 1. **AGENTS.md is a map, not a manual** — keep this file under 150 lines
 2. **Validate boundaries** — parse and validate data at system edges, never probe
 3. **Prefer shared utilities** — centralize invariants, avoid hand-rolled duplicates
@@ -73,7 +79,7 @@ See [Golden Rules](docs/golden-rules.md) for the complete list with rationale an
 
 ## Documentation
 
-All project knowledge lives in `docs/`. Start with the area relevant to your task:
+<!-- Table of docs/ subdirectories. Start with the area relevant to your task -->
 
 | Directory | Purpose |
 |---|---|
@@ -83,6 +89,8 @@ All project knowledge lives in `docs/`. Start with the area relevant to your tas
 
 ## Working with This Repository
 
+<!-- Key workflows and boundaries: what to do before changes, before PRs, when things fail -->
+
 - Before making changes, read the relevant docs for the area you're touching
 - For complex work, create an execution plan before starting
 - Run lint and tests before submitting PRs
@@ -90,6 +98,8 @@ All project knowledge lives in `docs/`. Start with the area relevant to your tas
 - When something fails, ask: "What capability is missing?" — then add it
 
 ## Build & Test Commands
+
+<!-- Full commands with inline comments -->
 
 \```bash
 npm run build          # Build project
@@ -99,6 +109,8 @@ npm run typecheck      # Type checking
 \```
 
 ## Code Style & Conventions
+
+<!-- Key coding conventions, one per line -->
 
 - [Linter/formatter tool and key settings]
 - [Key code patterns or conventions]

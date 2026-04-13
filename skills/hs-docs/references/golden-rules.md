@@ -31,13 +31,13 @@ When agents struggle, the fix is almost never "try harder." Ask: "What capabilit
 
 ## 1. [Rule title]
 
-[One paragraph: what the rule is and why it matters.]
+<!-- One paragraph: what the rule is and why it matters -->
 
-**Enforcement:** [How this is checked — linter, CI, code review, sweep agent, etc.]
+**Enforcement:** <!-- How this is checked — linter, CI, code review, sweep agent, etc. -->
 
 ## 2. [Rule title]
 
-...
+<!-- Repeat the same pattern for each rule -->
 ```
 
 ## Core Rules

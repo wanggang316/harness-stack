@@ -28,37 +28,31 @@ ADRs capture the reasoning behind significant technical decisions. They're the h
 
 ## Status
 
-Proposed | Accepted | Superseded by ADR-XXX | Deprecated
+<!-- One of: Proposed | Accepted | Superseded by ADR-XXX | Deprecated -->
 
 ## Date
 
-YYYY-MM-DD
+<!-- YYYY-MM-DD -->
 
 ## Context
 
-[What problem are we facing? What are the constraints and requirements?]
+<!-- What problem are we facing? What constraints and requirements exist? -->
 
 ## Decision
 
-[What did we decide? One paragraph.]
+<!-- What did we decide and why? One paragraph -->
 
 ## Alternatives Considered
 
 ### [Option A]
-- Pros: ...
-- Cons: ...
-- Rejected: [specific reason]
+<!-- Pros, cons, and specific reason for rejection -->
 
 ### [Option B]
-- Pros: ...
-- Cons: ...
-- Rejected: [specific reason]
+<!-- Pros, cons, and specific reason for rejection -->
 
 ## Consequences
 
-- [What becomes easier]
-- [What becomes harder]
-- [What the team needs to learn or adopt]
+<!-- What becomes easier, what becomes harder, what the team needs to learn -->
 ```
 
 ## Lifecycle

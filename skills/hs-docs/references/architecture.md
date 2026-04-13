@@ -29,19 +29,21 @@ Inspired by [matklad's ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARC
 
 ## Overview
 
-[One paragraph: what this system does and what architectural style it follows.]
+<!-- One paragraph: what this system does and what architectural style it follows -->
 
 ## Domains
 
+<!-- Major areas of the codebase. Each domain has a clear boundary and purpose -->
+
 | Domain | Purpose | Key files |
-|--------|---------|-----------|
+|---|---|---|
 | auth | Authentication and authorization | src/auth/ |
 | tasks | Task management CRUD | src/tasks/ |
 | billing | Subscription and payment | src/billing/ |
 
 ## Layers
 
-Within each domain, code is organized into layers with strict dependency directions:
+<!-- Layers within each domain, with strict dependency direction -->
 
 \```
 Types → Config → Repo → Service → Runtime → UI
@@ -58,19 +60,25 @@ Dependencies flow left to right only. UI can import Service, but Service cannot 
 
 ## Cross-Cutting Concerns
 
+<!-- Shared concerns that flow through multiple domains -->
+
 | Concern | Mechanism |
-|---------|-----------|
+|---|---|
 | Authentication | Middleware, injected via context |
 | Logging | Structured logger, passed through providers |
 | Configuration | Environment-based, loaded at startup |
 
 ## Entry Points
 
+<!-- Where does execution start? Key files that wire the system together -->
+
 - `src/index.ts` — Application entry, wires domains together
 - `src/api/` — HTTP route handlers
 - `src/workers/` — Background job processors
 
 ## Technology Choices
+
+<!-- Key dependencies with purpose and rationale for choosing them -->
 
 | Technology | Purpose | Rationale |
 |---|---|---|

@@ -25,15 +25,19 @@ Every README must have these four sections:
 ```markdown
 # [Project Name]
 
-One-paragraph description of what this project does.
+<!-- One paragraph: what this project does, in plain language -->
 
 ## Install
+
+<!-- Exact install commands. Include global and local options if applicable -->
 
 \```bash
 npm install
 \```
 
 ## Commands
+
+<!-- All user-facing commands in a table -->
 
 | Command | Description |
 |---|---|
@@ -43,6 +47,8 @@ npm install
 | `npm run lint` | Run linter |
 
 ## Development
+
+<!-- Clone-to-running steps for a fresh contributor -->
 
 \```bash
 git clone <repo-url>
@@ -72,28 +78,21 @@ Example expandable sections:
 ```markdown
 ## Architecture
 
-Brief overview of the project structure and key design decisions.
-Link to `docs/architecture.md` for full details.
+<!-- Brief structure overview. Link to docs/architecture.md for full details -->
 
 ## Configuration
 
-\```yaml
-# config.yaml
-project:
-  name: "my-project"
-  setting: value
-\```
+<!-- Show the config file format with inline comments explaining key options -->
 
 ## Key Principles
 
-- **Principle one** — brief explanation
-- **Principle two** — brief explanation
+<!-- Top principles inline, link to full list -->
 
 See [Golden Rules](docs/golden-rules.md) for the complete list.
 
 ## Contributing
 
-How to contribute, coding standards, PR process.
+<!-- How to contribute, coding standards, PR process -->
 
 ## License
 

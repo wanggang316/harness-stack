@@ -31,19 +31,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Added
-- Task sharing: users can share tasks with team members (#123)
-
-### Fixed
-- Duplicate tasks appearing when rapidly clicking create button (#125)
-
-## [1.1.0] - 2025-01-15
+<!-- Unshipped changes go here. Move to a version header on release -->
 
 ### Added
-- Email notifications for task assignments (#120)
+<!-- New features or capabilities -->
 
 ### Changed
-- Task list now loads 50 items per page, was 20 (#121)
+<!-- Changes to existing functionality -->
+
+### Fixed
+<!-- Bug fixes -->
+
+## [1.0.0] - YYYY-MM-DD
+
+<!-- Repeat the same sections per version. Newest first -->
 ```
 
 ## Rules

@@ -20,6 +20,8 @@ Document public APIs so consumers (humans and agents) can use them without readi
 
 ## Inline with Types (TypeScript)
 
+<!-- JSDoc on exported functions: @param, @returns, @throws, @example -->
+
 ```typescript
 /**
  * Creates a new task.
@@ -39,6 +41,8 @@ export async function createTask(input: CreateTaskInput): Promise<Task> {
 ```
 
 ## OpenAPI / Swagger (REST APIs)
+
+<!-- For REST APIs: define paths, request/response schemas, and error codes -->
 
 ```yaml
 paths:
