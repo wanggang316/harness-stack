@@ -1,6 +1,6 @@
 Load and execute the hs-check skill to validate harness-stack structure.
 
-Read the skill definition at skills/meta/check/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-check/SKILL.md and follow its Process section step by step.
 
 Steps:
 1. Check AGENTS.md exists and is under 150 lines

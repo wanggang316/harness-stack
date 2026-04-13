@@ -1,6 +1,6 @@
 Load and execute the hs-ship skill for shipping and launch.
 
-Read the skill definition at skills/06-ship/ship/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-ship/SKILL.md and follow its Process section step by step.
 
 Pre-launch checklist:
 1. Code quality — all tests pass, build clean, linting clean

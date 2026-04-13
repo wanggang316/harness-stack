@@ -32,24 +32,19 @@ Ask the user:
 
 ### Step 2: Determine Location
 
+All skills live directly under `skills/` with the `hs-` prefix:
+
 ```
-Phase mapping:
-  meta    → skills/meta/h-{name}/
-  define  → skills/01-define/h-{name}/
-  plan    → skills/02-plan/h-{name}/
-  build   → skills/03-build/h-{name}/
-  verify  → skills/04-verify/h-{name}/
-  review  → skills/05-review/h-{name}/
-  ship    → skills/06-ship/h-{name}/
+skills/hs-{name}/SKILL.md
 ```
 
 ### Step 3: Generate SKILL.md
 
-Create `skills/{phase}/h-{name}/SKILL.md`:
+Create `skills/hs-{name}/SKILL.md`:
 
 ```markdown
 ---
-name: h-{name}
+name: hs-{name}
 description: {purpose}. Use when {trigger}.
 ---
 

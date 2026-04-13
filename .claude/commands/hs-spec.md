@@ -1,6 +1,6 @@
 Load and execute the hs-spec skill for spec-driven development.
 
-Read the skill definition at skills/01-define/spec/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-spec/SKILL.md and follow its Process section step by step.
 
 Steps:
 1. Surface assumptions immediately — list what you're assuming and ask for confirmation

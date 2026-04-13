@@ -1,6 +1,6 @@
 Load and execute the hs-build skill for incremental implementation.
 
-Read the skill definition at skills/03-build/build/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-build/SKILL.md and follow its Process section step by step.
 
 Steps:
 1. Pick the next task from the plan

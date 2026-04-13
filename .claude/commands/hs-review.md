@@ -1,6 +1,6 @@
 Load and execute the hs-review skill for code review and quality.
 
-Read the skill definition at skills/05-review/review/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-review/SKILL.md and follow its Process section step by step.
 
 Review code across five axes:
 1. **Correctness** — Logic errors, edge cases, error handling

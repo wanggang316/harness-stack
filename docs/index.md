@@ -9,23 +9,23 @@ harness-stack 文档中心。
 ## Skills
 
 ### Meta-Skills
-- [hs-init](../skills/meta/init/SKILL.md) — 初始化项目
-- [hs-check](../skills/meta/check/SKILL.md) — 验证结构
-- [hs-score](../skills/meta/score/SKILL.md) — 质量评分
-- [hs-skill-create](../skills/meta/skill-create/SKILL.md) — 创建新 Skill
+- [hs-init](../skills/hs-init/SKILL.md) — 初始化项目
+- [hs-check](../skills/hs-check/SKILL.md) — 验证结构
+- [hs-score](../skills/hs-score/SKILL.md) — 质量评分
+- [hs-skill-create](../skills/hs-skill-create/SKILL.md) — 创建新 Skill
 
 ### Lifecycle Skills
 | Phase | Skill | Link |
 |-------|-------|------|
-| Define | hs-spec | [SKILL.md](../skills/01-define/spec/SKILL.md) |
-| Plan | hs-plan | [SKILL.md](../skills/02-plan/plan/SKILL.md) |
-| Build | hs-build | [SKILL.md](../skills/03-build/build/SKILL.md) |
-| Build | hs-tdd | [SKILL.md](../skills/03-build/tdd/SKILL.md) |
-| Verify | hs-debug | [SKILL.md](../skills/04-verify/debug/SKILL.md) |
-| Review | hs-review | [SKILL.md](../skills/05-review/review/SKILL.md) |
-| Review | hs-security | [SKILL.md](../skills/05-review/security/SKILL.md) |
-| Ship | hs-git | [SKILL.md](../skills/06-ship/git/SKILL.md) |
-| Ship | hs-ship | [SKILL.md](../skills/06-ship/ship/SKILL.md) |
+| Define | hs-spec | [SKILL.md](../skills/hs-spec/SKILL.md) |
+| Plan | hs-plan | [SKILL.md](../skills/hs-plan/SKILL.md) |
+| Build | hs-build | [SKILL.md](../skills/hs-build/SKILL.md) |
+| Build | hs-tdd | [SKILL.md](../skills/hs-tdd/SKILL.md) |
+| Verify | hs-debug | [SKILL.md](../skills/hs-debug/SKILL.md) |
+| Review | hs-review | [SKILL.md](../skills/hs-review/SKILL.md) |
+| Review | hs-security | [SKILL.md](../skills/hs-security/SKILL.md) |
+| Ship | hs-git | [SKILL.md](../skills/hs-git/SKILL.md) |
+| Ship | hs-ship | [SKILL.md](../skills/hs-ship/SKILL.md) |
 
 ### Subagents
 - [hs-architect](../agents/architect.md) — 系统设计

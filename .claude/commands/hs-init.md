@@ -1,6 +1,6 @@
 Load and execute the hs-init skill to initialize harness-stack in this project.
 
-Read the skill definition at skills/meta/init/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-init/SKILL.md and follow its Process section step by step.
 
 Steps:
 1. Detect project type (Next.js, Express, React, etc.)

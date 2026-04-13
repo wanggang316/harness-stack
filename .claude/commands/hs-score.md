@@ -1,6 +1,6 @@
 Load and execute the hs-score skill to generate a quality scorecard.
 
-Read the skill definition at skills/meta/score/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-score/SKILL.md and follow its Process section step by step.
 
 Steps:
 1. Measure skill coverage across all 6 lifecycle phases

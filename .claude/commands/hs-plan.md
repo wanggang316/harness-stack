@@ -1,6 +1,6 @@
 Load and execute the hs-plan skill for planning and task breakdown.
 
-Read the skill definition at skills/02-plan/plan/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/hs-plan/SKILL.md and follow its Process section step by step.
 
 Steps:
 1. Enter plan mode — read spec and codebase, do NOT write code

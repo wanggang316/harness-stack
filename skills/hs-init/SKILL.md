@@ -58,14 +58,16 @@ Create entry point map (100-150 lines) pointing to:
 
 ### Step 4: Copy Skill Templates
 
-Copy all SKILL.md files from harness-stack:
-- `skills/meta/` → 4 meta-skills
-- `skills/01-define/` → hs-spec
-- `skills/02-plan/` → hs-plan, hs-architecture
-- `skills/03-build/` → hs-build, hs-tdd
-- `skills/04-verify/` → hs-debug
-- `skills/05-review/` → hs-review, hs-security
-- `skills/06-ship/` → hs-git, hs-ship
+Copy all SKILL.md files from harness-stack into `skills/`:
+
+All skills are flat under `skills/hs-{name}/SKILL.md`:
+- hs-init, hs-check, hs-score, hs-skill-create, hs-docs (meta)
+- hs-spec (define)
+- hs-plan, hs-architecture (plan)
+- hs-build, hs-tdd (build)
+- hs-debug (verify)
+- hs-review, hs-security (review)
+- hs-git, hs-ship (ship)
 
 ### Step 5: Copy Agent Personas
 
@@ -79,11 +81,11 @@ Copy agent definitions:
 Create `.claude/commands/` for each skill:
 ```markdown
 ---
-name: h-xxx
+name: hs-xxx
 description: Brief description
 ---
 
-Load and execute the h-xxx skill from skills/.../SKILL.md
+Load and execute the hs-xxx skill from skills/hs-xxx/SKILL.md
 ```
 
 Create `.claude/hooks/hooks.json`:
@@ -115,8 +117,7 @@ Run hs-check to validate structure:
 wc -l AGENTS.md
 
 # Verify all skill directories exist
-ls skills/meta/
-ls skills/01-define/
+ls skills/hs-*/
 
 # Test Claude Code integration
 # In Claude Code: /hs-check
