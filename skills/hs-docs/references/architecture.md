@@ -70,12 +70,6 @@ Dependencies flow left to right only. UI can import Service, but Service cannot 
 - `src/api/` — HTTP route handlers
 - `src/workers/` — Background job processors
 
-## Key Design Decisions
-
-Link to ADRs for details:
-
-- [ADR-001](docs/adrs/ADR-001-xxx.md) — Database choice
-- [ADR-002](docs/adrs/ADR-002-xxx.md) — Authentication strategy
 ```
 
 ## Key Principles
