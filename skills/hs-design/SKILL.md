@@ -7,15 +7,15 @@ description: Creates design docs capturing why and how behind features. Use when
 
 ## Overview
 
-Write a design doc before implementing complex features. Design docs capture the **why** and **how** — the problem, the chosen approach, and the alternatives rejected. A product spec defines *what* to build; a design doc defines *how* to build it.
+Write a design doc before implementing complex changes. Design docs capture the **why** and **how** — the problem, the chosen approach, and the alternatives rejected. Use for new features, technical refactors, or any change where multiple approaches exist.
 
 ## When to Use
 
 - New feature or system that touches multiple domains
-- Significant architectural change
+- Significant architectural change or refactor
 - Technical decision with long-term implications
 - Multiple approaches exist and the choice matters
-- After `/hs-spec` when the implementation path isn't obvious
+- Technical debt cleanup or migration planning
 
 **When NOT to use:** Single-domain changes with one obvious implementation path. If there's no real choice to document, skip the design doc.
 
@@ -36,7 +36,7 @@ trade-offs   approves     hs-plan/hs-build
 Before writing anything, explore the problem space.
 
 **Understand the constraints:**
-- What does the product spec require? (read `docs/product-specs/` if one exists)
+- Is there a product spec? (check `docs/product-specs/` if applicable)
 - What does the existing architecture look like?
 - What are the performance, scalability, and security requirements?
 - What dependencies are involved?
@@ -127,8 +127,8 @@ With approved design doc, proceed to:
 
 ## Relationship to Other Skills
 
-- **hs-spec** defines *what* to build (product requirements) — comes before hs-design
-- **hs-design** defines *how* to build it (technical approach) — comes after hs-spec
+- **hs-spec** defines *what* to build (product requirements) — use hs-spec first when building a new product feature
+- **hs-design** defines *how* to build it (technical approach) — can be used independently for refactors, migrations, or technical decisions that don't need a product spec
 - **hs-architecture** defines system-level structure — use when the scope is broader than a single feature
 - **hs-plan** breaks the approved design into tasks — comes after hs-design
 
@@ -147,7 +147,6 @@ With approved design doc, proceed to:
 - Jumping to implementation without evaluating alternatives
 - Design doc with no Alternatives Considered section
 - Risks listed without mitigations
-- Proposed solution that doesn't trace back to a product spec
 - "Approved" status but no human actually reviewed it
 - Design doc written after the code is already merged
 
