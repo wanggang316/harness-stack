@@ -47,7 +47,7 @@ Check what documentation exists:
 - Public APIs documented?
 ```
 
-### Step 2: Route to Sub-skill
+### Step 2: Route to Guide
 
 Based on what's needed, read and follow the corresponding guide in `references/`:
 
