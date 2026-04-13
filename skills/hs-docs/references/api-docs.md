@@ -62,21 +62,6 @@ paths:
           description: Validation error
 ```
 
-## Documenting Gotchas
-
-```typescript
-/**
- * IMPORTANT: Must be called before first render.
- * If called after hydration, causes flash of unstyled content
- * because theme context isn't available during SSR.
- *
- * See ADR-003 for design rationale.
- */
-export function initializeTheme(theme: Theme): void {
-  // ...
-}
-```
-
 ## Verification
 
 - [ ] All public functions have parameter and return type documentation
