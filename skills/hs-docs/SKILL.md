@@ -1,6 +1,6 @@
 ---
 name: hs-docs
-description: Generates and maintains project documentation. Use when initializing docs structure, writing README, AGENTS.md, CHANGELOG, or ADRs. Use when documentation is missing, outdated, or needs standardization.
+description: Generates and maintains project documentation. Use when initializing docs structure, writing README, AGENTS.md, CHANGELOG, ADRs, or API docs. Use when documentation is missing, outdated, or needs standardization.
 ---
 
 # hs-docs: Project Documentation
@@ -16,17 +16,20 @@ Generate and maintain project documentation that serves both humans and agents. 
 - AGENTS.md needs creation or update
 - Shipping a feature that changes user-facing behavior (CHANGELOG)
 - Making architectural decisions (ADR)
+- Adding or changing a public API (API docs)
 - Documentation is stale or inconsistent with code
 
 **Don't use when**: Code is self-explanatory and no external-facing behavior changed.
 
 ## Document Types
 
-| Document | Purpose | Template |
+| Document | Purpose | Sub-skill |
 |---|---|---|
-| README.md | Project entry point for humans | [references/readme-template.md](references/readme-template.md) |
-| AGENTS.md | Project entry point for agents | [references/agents-md-template.md](references/agents-md-template.md) |
-| CHANGELOG.md | User-facing change history | [references/changelog-template.md](references/changelog-template.md) |
+| README.md | Project entry point for humans | [references/readme.md](references/readme.md) |
+| AGENTS.md | Project entry point for agents | [references/agents-md.md](references/agents-md.md) |
+| CHANGELOG.md | User-facing change history | [references/changelog.md](references/changelog.md) |
+| ADR | Architecture decision record | [references/adr.md](references/adr.md) |
+| API docs | Public API documentation | [references/api-docs.md](references/api-docs.md) |
 
 ## Process
 
@@ -38,76 +41,26 @@ Check what documentation exists:
 - README.md exists? Content adequate?
 - AGENTS.md exists? Up to date with code?
 - CHANGELOG.md exists? Last entry current?
-- docs/ directory structure present?
+- docs/adrs/ has ADRs for major decisions?
+- Public APIs documented?
 ```
 
-### Step 2: Generate or Update
+### Step 2: Route to Sub-skill
 
-For each document type, use the corresponding template from `references/`.
+Based on what's needed, read and follow the corresponding sub-skill in `references/`:
 
-**README.md** — The human entry point:
-- One-paragraph project description
-- Quick start (clone → install → run)
-- Commands table
-- Architecture overview
-- Contributing guide
-
-**AGENTS.md** — The agent entry point:
-- Must be a **map, not a manual** (under 150 lines)
-- Points to deeper sources of truth (docs/, specs, ADRs)
-- Lists skills, commands, and conventions
-- Provides progressive disclosure — agents start here, navigate deeper as needed
-
-**CHANGELOG.md** — Follows [Keep a Changelog](https://keepachangelog.com/) format:
-- Added / Changed / Deprecated / Removed / Fixed / Security
-- Newest entries first
-- Link each entry to PR or issue when possible
+- Missing or incomplete README → [references/readme.md](references/readme.md)
+- Missing or stale AGENTS.md → [references/agents-md.md](references/agents-md.md)
+- Shipping a feature → [references/changelog.md](references/changelog.md)
+- Making a technical decision → [references/adr.md](references/adr.md)
+- Adding or changing a public API → [references/api-docs.md](references/api-docs.md)
 
 ### Step 3: Validate
 
-- All documents follow their templates
+- All documents follow their sub-skill guidelines
 - No stale information contradicting current code
 - Links between documents are valid
 - AGENTS.md is under 150 lines
-
-## Inline Documentation Guidelines
-
-### Comment the *why*, not the *what*
-
-```typescript
-// BAD: Restates the code
-// Increment counter by 1
-counter += 1;
-
-// GOOD: Explains non-obvious intent
-// Sliding window rate limit — reset at window boundary,
-// not fixed schedule, to prevent burst attacks at edges
-if (now - windowStart > WINDOW_SIZE_MS) {
-  counter = 0;
-  windowStart = now;
-}
-```
-
-### Document Known Gotchas
-
-```typescript
-/**
- * IMPORTANT: Must be called before first render.
- * If called after hydration, causes flash of unstyled content
- * because theme context isn't available during SSR.
- *
- * See ADR-003 for design rationale.
- */
-export function initializeTheme(theme: Theme): void {
-  // ...
-}
-```
-
-### When NOT to Comment
-
-- Self-explanatory code
-- TODO for things you should just do now
-- Commented-out code (delete it, git has history)
 
 ## Common Rationalizations
 
@@ -117,7 +70,6 @@ export function initializeTheme(theme: Theme): void {
 | "We'll write docs when the API stabilizes" | APIs stabilize faster when you document them. The doc is the first test of the design. |
 | "Nobody reads docs" | Agents do. Future engineers do. Your 3-months-later self does. |
 | "ADRs are overhead" | A 10-minute ADR prevents a 2-hour debate about the same decision six months later. |
-| "Comments get outdated" | Comments on *why* are stable. Comments on *what* get outdated — only write the former. |
 
 ## Red Flags
 
@@ -125,7 +77,7 @@ export function initializeTheme(theme: Theme): void {
 - No AGENTS.md in a project using AI coding agents
 - AGENTS.md over 150 lines (it's a manual, not a map)
 - Architectural decisions with no written rationale
-- Commented-out code instead of deletion
+- Public APIs with no documentation or types
 - Documentation that restates code instead of explaining intent
 
 ## Verification
@@ -133,5 +85,7 @@ export function initializeTheme(theme: Theme): void {
 - [ ] README covers quick start, commands, and architecture
 - [ ] AGENTS.md exists, under 150 lines, points to deeper docs
 - [ ] CHANGELOG is up to date with recent changes
+- [ ] ADRs exist for significant architectural decisions
+- [ ] Public API functions have documentation
 - [ ] No stale documentation contradicting current code
 - [ ] All internal links are valid
