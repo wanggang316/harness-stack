@@ -1,4 +1,4 @@
-# Sub-skill: README.md
+# README.md
 
 The project entry point for humans. A developer should be able to clone, install, and run the project by reading only this file.
 

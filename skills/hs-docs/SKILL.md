@@ -23,7 +23,7 @@ Generate and maintain project documentation that serves both humans and agents. 
 
 ## Document Types
 
-| Document | Purpose | Sub-skill |
+| Document | Purpose | Guide |
 |---|---|---|
 | README.md | Project entry point for humans | [references/readme.md](references/readme.md) |
 | AGENTS.md | Project entry point for agents | [references/agents-md.md](references/agents-md.md) |
@@ -47,7 +47,7 @@ Check what documentation exists:
 
 ### Step 2: Route to Sub-skill
 
-Based on what's needed, read and follow the corresponding sub-skill in `references/`:
+Based on what's needed, read and follow the corresponding guide in `references/`:
 
 - Missing or incomplete README → [references/readme.md](references/readme.md)
 - Missing or stale AGENTS.md → [references/agents-md.md](references/agents-md.md)
@@ -57,7 +57,7 @@ Based on what's needed, read and follow the corresponding sub-skill in `referenc
 
 ### Step 3: Validate
 
-- All documents follow their sub-skill guidelines
+- All documents follow their guide guidelines
 - No stale information contradicting current code
 - Links between documents are valid
 - AGENTS.md is under 150 lines

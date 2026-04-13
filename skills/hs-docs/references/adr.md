@@ -1,4 +1,4 @@
-# Sub-skill: Architecture Decision Record (ADR)
+# Architecture Decision Record (ADR)
 
 ADRs capture the reasoning behind significant technical decisions. They're the highest-value documentation you can write — code shows *what* was built, ADRs explain *why it was built this way* and *what alternatives were rejected*.
 

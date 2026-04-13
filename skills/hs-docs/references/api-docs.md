@@ -1,4 +1,4 @@
-# Sub-skill: API Documentation
+# API Documentation
 
 Document public APIs so consumers (humans and agents) can use them without reading the implementation.
 

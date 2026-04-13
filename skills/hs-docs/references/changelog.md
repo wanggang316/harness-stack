@@ -1,4 +1,4 @@
-# Sub-skill: CHANGELOG.md
+# CHANGELOG.md
 
 User-facing change history following [Keep a Changelog](https://keepachangelog.com/) format.
 

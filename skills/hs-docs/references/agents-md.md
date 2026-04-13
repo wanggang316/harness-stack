@@ -1,4 +1,4 @@
-# Sub-skill: AGENTS.md
+# AGENTS.md
 
 The project entry point for AI agents. A map, not a manual — under 150 lines, pointing to deeper sources of truth.
 
