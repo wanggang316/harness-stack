@@ -17,6 +17,7 @@ Generate and maintain project documentation that serves both humans and agents. 
 - Shipping a feature that changes user-facing behavior (CHANGELOG)
 - Making architectural decisions (ADR)
 - Adding or changing a public API (API docs)
+- Establishing or updating project golden rules
 - Documentation is stale or inconsistent with code
 
 **Don't use when**: Code is self-explanatory and no external-facing behavior changed.
@@ -31,6 +32,7 @@ Generate and maintain project documentation that serves both humans and agents. 
 | CHANGELOG.md | User-facing change history | [references/changelog.md](references/changelog.md) |
 | ADR | Architecture decision record | [references/adr.md](references/adr.md) |
 | API docs | Public API documentation | [references/api-docs.md](references/api-docs.md) |
+| Golden Rules | Non-negotiable project principles | [references/golden-rules.md](references/golden-rules.md) |
 
 ## Process
 
@@ -45,6 +47,7 @@ Check what documentation exists:
 - CHANGELOG.md exists? Last entry current?
 - docs/adrs/ has ADRs for major decisions?
 - Public APIs documented?
+- Golden rules defined and enforced?
 ```
 
 ### Step 2: Route to Guide
@@ -57,6 +60,7 @@ Based on what's needed, read and follow the corresponding guide in `references/`
 - Shipping a feature → [references/changelog.md](references/changelog.md)
 - Making a technical decision → [references/adr.md](references/adr.md)
 - Adding or changing a public API → [references/api-docs.md](references/api-docs.md)
+- Establishing or updating golden rules → [references/golden-rules.md](references/golden-rules.md)
 
 ### Step 3: Validate
 
@@ -91,5 +95,6 @@ Based on what's needed, read and follow the corresponding guide in `references/`
 - [ ] CHANGELOG is up to date with recent changes
 - [ ] ADRs exist for significant architectural decisions
 - [ ] Public API functions have documentation
+- [ ] Golden rules defined with enforcement mechanisms
 - [ ] No stale documentation contradicting current code
 - [ ] All internal links are valid
