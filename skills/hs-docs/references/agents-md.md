@@ -20,7 +20,8 @@ The project entry point for AI agents. A map, not a manual — under 150 lines, 
 8. **List Build & Test Commands** — Full commands with comments
 9. **List Code Style & Conventions** — Key coding conventions, one per line
 10. **Validate length** — Must be under 150 lines. If over, move detail to docs/
-11. **Save** — Write to `AGENTS.md` in project root
+11. **Symlink CLAUDE.md** — Create `CLAUDE.md -> AGENTS.md` so Claude Code picks it up automatically
+12. **Save** — Write to `AGENTS.md` in project root
 
 ## Key Principles
 
@@ -128,4 +129,5 @@ npm run typecheck      # Type checking
 - [ ] Working conventions and boundaries defined
 - [ ] Build & test commands are complete
 - [ ] Code style conventions listed
+- [ ] CLAUDE.md is a symlink to AGENTS.md
 - [ ] No duplicated content — only pointers to deeper docs
