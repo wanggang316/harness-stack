@@ -130,6 +130,8 @@ Human: "Implement user login"
   ↓
 Agent: /hs-spec (write specification)
   ↓
+Agent: /hs-design (design document, if multiple approaches exist)
+  ↓
 Agent: /hs-plan (break into tasks, consult hs-architect)
   ↓
 Agent: /hs-build (incremental implementation)

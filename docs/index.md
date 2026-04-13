@@ -18,6 +18,7 @@ harness-stack 文档中心。
 | Phase | Skill | Link |
 |-------|-------|------|
 | Define | hs-spec | [SKILL.md](../skills/hs-spec/SKILL.md) |
+| Define | hs-design | [SKILL.md](../skills/hs-design/SKILL.md) |
 | Plan | hs-plan | [SKILL.md](../skills/hs-plan/SKILL.md) |
 | Build | hs-build | [SKILL.md](../skills/hs-build/SKILL.md) |
 | Build | hs-tdd | [SKILL.md](../skills/hs-tdd/SKILL.md) |

@@ -36,7 +36,8 @@ This initializes harness-stack in your project, creating the full structure.
 ### Lifecycle (Full development workflow)
 | Phase | Command | Description |
 |-------|---------|-------------|
-| Define | `/hs-spec` | Spec-driven development |
+| Define | `/hs-spec` | Product specification |
+| Define | `/hs-design` | Design document |
 | Plan | `/hs-plan` | Planning and task breakdown |
 | Build | `/hs-build` | Incremental implementation |
 | Build | `/hs-tdd` | Test-driven development |
