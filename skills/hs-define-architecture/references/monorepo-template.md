@@ -89,11 +89,14 @@ packages/config
 ## Technology Choices
 
 <!-- Key dependencies with purpose and rationale.
+     Scope distinguishes workspace-wide choices from per-app choices.
      Focus on WHY — "we chose X" without "because Y" is useless. -->
 
-| Technology | Purpose | Rationale |
-|---|---|---|
-| TypeScript | Language | Type safety, ecosystem, agent-friendly |
-| Turborepo | Build orchestration | Incremental builds, task caching |
-| pnpm | Package manager | Workspace support, disk efficiency |
+| Technology | Scope | Purpose | Rationale |
+|---|---|---|---|
+| TypeScript | all | Language | Type safety, ecosystem, agent-friendly |
+| Turborepo | workspace | Build orchestration | Incremental builds, task caching |
+| pnpm | workspace | Package manager | Workspace support, disk efficiency |
+| Next.js | apps/web | Web framework | <!-- why this app uses Next.js --> |
+| Fastify | apps/api | API framework | <!-- why this app uses Fastify --> |
 ```
