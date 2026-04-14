@@ -82,12 +82,20 @@ This is where architectural thinking happens. Don't just describe what exists �
 - What are the actual dependency directions? Are there violations?
 - Where are the boundaries clean? Where are they muddy?
 
+**For monorepo projects, also map the workspace structure:**
+- Which directories are apps (deployable units) and which are packages (shared libraries)?
+- What are the dependency directions between packages? Are there cycles?
+- Which packages are leaf packages (zero internal dependencies)?
+- How are shared types managed across packages?
+
 **Question everything:**
 
 - "These two domains share 15 types. Are they really separate domains, or one domain split artificially?"
 - "This layer depends on 3 other layers in both directions. That's not a layer — it's a tangle."
 - "You have a utils/ directory with 40 files. That's not a domain — it's a junk drawer. What would a clean decomposition look like?"
 - "This technology choice was made 2 years ago. Has the context changed? Should it be revisited?"
+- "apps/web and apps/admin share 80% of their code. Are they really separate apps, or one app with role-based views?"
+- "This package has only 2 exports and 1 consumer. Does it earn its existence as a separate package?"
 
 **Evaluate structural decisions:**
 - For each domain boundary: **why here and not elsewhere?**
@@ -114,6 +122,41 @@ Write the architecture document. Save to `docs/architecture.md`:
 
 <!-- One paragraph: what this system does and what architectural
      style it follows. Link to docs/product-spec.md for product context. -->
+
+## Workspace Topology
+
+<!-- Monorepo only. Skip for single-package projects.
+     Describes the package structure of the workspace — what each
+     package is, what it depends on, and the rules governing
+     cross-package imports. -->
+
+| Package | Type | Purpose | Internal Deps |
+|---|---|---|---|
+| apps/web | app | Next.js web application | @repo/ui, @repo/config |
+| apps/api | app | Express API server | @repo/db, @repo/shared-types |
+| packages/ui | lib | Shared React components | @repo/config |
+| packages/shared-types | lib | TypeScript type definitions | (leaf) |
+| packages/config | lib | Shared ESLint/TSConfig | (leaf) |
+
+### Package Dependency Graph
+
+\```
+packages/shared-types (leaf)
+packages/config (leaf)
+    │
+    ├── packages/ui
+    ├── packages/db
+    │
+    ├── apps/web
+    └── apps/api
+\```
+
+### Cross-Package Rules
+
+- apps/ → packages/ only (packages must never import from apps)
+- No circular dependencies between packages
+- Leaf packages must have zero internal dependencies
+- Package exports are contracts — breaking changes require updating all consumers first
 
 ## Domains
 
@@ -154,6 +197,13 @@ Dependencies flow left to right only.
 - No circular dependencies between domains
 - External services accessed only through adapters
 
+### Cross-Package Rules (monorepo only)
+
+- apps/ may import from packages/ (never reverse)
+- No circular dependencies between packages
+- Leaf packages (shared-types, config) must have zero internal deps
+- Within each package, apply the layer rules above
+
 ## Cross-Cutting Concerns
 
 <!-- Shared concerns that flow through multiple domains -->
@@ -170,6 +220,11 @@ Dependencies flow left to right only.
 
 - `src/index.ts` — Application entry, wires domains together
 - `src/api/` — HTTP route handlers
+
+<!-- For monorepo projects, each app has its own entry points: -->
+<!-- - `apps/web/src/app/` — Web application routes -->
+<!-- - `apps/api/src/index.ts` — API server entry -->
+<!-- - Build orchestration: turbo.json (or nx.json) -->
 
 ## Technology Choices
 
@@ -253,3 +308,6 @@ Architecture docs drift from reality. When the drift becomes significant:
 - [ ] Structural concerns raised and discussed with human
 - [ ] Human has reviewed and approved
 - [ ] Saved to `docs/architecture.md`
+- [ ] (Monorepo) Workspace Topology documented with package types and deps
+- [ ] (Monorepo) Cross-package dependency rules defined
+- [ ] (Monorepo) Leaf packages identified
