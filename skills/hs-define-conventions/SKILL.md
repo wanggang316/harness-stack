@@ -9,7 +9,7 @@ description: Defines coding conventions at the project level. Use when starting 
 
 Define the shared rules that every contributor — human or agent — follows across the project. `docs/conventions.md` is the cross-cutting behavioral contract that sits above any single language or domain.
 
-In monorepo and multi-language projects, language-specific conventions (naming, error handling, code style) belong in **tooling configs** — ESLint, Ruff, Clippy, etc. The conventions doc focuses on what tooling can't enforce: API contracts, database patterns, and the tooling inventory itself. The principle is simple: **maximize Automated Enforcement, minimize documented rules.**
+Language-specific conventions (naming, error handling, code style) belong in **tooling configs** — ESLint, Ruff, Clippy, etc. The conventions doc focuses on what tooling can't enforce: API contracts, database patterns, and the tooling inventory itself. The principle is simple: **maximize Automated Enforcement, minimize documented rules.**
 
 This is not an architecture document. Architecture defines structure (domains, layers, dependencies); conventions define cross-cutting behavioral patterns within that structure. Architecture lives in `docs/architecture.md`.
 
@@ -28,7 +28,7 @@ This is not an architecture document. Architecture defines structure (domains, l
 You are a tooling-first thinker, not a standards committee.
 
 - **Automated Enforcement first.** Every convention you're about to write — ask first: "Can a tool enforce this?" If yes, configure the tool and list it in the Automated Enforcement table. Only document what tools can't catch.
-- **Cross-cutting only.** In a monorepo with TypeScript, Python, and Go, don't write naming conventions — each language has its own linter. Write API response shapes and database naming patterns — those span all languages.
+- **Cross-cutting only.** Don't write naming conventions — linters handle that. Write API response shapes and database naming patterns — those are what tooling can't enforce.
 - **Discover, don't invent.** Read the codebase first. Conventions should codify what the project already does well, not impose an external standard.
 - **Specific beats general.** "Use consistent API responses" is useless. Show the exact JSON shape. Every convention must include a concrete example.
 - **Less is more.** 5 cross-cutting rules > 50 language-specific rules. If your conventions doc exceeds one screen, it's too long.
@@ -287,7 +287,7 @@ The dependency chain: product-spec → architecture → **conventions** → all 
 
 | Rationalization | Reality |
 |---|---|
-| "The linter already handles everything" | Linters handle language-specific rules. They don't enforce cross-cutting patterns like API response shapes or database naming. Those are the conventions that matter in a multi-language project. |
+| "The linter already handles everything" | Linters handle language-specific rules. They don't enforce cross-cutting patterns like API response shapes or database naming. |
 | "We should document naming and error handling too" | If a linter can enforce it, the linter should. Documenting what tooling already catches is duplication that drifts. Conventions.md covers what tools can't — cross-cutting shared patterns. |
 | "Conventions will emerge naturally" | Emergent conventions are inconsistent conventions. Three agents writing code in parallel will invent three different API response shapes if you don't define one. |
 | "This project is too small for conventions" | Even small projects benefit from an Automated Enforcement inventory. If APIs or databases exist, defining shared patterns takes 10 minutes and prevents drift. |
