@@ -21,8 +21,8 @@ harness-stack 文档中心。
 | Define | hs-define-architecture | [SKILL.md](../skills/hs-define-architecture/SKILL.md) |
 | Define | hs-spec | [SKILL.md](../skills/hs-spec/SKILL.md) |
 | Define | hs-design | [SKILL.md](../skills/hs-design/SKILL.md) |
-| Plan | hs-plan | [SKILL.md](../skills/hs-plan/SKILL.md) |
-| Build | hs-build | [SKILL.md](../skills/hs-build/SKILL.md) |
+| Plan | hs-planner | [SKILL.md](../skills/hs-planner/SKILL.md) |
+| Plan | hs-exec-plan | [SKILL.md](../skills/hs-exec-plan/SKILL.md) |
 | Build | hs-tdd | [SKILL.md](../skills/hs-tdd/SKILL.md) |
 | Verify | hs-debug | [SKILL.md](../skills/hs-debug/SKILL.md) |
 | Review | hs-review | [SKILL.md](../skills/hs-review/SKILL.md) |

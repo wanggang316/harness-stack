@@ -40,8 +40,8 @@ This initializes harness-stack in your project, creating the full structure.
 | Define | `/hs-define-architecture` | Architecture definition (global) |
 | Define | `/hs-spec` | Product specification (feature-level) |
 | Define | `/hs-design` | Design document (technical) |
-| Plan | `/hs-plan` | Planning and task breakdown |
-| Build | `/hs-build` | Incremental implementation |
+| Plan | `/hs-planner` | Create execution plans (ExecPlans) |
+| Plan | `/hs-exec-plan` | Execute an approved ExecPlan |
 | Build | `/hs-tdd` | Test-driven development |
 | Verify | `/hs-debug` | Debugging and error recovery |
 | Review | `/hs-review` | Code review and quality |
