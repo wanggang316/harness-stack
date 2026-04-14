@@ -107,57 +107,81 @@ Write the product definition. Save to `docs/product-spec.md`:
 
 **Last Updated:** [date]
 
-## Problem Statement
+## Product Overview
 
-<!-- What specific problem exists? Who has it? What's the impact?
-     Frame as pain, not solution. -->
+### Problem
+
+<!-- What pain do users face today? 2-3 sentences.
+     Frame as pain, not solution. "Users can't X" not "We provide Y." -->
+
+### Solution
+
+<!-- How does this product solve it? 2-3 sentences.
+     No technical implementation details — describe the experience. -->
 
 ## Target Users
 
-<!-- WHO is this for? Be specific — role, context, workflow.
-     What does their world look like today without this product? -->
+<!-- Be specific — not "developers" but "which developers, doing what." -->
 
-## Core Value Proposition
-
-<!-- WHY would someone use this? What changes in their world?
-     One paragraph. If you can't say it in one paragraph, you
-     don't understand it well enough. -->
+| Role | Scenario | Core Need |
+|---|---|---|
+| [role] | [when/where they use it] | [what they need from it] |
 
 ## Core Capabilities
 
-<!-- WHAT does the product do? List the core capabilities with
-     a one-line description of each. These are the things the
-     product MUST do to deliver its value proposition.
+| # | Capability | Description | Status | Maturity |
+|---|---|---|---|---|
+| C1 | [name] | [one-line description] | Active / Planned / Deprecated | Alpha / Beta / Stable |
 
-     For each capability, state:
-     - What it does
-     - Which user problem it addresses
-     - How it relates to other capabilities -->
+### Capability Dependencies
 
-## Capability Map
-
-<!-- HOW do capabilities relate to each other? Show the
-     relationships, dependencies, and user flow between
-     capabilities. Use a diagram if it helps clarity.
-
-     Which capabilities are foundational (others depend on them)?
+<!-- Show how capabilities depend on each other.
+     Use ASCII diagram or table. Which are foundational?
      Which are independent? Which compose together? -->
 
-## Scope Boundaries
+\```
+C1 (foundation)
+├── C2
+│   └── C4
+└── C3
+\```
+
+## Product Boundaries
 
 ### In Scope
 <!-- What the product does. Be specific. -->
 
 ### Out of Scope
 <!-- What the product explicitly does NOT do, and WHY.
-     This is the most valuable section. Every exclusion
-     should have a reason — "not our user," "future phase,"
-     "solved by existing tools," etc. -->
+     Every exclusion needs a reason — "not our user,"
+     "future phase," "solved by existing tools," etc. -->
 
-## Success Criteria
+### Future Consideration
+<!-- Things that are out of scope NOW but may be revisited.
+     Separate from permanent exclusions. -->
 
-<!-- How do we know this product is working? Not vanity metrics —
-     observable outcomes in the user's world. -->
+## Key Concepts
+
+<!-- Core domain terminology. Prevents miscommunication
+     between humans, agents, and across documents. -->
+
+| Term | Definition | Not to Be Confused With |
+|---|---|---|
+| [term] | [what it means in this product] | [common misinterpretation] |
+
+## Non-Functional Requirements
+
+| Category | Requirement | Target |
+|---|---|---|
+| Performance | [requirement] | [measurable target] |
+| Security | [requirement] | [measurable target] |
+| Availability | [requirement] | [measurable target] |
+
+## Success Metrics
+
+| Metric | Target | Current | Measurement |
+|---|---|---|---|
+| [metric] | [target value] | [current value or N/A] | [how to measure] |
 
 ## Open Questions
 
@@ -168,9 +192,11 @@ Write the product definition. Save to `docs/product-spec.md`:
 **Writing principles:**
 
 - Every capability must trace back to a user problem. If it doesn't, challenge it or cut it.
-- The Capability Map is what makes this more than a feature list — it shows how the product forms a coherent whole.
+- Capability Dependencies show how the product forms a coherent whole, not just a feature list.
 - Out of Scope entries without reasons are useless. Always state why.
-- If the Problem Statement and Value Proposition don't align, something is wrong. Stop and fix it.
+- Future Consideration separates "not now" from "never" — both matter.
+- Key Concepts prevent costly miscommunication across all downstream documents.
+- If the Problem and Solution don't align, something is wrong. Stop and fix it.
 
 ### Phase 4: Approve
 
@@ -179,10 +205,11 @@ Present the product definition for human review. This is a critical gate.
 ```
 PRODUCT DEFINITION READY FOR REVIEW:
 - Product: [name]
-- Target user: [one line]
-- Core capabilities: [count]
-- Explicitly excluded: [count]
-- Open questions: [count]
+- Target users: [count] roles defined
+- Core capabilities: [count] (Active/Planned)
+- Out of scope: [count] exclusions
+- Future consideration: [count] items
+- Open questions: [count] unresolved
 → This is the foundation for all feature specs and design docs.
    Approve, or tell me what to change.
 ```
@@ -219,10 +246,13 @@ The product definition is the root. Feature specs, architecture, and design docs
 
 - [ ] Fundamental questions answered (who, what problem, why, why now)
 - [ ] Assumptions surfaced and challenged
-- [ ] Target users are specific, not generic
+- [ ] Target users are specific with role, scenario, and core need
 - [ ] Every capability traces to a user problem
-- [ ] Capability relationships mapped
-- [ ] Out of Scope has entries with reasons
-- [ ] Problem Statement and Value Proposition align
+- [ ] Capability dependencies mapped
+- [ ] Product boundaries defined (in scope, out of scope with reasons, future consideration)
+- [ ] Key concepts defined to prevent miscommunication
+- [ ] Non-functional requirements have measurable targets
+- [ ] Success metrics defined with measurement approach
+- [ ] Problem and Solution align
 - [ ] Human has reviewed and approved
 - [ ] Saved to `docs/product-spec.md`
