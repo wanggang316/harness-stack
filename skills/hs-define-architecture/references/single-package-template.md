@@ -51,6 +51,16 @@ Dependencies flow left to right only.
 - No circular dependencies between domains
 - External services accessed only through adapters
 
+## Architectural Invariants
+
+<!-- Rules that don't appear in code. Write them down because
+     if someone violates them, the bug won't show up immediately
+     — the system will slowly rot. -->
+
+- <!-- e.g. All database access goes through the Repo layer — no direct SQL in services -->
+- <!-- e.g. External API calls must go through adapter modules, never called directly -->
+- <!-- e.g. Environment variables are read only at startup, never at request time -->
+
 ## Cross-Cutting Concerns
 
 <!-- Shared concerns that flow through multiple domains -->

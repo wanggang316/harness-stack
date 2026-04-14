@@ -1,8 +1,10 @@
 # Architecture Template: Monorepo Project
 
-Use this template for projects with multiple packages/apps in a single repository (Turborepo, Nx, pnpm workspaces, etc.).
+Use this template for projects with multiple packages/apps in a single repository.
 
-Uses a **top-down structure**: overall architecture first, then per-package details. Apps get full domain/layer/entry-point sections; shared packages get purpose + public API.
+Root ARCHITECTURE.md covers **workspace-level** concerns only — dependency direction, invariants, cross-cutting patterns. Per-package internals (domains, layers, entry points) belong in each package's own README.md.
+
+Inspired by [matklad's ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html): keep it short so it survives.
 
 Save to `docs/architecture.md`.
 
@@ -12,23 +14,39 @@ Save to `docs/architecture.md`.
 ## Overview
 
 <!-- One paragraph: what this system does, architectural style,
-     and why it's organized as a monorepo. -->
+     and why it's organized as a monorepo.
+     Link to docs/product-spec.md for product context. -->
 
-## Workspace Topology
+## Codemap
 
-| Package | Type | Purpose | Internal Deps |
-|---|---|---|---|
-| apps/web | app | Next.js web application | @repo/ui, @repo/config |
-| apps/api | app | Express API server | @repo/db, @repo/shared-types |
-| packages/ui | lib | Shared React components | @repo/config |
-| packages/shared-types | lib | TypeScript type definitions | (leaf) |
-| packages/config | lib | Shared ESLint/TSConfig | (leaf) |
+<!-- The heart of the document. Every package in one line.
+     After reading this section, a contributor should know
+     where to look for any piece of functionality. -->
 
-### Package Dependency Graph
+### Apps
+
+| Package | Purpose |
+|---|---|
+| `apps/web` | Next.js web application — user-facing dashboard |
+| `apps/api` | Express API server — REST endpoints for web and mobile |
+
+### Packages
+
+| Package | Purpose |
+|---|---|
+| `packages/ui` | Shared React component library |
+| `packages/db` | Database client and schema (Prisma) |
+| `packages/shared-types` | TypeScript type definitions shared across all packages |
+| `packages/config` | Shared ESLint, TSConfig, Tailwind configurations |
+
+## Dependency Direction
+
+<!-- The most important section. Who can import from whom
+     defines the architecture. Visualize it. -->
 
 \```
-packages/shared-types (leaf)
-packages/config (leaf)
+packages/shared-types
+packages/config
     │
     ├── packages/ui
     ├── packages/db
@@ -37,103 +55,45 @@ packages/config (leaf)
     └── apps/api
 \```
 
-### Cross-Package Rules
-
+**Rules:**
 - apps/ → packages/ only (packages must never import from apps)
 - No circular dependencies between packages
-- Leaf packages must have zero internal dependencies
+- Leaf packages (shared-types, config) must have zero internal dependencies
 - Package exports are contracts — breaking changes require updating all consumers first
+
+**Enforcement:**
+- <!-- How these rules are actually enforced:
+     ESLint boundaries plugin, TypeScript path restrictions,
+     CI checks, CODEOWNERS, etc. -->
+
+## Architectural Invariants
+
+<!-- Rules that don't appear in code. Write them down because
+     if someone violates them, the bug won't show up immediately
+     — the system will slowly rot. -->
+
+- <!-- e.g. All apps share a single database instance -->
+- <!-- e.g. Packages must not have runtime side effects at import time -->
+- <!-- e.g. All HTTP endpoints must pass through auth middleware -->
+- <!-- e.g. Shared types are the only cross-package contract — no shared runtime code -->
+
+## Cross-Cutting Concerns
+
+| Concern | Mechanism |
+|---|---|
+| Authentication | <!-- how it's shared across packages --> |
+| Logging | <!-- where the logger lives, how it's configured --> |
+| Error handling | <!-- shared error types, reporting --> |
+| Configuration | <!-- per-package .env, shared config package --> |
 
 ## Technology Choices
 
-<!-- Shared across the workspace -->
+<!-- Key dependencies with purpose and rationale.
+     Focus on WHY — "we chose X" without "because Y" is useless. -->
 
 | Technology | Purpose | Rationale |
 |---|---|---|
 | TypeScript | Language | Type safety, ecosystem, agent-friendly |
 | Turborepo | Build orchestration | Incremental builds, task caching |
 | pnpm | Package manager | Workspace support, disk efficiency |
-
-## Cross-Cutting Concerns
-
-<!-- Shared concerns that flow through multiple packages -->
-
-| Concern | Mechanism |
-|---|---|
-| Authentication | Middleware in apps/, shared types in packages/ |
-| Logging | Shared logger package, structured output |
-| Configuration | Per-package .env, shared config package for lint/tsconfig |
-
----
-
-<!-- Per-package architecture below. Each app gets full architecture
-     detail; shared packages get purpose + public API description. -->
-
-## apps/web
-
-### Domains
-
-| Domain | Purpose | Key Files |
-|---|---|---|
-| dashboard | Main user interface | apps/web/src/app/dashboard/ |
-| settings | User preferences | apps/web/src/app/settings/ |
-
-### Layers
-
-\```
-Types → Service → UI
-\```
-
-### Entry Points
-
-- `apps/web/src/app/layout.tsx` — Root layout
-- `apps/web/src/app/page.tsx` — Home page
-
-## apps/api
-
-### Domains
-
-| Domain | Purpose | Key Files |
-|---|---|---|
-| auth | Authentication and authorization | apps/api/src/auth/ |
-| tasks | Task management CRUD | apps/api/src/tasks/ |
-
-### Layers
-
-\```
-Types → Config → Repo → Service → Runtime
-\```
-
-### Dependency Rules
-
-- Runtime → Service → Repo → Types (one direction only)
-- External services accessed only through adapters
-
-### Entry Points
-
-- `apps/api/src/index.ts` — Server entry, wires domains together
-
-## packages/ui
-
-### Purpose
-
-Shared React component library used by apps/web and apps/admin.
-
-### Public API
-
-- Layout components (Sidebar, Header, PageContainer)
-- Form components (Input, Select, Button)
-- Data display (Table, Card, Badge)
-
-## packages/shared-types
-
-### Purpose
-
-TypeScript type definitions shared across all packages. Leaf package — no internal dependencies.
-
-### Public API
-
-- Domain types (User, Task, Team)
-- API request/response types
-- Shared enums and constants
 ```
