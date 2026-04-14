@@ -9,6 +9,8 @@ description: Creates design docs before coding. Use when the solution is ambiguo
 
 Write a design doc before implementing complex changes. Design docs document the high-level implementation strategy and key design decisions, with emphasis on the **trade-offs** considered. Our job is not to produce code, but to solve problems — design docs force clarity on the problem before committing to a solution.
 
+This is a serious document. It serves as the source of truth for why a system was designed the way it was, and as the most accessible entry point when engineers encounter an unfamiliar system.
+
 ## When to Use
 
 Answer these questions. If 3+ are "yes", write a design doc:
@@ -24,17 +26,29 @@ Answer these questions. If 3+ are "yes", write a design doc:
 ## Process
 
 ```
-CREATE ──→ REVIEW ──→ IMPLEMENT ──→ MAINTAIN
-  │           │          │             │
-  ▼           ▼          ▼             ▼
-Iterate     Wider      Update doc    Re-read
-with close  audience   as plans      after 1 year
-collaborators approves  meet reality
+RESEARCH ──→ DESIGN ──→ APPROVE ──→ UPDATE
+  │             │          │           │
+  ▼             ▼          ▼           ▼
+Load context  Propose    Human       Update doc
+Read code     complete   confirms    as plans
+Ask questions solution              meet reality
 ```
 
-### Phase 1: Create and Iterate
+### Phase 1: Research
 
-Write the doc and rapidly iterate with colleagues who know the problem space best. Clarifying questions and suggestions drive the doc to a first stable version.
+Before proposing anything, deeply understand the problem space. This phase is critical — a design built on shallow understanding produces shallow solutions.
+
+**Load context:**
+- Read the product spec if one exists (`docs/product-specs/`)
+- Read existing design docs for related systems (`docs/design-docs/`)
+- Read the architecture documentation
+- Load and read the relevant source code — understand how the system works today, not just how you think it works
+
+**Understand the constraints:**
+- What does the existing architecture look like? What are its invariants?
+- What are the performance, scalability, and security requirements?
+- What dependencies are involved — what does this depend on, and what depends on this?
+- What are the team's capabilities and the project's timeline constraints?
 
 **Surface assumptions immediately:**
 
@@ -46,12 +60,18 @@ ASSUMPTIONS I'M MAKING:
 → Correct me now or I'll proceed with these.
 ```
 
+**Ask clarifying questions.** Don't guess — if something is ambiguous, ask. Design docs built on wrong assumptions waste more time than the questions would have cost.
+
+### Phase 2: Design
+
+Propose a complete, actionable design. Think thoroughly — the human is relying on you to consider angles they may not have thought of. Iterate with the human on specifics until the design is solid.
+
 Write the design doc following this template. Save to `docs/design-docs/<name>.md`:
 
 ```markdown
 # Design Doc: [Title]
 
-**Status:** Draft | In Review | Approved | Implemented | Deprecated
+**Status:** Draft | Approved | Implemented | Deprecated
 **Author:** [name]
 **Date:** [date]
 
@@ -71,76 +91,102 @@ Write the design doc following this template. Save to `docs/design-docs/<name>.m
 
 ## Design
 
-<!-- Start with a high-level overview, then drill into details.
-     This is where trade-offs live — the most valuable part.
-     Explain WHY this solution best satisfies the stated goals. -->
+### Overview
 
-<!-- Include as needed:
-     - System context diagram (how this fits in the larger landscape)
-     - Component diagram (internal structure and boundaries)
-     - API sketches (relevant parts only, not full interface definitions)
-     - Data storage approach (trade-off relevant portions, not full schemas)
-     - Dependency directions and module boundaries -->
+<!-- High-level summary of the chosen approach. Start here so readers
+     can decide how deep to go. Explain WHY this approach best satisfies
+     the stated goals — this is where trade-offs live. -->
+
+### System Context Diagram
+
+<!-- How does this system fit in the larger technical landscape?
+     Show the system as a box within its surrounding environment —
+     external systems, users, data flows in and out. This lets readers
+     contextualize the design within what they already know.
+
+     Use ASCII diagrams:
+     ┌─────────┐     ┌─────────┐     ┌──────────┐
+     │  Client  │────→│   API   │────→│ Database │
+     └─────────┘     └─────────┘     └──────────┘  -->
+
+### API Design
+
+<!-- Sketch the APIs this system exposes or consumes. Focus on the parts
+     relevant to design trade-offs — do NOT copy-paste formal interface
+     definitions (verbose, unnecessary detail, quickly outdated).
+
+     Show: endpoints/methods, key parameters, response shapes,
+     error handling approach. -->
+
+### Data Storage
+
+<!-- How and in what form is data stored? Focus on trade-off relevant
+     portions, not complete schema definitions.
+
+     Cover: storage technology choice and why, key entities and
+     relationships, access patterns, migration strategy if applicable. -->
+
+### Component Boundaries
+
+<!-- Internal structure: what are the components, what is each
+     responsible for, and what is each NOT responsible for?
+
+     Define dependency directions (who can import from whom),
+     communication patterns (APIs, events, shared types),
+     and module boundaries. -->
 
 ## Alternatives Considered
 
 <!-- For each alternative: what trade-offs does it make, and how do
      those trade-offs compare to the chosen design? Be thorough about
      WHY alternatives were rejected — this is what prevents
-     re-litigating the decision later. -->
+     re-litigating the decision later.
+
+     Every rejected alternative needs a concrete reason,
+     not just "it didn't feel right." -->
 
 ## Cross-Cutting Concerns
 
-<!-- How does this design address: security, privacy, observability,
-     error handling, testing strategy, migration path, rollback plan?
+<!-- How does this design address concerns that span the system:
+     security, privacy, observability, error handling, testing strategy,
+     migration path, rollback plan.
      Only include concerns relevant to this design. -->
 
 ## Risks
 
-<!-- What could go wrong? Each risk needs a mitigation, not just a worry. -->
+<!-- What could go wrong? Each risk needs a mitigation strategy,
+     not just a worry. -->
 ```
+
+**Not every subsection is required for every design.** A small refactor may only need Overview + Component Boundaries. A new feature touching external systems may need all sections. Include what is relevant — but when in doubt, include it. Describe as thoroughly as needed to serve as actionable implementation guidance.
 
 **Writing principles:**
 
-- **Focus on trade-offs.** A design doc without trade-offs is an implementation manual — it misses the point. Given context (facts), goals (requirements), the doc should show why a particular solution best satisfies those goals.
-- **Keep it informal.** Design docs are not formal specifications. Write in whatever form makes the most sense for the problem.
-- **Length sweet spot:** 10-20 pages for major designs, 1-3 pages for incremental improvements. If it exceeds 20 pages, split into sub-problems.
+- **Focus on trade-offs.** A design doc without trade-offs is an implementation manual — it misses the point. Given context (facts) and goals (requirements), the doc should show why a particular solution best satisfies those goals.
 - **Sketch APIs, don't copy-paste.** Formal interface definitions are verbose, contain unnecessary detail, and become outdated. Focus on the parts relevant to design trade-offs.
 - **Code belongs in prototypes, not docs.** Design docs should rarely contain code. "I tried it out and it works" is a strong design argument — link to the prototype instead.
+- **Propose, don't defer.** Present a complete recommendation. If there are genuine open questions, list them explicitly — but don't leave the core design undecided for the human to fill in.
 
-### Phase 2: Review
+### Phase 3: Approve
 
-Share the doc with a wider audience than the original collaborators.
-
-**Lightweight review:** Send to team; discussion happens in document comments.
-**Heavyweight review:** Formal meeting where author presents to senior engineering audience.
-
-The primary value of review is catching issues early when changes are still cheap. Don't block on heavyweight reviews for every design — seek crucial feedback directly.
+Present the design doc for human review. Do NOT proceed to implementation until approved.
 
 ```
 DESIGN DOC READY FOR REVIEW:
 - Title: [name]
-- Trade-offs: [key trade-off in one line]
+- Key trade-off: [the central design trade-off in one line]
 - Alternatives considered: [count]
 - Cross-cutting concerns addressed: [list]
 → Approve, or tell me what to change.
 ```
 
-Do NOT start implementation until there is confidence that further reviews won't require major design changes.
+### Phase 4: Update
 
-### Phase 3: Implement and Update
-
-As plans meet reality, shortcomings and unaddressed requirements will surface. **Update the design doc** when this happens. Rule of thumb: if the system hasn't shipped, update the doc. If major changes happen post-ship, add an "Amendments" section linking to follow-up design docs.
+As plans meet reality during implementation, shortcomings and unaddressed requirements will surface. **Update the design doc** when this happens — keep the doc aligned with what was actually built. If major changes happen post-ship, add an "Amendments" section linking to follow-up design docs.
 
 With approved design doc, proceed to:
 - `/hs-plan` for task breakdown
 - `/hs-build` for implementation
-
-### Phase 4: Maintain
-
-Design docs drift from reality over time, but they remain the most accessible entry point for understanding why a system was built the way it was. When engineers encounter an unfamiliar system, their first question is often "Where is the design doc?"
-
-**Re-read your own design docs a year later.** What did you get right? Wrong? What would you decide differently today?
 
 ## Relationship to Other Skills
 
@@ -156,22 +202,24 @@ Design docs drift from reality over time, but they remain the most accessible en
 | "I'll document the design after I build it" | That's a postmortem, not a design doc. The value is in evaluating alternatives *before* committing. |
 | "Design docs are bureaucracy" | Re-implementing because you chose the wrong approach is the real bureaucracy. Design docs save money by avoiding coding rabbit holes. |
 | "There's only one way to do this" | If you can't name an alternative, you haven't explored the problem space. |
-| "Agile means no upfront design" | Agile isn't an excuse for not solving actually known problems correctly. Prototyping can be part of design doc creation. |
+| "I'll just start coding and see what works" | That's prototyping, not implementation. If you prototype first, document the findings in the design doc before committing to an approach. |
 
 ## Red Flags
 
 - Design doc that reads like an implementation manual — describes *how* without explaining *why* or what alternatives were considered
+- Proposing a design without having read the relevant source code
 - No Alternatives Considered section
 - Risks listed without mitigations
-- "Approved" status but no one outside the author actually reviewed it
+- "Approved" status but no human actually reviewed it
 - Design doc written after the code is already merged
-- Doc exceeds 20 pages without splitting into sub-problems
 
 ## Verification
 
+- [ ] Relevant source code and documentation read before designing
 - [ ] Context and Scope provide objective background facts
 - [ ] Goals and Non-Goals are explicitly separated
-- [ ] Design section focuses on trade-offs, not just implementation details
+- [ ] Design section includes trade-off analysis, not just implementation details
+- [ ] Design subsections included as appropriate (system context, API, data storage, component boundaries)
 - [ ] At least 2 alternatives considered with concrete rejection reasons
 - [ ] Cross-cutting concerns addressed (security, observability, etc.)
 - [ ] Risks identified with mitigations
