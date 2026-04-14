@@ -4,7 +4,11 @@ Use this skeleton when creating execution plans. Every section is required. Writ
 
 ---
 
-# [Short, action-oriented title]
+# ExecPlan: [Short, action-oriented title]
+
+**Status:** Draft | Approved | In Progress | Completed
+**Author:** [name]
+**Date:** [date]
 
 This is a living document. The Progress, Surprises & Discoveries, Decision Log, and Outcomes & Retrospective sections must be kept up to date as work proceeds.
 
