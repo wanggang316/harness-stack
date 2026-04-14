@@ -62,7 +62,7 @@ Copy all SKILL.md files from harness-stack into `skills/`:
 
 All skills are flat under `skills/hs-{name}/SKILL.md`:
 - hs-init, hs-check, hs-score, hs-skill-create, hs-docs (meta)
-- hs-spec, hs-design (define)
+- hs-define-product, hs-define-architecture, hs-spec, hs-design (define)
 - hs-plan (plan)
 - hs-build, hs-tdd (build)
 - hs-debug (verify)

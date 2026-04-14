@@ -28,7 +28,7 @@ Generates a quality scorecard measuring harness-stack completeness, documentatio
 ```
 Score each lifecycle phase (0-100):
 
-Define:  Has hs-spec? (+50) Has hs-design? (+50)
+Define:  Has hs-define-product? (+25) Has hs-define-architecture? (+25) Has hs-spec? (+25) Has hs-design? (+25)
 Plan:    Has hs-plan? (+100)
 Build:   Has hs-build? (+50) Has hs-tdd? (+50)
 Verify:  Has hs-debug? (+100)

@@ -152,7 +152,7 @@ SPEC READY FOR REVIEW:
 ```
 
 With approved spec, proceed to:
-- `/hs-design` for technical design decisions
+- `/hs-design` for technical design decisions (if multiple approaches exist)
 - `/hs-plan` for task breakdown
 - `/hs-build` for implementation
 

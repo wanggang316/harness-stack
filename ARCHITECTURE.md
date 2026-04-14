@@ -128,7 +128,11 @@ harness can improve itself using its own skills (hs-skill-create, hs-check).
 ```
 Human: "Implement user login"
   ↓
-Agent: /hs-spec (write specification, if product feature)
+Agent: /hs-define-product (product definition, if new product)
+  ↓
+Agent: /hs-define-architecture (architecture definition, if new system)
+  ↓
+Agent: /hs-spec (feature specification, if product feature)
   ↓
 Agent: /hs-design (design document, if multiple approaches exist)
   ↓

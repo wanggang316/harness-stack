@@ -14,9 +14,11 @@ Agent-first development framework implementing the harness methodology.
 
 ### Lifecycle Skills
 
-**Define** → Write specifications before code
-- `/hs-spec` - Product specification
-- `/hs-design` - Design document
+**Define** → Define product and architecture
+- `/hs-define-product` - Product definition (global)
+- `/hs-define-architecture` - Architecture definition (global)
+- `/hs-spec` - Product specification (feature-level)
+- `/hs-design` - Design document (technical)
 
 **Plan** → Break down work into tasks
 - `/hs-plan` - Planning and task breakdown

@@ -17,6 +17,8 @@ harness-stack 文档中心。
 ### Lifecycle Skills
 | Phase | Skill | Link |
 |-------|-------|------|
+| Define | hs-define-product | [SKILL.md](../skills/hs-define-product/SKILL.md) |
+| Define | hs-define-architecture | [SKILL.md](../skills/hs-define-architecture/SKILL.md) |
 | Define | hs-spec | [SKILL.md](../skills/hs-spec/SKILL.md) |
 | Define | hs-design | [SKILL.md](../skills/hs-design/SKILL.md) |
 | Plan | hs-plan | [SKILL.md](../skills/hs-plan/SKILL.md) |

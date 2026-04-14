@@ -1,6 +1,6 @@
 ---
 name: hs-docs
-description: Generates and maintains project documentation. Use when initializing docs structure, writing README, AGENTS.md, ARCHITECTURE.md, CHANGELOG, or API docs. Use when documentation is missing, outdated, or needs standardization.
+description: Generates and maintains project documentation. Use when initializing docs structure, writing README, AGENTS.md, CHANGELOG, or API docs. Use when documentation is missing, outdated, or needs standardization.
 ---
 
 # hs-docs: Project Documentation
@@ -27,7 +27,6 @@ Generate and maintain project documentation that serves both humans and agents. 
 |---|---|---|
 | README.md | Project entry point for humans | [references/readme.md](references/readme.md) |
 | AGENTS.md | Project entry point for agents | [references/agents-md.md](references/agents-md.md) |
-| ARCHITECTURE.md | System architecture and domain map | [references/architecture.md](references/architecture.md) |
 | CHANGELOG.md | User-facing change history | [references/changelog.md](references/changelog.md) |
 | API docs | Public API documentation | [references/api-docs.md](references/api-docs.md) |
 | Golden Rules | Non-negotiable project principles | [references/golden-rules.md](references/golden-rules.md) |
@@ -41,7 +40,6 @@ Check what documentation exists:
 ```
 - README.md exists? Content adequate?
 - AGENTS.md exists? Up to date with code?
-- ARCHITECTURE.md exists? Reflects current system?
 - CHANGELOG.md exists? Last entry current?
 - Public APIs documented?
 - Golden rules defined and enforced?
@@ -53,7 +51,6 @@ Based on what's needed, read and follow the corresponding guide in `references/`
 
 - Missing or incomplete README → [references/readme.md](references/readme.md)
 - Missing or stale AGENTS.md → [references/agents-md.md](references/agents-md.md)
-- Architecture overview missing or outdated → [references/architecture.md](references/architecture.md)
 - Shipping a feature → [references/changelog.md](references/changelog.md)
 - Adding or changing a public API → [references/api-docs.md](references/api-docs.md)
 - Establishing or updating golden rules → [references/golden-rules.md](references/golden-rules.md)
@@ -85,7 +82,6 @@ Based on what's needed, read and follow the corresponding guide in `references/`
 
 - [ ] README covers quick start, commands, and architecture
 - [ ] AGENTS.md exists, under 150 lines, points to deeper docs
-- [ ] ARCHITECTURE.md reflects current system structure
 - [ ] CHANGELOG is up to date with recent changes
 - [ ] Public API functions have documentation
 - [ ] Golden rules defined with enforcement mechanisms
