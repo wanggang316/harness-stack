@@ -70,7 +70,7 @@ Ship with confidence. The goal is not just to deploy — it's to deploy safely, 
 
 - [ ] README updated with any new setup requirements
 - [ ] API documentation current
-- [ ] ADRs written for any architectural decisions
+- [ ] Design docs written for significant decisions
 - [ ] Changelog updated
 - [ ] User-facing documentation updated (if applicable)
 

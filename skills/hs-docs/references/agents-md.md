@@ -86,7 +86,7 @@ See [Golden Rules](docs/golden-rules.md) for the complete list with rationale an
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | System architecture, domains, layers |
 | [docs/golden-rules.md](docs/golden-rules.md) | Enforced principles and conventions |
-| [docs/adrs/](docs/adrs/) | Architecture decision records |
+| [docs/design-docs/](docs/design-docs/) | Design documents |
 
 ## Working with This Repository
 

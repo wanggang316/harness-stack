@@ -95,7 +95,7 @@ Dependencies flow left to right only. UI can import Service, but Service cannot 
 
 - **Map, not manual** — Describe structure, not implementation details
 - **Dependency directions are the most important thing** — Who imports whom defines the architecture
-- **Link to ADRs** — ARCHITECTURE.md says *what the structure is*, ADRs say *why*
+- **Link to design docs** — ARCHITECTURE.md says *what the structure is*, design docs say *why*
 - **Keep it current** — Stale architecture docs are worse than none
 
 ## Verification
@@ -104,5 +104,5 @@ Dependencies flow left to right only. UI can import Service, but Service cannot 
 - [ ] Layers defined with dependency direction rules
 - [ ] Cross-cutting concerns documented
 - [ ] Entry points identified
-- [ ] Links to relevant ADRs
+- [ ] Links to relevant design docs
 - [ ] Reflects the actual current structure (not aspirational)
