@@ -11,7 +11,7 @@ Define the shared rules that every contributor — human or agent — follows ac
 
 In monorepo and multi-language projects, language-specific conventions (naming, error handling, code style) belong in **tooling configs** — ESLint, Ruff, Clippy, etc. The conventions doc focuses on what tooling can't enforce: API contracts, database patterns, and the tooling inventory itself. The principle is simple: **maximize Automated Enforcement, minimize documented rules.**
 
-This is not an architecture document. Architecture defines structure (domains, layers, dependencies); conventions define cross-cutting behavioral patterns within that structure. Architecture lives in `docs/architecture.md` (via `/hs-define-architecture`).
+This is not an architecture document. Architecture defines structure (domains, layers, dependencies); conventions define cross-cutting behavioral patterns within that structure. Architecture lives in `docs/architecture.md`.
 
 ## When to Use
 

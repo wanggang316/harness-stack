@@ -9,7 +9,7 @@ description: Defines the product at the global level. Use when starting a new pr
 
 Define what the product is at the global level. `docs/product-spec.md` is the single most important document in a project — it is the starting point for all design, planning, and implementation. It answers: who does this serve, what problem does it solve, what are its core capabilities, and what is explicitly out of scope.
 
-This is not a feature spec. Feature-level specs live in `docs/product-specs/` (via `/hs-spec`). This document defines the product itself — the frame within which all features exist.
+This is not a feature spec. Feature-level specs live in `docs/product-specs/`. This document defines the product itself — the frame within which all features exist.
 
 ## When to Use
 
