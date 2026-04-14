@@ -14,7 +14,9 @@ This is a living document. The Progress, Surprises & Discoveries, Decision Log, 
 
 ## Progress
 
-<!-- Track granular steps with checkboxes. Every stopping point must be documented here, even if it requires splitting a partially completed task into "done" vs "remaining". This section must always reflect the actual current state. Use timestamps to measure rates of progress. -->
+<!-- A flat status dashboard across all work. Every stopping point must be documented here, even if it requires splitting a partially completed item into "done" vs "remaining". This section must always reflect the actual current state. Use timestamps to measure rates of progress.
+
+This is the ONLY section that uses checklists. All other sections are prose. -->
 
 - [ ] Step description
 
@@ -28,9 +30,7 @@ This is a living document. The Progress, Surprises & Discoveries, Decision Log, 
 
 <!-- Record every key design decision made while working on the plan. -->
 
-- Decision: ...
-  Rationale: ...
-  Date: ...
+(None yet)
 
 ## Outcomes & Retrospective
 
@@ -40,45 +40,69 @@ This is a living document. The Progress, Surprises & Discoveries, Decision Log, 
 
 ## Context and Orientation
 
-<!-- Describe the current state relevant to this task as if the reader knows nothing. Name the key files and modules by full repository-relative path. Define any non-obvious term you will use. Do not refer to prior plans or conversations.
+<!-- Describe the current state relevant to this task. Reference related documents by path — do not duplicate their content.
 
-If touching multiple areas, include a short orientation paragraph that explains how those parts fit together so a novice can navigate confidently. -->
+Related documents:
+- Product spec: [path]
+- Design doc: [path, if exists]
+- Architecture doc: [path, if exists]
 
-## Milestones
+Key source files:
+- [path] — [what this file does and why it matters to this plan]
 
-<!-- Milestones are narrative, not bureaucracy. Introduce each with a brief paragraph that describes the scope, what will exist at the end that did not exist before, the commands to run, and the acceptance you expect to observe. Keep it readable as a story: goal, work, result, proof.
+Define any non-obvious term you will use. If touching multiple areas, include a short orientation paragraph that explains how those parts fit together so a reader can navigate confidently. -->
 
-Each milestone must be independently verifiable and incrementally implement the overall goal. -->
+## Plan of Work
+
+<!-- Describe, in prose, the sequence of edits and additions. For each edit, name the file and location (function, module) and what to insert or change. Keep it concrete and minimal.
+
+For complex plans, organize into milestones (see below). For simpler plans, a flat prose description is sufficient.
+
+Slice vertically, not horizontally: build one complete feature path at a time rather than all database, then all API, then all UI. -->
+
+<!-- OPTION A: Flat prose (for simpler plans)
+
+Describe the work as a narrative sequence. For each step, name the file, the function or module, and what changes. State what to verify after each step. -->
+
+<!-- OPTION B: Milestones (for complex plans)
+
+Milestones are narrative, not bureaucracy. Introduce each with a brief paragraph that describes the scope, what will exist at the end that did not exist before. Keep it readable as a story: goal, work, result, proof. Each milestone must be independently verifiable.
 
 ### Milestone 1: [Title]
 
-<!-- Describe scope in prose. What will exist at the end of this milestone that did not exist before? -->
+[Prose describing scope and what will exist at the end that did not exist before.]
 
-**Tasks:**
+[Describe each task: what to change, where, and why. State observable acceptance for this milestone.] -->
 
-<!-- Each task should be small enough to implement, test, and verify in a single focused session.
+## Concrete Steps
 
-For each task, describe:
-- What to change and where (file paths, functions, modules)
-- What the task accomplishes in terms of observable behavior
-- How to verify it works (commands to run, expected output) -->
-
-**Acceptance:** <!-- State what to run and what to observe to prove this milestone is complete. Be specific: "run X from directory Y and expect to see Z". -->
-
-### Milestone 2: [Title]
-
-...
+<!-- State the exact commands to run and where to run them (working directory). When a command generates output, show a short expected transcript so the reader can compare. This section must be updated as work proceeds. -->
 
 ## Validation and Acceptance
 
-<!-- Describe how to exercise the completed system and what to observe. Phrase acceptance as behavior with specific inputs and expected outputs. If tests are involved, state the exact commands and expected results. -->
+<!-- Describe how to exercise the completed system and what to observe. Phrase acceptance as behavior with specific inputs and expected outputs.
 
-## Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| [Risk] | [High/Med/Low] | [Strategy] |
+Example: "Run `npm test` from the project root and expect 42 passed. The new test `user.registration.test.ts` fails before this change and passes after." -->
 
 ## Idempotence and Recovery
 
 <!-- State whether steps can be repeated safely. If a step is risky, provide a safe retry or rollback path. Keep the environment clean after completion. -->
+
+## Artifacts and Notes
+
+<!-- Include the most important transcripts, diffs, or snippets as indented examples. Keep them concise and focused on what proves success. Prototyping results from the planning phase go here. -->
+
+## Interfaces and Dependencies
+
+<!-- Be prescriptive. Name the libraries, modules, and services to use and why. Specify the types, traits/interfaces, and function signatures that must exist at the end.
+
+Example:
+
+In src/auth/session.ts, define:
+
+    export interface SessionStore {
+      create(userId: string): Promise<Session>;
+      validate(token: string): Promise<Session | null>;
+      revoke(token: string): Promise<void>;
+    }
+-->

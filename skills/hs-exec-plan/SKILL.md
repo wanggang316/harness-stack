@@ -1,13 +1,13 @@
 ---
 name: hs-exec-plan
-description: Executes an ExecPlan by following milestones, implementing incrementally, and maintaining the plan as a living document. Use when you have an approved ExecPlan and need to implement it.
+description: Executes an ExecPlan by implementing incrementally and maintaining the plan as a living document. Use when you have an approved ExecPlan and need to implement it, or when resuming a partially completed plan.
 ---
 
 # hs-exec-plan: Plan Execution
 
 ## Overview
 
-Execute an approved ExecPlan by following its milestones in order, implementing each task incrementally, and maintaining the plan as a living document throughout. The plan is your single source of truth — read it, follow it, update it. Do not prompt the user for "next steps"; simply proceed to the next milestone.
+Execute an approved ExecPlan by following its Plan of Work, implementing each task incrementally, and maintaining the plan as a living document throughout. The plan is your source of truth — read it, follow it, update it. Do not prompt the user for "next steps"; simply proceed to the next task.
 
 ## When to Use
 
@@ -25,21 +25,21 @@ Read the ExecPlan in full. Check the Progress section to understand current stat
 
 Then load the context you need to execute well:
 
-1. **Read the code** the plan references — every file path mentioned in Context and Orientation and in the current milestone's tasks. Understand existing patterns and conventions before changing anything.
-2. **Read related docs** — if the plan references a spec, design doc, or architecture doc, read them. The plan is a summary; the source documents contain nuance the plan may have omitted.
+1. **Read the referenced docs** — the plan's Context and Orientation section lists paths to spec, design doc, and architecture doc. Read them. The plan is a routing guide; the source documents contain nuance the plan may have omitted.
+2. **Read the code** the plan references — every file path mentioned in Context and Orientation and in the current tasks. Understand existing patterns and conventions before changing anything.
 3. **Read the surrounding code** — when a task says "add a function to `src/auth/login.ts`", read that file and its neighbors. Understand how the module works, not just the line you're changing.
 
 A plan is a guide, not a substitute for understanding. If the plan says "add a validation function" but the codebase already has a validation pattern, follow the existing pattern even if the plan doesn't mention it.
 
-If resuming work from another session, the Progress section is your entry point. But still re-read the code relevant to the next milestone — don't assume prior sessions left everything as described.
+If resuming work from another session, the Progress section is your entry point. But still re-read the code relevant to the next task — don't assume prior sessions left everything as described.
 
-### Step 2: Execute Milestones
+### Step 2: Execute
 
-Work through milestones sequentially. For each milestone:
+Work through the Plan of Work sequentially (whether organized as milestones or flat prose). For each task:
 
-1. Read the milestone description, tasks, and acceptance criteria
-2. Implement tasks one at a time, in order
-3. After each task, verify it works (run tests, check build, manual verification)
+1. Read the task description and acceptance criteria
+2. Implement the smallest complete piece of functionality
+3. Verify it works (run tests, check build, manual verification)
 4. Commit the change with a descriptive message
 5. Update the Progress section immediately
 6. Move to the next task
@@ -48,43 +48,35 @@ Work through milestones sequentially. For each milestone:
 
 **Commit frequently.** Each task should result in at least one commit. Small commits are free; large commits hide bugs.
 
+If the plan uses milestones, validate milestone acceptance criteria before moving to the next milestone.
+
 ### Step 3: Maintain the Living Document
 
 The plan must be updated at every stopping point. This is not optional.
 
-**Progress** — Update after every task completion. If a task is partially done, split it into "completed" and "remaining" entries. Add timestamps.
-
-```markdown
-- [x] (2025-04-14) Created user schema and migration
-- [x] (2025-04-14) Implemented registration API endpoint
-- [ ] Registration UI (completed: form component; remaining: validation, error states)
-- [ ] Login flow
-```
+**Progress** — Update after every task. If a task is partially done, split it into "completed" and "remaining" entries. Add timestamps. This is a flat dashboard across all work — the reader should see the full picture at a glance.
 
 **Surprises & Discoveries** — When you encounter unexpected behavior, performance tradeoffs, bugs, or insights that shaped your approach, record them with evidence.
 
-```markdown
-- Observation: SQLite doesn't support concurrent writes; queue needed
-  Evidence: Test `user.concurrent-create` deadlocks after 3 parallel inserts
-```
-
 **Decision Log** — When you make a choice not prescribed by the plan, record it with rationale.
 
-```markdown
-- Decision: Used bcrypt instead of argon2 for password hashing
-  Rationale: argon2 requires native compilation; bcrypt is pure JS and sufficient for MVP
-  Date: 2025-04-14
-```
+**Outcomes & Retrospective** — At milestone completion (or after significant progress on flat plans), summarize what was achieved, what remains, and lessons learned.
 
-**Outcomes & Retrospective** — At milestone completion, summarize what was achieved, what remains, and lessons learned. Compare the result against the milestone's stated purpose.
+**Artifacts and Notes** — When your work produces terminal output, diffs, or logs that prove success, capture them here.
 
-### Step 4: Validate Milestone Completion
+### Step 4: Revise the Plan When Needed
 
-Before moving to the next milestone, run the acceptance criteria stated in the plan. The milestone is not done until acceptance passes. If it doesn't pass, debug and fix before proceeding.
+Plans meet reality. When you discover the plan is wrong, incomplete, or needs adjustment:
+
+1. **Minor adjustments** — Fix inline, record in Decision Log, keep moving
+2. **Significant changes** — Update all affected sections (Plan of Work, Concrete Steps, Interfaces, Progress), record in Decision Log with full rationale, then continue
+3. **Fundamental rethink** — Stop, present the issue to the human, propose the revision, wait for approval before continuing
+
+When you revise, ensure changes are reflected across ALL sections. Write a note at the bottom of the plan describing the change and the reason why. The plan must remain coherent after every revision — it should always be possible to restart from only the plan.
 
 ### Step 5: Complete the Plan
 
-After all milestones are done:
+After all work is done:
 
 1. Run the final Validation and Acceptance criteria from the plan
 2. Write the final Outcomes & Retrospective entry
@@ -92,20 +84,6 @@ After all milestones are done:
 4. Commit the updated plan
 
 ## Implementation Discipline
-
-### Increment Cycle
-
-For each task within a milestone:
-
-```
-Implement ──→ Test ──→ Verify ──→ Commit ──→ Update Progress
-```
-
-1. **Implement** the smallest complete piece of functionality
-2. **Test** — run the test suite, or write a test if none exists
-3. **Verify** — confirm the change works as expected (tests pass, build succeeds, manual check)
-4. **Commit** — save your progress with a descriptive message
-5. **Update Progress** — mark the task as done in the plan
 
 ### Simplicity First
 
@@ -149,6 +127,7 @@ Each task should be independently revertable. Prefer additive changes. Avoid del
 | "It's faster to do it all at once" | It feels faster until something breaks and you can't find which of 500 changed lines caused it. |
 | "These changes are too small to commit separately" | Small commits are free. Large commits hide bugs and make rollbacks painful. |
 | "The plan is wrong, I'll just do it my way" | Update the plan first, then implement. The plan is the source of truth for the next session. |
+| "This revision is too small to document" | Every revision gets a Decision Log entry. The next agent needs to know why the plan changed. |
 
 ## Red Flags
 
@@ -156,18 +135,19 @@ Each task should be independently revertable. Prefer additive changes. Avoid del
 - Progress section not updated after completing tasks
 - Surprises encountered but not recorded
 - Decisions made but not logged
+- Plan revised without updating all affected sections
 - Multiple unrelated changes in a single commit
 - Build or tests broken between tasks
 - Large uncommitted changes accumulating
-- Skipping milestone acceptance criteria
-- Proceeding to next milestone before current one passes acceptance
+- Skipping acceptance criteria
+- Following the plan blindly without reading the actual code
 
 ## Verification
 
 After completing the full plan:
 
-- [ ] All milestones pass their stated acceptance criteria
-- [ ] Final Validation and Acceptance from the plan passes
+- [ ] All acceptance criteria from the plan pass
+- [ ] Final Validation and Acceptance passes
 - [ ] Progress section reflects actual state with timestamps
 - [ ] Surprises & Discoveries captures non-obvious findings
 - [ ] Decision Log records all choices not prescribed by the plan
