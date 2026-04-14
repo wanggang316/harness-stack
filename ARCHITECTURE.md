@@ -55,8 +55,8 @@ harness-stack implements the **harness methodology** from OpenAI's Codex team. I
 Skills organized by development lifecycle:
 
 1. **Define** - Write specs before code
-2. **Plan** - Break work into tasks
-3. **Build** - Implement incrementally
+2. **Plan** - Create and execute plans
+3. **Build** - Test-driven development
 4. **Verify** - Debug and test
 5. **Review** - Ensure quality
 6. **Ship** - Deploy and release
@@ -136,9 +136,9 @@ Agent: /hs-spec (feature specification, if product feature)
   ↓
 Agent: /hs-design (design document, if multiple approaches exist)
   ↓
-Agent: /hs-plan (break into tasks, consult hs-architect)
+Agent: /hs-planner (create execution plan)
   ↓
-Agent: /hs-build (incremental implementation)
+Agent: /hs-exec-plan (execute the plan incrementally)
   ↓
 Agent: /hs-tdd (write tests)
   ↓

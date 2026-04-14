@@ -21,11 +21,9 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-design` - Design document (technical)
 - `/hs-ui-design` - UI design system (DESIGN.md)
 
-**Plan** → Break down work into tasks
-- `/hs-plan` - Planning and task breakdown
-
-**Build** → Implement incrementally
-- `/hs-build` - Incremental implementation
+**Plan** → Create and execute plans
+- `/hs-planner` - Create execution plans (ExecPlans)
+- `/hs-exec-plan` - Execute an approved ExecPlan
 - `/hs-tdd` - Test-driven development
 
 **Verify** → Debug and test
@@ -60,8 +58,8 @@ When you need expert judgment:
 
 1. Initialize: `/hs-init` in your project
 2. Write spec: `/hs-spec` for new features
-3. Plan work: `/hs-plan` to break down tasks
-4. Build: `/hs-build` with incremental implementation
+3. Plan work: `/hs-planner` to create execution plan
+4. Build: `/hs-exec-plan` to execute the plan
 5. Review: `/hs-review` before merging
 6. Ship: `/hs-ship` to deploy
 

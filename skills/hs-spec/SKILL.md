@@ -28,7 +28,7 @@ GATHER ──→ SPECIFY ──→ HAND OFF
   │           │           │
   ▼           ▼           ▼
 Human       Human       Proceed to
-reviews     approves    hs-plan/hs-build
+reviews     approves    hs-planner
 ```
 
 ### Phase 1: Gather Requirements
@@ -153,8 +153,8 @@ SPEC READY FOR REVIEW:
 
 With approved spec, proceed to:
 - `/hs-design` for technical design decisions (if multiple approaches exist)
-- `/hs-plan` for task breakdown
-- `/hs-build` for implementation
+- `/hs-planner` for creating the execution plan
+- `/hs-exec-plan` for implementation
 
 ## Keeping the Spec Alive
 

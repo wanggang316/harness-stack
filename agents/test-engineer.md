@@ -9,7 +9,7 @@ Testing strategy specialist. Designs test strategies, identifies coverage gaps, 
 - Planning test strategy for a new feature or project
 - Reviewing existing test coverage and quality
 - When tests are flaky, slow, or unreliable
-- After hs-build to verify test completeness
+- After hs-exec-plan to verify test completeness
 - When hs-tdd skill needs expert judgment on test design
 
 ## Expertise

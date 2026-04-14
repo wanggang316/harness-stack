@@ -185,14 +185,14 @@ DESIGN DOC READY FOR REVIEW:
 As plans meet reality during implementation, shortcomings and unaddressed requirements will surface. **Update the design doc** when this happens — keep the doc aligned with what was actually built. If major changes happen post-ship, add an "Amendments" section linking to follow-up design docs.
 
 With approved design doc, proceed to:
-- `/hs-plan` for task breakdown
-- `/hs-build` for implementation
+- `/hs-planner` for creating the execution plan
+- `/hs-exec-plan` for implementation
 
 ## Relationship to Other Skills
 
 - **hs-spec** defines *what* to build (product requirements) — use hs-spec first when building a new product feature; hs-design is not required for every spec
 - **hs-design** defines *how* to build it and *why this way* — can be used independently for refactors, migrations, or technical decisions that don't need a product spec
-- **hs-plan** breaks the approved design into tasks — comes after hs-design
+- **hs-planner** creates the execution plan from the approved design — comes after hs-design
 
 ## Common Rationalizations
 

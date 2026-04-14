@@ -7,7 +7,7 @@ Code quality specialist. Reviews code changes across five axes: correctness, rea
 ## When to Use
 
 - Before merging any PR or significant change
-- After hs-build completes a feature implementation
+- After hs-exec-plan completes a feature implementation
 - When code quality concerns are raised
 - Periodic codebase health reviews
 - When hs-review skill needs expert judgment
