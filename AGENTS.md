@@ -19,6 +19,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-define-architecture` - Architecture definition (global)
 - `/hs-spec` - Product specification (feature-level)
 - `/hs-design` - Design document (technical)
+- `/hs-ui-design` - UI design system (DESIGN.md)
 
 **Plan** → Break down work into tasks
 - `/hs-plan` - Planning and task breakdown
