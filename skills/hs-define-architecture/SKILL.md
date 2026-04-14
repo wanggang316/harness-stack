@@ -40,22 +40,30 @@ You are an architect, not a documenter. Your job is to make structural decisions
 UNDERSTAND ──→ ANALYZE ──→ DEFINE ──→ APPROVE
   │               │           │          │
   ▼               ▼           ▼          ▼
-Read codebase   Question    Write       Human
-Read product    structure   architecture confirms
-Load context    and choices .md
+Read product    Design or   Write       Human
+Determine       evaluate    architecture confirms
+mode            structure   .md
 ```
 
 ### Phase 1: Understand
 
-Before proposing any architecture, deeply understand what exists and why.
+**Read the product spec:**
+- `docs/product-spec.md` is the primary input — architecture serves the product, not the reverse
 
-**Load context:**
-- Read `docs/product-spec.md` — architecture serves the product, not the reverse
-- Read existing `docs/architecture.md` if it exists
-- Read design docs in `docs/design-docs/` for historical context
-- **Read the actual codebase** — scan directory structure, key files, import patterns, configuration. Understand the real structure, not the aspirational one.
+**Determine mode** by checking whether `docs/architecture.md` exists:
 
-**Understand the forces at play:**
+**No architecture.md → new project.** Design the architecture from scratch.
+- If code already exists, scan directory structure, key files, import patterns, configuration
+- If no code exists, work entirely from the product spec and constraints
+- Proceed to Phase 2
+
+**Has architecture.md → infer intent.** Read the existing doc, then infer what the user wants from their request and surrounding context:
+- **Full redesign** — system structure changed fundamentally. Load: full codebase scan, design docs in `docs/design-docs/`
+- **Section update** — new domain added, tech choice changed, post-refactor sync. Load: relevant portions of codebase that changed
+
+Confirm your interpretation with the user before proceeding.
+
+**Understand constraints:**
 - What are the product's core capabilities? (from `docs/product-spec.md`)
 - What are the performance, scalability, and reliability requirements?
 - What is the team's expertise and capacity?
@@ -74,113 +82,61 @@ ASSUMPTIONS I'M MAKING:
 
 ### Phase 2: Analyze
 
-This is where architectural thinking happens. Don't just describe what exists — evaluate whether it's right.
+**New project — design the structure:**
 
-**Map the current structure:**
-- What are the actual domains? (not what they should be — what they are)
-- What are the actual layers within each domain?
-- What are the actual dependency directions? Are there violations?
-- Where are the boundaries clean? Where are they muddy?
+From the product spec and constraints, propose the architecture:
+- Domain decomposition — what are the natural boundaries based on product capabilities?
+- Layers and dependency direction — what layers does each domain need? What's the dependency rule?
+- Technology choices — what fits the requirements, team expertise, and constraints?
+- For monorepo: what's an app (deployable) vs a package (shared library)? What are the dependency directions between packages?
 
-**Question everything:**
+Present recommendations with trade-offs:
 
+```
+PROPOSED ARCHITECTURE:
+1. Three domains: auth, tasks, billing — boundaries follow product capabilities
+2. Four layers: Types → Repo → Service → Runtime — strict left-to-right dependency
+3. PostgreSQL — ACID compliance, relational model fits domain
+→ Feedback before I write the doc?
+```
+
+**Existing project — evaluate the structure:**
+
+Map what actually exists against what should be:
+- What are the actual domains, layers, and dependency directions? Are there violations?
+- Where are boundaries clean? Where are they muddy?
+- For monorepo: are there dependency cycles between packages? Do all packages earn their existence?
+
+Question structural decisions:
 - "These two domains share 15 types. Are they really separate domains, or one domain split artificially?"
 - "This layer depends on 3 other layers in both directions. That's not a layer — it's a tangle."
-- "You have a utils/ directory with 40 files. That's not a domain — it's a junk drawer. What would a clean decomposition look like?"
-- "This technology choice was made 2 years ago. Has the context changed? Should it be revisited?"
+- "You have a utils/ directory with 40 files. That's not a domain — it's a junk drawer."
+- "This technology choice was made 2 years ago. Has the context changed?"
+- "apps/web and apps/admin share 80% of their code. Are they really separate apps?"
+- "This package has only 2 exports and 1 consumer. Does it earn its existence?"
 
-**Evaluate structural decisions:**
-- For each domain boundary: **why here and not elsewhere?**
-- For each layer: **what does it own that no other layer owns?**
-- For each dependency direction: **would reversing it be simpler?**
-- For each technology choice: **what trade-offs did this introduce?**
+Present structural concerns:
 
 ```
 STRUCTURAL CONCERNS:
 1. Domain [X] and [Y] have high coupling — 12 shared types, 8 cross-domain calls. Should they merge?
 2. The "service" layer has both HTTP handlers and business logic. That's two responsibilities.
-3. There's no clear boundary between config and runtime — config is loaded lazily throughout the codebase.
+3. There's no clear boundary between config and runtime — config is loaded lazily throughout.
 → How do you want to address these?
 ```
 
 ### Phase 3: Define
 
-Write the architecture document. Save to `docs/architecture.md`:
+Write the architecture document. Save to `docs/architecture.md`.
 
-```markdown
-# Architecture
+Choose the template that matches the project structure, read it, and follow it:
 
-## Overview
-
-<!-- One paragraph: what this system does and what architectural
-     style it follows. Link to docs/product-spec.md for product context. -->
-
-## Domains
-
-<!-- Major areas of the codebase. Each domain has a clear boundary,
-     a single responsibility, and a reason for existing separately. -->
-
-| Domain | Purpose | Key Files |
-|---|---|---|
-| auth | Authentication and authorization | src/auth/ |
-| tasks | Task management CRUD | src/tasks/ |
-
-## Layers
-
-<!-- Layers within each domain, with strict dependency direction.
-     Show the direction visually — this is the most important
-     part of the architecture. -->
-
-\```
-Types → Config → Repo → Service → Runtime → UI
-\```
-
-- **Types** — Data shapes, interfaces, enums
-- **Config** — Domain-specific configuration
-- **Repo** — Data access (database queries)
-- **Service** — Business logic
-- **Runtime** — HTTP handlers, queue consumers
-- **UI** — Components, pages
-
-Dependencies flow left to right only.
-
-## Dependency Rules
-
-<!-- Explicit rules about who can import from whom.
-     These rules are the architecture. -->
-
-- UI → Service → Repo → Types (one direction only)
-- Shared types can be imported by any layer
-- No circular dependencies between domains
-- External services accessed only through adapters
-
-## Cross-Cutting Concerns
-
-<!-- Shared concerns that flow through multiple domains -->
-
-| Concern | Mechanism |
+| Project Type | Template |
 |---|---|
-| Authentication | Middleware, injected via context |
-| Logging | Structured logger, passed through providers |
-| Configuration | Environment-based, loaded at startup |
+| Single-package | [references/single-package-template.md](references/single-package-template.md) |
+| Monorepo | [references/monorepo-template.md](references/monorepo-template.md) |
 
-## Entry Points
-
-<!-- Where does execution start? Key files that wire everything together -->
-
-- `src/index.ts` — Application entry, wires domains together
-- `src/api/` — HTTP route handlers
-
-## Technology Choices
-
-<!-- Key dependencies with purpose and rationale. Focus on WHY
-     this technology was chosen over alternatives. -->
-
-| Technology | Purpose | Rationale |
-|---|---|---|
-| TypeScript | Language | Type safety, ecosystem, agent-friendly |
-| PostgreSQL | Database | ACID compliance, relational model fits domain |
-```
+The monorepo template covers **workspace-level** concerns only (codemap, dependency direction, invariants). Per-package internals belong in `docs/design-docs/`.
 
 **Writing principles:**
 
@@ -189,6 +145,8 @@ Dependencies flow left to right only.
 - **Every domain needs a reason to exist separately.** "It felt like a separate thing" is not a reason.
 - **Technology Choices must include rationale.** "We chose X" without "because Y" is useless.
 - **Describe what IS, not what should be.** If the architecture has warts, document them. Aspirational architecture belongs in design docs.
+- **Document architectural invariants.** Rules that don't appear in code are the most important to write down — if violated, bugs won't show up immediately but the system will rot.
+- **Monorepo root doc stays at workspace level.** Codemap, dependency direction, invariants, cross-cutting concerns. Per-package architecture (domains, layers, entry points) lives in `docs/design-docs/`.
 
 ### Phase 4: Approve
 
@@ -238,12 +196,15 @@ Architecture docs drift from reality. When the drift becomes significant:
 - Circular dependencies between domains
 - Architecture doc that describes aspirational state, not actual state
 - Technology choices without rationale
-- Architecture defined without reading the actual codebase
+- Architecture defined without reading the product spec
+- Monorepo root doc containing per-package internals (domains, layers) instead of deferring to `docs/design-docs/`
+- No architectural invariants documented
 
 ## Verification
 
-- [ ] Product definition read before defining architecture
-- [ ] Actual codebase scanned — structure reflects reality, not aspiration
+- [ ] Product spec read before defining architecture
+- [ ] Mode determined: new project (no architecture.md) or update (exists, intent confirmed)
+- [ ] (Existing project) Actual codebase scanned — structure reflects reality, not aspiration
 - [ ] Domains listed with purpose, boundary, and key files
 - [ ] Layers defined with explicit dependency direction rules
 - [ ] Dependency rules documented and visualized
@@ -253,3 +214,7 @@ Architecture docs drift from reality. When the drift becomes significant:
 - [ ] Structural concerns raised and discussed with human
 - [ ] Human has reviewed and approved
 - [ ] Saved to `docs/architecture.md`
+- [ ] Architectural invariants documented (rules not visible in code)
+- [ ] (Monorepo) Codemap lists all packages with purpose
+- [ ] (Monorepo) Dependency direction visualized with enforcement mechanism
+- [ ] (Monorepo) Root doc stays at workspace level — per-package internals in `docs/design-docs/`
