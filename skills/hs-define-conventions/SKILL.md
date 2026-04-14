@@ -7,11 +7,11 @@ description: Defines coding conventions at the project level. Use when starting 
 
 ## Overview
 
-Define the shared rules that every contributor — human or agent — follows across the project. `docs/conventions.md` is the cross-cutting behavioral contract that sits above any single language or domain.
+Define the shared rules that every contributor — human or agent — follows across the project. `docs/conventions.md` documents what tooling enforces and what patterns (API, database, etc.) tooling can't enforce.
 
 Language-specific conventions (naming, error handling, code style) belong in **tooling configs** — ESLint, Ruff, Clippy, etc. The conventions doc focuses on what tooling can't enforce: API contracts, database patterns, and the tooling inventory itself. The principle is simple: **maximize Automated Enforcement, minimize documented rules.**
 
-This is not an architecture document. Architecture defines structure (domains, layers, dependencies); conventions define cross-cutting behavioral patterns within that structure. Architecture lives in `docs/architecture.md`.
+This is not an architecture document. Architecture defines structure (domains, layers, dependencies). Conventions define shared patterns like API contracts and database naming. Architecture lives in `docs/architecture.md`.
 
 ## When to Use
 
@@ -28,10 +28,10 @@ This is not an architecture document. Architecture defines structure (domains, l
 You are a tooling-first thinker, not a standards committee.
 
 - **Automated Enforcement first.** Every convention you're about to write — ask first: "Can a tool enforce this?" If yes, configure the tool and list it in the Automated Enforcement table. Only document what tools can't catch.
-- **Cross-cutting only.** Don't write naming conventions — linters handle that. Write API response shapes and database naming patterns — those are what tooling can't enforce.
+- **Only what tools can't enforce.** Don't write naming conventions — linters handle that. Write API response shapes and database naming patterns.
 - **Discover, don't invent.** Read the codebase first. Conventions should codify what the project already does well, not impose an external standard.
 - **Specific beats general.** "Use consistent API responses" is useless. Show the exact JSON shape. Every convention must include a concrete example.
-- **Less is more.** 5 cross-cutting rules > 50 language-specific rules. If your conventions doc exceeds one screen, it's too long.
+- **Less is more.** 5 shared rules > 50 language-specific rules. If your conventions doc exceeds one screen, it's too long.
 - **Agent-readable is the bar.** A convention is good enough when an agent can follow it without asking a human for clarification.
 
 ## Process
@@ -71,9 +71,9 @@ Tooling configs to check:
 
 List what these tools already enforce. These go into the Automated Enforcement section — not into conventions prose.
 
-**Sample cross-cutting patterns:**
+**Sample API and database patterns:**
 
-Focus on patterns that span multiple languages/domains — these are the only things worth documenting:
+Focus on patterns that tooling can't enforce:
 
 1. **API patterns** (if applicable) — Read 3-5 API route handlers across different domains. Check: response shapes, error response format, validation approach, authentication pattern.
 2. **Database patterns** (if applicable) — Read schema files or migration files. Check: table naming, column naming, index conventions, relationship patterns.
@@ -128,7 +128,7 @@ This is the most critical phase. Do not skip it.
 
 **Challenge over-specification:**
 - "This convention is language-specific. It belongs in the linter config, not in conventions.md."
-- "You have 3 files that use this pattern. Is it really a project-wide cross-cutting convention?"
+- "You have 3 files that use this pattern. Is it really a project-wide convention?"
 
 **Challenge under-specification:**
 - "API responses use different shapes across domains. This will confuse consumers and agents."
@@ -138,10 +138,10 @@ This is the most critical phase. Do not skip it.
 - Naming, formatting, imports, error handling patterns → linter/formatter configs
 - Only conventions that span multiple languages or that tools can't enforce belong here
 
-**Confirm which cross-cutting sections apply:**
+**Confirm which sections apply:**
 
 ```
-CROSS-CUTTING CONVENTIONS FOR YOUR PROJECT:
+CONVENTIONS FOR YOUR PROJECT:
 
 Always included:
 ✓ Automated Enforcement — tooling inventory across all packages
@@ -149,9 +149,9 @@ Always included:
 If applicable:
 ☐ API Patterns — response shapes, error format, validation, auth
 ☐ Database Patterns — table/column naming, key strategy, migrations
+☐ Other — project-specific patterns that tooling can't enforce
 
 → Which sections apply to your project?
-   Everything else is handled by per-language tooling.
 ```
 
 ### Phase 3: Define
@@ -237,6 +237,13 @@ Write `docs/conventions.md` using the template below. Only include sections the 
 ### Migrations
 
 <!-- Migration file naming, ordering, rollback requirements. -->
+
+## [Project-Specific Section]
+
+<!-- Add sections for project-specific patterns that tooling can't enforce.
+     Examples: logging format, feature flag naming, event naming,
+     environment variable conventions, etc.
+     Rename this section to match the actual concern. -->
 ```
 
 **Writing principles:**
@@ -256,7 +263,7 @@ CONVENTIONS READY FOR REVIEW:
 - API Patterns: [defined/not applicable]
 - Database Patterns: [defined/not applicable]
 → Language-specific conventions are handled by tooling.
-   Cross-cutting patterns are documented above.
+   Shared patterns are documented above.
    Approve, or tell me what to change.
 ```
 
@@ -287,11 +294,11 @@ The dependency chain: product-spec → architecture → **conventions** → all 
 
 | Rationalization | Reality |
 |---|---|
-| "The linter already handles everything" | Linters handle language-specific rules. They don't enforce cross-cutting patterns like API response shapes or database naming. |
-| "We should document naming and error handling too" | If a linter can enforce it, the linter should. Documenting what tooling already catches is duplication that drifts. Conventions.md covers what tools can't — cross-cutting shared patterns. |
+| "The linter already handles everything" | Linters handle language-specific rules. They don't enforce API response shapes or database naming. |
+| "We should document naming and error handling too" | If a linter can enforce it, the linter should. Documenting what tooling already catches is duplication that drifts. |
 | "Conventions will emerge naturally" | Emergent conventions are inconsistent conventions. Three agents writing code in parallel will invent three different API response shapes if you don't define one. |
 | "This project is too small for conventions" | Even small projects benefit from an Automated Enforcement inventory. If APIs or databases exist, defining shared patterns takes 10 minutes and prevents drift. |
-| "Just read the existing code" | Which existing code? The Go service that returns `{data, error}` or the Python service that returns `{result, message}`? Implicit cross-cutting patterns create ambiguity. |
+| "Just read the existing code" | Which existing code? The service that returns `{data, error}` or the one that returns `{result, message}`? Implicit patterns create ambiguity. |
 | "I'll just use best practices from [framework]" | External best practices are not your project's conventions. Conventions come from your codebase, your team, your trade-offs — not a blog post. |
 
 ## Red Flags
@@ -313,7 +320,7 @@ The dependency chain: product-spec → architecture → **conventions** → all 
 - [ ] Language-specific conventions are handled by tooling, not documented in prose
 - [ ] API Patterns defined with concrete JSON examples (if project has APIs)
 - [ ] Database Patterns defined with naming table and examples (if project has databases)
-- [ ] Cross-cutting inconsistencies surfaced and resolved with human
+- [ ] Inconsistencies surfaced and resolved with human
 - [ ] Sections that don't apply are omitted, not left as TODOs
 - [ ] Human has reviewed and approved
 - [ ] Saved to `docs/conventions.md`
