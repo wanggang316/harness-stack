@@ -111,40 +111,15 @@ STRUCTURAL CONCERNS:
 → How do you want to address these?
 ```
 
-**When the architecture is undecided, recommend before defining.**
+**When the architecture is undecided, give recommendations as part of the analysis.**
 
-If the project is greenfield, or the existing structure needs a major change, don't jump to Phase 3. First propose a concrete recommendation with trade-offs and get human confirmation.
-
-Typical structural decisions that need recommendation:
-- Monorepo vs multi-repo vs single-package
-- Monolith vs modular monolith vs microservices
-- Layer count and direction (2 layers vs 5 layers)
-- Domain decomposition strategy
-
-```
-ARCHITECTURE RECOMMENDATION:
-
-Decision: Project structure
-Recommended: Monorepo (Turborepo + pnpm workspaces)
-Reason: 3 apps share types and UI components; atomic cross-package
-        changes outweigh build complexity for a team of this size.
-
-Alternative A: Multi-repo
-  - Pro: Independent deploy cycles, clear ownership
-  - Con: Cross-repo type sync is painful, atomic changes impossible
-
-Alternative B: Single package
-  - Pro: Simplest setup, no build orchestration
-  - Con: Already 40k LOC with 2 apps sharing code; will hit scaling pain
-
-→ Approve my recommendation, or choose an alternative.
-```
-
-Do NOT proceed to Phase 3 until the human has confirmed the structural approach. Writing architecture.md on an unapproved structure wastes effort and creates false consensus.
+Architecture choices — project structure, domain decomposition, technology selection — are inherently part of building architecture.md. If a decision hasn't been made, propose a recommendation with trade-offs as a natural conclusion of your analysis. Don't treat this as a separate gate; include it in the STRUCTURAL CONCERNS block above.
 
 ### Phase 3: Define
 
 Write the architecture document. Save to `docs/architecture.md`:
+
+**For single-package projects**, use this template:
 
 ```markdown
 # Architecture
@@ -153,41 +128,6 @@ Write the architecture document. Save to `docs/architecture.md`:
 
 <!-- One paragraph: what this system does and what architectural
      style it follows. Link to docs/product-spec.md for product context. -->
-
-## Workspace Topology
-
-<!-- Monorepo only. Skip for single-package projects.
-     Describes the package structure of the workspace — what each
-     package is, what it depends on, and the rules governing
-     cross-package imports. -->
-
-| Package | Type | Purpose | Internal Deps |
-|---|---|---|---|
-| apps/web | app | Next.js web application | @repo/ui, @repo/config |
-| apps/api | app | Express API server | @repo/db, @repo/shared-types |
-| packages/ui | lib | Shared React components | @repo/config |
-| packages/shared-types | lib | TypeScript type definitions | (leaf) |
-| packages/config | lib | Shared ESLint/TSConfig | (leaf) |
-
-### Package Dependency Graph
-
-\```
-packages/shared-types (leaf)
-packages/config (leaf)
-    │
-    ├── packages/ui
-    ├── packages/db
-    │
-    ├── apps/web
-    └── apps/api
-\```
-
-### Cross-Package Rules
-
-- apps/ → packages/ only (packages must never import from apps)
-- No circular dependencies between packages
-- Leaf packages must have zero internal dependencies
-- Package exports are contracts — breaking changes require updating all consumers first
 
 ## Domains
 
@@ -228,13 +168,6 @@ Dependencies flow left to right only.
 - No circular dependencies between domains
 - External services accessed only through adapters
 
-### Cross-Package Rules (monorepo only)
-
-- apps/ may import from packages/ (never reverse)
-- No circular dependencies between packages
-- Leaf packages (shared-types, config) must have zero internal deps
-- Within each package, apply the layer rules above
-
 ## Cross-Cutting Concerns
 
 <!-- Shared concerns that flow through multiple domains -->
@@ -252,11 +185,6 @@ Dependencies flow left to right only.
 - `src/index.ts` — Application entry, wires domains together
 - `src/api/` — HTTP route handlers
 
-<!-- For monorepo projects, each app has its own entry points: -->
-<!-- - `apps/web/src/app/` — Web application routes -->
-<!-- - `apps/api/src/index.ts` — API server entry -->
-<!-- - Build orchestration: turbo.json (or nx.json) -->
-
 ## Technology Choices
 
 <!-- Key dependencies with purpose and rationale. Focus on WHY
@@ -268,6 +196,140 @@ Dependencies flow left to right only.
 | PostgreSQL | Database | ACID compliance, relational model fits domain |
 ```
 
+**For monorepo projects**, use a top-down structure — overall architecture first, then per-package details:
+
+```markdown
+# Architecture
+
+## Overview
+
+<!-- One paragraph: what this system does, architectural style,
+     and why it's organized as a monorepo. -->
+
+## Workspace Topology
+
+| Package | Type | Purpose | Internal Deps |
+|---|---|---|---|
+| apps/web | app | Next.js web application | @repo/ui, @repo/config |
+| apps/api | app | Express API server | @repo/db, @repo/shared-types |
+| packages/ui | lib | Shared React components | @repo/config |
+| packages/shared-types | lib | TypeScript type definitions | (leaf) |
+| packages/config | lib | Shared ESLint/TSConfig | (leaf) |
+
+### Package Dependency Graph
+
+\```
+packages/shared-types (leaf)
+packages/config (leaf)
+    │
+    ├── packages/ui
+    ├── packages/db
+    │
+    ├── apps/web
+    └── apps/api
+\```
+
+### Cross-Package Rules
+
+- apps/ → packages/ only (packages must never import from apps)
+- No circular dependencies between packages
+- Leaf packages must have zero internal dependencies
+- Package exports are contracts — breaking changes require updating all consumers first
+
+## Technology Choices
+
+<!-- Shared across the workspace -->
+
+| Technology | Purpose | Rationale |
+|---|---|---|
+| TypeScript | Language | Type safety, ecosystem, agent-friendly |
+| Turborepo | Build orchestration | Incremental builds, task caching |
+| pnpm | Package manager | Workspace support, disk efficiency |
+
+## Cross-Cutting Concerns
+
+<!-- Shared concerns that flow through multiple packages -->
+
+| Concern | Mechanism |
+|---|---|
+| Authentication | Middleware in apps/, shared types in packages/ |
+| Logging | Shared logger package, structured output |
+| Configuration | Per-package .env, shared config package for lint/tsconfig |
+
+---
+
+<!-- Per-package architecture below. Each app gets full architecture
+     detail; shared packages get purpose + public API description. -->
+
+## apps/web
+
+### Domains
+
+| Domain | Purpose | Key Files |
+|---|---|---|
+| dashboard | Main user interface | apps/web/src/app/dashboard/ |
+| settings | User preferences | apps/web/src/app/settings/ |
+
+### Layers
+
+\```
+Types → Service → UI
+\```
+
+### Entry Points
+
+- `apps/web/src/app/layout.tsx` — Root layout
+- `apps/web/src/app/page.tsx` — Home page
+
+## apps/api
+
+### Domains
+
+| Domain | Purpose | Key Files |
+|---|---|---|
+| auth | Authentication and authorization | apps/api/src/auth/ |
+| tasks | Task management CRUD | apps/api/src/tasks/ |
+
+### Layers
+
+\```
+Types → Config → Repo → Service → Runtime
+\```
+
+### Dependency Rules
+
+- Runtime → Service → Repo → Types (one direction only)
+- External services accessed only through adapters
+
+### Entry Points
+
+- `apps/api/src/index.ts` — Server entry, wires domains together
+
+## packages/ui
+
+### Purpose
+
+Shared React component library used by apps/web and apps/admin.
+
+### Public API
+
+- Layout components (Sidebar, Header, PageContainer)
+- Form components (Input, Select, Button)
+- Data display (Table, Card, Badge)
+
+## packages/shared-types
+
+### Purpose
+
+TypeScript type definitions shared across all packages. Leaf package — no internal dependencies.
+
+### Public API
+
+- Domain types (User, Task, Team)
+- API request/response types
+- Shared enums and constants
+```
+
 **Writing principles:**
 
 - **Start with domains, then layers, then details.** The reader should understand the big picture before diving in.
@@ -275,6 +337,7 @@ Dependencies flow left to right only.
 - **Every domain needs a reason to exist separately.** "It felt like a separate thing" is not a reason.
 - **Technology Choices must include rationale.** "We chose X" without "because Y" is useless.
 - **Describe what IS, not what should be.** If the architecture has warts, document them. Aspirational architecture belongs in design docs.
+- **Monorepo uses top-down structure.** Overall architecture (topology, shared tech, cross-package rules) first, then per-package details (domains, layers, entry points). Apps get full architecture sections; shared packages get purpose + public API.
 
 ### Phase 4: Approve
 
@@ -325,13 +388,13 @@ Architecture docs drift from reality. When the drift becomes significant:
 - Architecture doc that describes aspirational state, not actual state
 - Technology choices without rationale
 - Architecture defined without reading the actual codebase
-- Structural decisions written into architecture.md without human confirmation
+- Monorepo with no per-package architecture sections (only overall topology)
 
 ## Verification
 
 - [ ] Product definition read before defining architecture
 - [ ] Actual codebase scanned — structure reflects reality, not aspiration
-- [ ] Structural approach recommended and confirmed by human before writing architecture.md (when architecture is undecided)
+- [ ] Undecided architectural choices addressed with recommendations and trade-offs
 - [ ] Domains listed with purpose, boundary, and key files
 - [ ] Layers defined with explicit dependency direction rules
 - [ ] Dependency rules documented and visualized
@@ -343,4 +406,4 @@ Architecture docs drift from reality. When the drift becomes significant:
 - [ ] Saved to `docs/architecture.md`
 - [ ] (Monorepo) Workspace Topology documented with package types and deps
 - [ ] (Monorepo) Cross-package dependency rules defined
-- [ ] (Monorepo) Leaf packages identified
+- [ ] (Monorepo) Per-package architecture sections written for each app/package
