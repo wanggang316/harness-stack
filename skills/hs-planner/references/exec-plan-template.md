@@ -40,7 +40,7 @@ This is the ONLY section that uses checklists. All other sections are prose. -->
 
 ## Context and Orientation
 
-<!-- Describe the current state relevant to this task. Reference related documents by path — do not duplicate their content.
+<!-- Describe the current state relevant to this task. Reference related documents by path.
 
 Related documents:
 - Product spec: [path]

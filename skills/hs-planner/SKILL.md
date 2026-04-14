@@ -7,7 +7,7 @@ description: Creates execution plans (ExecPlans) for complex work. Use when you 
 
 ## Overview
 
-Create an execution plan (ExecPlan) that enables any agent to deliver a working feature. The plan is self-navigating — it references the spec, design docs, and code by path so the reader knows where to look, but does not duplicate their content. The plan's job is to describe the execution strategy: what to do, in what order, how to verify.
+Create an execution plan (ExecPlan) that enables any agent to deliver a working feature. The plan is self-navigating — it references the spec, design docs, and code by path so the reader knows where to look, and describes the execution strategy: what to do, in what order, how to verify.
 
 ## When to Use
 
@@ -22,7 +22,7 @@ Create an execution plan (ExecPlan) that enables any agent to deliver a working 
 
 ## Core Principles
 
-**Self-navigating, not self-contained.** The plan references repo docs (spec, design doc, architecture doc) by path — it does not copy their content. The plan embeds only what is unique to execution: the sequence of work, acceptance criteria, commands, and expected output. When the spec changes, the plan doesn't carry a stale copy.
+**Self-navigating.** The plan references repo docs (spec, design doc, architecture doc) by path, and embeds what is unique to execution: the sequence of work, acceptance criteria, commands, and expected output.
 
 **Outcomes over code changes.** Anchor the plan with what the user can do after implementation that they could not do before. "After starting the server, navigating to /health returns HTTP 200 with body OK" — not "added a HealthCheck struct".
 
@@ -61,7 +61,7 @@ Save to `docs/exec-plans/<name>.md`. Follow the template at `skills/hs-planner/r
 
 **Writing guidelines:**
 
-- **Reference repo docs by path, don't duplicate.** In Context and Orientation, list the paths to spec, design doc, and key source files. The reader will load them when executing.
+- **Reference repo docs by path.** In Context and Orientation, list the paths to spec, design doc, and key source files. The reader will load them when executing.
 - **Name files with full repository-relative paths.** Name functions and modules precisely. When touching multiple areas, include a short orientation paragraph explaining how those parts fit together.
 - **Define every term of art** in plain language or do not use it. If you introduce "daemon", "middleware", or "RPC gateway", define it immediately and explain where it appears in the repository.
 - **Show exact commands** with working directory and expected output so the reader can compare their terminal output against yours.
@@ -98,9 +98,9 @@ With approved plan, proceed to `/hs-exec-plan` for execution.
 ## Red Flags
 
 - Starting implementation without a written plan
-- Plan describes code changes rather than observable outcomes
+- Plan describes code changes without observable outcomes
 - No verification steps or expected output
-- Plan duplicates spec/design doc content instead of referencing by path
+- Plan embeds spec/design doc content that should be referenced by path
 - All tasks are too large (touching 8+ files each)
 - No repository context (missing file paths, function names)
 - Undefined jargon used without explanation
@@ -111,7 +111,7 @@ With approved plan, proceed to `/hs-exec-plan` for execution.
 
 Before handing off, confirm:
 
-- [ ] Plan is self-navigating — references spec/design docs by path, doesn't duplicate
+- [ ] Plan is self-navigating — references spec/design docs by path
 - [ ] Every section from the template is present
 - [ ] Observable acceptance criteria with expected output
 - [ ] Repository context is explicit (full paths, function names, module descriptions)

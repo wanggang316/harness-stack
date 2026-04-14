@@ -27,9 +27,9 @@ Then load the context you need to execute well:
 
 1. **Read the referenced docs** — the plan's Context and Orientation section lists paths to spec, design doc, and architecture doc. Read them. The plan is a routing guide; the source documents contain nuance the plan may have omitted.
 2. **Read the code** the plan references — every file path mentioned in Context and Orientation and in the current tasks. Understand existing patterns and conventions before changing anything.
-3. **Read the surrounding code** — when a task says "add a function to `src/auth/login.ts`", read that file and its neighbors. Understand how the module works, not just the line you're changing.
+3. **Read the surrounding code** — when a task says "add a function to `src/auth/login.ts`", read that file and its neighbors. Understand how the module works as a whole.
 
-A plan is a guide, not a substitute for understanding. If the plan says "add a validation function" but the codebase already has a validation pattern, follow the existing pattern even if the plan doesn't mention it.
+A plan is a guide. If the plan says "add a validation function" but the codebase already has a validation pattern, follow the existing pattern even if the plan doesn't mention it.
 
 If resuming work from another session, the Progress section is your entry point. But still re-read the code relevant to the next task — don't assume prior sessions left everything as described.
 
