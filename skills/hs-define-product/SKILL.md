@@ -48,11 +48,9 @@ Ask WHO/WHY     on scope     product-     confirms
 Before forming any opinion, deeply understand the problem space.
 
 **Load context:**
-- Read existing `docs/product-spec.md` if it exists
-- Read `docs/architecture.md`, `AGENTS.md`, `README.md`
-- Read existing feature specs in `docs/product-specs/`
-- Scan the codebase to understand what has actually been built
-- Understand the gap between what's documented and what exists
+- Read whatever project documentation and code already exists
+- Understand what has been built (if anything) and what the current state is
+- Identify gaps between what exists and what's been communicated
 
 **Ask fundamental questions.** Don't proceed until these are answered:
 
