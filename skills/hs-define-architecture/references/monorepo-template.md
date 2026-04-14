@@ -2,7 +2,7 @@
 
 Use this template for projects with multiple packages/apps in a single repository.
 
-Root ARCHITECTURE.md covers **workspace-level** concerns only — dependency direction, invariants, cross-cutting patterns. Per-package internals (domains, layers, entry points) belong in each package's own README.md.
+Root ARCHITECTURE.md covers **workspace-level** concerns only — dependency direction, invariants, cross-cutting patterns. Per-package internals (domains, layers, entry points) belong in `docs/design-docs/`.
 
 Inspired by [matklad's ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html): keep it short so it survives.
 

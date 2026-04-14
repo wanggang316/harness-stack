@@ -136,7 +136,7 @@ Choose the template that matches the project structure, read it, and follow it:
 | Single-package | [references/single-package-template.md](references/single-package-template.md) |
 | Monorepo | [references/monorepo-template.md](references/monorepo-template.md) |
 
-The monorepo template covers **workspace-level** concerns only (codemap, dependency direction, invariants). Per-package internals belong in each package's own README.md.
+The monorepo template covers **workspace-level** concerns only (codemap, dependency direction, invariants). Per-package internals belong in `docs/design-docs/`.
 
 **Writing principles:**
 
@@ -146,7 +146,7 @@ The monorepo template covers **workspace-level** concerns only (codemap, depende
 - **Technology Choices must include rationale.** "We chose X" without "because Y" is useless.
 - **Describe what IS, not what should be.** If the architecture has warts, document them. Aspirational architecture belongs in design docs.
 - **Document architectural invariants.** Rules that don't appear in code are the most important to write down — if violated, bugs won't show up immediately but the system will rot.
-- **Monorepo root doc stays at workspace level.** Codemap, dependency direction, invariants, cross-cutting concerns. Per-package architecture (domains, layers, entry points) lives in each package's README.md.
+- **Monorepo root doc stays at workspace level.** Codemap, dependency direction, invariants, cross-cutting concerns. Per-package architecture (domains, layers, entry points) lives in `docs/design-docs/`.
 
 ### Phase 4: Approve
 
@@ -197,7 +197,7 @@ Architecture docs drift from reality. When the drift becomes significant:
 - Architecture doc that describes aspirational state, not actual state
 - Technology choices without rationale
 - Architecture defined without reading the product spec
-- Monorepo root doc containing per-package internals (domains, layers) instead of keeping workspace-level
+- Monorepo root doc containing per-package internals (domains, layers) instead of deferring to `docs/design-docs/`
 - No architectural invariants documented
 
 ## Verification
@@ -217,4 +217,4 @@ Architecture docs drift from reality. When the drift becomes significant:
 - [ ] Architectural invariants documented (rules not visible in code)
 - [ ] (Monorepo) Codemap lists all packages with purpose
 - [ ] (Monorepo) Dependency direction visualized with enforcement mechanism
-- [ ] (Monorepo) Root doc stays at workspace level — no per-package internals
+- [ ] (Monorepo) Root doc stays at workspace level — per-package internals in `docs/design-docs/`
