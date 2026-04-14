@@ -21,7 +21,7 @@ This is not an architecture document. Architecture defines structure (domains, l
 - New team members (or agents) can't infer how to write code that fits the project
 - After a major refactor that changed established patterns
 
-**When NOT to use:** Single-file scripts, throwaway prototypes, or projects where one person writes all code and patterns are self-consistent. If you need to define architecture, use `/hs-define-architecture`. If you need to configure a linter, just configure it.
+**When NOT to use:** Single-file scripts, throwaway prototypes, or projects where one person writes all code and patterns are self-consistent.
 
 ## Philosophy
 
