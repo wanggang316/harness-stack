@@ -111,6 +111,37 @@ STRUCTURAL CONCERNS:
 → How do you want to address these?
 ```
 
+**When the architecture is undecided, recommend before defining.**
+
+If the project is greenfield, or the existing structure needs a major change, don't jump to Phase 3. First propose a concrete recommendation with trade-offs and get human confirmation.
+
+Typical structural decisions that need recommendation:
+- Monorepo vs multi-repo vs single-package
+- Monolith vs modular monolith vs microservices
+- Layer count and direction (2 layers vs 5 layers)
+- Domain decomposition strategy
+
+```
+ARCHITECTURE RECOMMENDATION:
+
+Decision: Project structure
+Recommended: Monorepo (Turborepo + pnpm workspaces)
+Reason: 3 apps share types and UI components; atomic cross-package
+        changes outweigh build complexity for a team of this size.
+
+Alternative A: Multi-repo
+  - Pro: Independent deploy cycles, clear ownership
+  - Con: Cross-repo type sync is painful, atomic changes impossible
+
+Alternative B: Single package
+  - Pro: Simplest setup, no build orchestration
+  - Con: Already 40k LOC with 2 apps sharing code; will hit scaling pain
+
+→ Approve my recommendation, or choose an alternative.
+```
+
+Do NOT proceed to Phase 3 until the human has confirmed the structural approach. Writing architecture.md on an unapproved structure wastes effort and creates false consensus.
+
 ### Phase 3: Define
 
 Write the architecture document. Save to `docs/architecture.md`:
@@ -294,11 +325,13 @@ Architecture docs drift from reality. When the drift becomes significant:
 - Architecture doc that describes aspirational state, not actual state
 - Technology choices without rationale
 - Architecture defined without reading the actual codebase
+- Structural decisions written into architecture.md without human confirmation
 
 ## Verification
 
 - [ ] Product definition read before defining architecture
 - [ ] Actual codebase scanned — structure reflects reality, not aspiration
+- [ ] Structural approach recommended and confirmed by human before writing architecture.md (when architecture is undecided)
 - [ ] Domains listed with purpose, boundary, and key files
 - [ ] Layers defined with explicit dependency direction rules
 - [ ] Dependency rules documented and visualized
