@@ -7,9 +7,11 @@ description: Defines coding conventions at the project level. Use when starting 
 
 ## Overview
 
-Define how code is written within the project's architecture. `docs/conventions.md` is the behavioral contract that every contributor — human or agent — follows when writing code. It answers: how do we name things, how do we handle errors, what patterns do we use, and what does tooling already enforce.
+Define the shared rules that every contributor — human or agent — follows across the project. `docs/conventions.md` is the cross-cutting behavioral contract that sits above any single language or domain.
 
-This is not an architecture document. Architecture defines structure (domains, layers, dependencies); conventions define behavior within that structure (naming, error handling, API patterns). Architecture lives in `docs/architecture.md` (via `/hs-define-architecture`). Conventions live here.
+In monorepo and multi-language projects, language-specific conventions (naming, error handling, code style) belong in **tooling configs** — ESLint, Ruff, Clippy, etc. The conventions doc focuses on what tooling can't enforce: API contracts, database patterns, and the tooling inventory itself. The principle is simple: **maximize Automated Enforcement, minimize documented rules.**
+
+This is not an architecture document. Architecture defines structure (domains, layers, dependencies); conventions define cross-cutting behavioral patterns within that structure. Architecture lives in `docs/architecture.md` (via `/hs-define-architecture`).
 
 ## When to Use
 
@@ -23,14 +25,14 @@ This is not an architecture document. Architecture defines structure (domains, l
 
 ## Philosophy
 
-You are a pattern archaeologist, not a standards committee.
+You are a tooling-first thinker, not a standards committee.
 
-- **Discover, don't invent.** Read the codebase first. Conventions should codify what the project already does well, not impose an external standard. Generic "best practices" borrowed from the internet are not conventions — they're noise.
-- **If a tool can enforce it, the tool should.** A linter rule beats a documented rule. If you can add an ESLint/Ruff/Clippy rule instead of writing a convention, do that. Document the tool, not the rule.
-- **Specific beats general.** "Use descriptive names" is useless. "Files use kebab-case: `user-profile.ts`" is actionable. Every convention must include a concrete example.
-- **Challenge accidental patterns.** Three files doing the same thing doesn't make it a convention. It might be copy-paste. Ask: "Is this intentional?"
-- **Less is more.** 10 clear conventions > 50 that nobody reads. Every convention should earn its place by preventing a real, recurring problem.
-- **Agent-readable is the bar.** A convention is good enough when an agent can follow it without asking a human for clarification. If the convention requires subjective judgment to apply, it's not specific enough.
+- **Automated Enforcement first.** Every convention you're about to write — ask first: "Can a tool enforce this?" If yes, configure the tool and list it in the Automated Enforcement table. Only document what tools can't catch.
+- **Cross-cutting only.** In a monorepo with TypeScript, Python, and Go, don't write naming conventions — each language has its own linter. Write API response shapes and database naming patterns — those span all languages.
+- **Discover, don't invent.** Read the codebase first. Conventions should codify what the project already does well, not impose an external standard.
+- **Specific beats general.** "Use consistent API responses" is useless. Show the exact JSON shape. Every convention must include a concrete example.
+- **Less is more.** 5 cross-cutting rules > 50 language-specific rules. If your conventions doc exceeds one screen, it's too long.
+- **Agent-readable is the bar.** A convention is good enough when an agent can follow it without asking a human for clarification.
 
 ## Process
 
@@ -69,47 +71,38 @@ Tooling configs to check:
 
 List what these tools already enforce. These go into the Automated Enforcement section — not into conventions prose.
 
-**Sample source files for patterns:**
+**Sample cross-cutting patterns:**
 
-Don't scan the entire codebase. Sample strategically:
+Focus on patterns that span multiple languages/domains — these are the only things worth documenting:
 
-1. From `docs/architecture.md`, identify 3-4 domains or top-level directories
-2. For each domain, read 2-3 files: one deep (types/models), one middle (services/logic), one outer (handlers/UI)
-3. Read 2-3 test files separately
-4. Read 2-3 API route files (if applicable)
-5. Total: 8-15 files
+1. **API patterns** (if applicable) — Read 3-5 API route handlers across different domains. Check: response shapes, error response format, validation approach, authentication pattern.
+2. **Database patterns** (if applicable) — Read schema files or migration files. Check: table naming, column naming, index conventions, relationship patterns.
 
-**Extract patterns with confidence scoring:**
-
-For each pattern category, check multiple files and score:
+**Present discovery results:**
 
 ```
 DISCOVERED PATTERNS:
 
-Naming (sampled 12 files):
-- Files: kebab-case (12/12) → Strong convention
-- Functions: camelCase (12/12) → Strong convention
-- Types: PascalCase (10/12) → Strong convention
-- Constants: SCREAMING_SNAKE (7/12) → Emerging (needs decision)
+Automated Enforcement (tooling inventory):
+- packages/api: ESLint + Prettier (.eslintrc.js, .prettierrc)
+- packages/worker: Ruff + Black (pyproject.toml)
+- packages/cli: Clippy + rustfmt (Cargo.toml)
+→ Language-specific conventions are handled by these tools.
 
-Error handling (sampled 5 service files):
-- Custom AppError class with typed codes (4/5) → Strong convention
-- Errors caught at handler layer only (3/5) → Emerging (needs decision)
+API patterns (sampled 5 route handlers):
+- Response shape: { data, error, meta } (4/5) → Strong convention
+- Error codes: HTTP status + app-specific code (3/5) → Emerging (needs decision)
+- Validation: Zod schemas at handler layer (5/5) → Strong convention
 
-Testing (sampled 3 test files):
-- Files named *.test.ts (2/3), *.spec.ts (1/3) → Inconsistent (needs decision)
-- describe/it pattern with AAA structure (3/3) → Strong convention
-
-Tooling-enforced (already handled):
-- Prettier: semi, singleQuote, printWidth 100
-- ESLint: no-unused-vars, no-explicit-any
-→ These will be REFERENCED in Automated Enforcement, not documented as conventions.
+Database patterns (sampled schema files):
+- Tables: snake_case plural (users, order_items) (8/8) → Strong convention
+- Columns: snake_case (created_at, user_id) (8/8) → Strong convention
+- Foreign keys: <table>_id pattern (6/8) → Emerging (needs decision)
 
 INCONSISTENCIES FOUND:
-1. Constants: Mixed SCREAMING_SNAKE and camelCase
-2. Test file naming: .test.ts vs .spec.ts
-3. Error logging: Some use console.error, some use logger
-→ Which patterns are intentional? Which should become the convention?
+1. Error response format differs between /api/v1 and /api/v2
+2. Some tables use UUID PKs, some use auto-increment
+→ Which patterns are intentional?
 ```
 
 Confidence thresholds:
@@ -134,36 +127,36 @@ This is the most critical phase. Do not skip it.
 - Not every category needs a convention. The human decides which ones matter.
 
 **Challenge over-specification:**
-- "This convention is already enforced by ESLint rule X. Documenting it would be duplication."
-- "You have 3 lines of code that use this pattern. Is it really a project-wide convention?"
+- "This convention is language-specific. It belongs in the linter config, not in conventions.md."
+- "You have 3 files that use this pattern. Is it really a project-wide cross-cutting convention?"
 
 **Challenge under-specification:**
-- "Your error handling has no consistent pattern. Three agents writing code in parallel will invent three different patterns."
-- "API responses use different shapes. This will confuse consumers."
+- "API responses use different shapes across domains. This will confuse consumers and agents."
+- "Database tables follow two different naming patterns. Which is the convention?"
 
-**Present categories for selection:**
+**Push language-specific conventions to tooling:**
+- Naming, formatting, imports, error handling patterns → linter/formatter configs
+- Only conventions that span multiple languages or that tools can't enforce belong here
+
+**Confirm which cross-cutting sections apply:**
 
 ```
-CONVENTION CATEGORIES FOR YOUR PROJECT:
+CROSS-CUTTING CONVENTIONS FOR YOUR PROJECT:
 
-Required (inconsistencies found, needs decision):
-☐ Naming — files, functions, types, constants
-☐ Error handling — creating, catching, logging
+Always included:
+✓ Automated Enforcement — tooling inventory across all packages
 
-Recommended (no strong convention found, would benefit from one):
-☐ API patterns — response shapes, validation
-☐ Testing — file naming, structure, test data
+If applicable:
+☐ API Patterns — response shapes, error format, validation, auth
+☐ Database Patterns — table/column naming, key strategy, migrations
 
-Optional (current patterns are consistent, documenting would preserve them):
-☐ Imports & dependencies
-☐ Comments & documentation
-
-→ Which categories should we define conventions for?
+→ Which sections apply to your project?
+   Everything else is handled by per-language tooling.
 ```
 
 ### Phase 3: Define
 
-Write `docs/conventions.md` using the template below. Only include sections the human approved in Phase 2.
+Write `docs/conventions.md` using the template below. Only include sections the human confirmed as applicable in Phase 2.
 
 ```markdown
 # Conventions
@@ -172,101 +165,86 @@ Write `docs/conventions.md` using the template below. Only include sections the 
 
 ## Automated Enforcement
 
-<!-- Conventions enforced by tooling. Reference the tool and config,
-     don't restate the rules. Agents: follow these tools, don't override. -->
+<!-- This is the most important section. Language-specific conventions
+     (naming, formatting, error handling, imports, etc.) are enforced
+     by tooling. List every tool and its config. Agents: follow these
+     tools, don't override. Don't restate tool rules here. -->
 
-| Concern | Tool | Config |
-|---|---|---|
-| Formatting | [Prettier/Black/rustfmt] | [config path] |
-| Linting | [ESLint/Ruff/Clippy] | [config path] |
-| Type checking | [TypeScript/mypy] | [config path] |
-
-## Naming
-
-<!-- Naming patterns not enforced by tooling. One row per element.
-     Every row MUST have a concrete example. -->
-
-| Element | Pattern | Example |
-|---|---|---|
-| Files | [pattern] | `user-profile.ts` |
-| Functions | [pattern] | `getUserProfile()` |
-| Components | [pattern] | `UserProfile` |
-| Types/Interfaces | [pattern] | `UserProfileProps` |
-| Constants | [pattern] | `MAX_RETRY_COUNT` |
-| Test files | [pattern] | `user-profile.test.ts` |
-| Database tables | [pattern] | `user_profiles` |
-| API endpoints | [pattern] | `GET /api/users/:id/profile` |
-
-## Error Handling
-
-<!-- How errors flow through the system. An agent reading this
-     should know exactly what code to write. -->
-
-### Creating errors
-<!-- How to create/throw errors. Show the pattern with code example. -->
-
-### Catching errors
-<!-- Where errors are caught (handler layer? middleware?).
-     What happens when they're caught. -->
-
-### Logging errors
-<!-- What gets logged, at what level, with what context.
-     Reference the logging library/approach. -->
-
-### User-facing errors
-<!-- How errors are presented to API consumers or users.
-     Show the response shape. -->
+| Package / Scope | Concern | Tool | Config |
+|---|---|---|---|
+| packages/api | Linting | ESLint | `packages/api/.eslintrc.js` |
+| packages/api | Formatting | Prettier | `.prettierrc` |
+| packages/api | Type checking | TypeScript | `packages/api/tsconfig.json` |
+| packages/worker | Linting | Ruff | `packages/worker/pyproject.toml` |
+| packages/worker | Formatting | Black | `packages/worker/pyproject.toml` |
+| root | Commit messages | commitlint | `commitlint.config.js` |
 
 ## API Patterns
 
-<!-- Include only if the project has APIs.
-     Focus on patterns not enforced by tooling. -->
+<!-- Include only if the project exposes APIs (REST, GraphQL, RPC).
+     These patterns span all services regardless of language. -->
 
 ### Response shape
-<!-- Standard success/error response format. Show JSON example. -->
 
-### Validation
-<!-- Where and how request validation happens. -->
+<!-- Standard success and error response format.
+     Show exact JSON examples — agents copy these directly. -->
+
+\```json
+// Success
+{ "data": { ... }, "meta": { "request_id": "..." } }
+
+// Error
+{ "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [...] } }
+\```
+
+### Error codes
+
+<!-- Enumerated error codes used across all services. -->
+
+| Code | HTTP Status | Meaning |
+|---|---|---|
+| VALIDATION_ERROR | 400 | Request failed validation |
+| NOT_FOUND | 404 | Resource does not exist |
+| INTERNAL_ERROR | 500 | Unexpected server error |
+
+### Versioning
+
+<!-- API versioning strategy: URL path, header, or query param. -->
 
 ### Authentication
-<!-- How auth is applied to routes. -->
 
-## Testing
+<!-- How auth is applied to routes. Reference the mechanism. -->
 
-<!-- Testing conventions beyond what the test framework enforces. -->
+## Database Patterns
 
-### What to test
-<!-- Policy: unit tests for logic, integration for APIs, E2E for flows. -->
+<!-- Include only if the project uses databases.
+     These patterns span all services that access the database. -->
 
-### Test structure
-<!-- Naming pattern for describe/it blocks. File organization. -->
+### Naming
 
-### Test data
-<!-- How to create test data (factories, fixtures, builders). -->
+| Element | Pattern | Example |
+|---|---|---|
+| Tables | [pattern] | `user_profiles` |
+| Columns | [pattern] | `created_at`, `user_id` |
+| Foreign keys | [pattern] | `<table_singular>_id` |
+| Indexes | [pattern] | `idx_<table>_<columns>` |
+| Enums | [pattern] | `order_status` |
 
-## Imports & Dependencies
+### Primary keys
 
-<!-- Import ordering and path conventions not enforced by linter.
-     Omit if tooling handles this. -->
+<!-- UUID vs auto-increment, generation strategy. -->
 
-## Comments & Documentation
+### Migrations
 
-<!-- When to write comments, when NOT to. Code-level docs only —
-     project-level docs are covered by /hs-docs. -->
-
-## Project-Specific
-
-<!-- Conventions unique to this project that don't fit above.
-     Keep this section small. If it grows, promote to its own section. -->
+<!-- Migration file naming, ordering, rollback requirements. -->
 ```
 
 **Writing principles:**
 
+- **Automated Enforcement is the primary section.** It should be comprehensive — list every tool across every package. This is the "language-specific conventions are handled" declaration.
 - Every convention must have a concrete example. "Do X" without showing X is not actionable.
-- Tables for naming, prose for patterns. Naming is lookup; error handling is process.
-- Sections the human didn't select in Phase 2 are **omitted entirely**, not left as TODOs.
-- If a convention can be expressed in one line, use one line. Verbose conventions get ignored.
-- The Automated Enforcement section is always first. It sets the "tooling handles this" firewall before any prose conventions.
+- Sections that don't apply are **omitted entirely**, not left as TODOs or placeholders.
+- If the entire project is a single-language repo with strong tooling, conventions.md may be just the Automated Enforcement table. That's fine — it means tooling is doing its job.
 
 ### Phase 4: Approve
 
@@ -274,14 +252,11 @@ Present the conventions for human review.
 
 ```
 CONVENTIONS READY FOR REVIEW:
-- Tooling already enforces: [list tools]
-- Naming conventions: [count] patterns defined
-- Error handling: [defined/not defined]
-- API patterns: [defined/not defined]
-- Testing conventions: [defined/not defined]
-- Project-specific: [count] entries
-→ This is the behavioral reference for all code in this project.
-   /hs-review and /hs-build will use this as their standard.
+- Automated Enforcement: [count] tools across [count] packages
+- API Patterns: [defined/not applicable]
+- Database Patterns: [defined/not applicable]
+→ Language-specific conventions are handled by tooling.
+   Cross-cutting patterns are documented above.
    Approve, or tell me what to change.
 ```
 
@@ -289,10 +264,11 @@ CONVENTIONS READY FOR REVIEW:
 
 Conventions drift when patterns evolve but the doc doesn't. Update when:
 
-- **New patterns introduced** — new error type, new API style, new naming convention
-- **Technology changes** — new library, new framework, different tooling
-- **Repeated review friction** — if `/hs-review` keeps flagging the same convention violation, either fix the code or update the convention
-- **Convention becomes tool-enforceable** — move it from prose to the Automated Enforcement table and add the linter rule
+- **New package or language added** — add its tooling to the Automated Enforcement table
+- **API contract changes** — new response shape, new error codes, versioning strategy change
+- **Database schema evolves** — new naming pattern, new key strategy, new migration approach
+- **Tooling changes** — new linter, formatter swap, config migration
+- **Convention becomes tool-enforceable** — remove it from prose, add the tool to Automated Enforcement
 
 The conventions doc describes how code IS written, not how it was or should be.
 
@@ -311,35 +287,33 @@ The dependency chain: product-spec → architecture → **conventions** → all 
 
 | Rationalization | Reality |
 |---|---|
-| "The linter already handles conventions" | Linters handle formatting and syntax. They don't handle naming semantics, error handling strategies, API response shapes, or testing philosophy. Those are the conventions that matter most. |
-| "Conventions will emerge naturally" | Emergent conventions are inconsistent conventions. Three agents writing code in parallel will invent three different error handling patterns if you don't define one. |
-| "This project is too small for conventions" | Small projects grow. Conventions written at 1,000 lines save pain at 10,000. The document takes 15 minutes. |
-| "I'll describe conventions in AGENTS.md" | AGENTS.md is a map, not a manual (Golden Rule 1). It can summarize 3-5 top conventions and link to the full doc. |
-| "Every file already follows the same pattern" | Consistency today doesn't mean consistency tomorrow. Document what the pattern IS so future code matches it. |
-| "Just read the existing code" | Which existing code? The 3 files that do it one way or the 2 that do it differently? Implicit conventions create ambiguity. |
+| "The linter already handles everything" | Linters handle language-specific rules. They don't enforce cross-cutting patterns like API response shapes or database naming. Those are the conventions that matter in a multi-language project. |
+| "We should document naming and error handling too" | If a linter can enforce it, the linter should. Documenting what tooling already catches is duplication that drifts. Conventions.md covers what tools can't — cross-cutting shared patterns. |
+| "Conventions will emerge naturally" | Emergent conventions are inconsistent conventions. Three agents writing code in parallel will invent three different API response shapes if you don't define one. |
+| "This project is too small for conventions" | Even small projects benefit from an Automated Enforcement inventory. If APIs or databases exist, defining shared patterns takes 10 minutes and prevents drift. |
+| "Just read the existing code" | Which existing code? The Go service that returns `{data, error}` or the Python service that returns `{result, message}`? Implicit cross-cutting patterns create ambiguity. |
 | "I'll just use best practices from [framework]" | External best practices are not your project's conventions. Conventions come from your codebase, your team, your trade-offs — not a blog post. |
 
 ## Red Flags
 
+- Language-specific conventions documented instead of configured in tooling
 - Conventions doc that restates linter rules (duplicate of tooling)
 - Conventions with no examples (too abstract to follow)
-- More than 30 conventions defined (scope explosion — focus on what causes real friction)
-- Conventions that contradict `docs/architecture.md` dependency rules
+- Automated Enforcement section missing or incomplete (the most important section)
+- API Patterns section in a project with no APIs
+- Database Patterns section in a project with no database
+- Naming, error handling, or testing conventions written in prose when a linter could enforce them
 - Conventions defined without reading the actual codebase (aspirational, not real)
-- No Automated Enforcement section (misses the tooling relationship)
-- Conventions copied from an external style guide without project-specific discovery
-- All sections filled in when the project clearly doesn't need some (e.g. API Patterns for a CLI tool)
 
 ## Verification
 
-- [ ] Existing codebase scanned — conventions reflect actual patterns, not generic rules
 - [ ] `docs/architecture.md` read before defining conventions
-- [ ] Linter/formatter configs identified and listed in Automated Enforcement
-- [ ] No convention duplicates what tooling already enforces
-- [ ] Each convention has a concrete example
-- [ ] Naming conventions defined with pattern and example for each element type
-- [ ] Error handling strategy defined (if selected) with create/catch/log/user-facing
-- [ ] Inconsistencies in existing code surfaced and resolved with human
+- [ ] All linter/formatter/type-checker configs identified across all packages
+- [ ] Automated Enforcement table is comprehensive — every tool, every package
+- [ ] Language-specific conventions are handled by tooling, not documented in prose
+- [ ] API Patterns defined with concrete JSON examples (if project has APIs)
+- [ ] Database Patterns defined with naming table and examples (if project has databases)
+- [ ] Cross-cutting inconsistencies surfaced and resolved with human
 - [ ] Sections that don't apply are omitted, not left as TODOs
 - [ ] Human has reviewed and approved
 - [ ] Saved to `docs/conventions.md`
