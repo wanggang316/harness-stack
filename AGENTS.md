@@ -8,7 +8,6 @@ Agent-first development framework implementing the harness methodology.
 
 ### Meta-Skills (Manage harness itself)
 - `/hs-init` - Initialize harness in any project
-- `/hs-docs-init` - Initialize documentation structure
 - `/hs-check` - Validate structure and documentation
 - `/hs-score` - Generate quality scorecard
 - `/hs-skill-create` - Create new skills
