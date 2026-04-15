@@ -21,8 +21,6 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 ### Meta (Manage harness itself)
 | Command | Description |
 |---------|-------------|
-| `/hs-check` | Validate structure and docs |
-| `/hs-score` | Generate quality scorecard |
 | `/hs-skill-create` | Create new skills |
 
 ### Lifecycle (Full development workflow)

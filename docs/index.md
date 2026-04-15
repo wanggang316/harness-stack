@@ -9,8 +9,6 @@ harness-stack 文档中心。
 ## Skills
 
 ### Meta-Skills
-- [hs-check](../skills/hs-check/SKILL.md) — 验证结构
-- [hs-score](../skills/hs-score/SKILL.md) — 质量评分
 - [hs-skill-create](../skills/hs-skill-create/SKILL.md) — 创建新 Skill
 
 ### Lifecycle Skills

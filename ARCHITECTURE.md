@@ -121,7 +121,7 @@ Every verification checklist requires concrete proof before proceeding.
 Skills never hardcode framework commands. Read config or ask user once.
 
 ### 5. Self-Bootstrapping
-harness can improve itself using its own skills (hs-skill-create, hs-check).
+harness can improve itself using its own skills (hs-skill-create).
 
 ## Workflow Example
 
@@ -157,9 +157,7 @@ Result: Feature complete and deployed
 - Skills invoked via `/h-xxx`
 
 ### CI/CD
-- GitHub Actions can run hs-check
-- Quality gates via hs-score
-- Automated validation
+- Automated validation via GitHub Actions
 
 ## References
 
