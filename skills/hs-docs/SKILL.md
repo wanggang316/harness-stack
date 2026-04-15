@@ -1,13 +1,13 @@
 ---
 name: hs-docs
-description: Initialize and maintain project documentation structure and base documents. Use when setting up docs for the first time, checking if documentation is complete, or updating README, AGENTS.md, CLAUDE.md, CHANGELOG, or golden-rules.
+description: Initialize and maintain project documentation structure and base documents. Use when setting up docs for the first time, checking if documentation is complete, or updating README, AGENTS.md, CLAUDE.md, or golden-rules.
 ---
 
 # hs-docs: Documentation Structure & Base Documents
 
 ## Overview
 
-Initialize the standard documentation directory structure and maintain base documents that every project needs. This skill handles the scaffolding (`docs/` tree, templates) and the foundational files (README.md, AGENTS.md, CLAUDE.md, CHANGELOG.md, golden-rules.md). Documents that require explicit design decisions (product specs, architecture, API specs, UI specs) are handled by their respective `hs-define-xxx` skills.
+Initialize the standard documentation directory structure and maintain base documents that every project needs. This skill handles the scaffolding (`docs/` tree, templates) and the foundational files (README.md, AGENTS.md, CLAUDE.md, golden-rules.md). CHANGELOG.md is managed by `hs-changelog`. Documents that require explicit design decisions (product specs, architecture, API specs, UI specs) are handled by their respective `hs-define-xxx` skills.
 
 ## When to Use
 
@@ -15,7 +15,6 @@ Initialize the standard documentation directory structure and maintain base docu
 - Checking if docs structure is complete and standard
 - README.md is missing or incomplete
 - AGENTS.md / CLAUDE.md needs creation or update
-- CHANGELOG.md needs creation or update
 - Golden rules need to be established or updated
 - Documentation structure is incomplete (missing directories or templates)
 
@@ -25,6 +24,7 @@ Initialize the standard documentation directory structure and maintain base docu
 - Defining API specs → use `hs-define-api-spec`
 - Defining UI design system → use `hs-define-ui-spec`
 - Writing design docs → use `hs-design`
+- Managing changelog → use `hs-changelog`
 
 ## Scope
 
@@ -36,8 +36,7 @@ Initialize the standard documentation directory structure and maintain base docu
 | `docs/plans/_template.md` | UI design content (`hs-define-ui-spec`) |
 | README.md | Design docs content (`hs-design`) |
 | AGENTS.md / CLAUDE.md | Execution plans content (`hs-planner`) |
-| CHANGELOG.md | |
-| `docs/golden-rules.md` | |
+| `docs/golden-rules.md` | CHANGELOG.md (`hs-changelog`) |
 
 ## Process
 
@@ -56,7 +55,6 @@ Base documents:
 - [ ] README.md exists and has required sections
 - [ ] AGENTS.md exists and is under 150 lines
 - [ ] CLAUDE.md exists (symlink or file pointing to AGENTS.md)
-- [ ] CHANGELOG.md exists
 - [ ] docs/golden-rules.md exists
 ```
 
@@ -113,7 +111,6 @@ For each missing or incomplete base document, read the corresponding guide and f
 |---|---|
 | README.md | [references/readme.md](references/readme.md) |
 | AGENTS.md | [references/agents-md.md](references/agents-md.md) |
-| CHANGELOG.md | [references/changelog.md](references/changelog.md) |
 | docs/golden-rules.md | [references/golden-rules.md](references/golden-rules.md) |
 
 **CLAUDE.md**: Always create as a symlink to AGENTS.md:
@@ -132,7 +129,6 @@ After creating or updating, verify:
 - [ ] README.md covers quick start, commands, and development setup
 - [ ] AGENTS.md exists, is under 150 lines, points to deeper docs
 - [ ] CLAUDE.md exists and references AGENTS.md
-- [ ] CHANGELOG.md exists with proper format
 - [ ] docs/golden-rules.md exists with numbered rules
 - [ ] All internal links are valid
 - [ ] No existing files were overwritten without user confirmation
@@ -164,7 +160,6 @@ Report what was created, what was updated, and what was already in good shape.
 - [ ] README.md has required sections (description, install, commands, development)
 - [ ] AGENTS.md exists and is under 150 lines
 - [ ] CLAUDE.md exists
-- [ ] CHANGELOG.md exists with Keep a Changelog format
 - [ ] docs/golden-rules.md exists with numbered rules and enforcement
 - [ ] No stale documentation contradicting current code
 - [ ] All internal links are valid

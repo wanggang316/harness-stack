@@ -33,6 +33,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-security` - Security audit
 
 **Ship** → Deploy and release
+- `/hs-changelog` - Changelog management
 - `/hs-git` - Git workflow and versioning
 - `/hs-ship` - Shipping and launch
 
