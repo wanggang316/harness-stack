@@ -101,7 +101,7 @@ Verify AGENTS.md stays under 150 lines.
 
 ### Step 6: Validate
 
-Run hs-check to verify:
+Verify:
 - SKILL.md has all required sections
 - YAML frontmatter is valid
 - Slash command exists
@@ -132,4 +132,4 @@ Run hs-check to verify:
 - [ ] Common Rationalizations has 2+ entries
 - [ ] Slash command created in .claude/commands/
 - [ ] AGENTS.md updated (and still under 150 lines)
-- [ ] hs-check passes
+- [ ] All validations pass

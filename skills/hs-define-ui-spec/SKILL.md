@@ -1,9 +1,9 @@
 ---
-name: hs-ui-design
+name: hs-define-ui-spec
 description: Initializes or modifies project UI design style via DESIGN.md. Use when starting a new project that needs a visual design system, when adopting a pre-built design style (e.g., Linear, Vercel, Stripe), or when customizing UI design tokens from scratch.
 ---
 
-# hs-ui-design: UI Design System
+# hs-define-ui-spec: UI Design System
 
 ## Overview
 
@@ -117,11 +117,11 @@ DESIGN SYSTEM READY:
 ## Relationship to Other Skills
 
 - **hs-spec** defines *what* to build — the product requirements
-- **hs-ui-design** defines *how it should look* — the visual design language
+- **hs-define-ui-spec** defines *how it should look* — the visual design language
 - **hs-build** reads `docs/ui-design.md` when implementing UI components
 - **hs-design** defines *how to build it technically* — architecture decisions
 
-Recommended sequence for new UI features: `hs-spec` → `hs-ui-design` → `hs-plan` → `hs-build`
+Recommended sequence for new UI features: `hs-spec` → `hs-define-ui-spec` → `hs-plan` → `hs-build`
 
 ## Available Pre-built Styles
 

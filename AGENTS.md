@@ -7,9 +7,7 @@ Agent-first development framework implementing the harness methodology.
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
-- `/hs-init` - Initialize harness in any project
-- `/hs-check` - Validate structure and documentation
-- `/hs-score` - Generate quality scorecard
+- `/hs-docs` - Initialize and maintain docs structure and base documents
 - `/hs-skill-create` - Create new skills
 
 ### Lifecycle Skills
@@ -20,7 +18,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-define-api-spec` - API specification (global)
 - `/hs-spec` - Product specification (feature-level)
 - `/hs-design` - Design document (technical)
-- `/hs-ui-design` - UI design system (DESIGN.md)
+- `/hs-define-ui-spec` - UI design system (DESIGN.md)
 
 **Plan** → Create and execute plans
 - `/hs-planner` - Create execution plans (ExecPlans)
@@ -35,6 +33,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-security` - Security audit
 
 **Ship** → Deploy and release
+- `/hs-changelog` - Changelog management
 - `/hs-git` - Git workflow and versioning
 - `/hs-ship` - Shipping and launch
 
@@ -57,8 +56,7 @@ When you need expert judgment:
 
 ## Getting Started
 
-1. Initialize: `/hs-init` in your project
-2. Write spec: `/hs-spec` for new features
+1. Write spec: `/hs-spec` for new features
 3. Plan work: `/hs-planner` to create execution plan
 4. Build: `/hs-exec-plan` to execute the plan
 5. Review: `/hs-review` before merging

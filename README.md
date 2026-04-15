@@ -16,21 +16,11 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 
 ## Quick Start
 
-```bash
-# In Claude Code, run:
-/hs-init
-```
-
-This initializes harness-stack in your project, creating the full structure.
-
 ## Available Skills
 
 ### Meta (Manage harness itself)
 | Command | Description |
 |---------|-------------|
-| `/hs-init` | Initialize harness in any project |
-| `/hs-check` | Validate structure and docs |
-| `/hs-score` | Generate quality scorecard |
 | `/hs-skill-create` | Create new skills |
 
 ### Lifecycle (Full development workflow)
