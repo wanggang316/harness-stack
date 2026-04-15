@@ -7,6 +7,7 @@ Agent-first development framework implementing the harness methodology.
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
+- `/hs-docs` - Initialize and maintain docs structure and base documents
 - `/hs-skill-create` - Create new skills
 
 ### Lifecycle Skills
