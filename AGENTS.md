@@ -7,7 +7,6 @@ Agent-first development framework implementing the harness methodology.
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
-- `/hs-init` - Initialize harness in any project
 - `/hs-check` - Validate structure and documentation
 - `/hs-score` - Generate quality scorecard
 - `/hs-skill-create` - Create new skills
@@ -57,8 +56,7 @@ When you need expert judgment:
 
 ## Getting Started
 
-1. Initialize: `/hs-init` in your project
-2. Write spec: `/hs-spec` for new features
+1. Write spec: `/hs-spec` for new features
 3. Plan work: `/hs-planner` to create execution plan
 4. Build: `/hs-exec-plan` to execute the plan
 5. Review: `/hs-review` before merging

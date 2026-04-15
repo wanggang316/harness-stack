@@ -18,7 +18,7 @@ Generates a quality scorecard measuring harness-stack completeness, documentatio
 - After adding new skills or docs
 
 **Don't use when**:
-- harness-stack not initialized (use hs-init first)
+- harness-stack not yet set up
 - Need specific validation (use hs-check instead)
 
 ## Process

@@ -12,13 +12,12 @@ Validates that harness-stack structure is complete and correct. Checks file exis
 ## When to Use
 
 **Use when**:
-- After running hs-init to verify setup
 - Before merging PRs that touch skills/docs
 - As periodic health check
 - In CI pipelines
 
 **Don't use when**:
-- harness-stack not yet initialized (use hs-init first)
+- harness-stack not yet set up
 
 ## Process
 
@@ -26,7 +25,7 @@ Validates that harness-stack structure is complete and correct. Checks file exis
 
 ```bash
 # Must exist
-test -f AGENTS.md || echo "FAIL: AGENTS.md missing. FIX: Run /hs-init"
+test -f AGENTS.md || echo "FAIL: AGENTS.md missing. FIX: Create AGENTS.md"
 
 # Must be under 150 lines
 LINES=$(wc -l < AGENTS.md)
@@ -66,7 +65,7 @@ For each agent file in `agents/`:
 test -d .claude/commands/ || echo "FAIL: .claude/commands/ missing"
 
 # Each skill has a corresponding command
-for skill in hs-init hs-check hs-score hs-define-product hs-define-architecture hs-spec hs-design hs-planner hs-exec-plan hs-review hs-ship; do
+for skill in hs-check hs-score hs-define-product hs-define-architecture hs-spec hs-design hs-planner hs-exec-plan hs-review hs-ship; do
   test -f ".claude/commands/$skill.md" || echo "FAIL: Missing command $skill.md"
 done
 
