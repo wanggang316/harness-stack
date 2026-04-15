@@ -63,6 +63,7 @@ Read 5-10 API route handlers across different domains. For each, extract:
 - OpenAPI/Swagger specs
 - Schema validation libraries (Zod, Joi, Yup, Pydantic, etc.)
 - API documentation generators
+- Inline documentation patterns (JSDoc, docstrings, etc.)
 
 **Present discovery results:**
 
@@ -275,6 +276,71 @@ Validation happens at the handler layer using [Zod/Joi/Pydantic/etc.].
 - Existing fields do not change type or get removed
 - Deprecate before removing — mark deprecated fields in response
 - Breaking changes require a new API version
+
+## Endpoint Documentation
+
+<!-- How individual endpoints are documented.
+     This defines the standard, not the docs themselves. -->
+
+### Approach
+
+<!-- Pick one or both based on the project. -->
+
+| Method | When to Use | Where |
+|---|---|---|
+| Inline with types | TypeScript / typed languages | JSDoc on exported handlers |
+| OpenAPI spec | REST APIs with external consumers | `openapi.yaml` |
+
+### Per-Endpoint Requirements
+
+Each public endpoint documents:
+- Parameters and types
+- Return type / response schema
+- Error cases with specific error types
+- One usage example
+- Known gotchas (side effects, ordering requirements, rate limits)
+
+\```typescript
+/**
+ * Creates a new task.
+ *
+ * @param input - Task creation data (title required, description optional)
+ * @returns The created task with server-generated ID and timestamps
+ * @throws {ValidationError} If title is empty or exceeds 200 characters
+ *
+ * @example
+ * const task = await createTask({ title: 'Buy groceries' });
+ * console.log(task.id); // "task_abc123"
+ */
+export async function createTask(input: CreateTaskInput): Promise<Task> {
+  // ...
+}
+\```
+
+\```yaml
+# OpenAPI equivalent
+paths:
+  /api/tasks:
+    post:
+      summary: Create a task
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTaskInput'
+      responses:
+        '201':
+          description: Task created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '422':
+          description: Validation error
+\```
+
+**Don't document**: Internal helper functions, private methods, or self-explanatory CRUD.
 ```
 
 **Writing principles:**
@@ -295,6 +361,7 @@ API SPEC READY FOR REVIEW:
 - Authentication: [mechanism]
 - URL conventions: [defined]
 - Validation: [library and strategy]
+- Endpoint docs: [inline types / OpenAPI / both]
 → This is the API contract for the project.
    Approve, or tell me what to change.
 ```
@@ -329,6 +396,7 @@ The spec describes how the API IS, not how it was or should be.
 - Validation scattered throughout internal code instead of at handler boundaries
 - Status codes used inconsistently (e.g., 400 and 422 for the same thing)
 - No spec exists but multiple services expose endpoints
+- Public endpoints with no documentation standard (no JSDoc, no OpenAPI, no examples)
 
 ## Verification
 
@@ -342,6 +410,7 @@ The spec describes how the API IS, not how it was or should be.
 - [ ] Validation strategy documented (where, what library)
 - [ ] Field conventions defined (casing, booleans, enums, timestamps, IDs)
 - [ ] Backward compatibility rules stated
+- [ ] Endpoint documentation strategy defined (inline types, OpenAPI, or both)
 - [ ] Inconsistencies surfaced and resolved with human
 - [ ] Human has reviewed and approved
 - [ ] Saved to `docs/api-spec.md`
