@@ -14,9 +14,10 @@ Agent-first development framework implementing the harness methodology.
 
 ### Lifecycle Skills
 
-**Define** → Define product and architecture
+**Define** → Define product, architecture, and API
 - `/hs-define-product` - Product definition (global)
 - `/hs-define-architecture` - Architecture definition (global)
+- `/hs-define-api-spec` - API specification (global)
 - `/hs-spec` - Product specification (feature-level)
 - `/hs-design` - Design document (technical)
 - `/hs-ui-design` - UI design system (DESIGN.md)

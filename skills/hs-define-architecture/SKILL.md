@@ -9,7 +9,7 @@ description: Defines system architecture at the global level. Use when starting 
 
 Define the system architecture at the global level. `docs/architecture.md` is the structural map of the entire system — it describes domains, layers, dependency directions, cross-cutting concerns, and key technology choices. An agent or engineer reading this file should understand how the codebase is organized without reading every file.
 
-This is not a design doc for a specific feature. Feature-level technical designs live in `docs/design-docs/` (via `/hs-design`). This document defines the system's overall structure — the skeleton within which all components exist.
+This is not a design doc for a specific feature. Feature-level technical designs live in `docs/design-docs/`. This document defines the system's overall structure — the skeleton within which all components exist.
 
 Inspired by [matklad's ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html).
 
