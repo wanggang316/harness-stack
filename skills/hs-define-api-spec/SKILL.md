@@ -44,7 +44,6 @@ and configs    and gaps     .md
 
 **Load context:**
 - Read `docs/architecture.md` — understand domains and service boundaries
-- Read `docs/conventions.md` — check if API patterns are already defined there
 - Read existing `docs/api-spec.md` if it exists — update, don't rewrite
 
 **Sample existing endpoints:**
