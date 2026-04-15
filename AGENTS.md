@@ -17,7 +17,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-define-api-spec` - API specification (global)
 - `/hs-spec` - Product specification (feature-level)
 - `/hs-design` - Design document (technical)
-- `/hs-ui-design` - UI design system (DESIGN.md)
+- `/hs-define-ui-spec` - UI design system (DESIGN.md)
 
 **Plan** → Create and execute plans
 - `/hs-planner` - Create execution plans (ExecPlans)
