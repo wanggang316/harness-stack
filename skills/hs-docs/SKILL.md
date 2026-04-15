@@ -7,7 +7,7 @@ description: Initialize and maintain project documentation structure and base do
 
 ## Overview
 
-Initialize the standard documentation directory structure and maintain base documents that every project needs. This skill handles the scaffolding (`docs/` tree, templates) and the foundational files (README.md, AGENTS.md, CLAUDE.md, golden-rules.md). CHANGELOG.md is managed by `hs-changelog`. Documents that require explicit design decisions (product specs, architecture, API specs, UI specs) are handled by their respective `hs-define-xxx` skills.
+Initialize the standard documentation directory structure and maintain base documents that every project needs. This skill handles the scaffolding (`docs/` directory tree) and the foundational files (README.md, AGENTS.md, CLAUDE.md, golden-rules.md). Content in each subdirectory is created by the corresponding skill — not by this skill.
 
 ## When to Use
 
@@ -16,7 +16,7 @@ Initialize the standard documentation directory structure and maintain base docu
 - README.md is missing or incomplete
 - AGENTS.md / CLAUDE.md needs creation or update
 - Golden rules need to be established or updated
-- Documentation structure is incomplete (missing directories or templates)
+- Documentation structure is incomplete (missing directories)
 
 **Don't use when**:
 - Writing product specs → use `hs-spec`
@@ -28,15 +28,21 @@ Initialize the standard documentation directory structure and maintain base docu
 
 ## Scope
 
-| This skill maintains | Other skills maintain |
+**This skill maintains:**
+- `docs/` directory structure (directories + `docs/README.md`)
+- README.md, AGENTS.md / CLAUDE.md, `docs/golden-rules.md`
+
+**Content in each directory is created by its corresponding skill:**
+
+| Directory / Document | Use this skill |
 |---|---|
-| `docs/` directory structure | Product specs content (`hs-spec`) |
-| `docs/product-specs/_template.md` | Architecture content (`hs-define-architecture`) |
-| `docs/design-docs/_template.md` | API spec content (`hs-define-api-spec`) |
-| `docs/plans/_template.md` | UI design content (`hs-define-ui-spec`) |
-| README.md | Design docs content (`hs-design`) |
-| AGENTS.md / CLAUDE.md | Execution plans content (`hs-planner`) |
-| `docs/golden-rules.md` | CHANGELOG.md (`hs-changelog`) |
+| `docs/product-specs/` | `hs-spec` |
+| `docs/design-docs/` | `hs-design` |
+| `docs/plans/` | `hs-planner` |
+| Architecture | `hs-define-architecture` |
+| API spec | `hs-define-api-spec` |
+| UI design | `hs-define-ui-spec` |
+| CHANGELOG.md | `hs-changelog` |
 
 ## Process
 
@@ -46,10 +52,10 @@ Check what exists. Report status for each item:
 
 ```
 Directory structure:
-- [ ] docs/ exists
-- [ ] docs/product-specs/ exists with README.md and _template.md
-- [ ] docs/design-docs/ exists with README.md and _template.md
-- [ ] docs/plans/ exists with README.md and _template.md
+- [ ] docs/ exists with README.md
+- [ ] docs/product-specs/ exists
+- [ ] docs/design-docs/ exists
+- [ ] docs/plans/ exists
 
 Base documents:
 - [ ] README.md exists and has required sections
@@ -97,11 +103,10 @@ Project documentation hub.
 - Mark documents as deprecated rather than deleting
 ```
 
-Create subdirectory READMEs and `_template.md` files (if missing). Templates follow the standard formats:
-
-- **Product spec template**: Status, Summary, User Stories, Requirements (Must Have / Nice to Have), Acceptance Criteria, Design, Open Questions
-- **Design doc template**: Status, Problem Statement, Goals, Non-Goals, Proposed Solution, Alternatives Considered, Dependencies, Risks, References
-- **Execution plan template**: Status, Purpose / Big Picture, Context and Orientation, Plan of Work, Progress (checkboxes), Surprises & Discoveries, Decision Log, Outcomes & Retrospective
+Subdirectory content (specs, design docs, plans) is not created here — guide the user to the appropriate skill:
+- Product specs → `hs-spec`
+- Design docs → `hs-design`
+- Execution plans → `hs-planner`
 
 #### 2b: Create or Update Base Documents
 
@@ -125,7 +130,7 @@ If symlinks are not supported, create CLAUDE.md with content directing to AGENTS
 
 After creating or updating, verify:
 
-- [ ] `docs/` directory has README.md and three subdirectories with templates
+- [ ] `docs/` directory has README.md and three subdirectories
 - [ ] README.md covers quick start, commands, and development setup
 - [ ] AGENTS.md exists, is under 150 lines, points to deeper docs
 - [ ] CLAUDE.md exists and references AGENTS.md
@@ -151,12 +156,11 @@ Report what was created, what was updated, and what was already in good shape.
 - No AGENTS.md in a project using AI coding agents
 - AGENTS.md over 150 lines (it's a map, not a manual)
 - Missing CLAUDE.md (agents may not discover AGENTS.md)
-- Template files that have been modified into actual docs (keep templates clean)
+- Content created directly in subdirectories without using the corresponding skill
 
 ## Verification
 
 - [ ] `docs/` has README.md, product-specs/, design-docs/, plans/
-- [ ] Each subdirectory has README.md and _template.md
 - [ ] README.md has required sections (description, install, commands, development)
 - [ ] AGENTS.md exists and is under 150 lines
 - [ ] CLAUDE.md exists
