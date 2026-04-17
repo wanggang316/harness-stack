@@ -9,7 +9,7 @@ harness-stack 文档中心。
 ## Skills
 
 ### Meta-Skills
-- [hs-docs](../skills/hs-docs/SKILL.md) — 文档结构与基础文档
+- [hs-docs-init](../skills/hs-docs-init/SKILL.md) — 一次性初始化文档结构与基础文档
 - [hs-skill-create](../skills/hs-skill-create/SKILL.md) — 创建新 Skill
 
 ### Lifecycle Skills
