@@ -1,5 +1,9 @@
 # Port Allocation Strategy
 
+## Philosophy
+
+**Non-invasive**: Respect the project's existing `.env` convention. The script computes port values for this worktree and **injects them into `.env`** (generating `.env` from `.env.example` if missing). No new config schema, no `.env.template`, no changes to source code unless the user explicitly approves.
+
 ## Worktree Identity
 
 Each worktree derives a unique identity from its directory name:
@@ -8,15 +12,16 @@ Each worktree derives a unique identity from its directory name:
 WORKTREE_ID=$(basename "$(git rev-parse --show-toplevel)")
 ```
 
-For the main worktree (the original checkout), use `main` as the identity to keep base ports unchanged.
+For the main worktree, use `main` as the identity to keep base ports unchanged.
 
-Detection logic:
+Detection:
 
 ```sh
 ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 GIT_COMMON=$(git -C "$ROOT_DIR" rev-parse --git-common-dir 2>/dev/null || echo "")
+GIT_DIR=$(git -C "$ROOT_DIR" rev-parse --absolute-git-dir 2>/dev/null || echo "")
 
-if [ "$GIT_COMMON" = ".git" ]; then
+if [ "$GIT_DIR" = "$GIT_COMMON" ]; then
   # This IS the main worktree
   WORKTREE_ID="main"
 else
@@ -40,100 +45,163 @@ fi
 Properties:
 - **Range**: 10 to 9000, step size 10
 - **Deterministic**: Same worktree name always produces the same offset
-- **Main worktree**: Offset 0, keeps original base ports (documentation/bookmarks work)
+- **Main worktree**: Offset 0, keeps original base ports (existing docs and bookmarks work)
 - **Step size 10**: Accommodates up to 10 services per project without inter-worktree collision
-- **POSIX**: `cksum` is available on macOS and Linux
+
+## Port Detection Algorithm
+
+`env-init` must detect which variables in `.env.example` represent ports:
+
+```sh
+# Extract port-related variables from .env.example
+extract_port_vars() {
+  env_file="$1"
+  # Match: PORT=..., *_PORT=..., variables with ":port" in URLs
+  grep -E '^[A-Z_]*(PORT|PORT=)' "$env_file" | cut -d'=' -f1
+}
+
+# Extract URL variables that contain port numbers
+extract_url_vars() {
+  env_file="$1"
+  # Matches URLs with :PORT pattern
+  grep -E '^[A-Z_]+=.+://.+:[0-9]+' "$env_file" | cut -d'=' -f1
+}
+```
+
+For each port variable, the base port comes from the value in `.env.example`.
+
+## Port Injection Algorithm
+
+The `env-init` script does not generate `.env` from a new template. Instead:
+
+```
+1. If .env does not exist:
+     Copy .env.example → .env
+2. For each port variable detected in .env.example:
+     new_value = base_value + PORT_OFFSET
+     if port is occupied:
+       new_value = next_free_port(new_value)
+     Update or insert the variable in .env
+3. For each URL variable containing a port:
+     Substitute the new port value
+4. Update DATABASE_URL with worktree-specific database name (if multi-db strategy)
+```
+
+Implementation sketch:
+
+```sh
+# Update or insert a variable in .env
+set_env_var() {
+  env_file="$1"
+  var_name="$2"
+  var_value="$3"
+
+  if grep -q "^${var_name}=" "$env_file"; then
+    # Replace existing line (POSIX-compatible)
+    tmp=$(mktemp)
+    awk -v n="$var_name" -v v="$var_value" '
+      BEGIN { FS=OFS="=" }
+      $1 == n { $0 = n "=" v; found=1 }
+      { print }
+      END { if (!found) print n "=" v }
+    ' "$env_file" > "$tmp"
+    mv "$tmp" "$env_file"
+  else
+    printf '%s=%s\n' "$var_name" "$var_value" >> "$env_file"
+  fi
+}
+
+# Example usage
+BASE_PORT=$(grep '^PORT=' .env.example | cut -d'=' -f2)
+NEW_PORT=$((BASE_PORT + PORT_OFFSET))
+if port_in_use "$NEW_PORT"; then
+  NEW_PORT=$(next_free_port "$NEW_PORT")
+fi
+set_env_var ".env" "PORT" "$NEW_PORT"
+```
 
 ## Free Port Fallback
 
 If a computed port is already in use, increment until a free port is found:
 
 ```sh
+port_in_use() {
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+  elif command -v ss >/dev/null 2>&1; then
+    ss -tlnH "sport = :$1" 2>/dev/null | grep -q .
+  else
+    (exec 3<>/dev/tcp/localhost/"$1") 2>/dev/null && { exec 3<&-; return 0; }
+    return 1
+  fi
+}
+
 next_free_port() {
   port=$1
-  while is_port_in_use "$port"; do
+  max=$((port + 100))
+  while [ "$port" -le "$max" ] && port_in_use "$port"; do
     port=$((port + 1))
   done
   printf '%s' "$port"
 }
-
-is_port_in_use() {
-  # macOS + Linux compatible
-  if command -v lsof >/dev/null 2>&1; then
-    lsof -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
-  elif command -v ss >/dev/null 2>&1; then
-    ss -tlnH "sport = :$1" | grep -q .
-  else
-    # Fallback: try to bind
-    (echo >/dev/tcp/localhost/"$1") 2>/dev/null
-  fi
-}
 ```
 
-## Monorepo Dynamic Port Association
+## Monorepo: Per-Package .env Files
 
-In a monorepo, multiple packages run as separate services. The key principle: **all packages share the same `PORT_OFFSET`**, and cross-service references use variables.
+In a monorepo, each package may have its own `.env.example`:
 
-### Root .env.template
+```
+./.env.example                    ← root (shared config)
+./apps/web/.env.example           ← web app
+./apps/api/.env.example           ← API server
+./apps/admin/.env.example         ← admin panel
+```
 
-The root template defines all ports centrally:
+**Key principle**: All packages share the same `PORT_OFFSET` (derived from worktree ID). Each package's `.env` is patched independently, but cross-service URLs remain consistent because the offset is the same.
+
+Processing:
 
 ```sh
-WORKTREE_ID=${WORKTREE_ID:-main}
-PORT_OFFSET=${PORT_OFFSET:-0}
+# Process each .env.example in the monorepo
+find . -name ".env.example" -not -path "*/node_modules/*" -not -path "*/.git/*" | while read -r example; do
+  dir=$(dirname "$example")
+  env_file="$dir/.env"
 
-# Service ports
-WEB_PORT=$((3000 + PORT_OFFSET))
-API_PORT=$((4000 + PORT_OFFSET))
-ADMIN_PORT=$((3100 + PORT_OFFSET))
-WORKER_PORT=$((5000 + PORT_OFFSET))
-DB_PORT=$((5432 + PORT_OFFSET))
-REDIS_PORT=$((6379 + PORT_OFFSET))
+  # Copy template if .env missing
+  [ -f "$env_file" ] || cp "$example" "$env_file"
 
-# Cross-service URLs (derived from ports above)
-NEXT_PUBLIC_API_URL=http://localhost:${API_PORT}
-DATABASE_URL=postgresql://localhost:${DB_PORT}/app_${WORKTREE_ID}
-REDIS_URL=redis://localhost:${REDIS_PORT}/0
+  # Detect port variables and inject computed values
+  for var in $(extract_port_vars "$example"); do
+    base_value=$(grep "^${var}=" "$example" | cut -d'=' -f2)
+    new_value=$((base_value + PORT_OFFSET))
+    port_in_use "$new_value" && new_value=$(next_free_port "$new_value")
+    set_env_var "$env_file" "$var" "$new_value"
+  done
+
+  # Update URL variables with substituted ports
+  # ... (see runtime-lifecycle.md for full implementation)
+done
 ```
 
-### Per-Package Distribution
+### Cross-Service URLs in Monorepo
 
-Two patterns for distributing ports to packages:
+When `apps/web/.env.example` contains `NEXT_PUBLIC_API_URL=http://localhost:4000`, and `apps/api/.env.example` contains `PORT=4000`, these must stay in sync after injection.
 
-**Pattern A: Shared root .env** (simpler)
+Strategy: when substituting a URL's port, look up the **new** value of the corresponding service's port (from the port map built during processing), not the raw offset.
 
-All packages read from the root `.env` via `dotenv` or framework config:
+Maintain a port map during processing:
 
-```js
-// apps/web/next.config.js
-const port = process.env.WEB_PORT || 3000;
+```sh
+# Build port map from all .env.example files first
+declare_port_map   # (portable stand-in: use a temp file with lines like "api=4000:4270")
+
+# Then substitute URLs using the map
+# API_URL=http://localhost:4000 → API_URL=http://localhost:4270
 ```
-
-**Pattern B: Per-package .env generation** (explicit)
-
-`env-init` generates a `.env` in each package directory:
-
-```
-apps/web/.env       → PORT=3270, NEXT_PUBLIC_API_URL=http://localhost:4270
-apps/api/.env       → PORT=4270, DATABASE_URL=postgresql://localhost:5702/app_env_init
-packages/shared/.env → (no runtime ports needed)
-```
-
-Both patterns are valid. Pattern A is simpler; Pattern B gives each package full independence.
-
-### Service Dependency Graph
-
-For monorepos, `env-start` must respect startup order:
-
-```
-Database → Redis → API → Worker → Web
-```
-
-The service graph is project-specific. `env-init` should detect or ask the user about dependencies, then `env-start` starts services in order, waiting for each to be healthy before starting the next.
 
 ## Port Registration and Conflict Detection
 
-After allocating ports, write the mapping to `.worktree-runtime/ports.json`:
+After injection, write the mapping to `.worktree-runtime/ports.json`:
 
 ```json
 {
@@ -143,25 +211,21 @@ After allocating ports, write the mapping to `.worktree-runtime/ports.json`:
   "ports": {
     "web": 7270,
     "api": 8270,
-    "admin": 7370,
-    "worker": 9270,
     "db": 9702,
     "redis": 10649
   }
 }
 ```
 
-To detect conflicts with sibling worktrees:
+`env-init` can scan sibling worktrees' `ports.json` to warn about collisions:
 
 ```sh
-# Scan sibling worktree ports.json files
-SIBLINGS_DIR=$(dirname "$ROOT_DIR")
-for sibling in "$SIBLINGS_DIR"/*/; do
-  ports_file="$sibling/.worktree-runtime/ports.json"
-  if [ -f "$ports_file" ] && [ "$sibling" != "$ROOT_DIR/" ]; then
-    # Compare ports for overlap
-    # ...
-  fi
+SIBLINGS=$(dirname "$ROOT_DIR")
+for sibling in "$SIBLINGS"/*/; do
+  [ "$sibling" = "$ROOT_DIR/" ] && continue
+  ports_file="${sibling}.worktree-runtime/ports.json"
+  [ -f "$ports_file" ] || continue
+  # Cross-reference ports for overlap; warn user
 done
 ```
 
@@ -174,6 +238,20 @@ For a project with base ports `WEB=3000, API=4000, DB=5432, REDIS=6379`:
 | main | 0 | 3000 | 4000 | 5432 | 6379 |
 | env-init | 4270 | 7270 | 8270 | 9702 | 10649 |
 | codex | 2380 | 5380 | 6380 | 7812 | 8759 |
-| ui | 6130 | 9130 | 10130 | 11562 | 12509 |
 
-Note: If any port exceeds 65535 or is occupied, the free-port fallback engages.
+If any computed port exceeds 65535 or is occupied, the free-port fallback engages.
+
+## Handling Hardcoded Ports
+
+If source code hardcodes ports (not reading from env), port injection cannot isolate those services. The skill must surface this to the user rather than silently refactor:
+
+**Detection**:
+
+```sh
+# Scan source for hardcoded common ports
+grep -rn -E ':\s*(3000|4000|5000|5432|6379|8080)\b' \
+  --include='*.ts' --include='*.js' --include='*.py' --include='*.go' \
+  src/ apps/ 2>/dev/null
+```
+
+Present findings to the user with options (refactor / skip / cancel). Do not auto-refactor production code.

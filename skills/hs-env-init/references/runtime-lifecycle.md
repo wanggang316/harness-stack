@@ -44,7 +44,9 @@ State is tracked in `.worktree-runtime/state.json`.
 
 ## scripts/env-init
 
-Initializes the environment. Idempotent -- safe to run multiple times.
+Initializes the environment by injecting per-worktree port values into the project's existing `.env` files. Idempotent -- safe to run multiple times.
+
+**Key behavior**: does NOT create a new `.env.template`. It discovers each existing `.env.example` in the project, copies it to `.env` if missing, then overrides port-related variables with worktree-specific values. Unrelated variables (secrets, feature flags) are preserved.
 
 ```sh
 #!/bin/sh
@@ -54,8 +56,9 @@ ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 RUNTIME_DIR="$ROOT_DIR/.worktree-runtime"
 
 # --- Step 1: Derive worktree identity ---
-GIT_COMMON=$(git -C "$ROOT_DIR" rev-parse --git-common-dir 2>/dev/null || echo ".git")
-if [ "$GIT_COMMON" = ".git" ]; then
+GIT_DIR=$(git -C "$ROOT_DIR" rev-parse --absolute-git-dir 2>/dev/null || echo "")
+GIT_COMMON=$(git -C "$ROOT_DIR" rev-parse --git-common-dir 2>/dev/null || echo "")
+if [ "$GIT_DIR" = "$GIT_COMMON" ] || [ -z "$GIT_DIR" ]; then
   WORKTREE_ID="main"
 else
   WORKTREE_ID=$(basename "$ROOT_DIR")
@@ -73,32 +76,75 @@ fi
 mkdir -p "$RUNTIME_DIR/pids" "$RUNTIME_DIR/logs" "$RUNTIME_DIR/data"
 printf '%s\n' "$WORKTREE_ID" > "$RUNTIME_DIR/worktree.id"
 
-# --- Step 4: Generate .env from template ---
-if [ -f "$ROOT_DIR/.env.template" ]; then
-  export WORKTREE_ID PORT_OFFSET
-  # Resolve template variables and write .env
-  envsubst < "$ROOT_DIR/.env.template" > "$ROOT_DIR/.env"
-fi
+# --- Step 4: Helpers ---
+set_env_var() {
+  env_file="$1"; var="$2"; value="$3"
+  tmp=$(mktemp)
+  awk -v n="$var" -v v="$value" '
+    BEGIN { FS=OFS="="; found=0 }
+    $1 == n { $0 = n "=" v; found=1 }
+    { print }
+    END { if (!found) print n "=" v }
+  ' "$env_file" > "$tmp" && mv "$tmp" "$env_file"
+}
 
-# --- Step 5: Write ports.json ---
-# (Project-specific: compute actual ports and write JSON)
+port_in_use() {
+  if command -v lsof >/dev/null 2>&1; then
+    lsof -iTCP:"$1" -sTCP:LISTEN >/dev/null 2>&1
+  else
+    (exec 3<>/dev/tcp/localhost/"$1") 2>/dev/null && { exec 3<&-; return 0; }
+    return 1
+  fi
+}
+
+next_free_port() {
+  p=$1; max=$((p + 100))
+  while [ "$p" -le "$max" ] && port_in_use "$p"; do p=$((p + 1)); done
+  printf '%s' "$p"
+}
+
+# --- Step 5: Process each .env.example in the project ---
+# For monorepos, find all .env.example files; for single-package, just the root.
+find "$ROOT_DIR" -name ".env.example" \
+  -not -path "*/node_modules/*" \
+  -not -path "*/.git/*" \
+  -not -path "*/.worktree-runtime/*" | while read -r example; do
+  
+  dir=$(dirname "$example")
+  env_file="$dir/.env"
+
+  # Copy template if .env missing (preserves existing .env secrets otherwise)
+  [ -f "$env_file" ] || cp "$example" "$env_file"
+
+  # For each port variable in .env.example, inject computed value into .env
+  grep -E '^[A-Z_]*PORT=[0-9]+' "$example" 2>/dev/null | while IFS='=' read -r var base; do
+    new_port=$((base + PORT_OFFSET))
+    port_in_use "$new_port" && new_port=$(next_free_port "$new_port")
+    set_env_var "$env_file" "$var" "$new_port"
+    printf '  %s: %s → %s (%s)\n' "$env_file" "$var" "$new_port" "$base" >&2
+  done
+
+  # URL variables with embedded ports are project-specific; handle via a 
+  # custom SERVICE_URL_VARS list in env-init, or use sed substitution.
+done
 
 # --- Step 6: Install dependencies ---
 if [ -f "$ROOT_DIR/package.json" ]; then
   if command -v pnpm >/dev/null 2>&1; then
-    pnpm install --dir "$ROOT_DIR"
+    (cd "$ROOT_DIR" && pnpm install)
   elif command -v npm >/dev/null 2>&1; then
-    npm install --prefix "$ROOT_DIR"
+    (cd "$ROOT_DIR" && npm install)
   fi
 fi
 
 # --- Step 7: Create database (project-specific) ---
 # See database-strategy.md for implementation
 
-# --- Step 8: Update state ---
+# --- Step 8: Write state.json ---
 cat > "$RUNTIME_DIR/state.json" <<STATEEOF
 {
   "worktree_id": "$WORKTREE_ID",
+  "port_offset": $PORT_OFFSET,
   "state": "initialized",
   "initialized_at": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 }
@@ -106,6 +152,8 @@ STATEEOF
 
 printf 'Environment initialized: worktree=%s offset=%d\n' "$WORKTREE_ID" "$PORT_OFFSET"
 ```
+
+The script above is a baseline. For monorepo projects with cross-service URL references (e.g., `API_URL=http://localhost:4000` in the web package pointing to the API package), extend the URL-substitution block to look up peer port mappings. See `port-strategy.md` for the algorithm.
 
 ---
 

@@ -7,7 +7,9 @@ description: Initialize per-worktree isolated runtime environments for parallel 
 
 ## Overview
 
-Generates isolated runtime environments for each git worktree, enabling multiple worktrees to run simultaneously on one machine without port, database, or process conflicts.
+Generates isolated runtime environments for each git worktree, enabling multiple worktrees to run simultaneously without port, database, or process conflicts.
+
+**Non-invasive by design**: Works with the project's existing `.env` / `.env.example` files. Detects port variables, injects per-worktree values -- does not impose a new config schema.
 
 Inspired by OpenAI's **per-worktree booting** pattern: each worktree owns its application instances, logs, and state; everything is torn down cleanly when the worktree is removed.
 
@@ -17,147 +19,148 @@ Inspired by OpenAI's **per-worktree booting** pattern: each worktree owns its ap
 - Creating a new worktree that needs to run dev servers
 - Port conflicts occur between parallel worktrees
 - Setting up a project for multi-worktree development for the first time
-- A new developer needs multiple branches running simultaneously
 
 **Don't use when**:
 - Single-worktree projects that never run in parallel
 - Pure library projects with no runtime services
 - CI environments (inherently isolated per job)
 
+## Guiding Principles
+
+1. **Respect the project's existing config** -- use `.env` / `.env.example` where present; do not introduce new schemas
+2. **Monorepo awareness** -- each package may have its own `.env.example`; handle them independently but with shared port offset
+3. **Source-code changes are user decisions** -- if ports are hardcoded, suggest refactoring; do not force it
+4. **Minimal footprint** -- add only `scripts/env-*` and `.worktree-runtime/`; everything else reuses existing conventions
+
 ## Process
 
-### Step 1: Detect Project Structure
+### Step 1: Discover Existing Env Files
 
-Scan the project to understand its service topology:
+Find all env-related files in the project:
 
-```
-Project Root
-    │
-    ├── package.json / pnpm-workspace.yaml → Monorepo?
-    │     ├── Yes → Scan each package for services and ports
-    │     └── No  → Single-package: collect service ports
-    │
-    ├── docker-compose.yml → Containerized services?
-    ├── .env / .env.example → Existing env patterns?
-    └── Procfile / turbo.json → Process definitions?
+```bash
+# Root level
+ls .env .env.example .env.local 2>/dev/null
+
+# Monorepo: per-package
+find . -name ".env.example" -not -path "./node_modules/*" -not -path "./.git/*"
+find . -name ".env" -not -path "./node_modules/*" -not -path "./.git/*"
 ```
 
-**Collect a service inventory**:
+Build an inventory of env files to be managed:
 
-| Service | Default Port | Source |
-|---------|-------------|--------|
-| Web | 3000 | package.json "dev" script |
-| API | 4000 | apps/api/package.json |
-| Worker | 5000 | apps/worker/package.json |
-| Database | 5432 | docker-compose.yml |
-| Redis | 6379 | docker-compose.yml |
+| Path | Type | Notes |
+|------|------|-------|
+| `./.env.example` | Committed template | Source of truth at root |
+| `./apps/web/.env.example` | Package template | Next.js app |
+| `./apps/api/.env.example` | Package template | API server |
 
-Present the inventory to the user for confirmation before proceeding.
+### Step 2: Analyze Port Variables
 
-### Step 2: User Decision -- Database Strategy
+For each env file, identify port-related variables:
 
-**STOP. Present both options and let the user choose.**
+```bash
+grep -E '^(PORT|[A-Z_]+_PORT|[A-Z_]+PORT)=' .env.example
+```
 
-Read `references/database-strategy.md` for full comparison, then present:
+Categorize each variable:
+
+| Category | Example | Action |
+|----------|---------|--------|
+| **Already parameterized** | `PORT=${PORT:-3000}` in env, `process.env.PORT` in code | Inject value, no refactor |
+| **Fixed default in env** | `PORT=3000` in env, `process.env.PORT` in code | Override in generated `.env` |
+| **Hardcoded in source** | `3000` appears in source; not in env | Surface to user, suggest refactor |
+
+**Also check for port-bearing URLs**:
+- `DATABASE_URL=postgresql://localhost:5432/...`
+- `REDIS_URL=redis://localhost:6379`
+- `API_URL=http://localhost:4000`
+
+These need port substitution too.
+
+### Step 3: Surface Hardcoded Ports (if any)
+
+If Step 2 found hardcoded ports in source code, **STOP and ask the user**:
+
+> The following ports are hardcoded in source code and cannot be isolated without refactoring:
+>
+> - `apps/web/next.config.js:23` -- hardcoded port `3000`
+> - `apps/api/src/server.ts:15` -- hardcoded port `4000`
+>
+> **Option A**: Refactor to read from env var (`process.env.PORT`). Recommended -- enables worktree isolation.
+>
+> **Option B**: Skip these services in env-init. Only worktree-isolate the services with env-driven ports.
+>
+> **Option C**: Cancel -- I'll refactor manually first.
+>
+> Which option?
+
+Record the decision; do not silently refactor production code.
+
+### Step 4: User Decision -- Database Strategy
+
+Present database isolation options and let the user choose. Read `references/database-strategy.md` for full comparison.
 
 > **Database isolation strategy for this project:**
 >
-> **Option A: Multi-database** -- Same DB server, per-worktree database name (`app_main`, `app_feature_x`).
-> Best for: projects that use Postgres/MySQL in production.
+> **Option A: Multi-database** -- Same DB server, per-worktree database name.
+> **Option B: Embedded database** -- Per-worktree SQLite/DuckDB file.
 >
-> **Option B: Embedded database** -- Per-worktree SQLite/DuckDB file inside `.worktree-runtime/`.
-> Best for: projects where DB-specific features are not required in development.
->
-> Which option fits this project?
+> Which fits this project?
 
-Record the choice in `state.json` for future reference.
+Record the choice in `.worktree-runtime/state.json`.
 
-### Step 3: Generate .env.template
-
-Create `.env.template` at the project root (committed to git). This is the single source of truth for environment variables.
-
-**Key principle**: All ports are expressions of `PORT_OFFSET`, all database names include `WORKTREE_ID`. No hardcoded values.
-
-For **monorepo** projects, the root `.env.template` defines all ports centrally:
-
-```sh
-# --- Worktree Identity (auto-generated, do not edit) ---
-WORKTREE_ID=${WORKTREE_ID:-main}
-PORT_OFFSET=${PORT_OFFSET:-0}
-
-# --- Service Ports (base + offset) ---
-WEB_PORT=$((3000 + PORT_OFFSET))
-API_PORT=$((4000 + PORT_OFFSET))
-WORKER_PORT=$((5000 + PORT_OFFSET))
-DB_PORT=$((5432 + PORT_OFFSET))
-REDIS_PORT=$((6379 + PORT_OFFSET))
-
-# --- Cross-Service References (use variables, never hardcode) ---
-API_URL=http://localhost:${API_PORT}
-DATABASE_URL=postgresql://localhost:${DB_PORT}/app_${WORKTREE_ID}
-REDIS_URL=redis://localhost:${REDIS_PORT}/0
-
-# --- Secrets (copied from source worktree, not templated) ---
-# ANTHROPIC_API_KEY=
-# STRIPE_SECRET_KEY=
-```
-
-Each monorepo package reads from the root `.env` or receives its portion via the dev script.
-
-Read `references/port-strategy.md` for offset algorithm details and monorepo patterns.
-
-### Step 4: Generate Runtime Scripts
+### Step 5: Generate Runtime Scripts
 
 Create four scripts under `scripts/`:
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/env-init` | Initialize: derive worktree ID, compute port offset, generate `.env`, install dependencies, create database |
-| `scripts/env-start` | Start all services, record PIDs, route logs to `.worktree-runtime/logs/` |
-| `scripts/env-stop` | Graceful shutdown: SIGTERM -> wait -> SIGKILL, verify process exit, clean PID files |
-| `scripts/env-teardown` | Full cleanup: stop + drop database + remove containers + clean `.worktree-runtime/` |
+| Script | Responsibility |
+|--------|----------------|
+| `scripts/env-init` | Derive worktree ID, compute port offset, **write computed ports into existing `.env` files** (copying from `.env.example` if `.env` is missing), create/provision database |
+| `scripts/env-start` | Start all services, record PIDs in `.worktree-runtime/pids/`, route logs to `.worktree-runtime/logs/` |
+| `scripts/env-stop` | SIGTERM -> wait -> SIGKILL, verify exit, clean PID files |
+| `scripts/env-teardown` | `env-stop` + drop database + remove containers + clean `.worktree-runtime/` |
 
-All scripts are POSIX sh for portability. Make them executable (`chmod +x`).
+**Key behavior of `env-init`**: it does NOT replace `.env.example`. It copies the existing `.env.example` to `.env` (if `.env` is missing), then overwrites only the port-related variables and database URL with worktree-specific values. If `.env` already exists, it patches in place, preserving unrelated variables (especially secrets).
 
-Read `references/runtime-lifecycle.md` for script templates and the process lifecycle state machine.
+All scripts are POSIX sh. Make them executable (`chmod +x`).
 
-### Step 5: Create Runtime Directory
+Read `references/runtime-lifecycle.md` for script templates and the port injection algorithm.
 
-Set up `.worktree-runtime/` (gitignored) as the runtime state root:
+### Step 6: Create Runtime Directory
+
+Set up `.worktree-runtime/` (gitignored) for runtime state:
 
 ```
 .worktree-runtime/
-  worktree.id          # Plain text: worktree identifier
-  ports.json           # Actual allocated ports: {"web": 3270, "api": 4270, ...}
-  state.json           # Environment state and user decisions
-  pids/
-    web.pid            # PID files for each service
-    api.pid
-    worker.pid
-  logs/
-    web.log            # Per-service log files
-    api.log
-    worker.log
+  worktree.id          # Worktree identifier
+  ports.json           # Actual allocated ports per service
+  state.json           # Lifecycle state + user decisions
+  pids/                # PID files, one per service
+  logs/                # Log files, one per service
+  data/                # (Optional) embedded DB files
 ```
 
-Update `.gitignore` to include:
+Append to `.gitignore` if not already present:
 ```
 .worktree-runtime/
-.worktree-id
 .env
 .env.local
 .env.*.local
 ```
 
-### Step 6: Verify
+### Step 7: Verify
 
 ```bash
-# Environment generated
-cat .worktree-runtime/worktree.id && cat .worktree-runtime/ports.json
+./scripts/env-init
+# Inspect what was written
+cat .env                                  # Port variables should have worktree-specific values
+cat .worktree-runtime/ports.json          # Allocated ports
+cat .worktree-runtime/state.json          # DB strategy and state
 
-# Start, verify PIDs and logs, then stop cleanly
 ./scripts/env-start
 ls .worktree-runtime/pids/ .worktree-runtime/logs/
+
 ./scripts/env-stop
 ls .worktree-runtime/pids/   # Should be empty after stop
 ```
@@ -166,31 +169,31 @@ ls .worktree-runtime/pids/   # Should be empty after stop
 
 | Rationalization | Reality |
 |---|---|
-| "I'll just change the port manually when there's a conflict" | You'll forget. The next agent won't know your ports. Automate it once in `.env.template`. |
+| "I'll just change the port manually when there's a conflict" | You'll forget. The next agent won't know your ports. Automate it once. |
 | "We only ever run one worktree at a time" | Until you don't. env-init costs 5 minutes; debugging a port conflict costs 30. |
 | "Docker already isolates everything" | Docker isolates containers, not host-mapped ports. Two compose stacks with `ports: 3000:3000` still conflict on the host. |
 | "I'll share the database across worktrees" | Until branch A's migration drops a column that branch B depends on. Per-worktree databases are cheap insurance. |
-| "Tracking PIDs is overkill" | Without PIDs you can't stop cleanly. Orphaned dev servers eat memory and hold ports. PIDs make the lifecycle closeable. |
+| "Tracking PIDs is overkill" | Without PIDs you can't stop cleanly. Orphaned dev servers eat memory and hold ports. |
+| "Let's just add .env.template to replace .env.example" | Don't. The project already has conventions. Work with them. |
 
 ## Red Flags
 
-- Hardcoded port numbers in source code (not reading from env variables)
+- Hardcoded port numbers in source code (not reading from env)
 - `.env` committed to git
-- No `.env.template` in a project with multiple services
 - Dev servers started without PID tracking
 - No `env-stop` script -- services only killed by closing terminal
-- Docker Compose without `COMPOSE_PROJECT_NAME` variable
 - Database URL without worktree-specific database name
 - Logs written to shared locations instead of `.worktree-runtime/logs/`
+- Introducing a new env schema when the project already has `.env.example`
 
 ## Verification
 
-- [ ] `.env.template` exists and is committed to git
+- [ ] All existing `.env.example` files are preserved (not replaced)
+- [ ] `.env` files contain computed worktree-specific port values
 - [ ] `.env` and `.worktree-runtime/` are in `.gitignore`
-- [ ] `scripts/env-init` exists and is executable
-- [ ] `scripts/env-start` exists and records PIDs to `.worktree-runtime/pids/`
-- [ ] `scripts/env-stop` exists and reads PIDs for graceful shutdown
-- [ ] `scripts/env-teardown` exists for full cleanup
+- [ ] `scripts/env-init`, `env-start`, `env-stop`, `env-teardown` exist and are executable
 - [ ] `.worktree-runtime/` contains ports.json and state.json
 - [ ] All services start on unique ports (no conflicts with sibling worktrees)
 - [ ] `env-stop` leaves no orphaned processes
+- [ ] User was asked about hardcoded ports (if any were found)
+- [ ] User chose database strategy explicitly
