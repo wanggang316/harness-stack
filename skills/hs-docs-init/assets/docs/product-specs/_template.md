@@ -6,11 +6,10 @@
 
 ## Summary
 
-<!-- One paragraph describing the feature/product -->
+<!-- One paragraph: what we're building and why -->
 
 ## User Stories
 
-<!-- Who is this for? What do they need? -->
 <!-- Format: As a [role], I want [capability] so that [benefit] -->
 
 ## Requirements
@@ -23,12 +22,13 @@
 
 ## Acceptance Criteria
 
-<!-- How do we know this is done? -->
+<!-- Specific, testable conditions for "done" -->
+<!-- Format: Given [context], when [action], then [result] -->
 
 ## Design
 
-<!-- Link to design doc if applicable -->
+<!-- Link to design doc or architecture decisions if applicable -->
 
 ## Open Questions
 
-<!-- Unresolved questions that need answers -->
+<!-- Unresolved questions that need answers before implementation -->

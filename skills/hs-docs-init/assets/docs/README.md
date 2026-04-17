@@ -8,7 +8,6 @@ This directory is the **system of record** for all project knowledge. If it's no
 |---|---|
 | [architecture.md](architecture.md) | System architecture, domains, layers |
 | [golden-rules.md](golden-rules.md) | Enforced principles and conventions |
-| [quality-scorecard.md](quality-scorecard.md) | Quality grades per area |
 | [product-specs/](product-specs/) | Product specifications and requirements |
 | [design-docs/](design-docs/) | Feature and system design documentation |
 | [exec-plans/](exec-plans/) | Versioned execution plans with progress |

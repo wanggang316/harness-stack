@@ -28,7 +28,6 @@ A one-time initialization that scaffolds the standard documentation layout and b
 | `README.md` | `assets/README.md` (only if no README exists) |
 | `docs/README.md` | `assets/docs/README.md` |
 | `docs/golden-rules.md` | `assets/docs/golden-rules.md` |
-| `docs/quality-scorecard.md` | `assets/docs/quality-scorecard.md` |
 | `docs/product-specs/{README,_template}.md` | `assets/docs/product-specs/` |
 | `docs/design-docs/{README,_template}.md` | `assets/docs/design-docs/` |
 | `docs/exec-plans/{README,_template}.md` | `assets/docs/exec-plans/` |
@@ -77,7 +76,6 @@ Templates in `assets/` use these placeholders:
 | `{{TEST_COMMAND}}` | Detected test command, or `<test command>` |
 | `{{LINT_COMMAND}}` | Detected lint command, or `<lint command>` |
 | `{{INSTALL_COMMAND}}` | Detected install command, or `<install command>` |
-| `{{DATE}}` | Today's date in `YYYY-MM-DD` |
 
 If a command cannot be detected confidently, leave the bracketed placeholder and mention it in the verification report so the user can fill it in.
 
@@ -107,7 +105,7 @@ After writing, print a table covering every target in the scope table with one o
 - [ ] `AGENTS.md` exists and is under 150 lines
 - [ ] `CLAUDE.md` resolves to `AGENTS.md` (symlink or stub)
 - [ ] `README.md` exists (either pre-existing or created from template)
-- [ ] `docs/README.md`, `docs/golden-rules.md`, `docs/quality-scorecard.md` exist
+- [ ] `docs/README.md` and `docs/golden-rules.md` exist
 - [ ] `docs/{product-specs,design-docs,exec-plans}/` each contain `README.md` and `_template.md`
 - [ ] `docs/references/README.md` and `docs/generated/README.md` exist
 - [ ] Every placeholder is either substituted or called out in the report
