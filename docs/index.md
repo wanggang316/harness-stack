@@ -9,9 +9,7 @@ harness-stack 文档中心。
 ## Skills
 
 ### Meta-Skills
-- [hs-init](../skills/hs-init/SKILL.md) — 初始化项目
-- [hs-check](../skills/hs-check/SKILL.md) — 验证结构
-- [hs-score](../skills/hs-score/SKILL.md) — 质量评分
+- [hs-docs-init](../skills/hs-docs-init/SKILL.md) — 一次性初始化文档结构与基础文档
 - [hs-skill-create](../skills/hs-skill-create/SKILL.md) — 创建新 Skill
 
 ### Lifecycle Skills
@@ -27,6 +25,7 @@ harness-stack 文档中心。
 | Verify | hs-debug | [SKILL.md](../skills/hs-debug/SKILL.md) |
 | Review | hs-review | [SKILL.md](../skills/hs-review/SKILL.md) |
 | Review | hs-security | [SKILL.md](../skills/hs-security/SKILL.md) |
+| Ship | hs-changelog | [SKILL.md](../skills/hs-changelog/SKILL.md) |
 | Ship | hs-git | [SKILL.md](../skills/hs-git/SKILL.md) |
 | Ship | hs-ship | [SKILL.md](../skills/hs-ship/SKILL.md) |
 

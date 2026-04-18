@@ -176,7 +176,7 @@ Architecture docs drift from reality. When the drift becomes significant:
 - **hs-define-product** defines the product globally → `docs/product-spec.md` — architecture serves the product
 - **hs-define-architecture** defines system structure → `docs/architecture.md` — the structural map
 - **hs-design** defines technical approach for specific changes → `docs/design-docs/<name>.md` — says *why* specific decisions were made
-- **hs-docs** generates other documentation (README, AGENTS.md, CHANGELOG, etc.)
+- **hs-docs-init** scaffolds the documentation layout (README, AGENTS.md, docs/ tree) on project init
 
 ## Common Rationalizations
 
