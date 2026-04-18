@@ -112,10 +112,11 @@ Record the choice in `.worktree-runtime/state.json`.
 
 ### Step 5: Generate Runtime Scripts
 
-Create four scripts under `scripts/`:
+Create five scripts under `scripts/`:
 
 | Script | Responsibility |
 |--------|----------------|
+| `scripts/worktree-start.sh` | **Entry point for new worktrees**. Copies gitignored files from the main worktree per `.worktreeinclude`, then invokes `env-init`. Idempotent -- safe to call manually or from a git hook. |
 | `scripts/env-init` | Derive worktree ID, compute port offset, **write computed ports into existing `.env` files** (copying from `.env.example` if `.env` is missing), create/provision database |
 | `scripts/env-start` | Start all services, record PIDs in `.worktree-runtime/pids/`, route logs to `.worktree-runtime/logs/` |
 | `scripts/env-stop` | SIGTERM -> wait -> SIGKILL, verify exit, clean PID files |
@@ -123,11 +124,39 @@ Create four scripts under `scripts/`:
 
 **Key behavior of `env-init`**: it does NOT replace `.env.example`. It copies the existing `.env.example` to `.env` (if `.env` is missing), then overwrites only the port-related variables and database URL with worktree-specific values. If `.env` already exists, it patches in place, preserving unrelated variables (especially secrets).
 
+**Key behavior of `worktree-start.sh`**: it locates the main worktree via `git worktree list --porcelain`, reads `.worktreeinclude`, and copies matching gitignored files (e.g. `.env.local`, certificates) into the current worktree without overwriting existing files. It then delegates to `env-init`. This is the single entry point for bootstrapping a fresh worktree.
+
 All scripts are POSIX sh. Make them executable (`chmod +x`).
 
 Read `references/runtime-lifecycle.md` for script templates and the port injection algorithm.
 
-### Step 6: Create Runtime Directory
+### Step 6: Generate `.worktreeinclude` and Git Hook
+
+Set up two files that let fresh worktrees bootstrap automatically.
+
+**`.worktreeinclude`** (repo root, committed): lists gitignored files that must be copied into new worktrees. Uses `.gitignore` syntax. Only files that match a pattern **and** are gitignored get copied, so tracked files are never duplicated.
+
+Seed it from the project's existing `.gitignore` entries that typically carry local config (`.env`, `.env.local`, credentials, certificates). Present the generated list to the user for review.
+
+```text .worktreeinclude
+.env
+.env.local
+config/secrets.json
+```
+
+**`.githooks/post-checkout`** (repo root, committed, executable): thin wrapper that invokes `scripts/worktree-start.sh` on fresh worktree creation. Git's `post-checkout` hook fires on both `git checkout <branch>` and `git worktree add`; the wrapper uses `.worktree-runtime/state.json` as a sentinel so it only runs on a fresh worktree and is a no-op on subsequent branch switches.
+
+**Tell the user** to run this once per clone to activate the hook (Git stores `core.hooksPath` in local config, which is not versioned):
+
+```bash
+git config core.hooksPath .githooks
+```
+
+If the user's worktree creation tool bypasses git hooks, they can still invoke `./scripts/worktree-start.sh` manually after creating the worktree.
+
+Read `references/runtime-lifecycle.md` for the hook and `worktree-start.sh` templates.
+
+### Step 7: Create Runtime Directory
 
 Set up `.worktree-runtime/` (gitignored) for runtime state:
 
@@ -149,9 +178,16 @@ Append to `.gitignore` if not already present:
 .env.*.local
 ```
 
-### Step 7: Verify
+### Step 8: Verify
 
 ```bash
+# Activate the hook once (if not already done)
+git config core.hooksPath .githooks
+
+# Run the unified entry point (idempotent)
+./scripts/worktree-start.sh
+
+# Or run env-init directly
 ./scripts/env-init
 # Inspect what was written
 cat .env                                  # Port variables should have worktree-specific values
@@ -191,7 +227,10 @@ ls .worktree-runtime/pids/   # Should be empty after stop
 - [ ] All existing `.env.example` files are preserved (not replaced)
 - [ ] `.env` files contain computed worktree-specific port values
 - [ ] `.env` and `.worktree-runtime/` are in `.gitignore`
-- [ ] `scripts/env-init`, `env-start`, `env-stop`, `env-teardown` exist and are executable
+- [ ] `scripts/worktree-start.sh`, `env-init`, `env-start`, `env-stop`, `env-teardown` exist and are executable
+- [ ] `.worktreeinclude` exists at repo root and lists gitignored files to propagate
+- [ ] `.githooks/post-checkout` exists, is executable, and delegates to `scripts/worktree-start.sh`
+- [ ] User was told to run `git config core.hooksPath .githooks` once per clone
 - [ ] `.worktree-runtime/` contains ports.json and state.json
 - [ ] All services start on unique ports (no conflicts with sibling worktrees)
 - [ ] `env-stop` leaves no orphaned processes

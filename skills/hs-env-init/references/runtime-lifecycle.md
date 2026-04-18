@@ -42,6 +42,112 @@ State is tracked in `.worktree-runtime/state.json`.
 
 ---
 
+## scripts/worktree-start.sh
+
+Unified bootstrap entry point for a fresh worktree. Copies gitignored files from the main worktree per `.worktreeinclude`, then delegates to `env-init`. Idempotent -- safe to call manually or from a git hook.
+
+```sh
+#!/bin/sh
+set -eu
+
+ROOT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
+INCLUDE_FILE="$ROOT_DIR/.worktreeinclude"
+
+# --- Locate main worktree (source for file copies) ---
+MAIN_DIR=$(git -C "$ROOT_DIR" worktree list --porcelain | awk '/^worktree / {print $2; exit}')
+
+# --- Copy files from .worktreeinclude (skip for main worktree itself) ---
+if [ -f "$INCLUDE_FILE" ] && [ "$MAIN_DIR" != "$ROOT_DIR" ]; then
+  printf 'Copying worktree-local files from %s\n' "$MAIN_DIR"
+  while IFS= read -r pattern || [ -n "$pattern" ]; do
+    # Skip blank lines and comments
+    case "$pattern" in ''|'#'*) continue ;; esac
+
+    # Expand pattern in MAIN_DIR; intentionally unquoted for shell globbing
+    # shellcheck disable=SC2086
+    (cd "$MAIN_DIR" && ls -d $pattern 2>/dev/null || true) | while IFS= read -r match; do
+      [ -z "$match" ] && continue
+      src="$MAIN_DIR/$match"
+      dst="$ROOT_DIR/$match"
+      [ -e "$src" ] || continue
+      [ -e "$dst" ] && continue  # don't overwrite existing files in the new worktree
+
+      # Only copy files that are actually gitignored in the main worktree;
+      # tracked files are checked out by git itself and must not be duplicated.
+      if (cd "$MAIN_DIR" && git check-ignore -q "$match"); then
+        mkdir -p "$(dirname "$dst")"
+        cp -Rp "$src" "$dst"
+        printf '  copied: %s\n' "$match"
+      fi
+    done
+  done < "$INCLUDE_FILE"
+fi
+
+# --- Delegate to env-init ---
+if [ -x "$ROOT_DIR/scripts/env-init" ]; then
+  exec "$ROOT_DIR/scripts/env-init"
+fi
+```
+
+---
+
+## .githooks/post-checkout
+
+Thin wrapper that runs `worktree-start.sh` on fresh worktree creation. Git's `post-checkout` fires on both `git checkout <branch>` and `git worktree add`; the sentinel check (`.worktree-runtime/state.json`) keeps it a no-op on subsequent branch switches.
+
+```sh
+#!/bin/sh
+# post-checkout: prev_head new_head flag (1 = branch checkout)
+set -eu
+
+# Only fire on branch checkout, not file-level checkout
+[ "${3:-0}" = "1" ] || exit 0
+
+ROOT_DIR=$(git rev-parse --show-toplevel)
+
+# Skip the main worktree (avoid copying files onto themselves)
+GIT_DIR=$(git rev-parse --absolute-git-dir)
+GIT_COMMON=$(git rev-parse --git-common-dir)
+[ "$GIT_DIR" = "$GIT_COMMON" ] && exit 0
+
+# Sentinel: skip if this worktree has already been initialized
+[ -f "$ROOT_DIR/.worktree-runtime/state.json" ] && exit 0
+
+# Bootstrap a fresh worktree
+if [ -x "$ROOT_DIR/scripts/worktree-start.sh" ]; then
+  "$ROOT_DIR/scripts/worktree-start.sh"
+fi
+```
+
+Activate once per clone (Git stores `core.hooksPath` in local config, which is not versioned):
+
+```sh
+git config core.hooksPath .githooks
+```
+
+---
+
+## .worktreeinclude
+
+Committed at the repo root. Uses `.gitignore` syntax; only files that match a pattern **and** are gitignored in the main worktree get copied. Keeps secrets and local config reproducible across worktrees without duplicating tracked files.
+
+```text
+# Local env files (gitignored, but needed per worktree)
+.env
+.env.local
+.env.*.local
+
+# Per-package env in monorepos
+apps/*/.env
+apps/*/.env.local
+
+# Local credentials / certs
+config/secrets.json
+certs/local.pem
+```
+
+---
+
 ## scripts/env-init
 
 Initializes the environment by injecting per-worktree port values into the project's existing `.env` files. Idempotent -- safe to run multiple times.
