@@ -8,6 +8,7 @@ Agent-first development framework implementing the harness methodology.
 
 ### Meta-Skills (Manage harness itself)
 - `/hs-docs-init` - One-time scaffold of docs structure and base documents
+- `/hs-env-init` - Initialize per-worktree isolated runtime environment
 - `/hs-skill-create` - Create new skills
 
 ### Lifecycle Skills
