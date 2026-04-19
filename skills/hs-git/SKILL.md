@@ -64,7 +64,11 @@ x1y2z3a Add task feature, fix sidebar, update deps, refactor utils
 
 ### 3. Descriptive Messages
 
-Commit messages explain the *why*, not just the *what*:
+Commit and PR messages explain the *why*, not just the *what*. Both stand alone in version control history — someone searching history should understand the change without reading the diff.
+
+**First line:** short, imperative, standalone. `Delete the FizzBuzz RPC`, not `Deleting the FizzBuzz RPC`.
+
+**Body:** what is changing and why. Include context, decisions, and reasoning not visible in the code itself. Link to bug numbers, benchmark results, or design docs where relevant. Acknowledge approach shortcomings when they exist.
 
 ```
 # Good: Explains intent
@@ -93,6 +97,8 @@ update auth.ts
 - `docs` — Documentation only
 - `chore` — Tooling, dependencies, config
 
+**Anti-patterns:** `Fix bug`, `Fix build`, `Add patch`, `Moving code from A to B`, `Phase 1`, `Add convenience functions`. None of these survive outside the moment they were written.
+
 ### 4. Keep Concerns Separate
 
 Don't combine formatting changes with behavior changes. Don't combine refactors with features. Each type of change should be a separate commit — and ideally a separate PR:
@@ -110,13 +116,26 @@ git commit -m "refactor validation and add phone number field"
 
 ### 5. Size Your Changes
 
-Target ~100 lines per commit/PR. Changes over ~1000 lines should be split. See the splitting strategies in `code-review-and-quality` for how to break down large changes.
+Small, focused changes are easier to review, faster to merge, and safer to deploy.
 
 ```
-~100 lines  → Easy to review, easy to revert
-~300 lines  → Acceptable for a single logical change
-~1000 lines → Split into smaller changes
+~100 lines   → Good. Reviewable in one sitting.
+~300 lines   → Acceptable if it's a single logical change.
+~1000 lines  → Too large. Split it.
 ```
+
+**What counts as "one change":** a single self-contained modification that addresses one thing, includes related tests, and keeps the system functional after landing. One slice of a feature — not the whole feature.
+
+**Splitting strategies when a change is too large:**
+
+| Strategy | How | When |
+|----------|-----|------|
+| **Stack** | Submit a small change, start the next one based on it | Sequential dependencies |
+| **By file group** | Separate changes for groups needing different reviewers | Cross-cutting concerns |
+| **Horizontal** | Create shared code / stubs first, then consumers | Layered architecture |
+| **Vertical** | Break into smaller full-stack slices of the feature | Feature work |
+
+**When large changes are acceptable:** complete file deletions and automated refactors where the reviewer only needs to verify intent, not every line.
 
 ## Branching Strategy
 
