@@ -1,29 +1,24 @@
 ---
 name: hs-review
-description: Conducts multi-axis code review. Use before merging any change. Use when reviewing code written by yourself, another agent, or a human. Use when you need to assess code quality across multiple dimensions before it enters the main branch.
+description: Conducts multi-axis code review and emits a structured report. Use when you are the reviewer evaluating a diff — whether invoked as the code-reviewer subagent, self-reviewing before a PR, or checking another agent's output across correctness, readability, architecture, security, and performance.
 ---
 
-# Code Review and Quality
+# Conduct Code Review
 
 ## Overview
 
-Multi-dimensional code review with quality gates. Every change gets reviewed before merge — no exceptions.
-
-This skill covers three modes of a review round-trip:
-
-1. **Request** — Author dispatches a reviewer with precise context.
-2. **Conduct** — Reviewer evaluates across five axes and emits a structured report.
-3. **Receive** — Author verifies feedback before implementing, without performative agreement.
+You are the reviewer. Evaluate the diff across five axes and emit a structured report that the author can act on. Do not rubber-stamp. Do not soften real issues. Every finding cites `file:line` with what + why + fix.
 
 **Approval standard.** Approve when the change definitely improves overall code health, even if imperfect. Don't block because it isn't how you would have written it — block on correctness, security, architecture, or clear readability regressions.
 
 ## When to Use
 
-- Before merging any PR or change.
-- After `hs-exec-plan` completes an ExecPlan task or batch.
-- After a feature implementation or bug fix (review both the fix and its regression test).
-- When another agent or model produced code you need to evaluate.
-- When refactoring existing code.
+- Invoked as the `code-reviewer` subagent via `hs-review-request` (see `agents/code-reviewer.md`).
+- Self-reviewing your own diff before opening a PR (fresh-eyes pass — after a break, not in the same train of thought).
+- Evaluating code produced by another agent or model.
+- Reviewing another engineer's PR.
+
+For the author-side dispatch and feedback-handling discipline, see `hs-review-request` and `hs-review-receive`.
 
 ## The Five Axes
 
@@ -84,63 +79,15 @@ Apply `docs/references/performance-checklist.md`.
 
 Every finding must include **file:line + what + why**. "LGTM" without citations is not a review.
 
----
-
-## Mode 1 — Request Review
-
-Use when you (as the author) want a fresh-context reviewer instead of self-reviewing in the same thread.
-
-### Step 1. Pin the diff range
-
-```bash
-BASE_SHA=$(git merge-base HEAD origin/main)   # or the PR base
-HEAD_SHA=$(git rev-parse HEAD)
-git diff --stat "$BASE_SHA..$HEAD_SHA"
-```
-
-### Step 2. Dispatch the reviewer subagent
-
-Use the `Task` tool with the `code-reviewer` subagent (see `agents/code-reviewer.md`). The reviewer must start with **fresh context** — do not pipe your session history in. Pass only:
-
-- `BASE_SHA` / `HEAD_SHA` — the diff range.
-- **Spec / ExecPlan path** — e.g. `docs/specs/<feature>.md` or the ExecPlan driving the work.
-- **What was implemented** — one-paragraph summary.
-- **Focus areas** — e.g. "security (accepts user input) + performance (DB reads in a loop)".
-
-Minimal brief template:
-
-```
-Review range: <BASE_SHA>..<HEAD_SHA>
-Spec:         docs/specs/<x>.md
-Summary:      <one paragraph on what was built>
-Focus:        <axes or files that deserve extra scrutiny>
-Output:       follow the template in skills/hs-review/SKILL.md § "Output Template"
-```
-
-### Step 3. Act on the report
-
-- Resolve every **Critical** immediately. Never merge with Critical open.
-- Resolve every **Important**, or document a deferral with justification and a tracked follow-up.
-- Consider **Suggestion**; file follow-ups if deferred.
-- Ignore **Nit** at author discretion.
-
-Do not re-dispatch the reviewer until the previous round's findings are resolved.
-
----
-
-## Mode 2 — Conduct Review
-
-Use when you are the reviewer (invoked as the `code-reviewer` subagent, or self-reviewing before a PR).
-
-### Process
+## Process
 
 1. **Context first.** Read the spec / ExecPlan / PR description. Understand the intended behavior before opening the diff.
 2. **Tests first.** Tests reveal intent and coverage. Ask: do they test behavior, cover edges, and catch regressions?
 3. **Walk the diff.** For each file, apply the five axes.
-4. **Categorize and cite.** Every finding gets a severity label and `file:line` pointer.
+4. **Categorize and cite.** Every finding gets a severity label and a `file:line` pointer.
 5. **Verify verification.** Did tests run? Build pass? Is there manual / screenshot / benchmark evidence where it matters?
 
-### Output Template
+## Output Template
 
 Emit the review in this shape so the author (and downstream tooling) can parse it:
 
@@ -180,109 +127,33 @@ Emit the review in this shape so the author (and downstream tooling) can parse i
 
 ### Verdict
 - [ ] **Approve** — Ready to merge
-- [ ] **Approve with fixes** — Critical/Important all resolvable in this round
+- [ ] **Approve with fixes** — Critical / Important all resolvable in this round
 - [ ] **Request changes** — Issues must be addressed
 
 **Reasoning:** <1–2 sentences>
 ```
 
-### Quality Bar for the Report
+## Quality Bar for the Report
 
 - Every finding cites `file:line`. No "somewhere in the module".
 - Every finding states a concrete downside, not "could be better".
-- Quantify when possible: "N+1 adds ~50ms per item at 100 items" beats "may be slow".
+- Quantify when possible: `N+1 adds ~50ms per item at 100 items` beats `may be slow`.
 - Don't mark Nits as Critical. Don't mark bugs as Nits.
 - Acknowledge strengths — reviews are not only negative.
+- Comment on code, not people.
 
----
+## Honesty
 
-## Mode 3 — Receive Review
-
-Use when the author gets review feedback back.
-
-### The Response Pattern
-
-```
-1. READ    — absorb the full report before reacting.
-2. RESTATE — restate each requirement in your own words, or ask.
-3. VERIFY  — check the claim against the current codebase.
-4. DECIDE  — accept, push back with reasoning, or ask for clarification.
-5. APPLY   — implement one item at a time; test after each.
-```
-
-### No Performative Agreement
-
-- Forbidden: "You're absolutely right!", "Great catch!", "Thanks for the feedback!".
-- Preferred: state the fix or push back.
-  - `Fixed — added null guard at task.ts:42.`
-  - `Checked — endpoint unused, removing rather than "implementing properly" (YAGNI).`
-
-Actions speak. Gratitude is noise; a green diff is the signal.
-
-### Verify Before Implementing
-
-Before accepting a finding, check:
-
-1. Is it technically correct **for this codebase**?
-2. Does fixing it break existing functionality or tests?
-3. Is there a reason the current implementation is that way (legacy, compatibility, explicit decision)?
-4. Does the reviewer have full context, or is this based on a partial read?
-
-If any check fails, push back with technical reasoning — not defensiveness. Cite code, tests, or prior decisions.
-
-### YAGNI Check
-
-If the reviewer asks you to "implement properly" a feature that isn't actually used:
-
-```bash
-grep -rn "functionName\|/endpoint/path" src/
-```
-
-If unused, propose deletion instead of expansion.
-
-### Handle Unclear Feedback
-
-If any item is unclear, **stop and ask before implementing anything**. Partial understanding produces wrong partial implementations, and the next round has to undo them.
-
-### Implementation Order
-
-1. Clarify unclear items.
-2. Blocking issues (breaks build, security, data loss).
-3. Simple fixes (typos, imports, renames).
-4. Complex fixes (refactors, logic changes).
-5. Test each fix individually — no batching without verification.
-
-### If You Pushed Back and Were Wrong
-
-State it factually and move on. No long apology; no defending the pushback.
-
-> "You were right — checked `x.ts:120` and the call does return nullable. Fixing now."
-
----
-
-## Multi-Agent Review Pattern
-
-Different agents have different blind spots. Use this pattern when the change is large, critical, or security-sensitive:
-
-```
-Author agent  → implements
-     ↓
-Reviewer subagent (fresh context, code-reviewer)  → reviews
-     ↓
-Author agent  → addresses feedback (Mode 3)
-     ↓
-Human  → final call
-```
-
-The key is **fresh context**: the reviewer must not inherit the author's session history — only the diff, the spec, and the review brief.
-
----
+- **Don't rubber-stamp.** `LGTM` without evidence helps no one.
+- **Don't soften real issues.** `This might be a minor concern` when it's a production bug is dishonest.
+- **Push back on approaches with clear problems.** If the implementation has issues, say so and propose alternatives.
+- **Accept override gracefully.** If the author has full context and disagrees with reasoning, defer. Comment on code, not people.
 
 ## Dependency Review
 
-Any change that adds a dependency gets a mini review of its own:
+When the diff adds a dependency, run a mini review of the dep itself:
 
-1. Does the existing stack solve this already?
+1. Does the existing stack already solve this?
 2. How large is it (install / bundle impact)?
 3. Actively maintained (last commit, open-issue age)?
 4. Known vulnerabilities (`npm audit` / `pip-audit` / etc.)?
@@ -290,18 +161,9 @@ Any change that adds a dependency gets a mini review of its own:
 
 Default: prefer standard library and existing utilities. Every dependency is a liability.
 
----
-
-## Review Speed
-
-- Respond to a review request **within one business day** — maximum, not target.
-- A typical change should complete multiple review rounds in a single day.
-- Prioritize fast individual responses over a slow final approval.
-- If the change is too large to review in one sitting, ask the author to split it — see `skills/hs-git/SKILL.md` for sizing and splitting guidance.
-
----
-
 ## Handling Disagreements
+
+When an author pushes back:
 
 1. Technical facts and measured data override opinions.
 2. Style guides are authoritative for style matters.
@@ -310,7 +172,12 @@ Default: prefer standard library and existing utilities. Every dependency is a l
 
 Don't accept "I'll clean it up later." If cleanup can't land in this change, require a tracked follow-up (issue or ExecPlan task) with a self-assigned owner.
 
----
+## Review Speed
+
+- Respond to a review request **within one business day** — maximum, not target.
+- A typical change should complete multiple rounds in a single day.
+- Prioritize fast individual responses over a slow final approval.
+- If the change is too large to review in one sitting, ask the author to split it (see `skills/hs-git/SKILL.md`) rather than reviewing poorly.
 
 ## Common Rationalizations
 
@@ -324,29 +191,30 @@ Don't accept "I'll clean it up later." If cleanup can't land in this change, req
 
 ## Red Flags
 
-- PRs merged without any review.
-- "LGTM" without `file:line` citations.
 - Reviews that only check whether tests pass.
+- `LGTM` without `file:line` citations.
 - Security-sensitive changes without a security-focused pass.
-- PRs "too big to review properly" (split them — see `hs-git`).
+- PRs "too big to review properly" (ask the author to split).
 - Bug fixes without regression tests.
 - Findings without severity labels.
-- Authors replying "You're absolutely right!" and implementing without verification.
+- Rating bugs as Nits, or style preferences as Critical.
 
 ## Verification
 
 Review is complete when:
 
-- [ ] Every Critical is resolved.
-- [ ] Every Important is resolved or has a tracked deferral.
-- [ ] Every finding cites `file:line` + what + why.
-- [ ] Tests pass, build succeeds, manual / perf evidence attached where applicable.
-- [ ] The verification story is documented in the PR or the ExecPlan.
+- [ ] Every finding has a severity label and a `file:line` citation.
+- [ ] All five axes have been considered and named in the report (even if a section has no findings).
+- [ ] Strengths section is populated with at least one specific observation.
+- [ ] Verdict is one of {Approve, Approve with fixes, Request changes} with reasoning.
+- [ ] If performance or security concerns exist, evidence is quantified or cited.
 
 ## See Also
 
-- `docs/references/security-checklist.md` — security review checks
-- `docs/references/performance-checklist.md` — performance review checks
-- `agents/code-reviewer.md` — reviewer subagent definition
-- `skills/hs-git/SKILL.md` — change sizing, splitting, commit and PR descriptions
-- `skills/hs-security/SKILL.md` — deeper security review and hardening
+- `skills/hs-review-request/SKILL.md` — author side: how to dispatch the reviewer.
+- `skills/hs-review-receive/SKILL.md` — author side: how to handle your findings.
+- `agents/code-reviewer.md` — reviewer subagent definition (input contract and output format).
+- `docs/references/security-checklist.md` — security review checks.
+- `docs/references/performance-checklist.md` — performance review checks.
+- `skills/hs-security/SKILL.md` — deeper security review and hardening.
+- `skills/hs-git/SKILL.md` — change sizing and splitting strategies for oversized PRs.

@@ -6,12 +6,14 @@ Code quality specialist. Reviews code changes across five axes: correctness, rea
 
 ## When to Use
 
-Invoked by Mode 1 (Request Review) of the `hs-review` skill (see `skills/hs-review/SKILL.md`). Typical triggers:
+Invoked by the `hs-review-request` skill (see `skills/hs-review-request/SKILL.md`). Typical triggers:
 
 - Before merging any PR or significant change.
 - After `hs-exec-plan` completes an ExecPlan task or batch.
 - When code quality or security concerns are raised.
 - Periodic codebase health reviews.
+
+Once invoked, follow the five-axis process and output template defined in `skills/hs-review/SKILL.md`.
 
 ## Expertise
 
