@@ -17,7 +17,11 @@ You (the author) dispatch a reviewer subagent with a precise brief so it evaluat
 - When the change touches security-sensitive paths, auth, or data migrations.
 - When you are about to ship AI-generated code — it needs more scrutiny, not less.
 
-Self-review in the same thread is acceptable only for trivial changes (one-line fixes, typo, local rename).
+**When NOT to dispatch:**
+
+- Trivial changes where the diff is self-evident (typo fix, variable rename in a single file).
+- Auto-generated code or lockfile bumps where a reviewer cannot add value.
+- After two rounds on the same diff with the reviewer — stop and escalate to the human.
 
 ## Process
 
@@ -66,8 +70,6 @@ The reviewer returns findings labeled **Critical / Important / Suggestion / Nit 
 | Nit | Author discretion. |
 | FYI | No action. |
 
-After addressing findings, switch to `hs-review-receive` for the response discipline — what to say, what not to say ("You're absolutely right!" is forbidden), and how to verify before implementing.
-
 ## The Round-Trip
 
 ```
@@ -82,11 +84,16 @@ Author agent  → hs-review-receive (apply findings)
 Human  → final call
 ```
 
-## When Not to Dispatch
+## Common Rationalizations
 
-- Trivial changes where the diff is self-evident (typo fix, variable rename in a single file).
-- Changes where the reviewer can't add value (auto-generated code, lockfile bumps).
-- When you've already gone two rounds with the reviewer on the same diff — stop, escalate to the human.
+| Rationalization | Reality |
+|---|---|
+| "I wrote it and I know it works — I'll self-review." | Authors are blind to their own assumptions. Fresh context catches what you missed. |
+| "The reviewer already has context from this session." | A reviewer that inherits your thread inherits your blind spots. Start fresh. |
+| "AI generated this, it's probably fine." | AI code needs more scrutiny, not less — it is confident and plausible even when wrong. |
+| "The change is small, skip the reviewer." | Small changes in security-sensitive paths still need scrutiny. Size is not the discriminator. |
+| "I'll dispatch again after one more tweak." | Dispatching before the previous round's Critical / Important is resolved wastes reviewer capacity. |
+| "The spec is in my head, no need to attach it." | A reviewer without the spec cannot evaluate correctness — only style. |
 
 ## Red Flags
 

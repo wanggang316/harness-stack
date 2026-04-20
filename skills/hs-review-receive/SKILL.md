@@ -121,17 +121,17 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body='<reply>'
 
 Not as a top-level PR comment. Threaded replies keep the context local to the finding.
 
-## Common Mistakes
+## Common Rationalizations
 
-| Mistake | Fix |
+| Rationalization | Reality |
 |---|---|
-| Performative agreement | State the fix, or push back technically. |
-| Blind implementation | Verify against the codebase first. |
-| Batch without testing | One item at a time; test each. |
-| Assuming reviewer is right | Check if it breaks existing functionality. |
-| Avoiding pushback | Technical correctness > social comfort. |
-| Partial implementation | Clarify all items first. |
-| Can't verify, proceed anyway | State the limitation; ask for direction. |
+| "The reviewer is senior / has fresh eyes, they must be right." | Reviewers see the diff, not the full codebase. Verify each claim against current code. |
+| "Saying 'great catch' is polite." | Performative agreement hides whether you understood or verified. A stated fix is the polite form. |
+| "I'll batch all fixes and test once at the end." | Batching without per-item verification lets a broken fix hide behind a green test. One fix, one test. |
+| "I don't fully get item 4, but I'll try something." | Partial understanding produces wrong partial fixes the next round has to undo. Ask first. |
+| "Pushing back feels confrontational." | Technical correctness > social comfort. Cite `file:line` and move on. |
+| "Implementing feels faster than verifying." | Wrong fixes cost more rounds than correct ones. Verification is the short path. |
+| "The reviewer asked me to implement it properly." | If the code is unused, deletion is the correct fix (YAGNI). Don't expand to satisfy a reviewer. |
 
 ## Red Flags
 
