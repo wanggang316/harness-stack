@@ -93,6 +93,8 @@ update auth.ts
 - `docs` — Documentation only
 - `chore` — Tooling, dependencies, config
 
+**No author/model attribution in commit messages.** Never append `Co-Authored-By:` trailers, tool banners, or model identifiers (e.g. `Co-Authored-By: Claude <noreply@anthropic.com>`, `Generated with ...`) to commit messages. Authorship is already recorded by git's `Author`/`Committer` fields; the commit body should describe the change, not the tool that produced it. Strip any such lines before committing, including ones auto-injected by tooling.
+
 ### 4. Keep Concerns Separate
 
 Don't combine formatting changes with behavior changes. Don't combine refactors with features. Each type of change should be a separate commit — and ideally a separate PR:
@@ -287,6 +289,7 @@ git log --grep="validation" --oneline
 - Committing `node_modules/`, `.env`, or build artifacts
 - Long-lived branches that diverge significantly from main
 - Force-pushing to shared branches
+- `Co-Authored-By:` trailers or model/tool attribution in commit messages
 
 ## Verification
 
@@ -297,4 +300,5 @@ For every commit:
 - [ ] Tests pass before committing
 - [ ] No secrets in the diff
 - [ ] No formatting-only changes mixed with behavior changes
+- [ ] No `Co-Authored-By` / model / tool attribution in the message
 - [ ] `.gitignore` covers standard exclusions
