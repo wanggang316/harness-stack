@@ -35,7 +35,27 @@ git diff --stat "$BASE_SHA..$HEAD_SHA"
 
 If the change spans multiple commits, confirm the base matches what the reviewer should see. Don't leave the reviewer to guess.
 
-### Step 2. Write the brief
+### Step 2. Pick the lanes
+
+`code-reviewer` is the default lane and runs every time. Add parallel lanes when the diff hits territory that benefits from a specialist pass. Lanes run in parallel — fan out in a single dispatch round, not sequentially.
+
+| Lane | Agent | Trigger |
+|---|---|---|
+| Code | `agents/code-reviewer.md` | Always. Five-axis review. |
+| Security | `agents/security-auditor.md` | Diff touches auth, sessions, tokens, user input, secrets, crypto, raw queries, shell/`eval`, dependency upgrades, or LLM output that flows into DB / external HTTP / code execution. |
+| Tests | `agents/test-engineer.md` | Diff is a bug fix (regression test required), changes a critical business path, modifies test infrastructure, or the spec demands a coverage target. |
+
+Heuristics:
+
+- **Auth / payments / data migrations** → at least Code + Security.
+- **AI agent / LLM tool calling / RAG** → at least Code + Security (LLM trust boundary).
+- **Bug fix** → at least Code + Tests (Prove-It pattern).
+- **Pure refactor with high test coverage already** → Code only is fine.
+- **Trivial change** (typo, single-file rename) → no review needed; see "When NOT to dispatch" above.
+
+Don't dispatch a lane "just in case." Each lane is reviewer capacity that has to come back with usable findings.
+
+### Step 3. Write the brief
 
 The reviewer must start with fresh context. Do not pipe your session history in. Pass only:
 
@@ -43,6 +63,7 @@ The reviewer must start with fresh context. Do not pipe your session history in.
 - **Spec / ExecPlan path** — e.g. `docs/specs/<feature>.md` or the ExecPlan driving the work.
 - **Summary** — one paragraph on what was implemented.
 - **Focus areas** — axes or files that deserve extra scrutiny.
+- **Lanes** — the lanes selected in Step 2 and why.
 
 Brief template:
 
@@ -51,16 +72,30 @@ Review range: <BASE_SHA>..<HEAD_SHA>
 Spec:         docs/specs/<x>.md
 Summary:      <one paragraph on what was built>
 Focus:        <axes or files that deserve extra scrutiny>
+Lanes:        code | code+security | code+tests | code+security+tests
+              (one line per lane explaining why it was chosen)
 Output:       follow the template in skills/hs-review/SKILL.md § "Output Template"
 ```
 
-### Step 3. Dispatch
+### Step 4. Dispatch
 
-Invoke the `Task` tool with the `code-reviewer` subagent (see `agents/code-reviewer.md`). Paste the brief as the prompt.
+Invoke the `Task` tool **once per lane, in the same round** so the lanes run in parallel:
 
-### Step 4. Act on the report
+- Code lane → subagent type `code-reviewer` (`agents/code-reviewer.md`).
+- Security lane → subagent type `security-auditor` (`agents/security-auditor.md`).
+- Tests lane → subagent type `test-engineer` (`agents/test-engineer.md`).
 
-The reviewer returns findings labeled **Critical / Important / Suggestion / Nit / FYI**.
+Paste the brief as the prompt for each. The brief is identical across lanes; each agent applies its own checklist and emits the shared Output Template.
+
+### Step 5. Merge and act on the reports
+
+Each lane returns findings labeled **Critical / Important / Suggestion / Nit / FYI**.
+
+When multiple lanes ran, merge before responding:
+
+1. **Dedupe** — the same `file:line` flagged by two lanes counts as one finding; keep the more specific framing (security wording over generic).
+2. **Reconcile severity** — if lanes disagree, take the higher severity unless one lane explicitly cites why the other is wrong (e.g., security-auditor: "not exploitable because input is constrained at <file:line>").
+3. **Note conflicts** — if lanes disagree on whether something is a bug, surface that to the human; do not silently pick a side.
 
 | Severity | Your action |
 |---|---|
@@ -70,16 +105,21 @@ The reviewer returns findings labeled **Critical / Important / Suggestion / Nit 
 | Nit | Author discretion. |
 | FYI | No action. |
 
+Round budget: **two rounds per lane**. If a lane is still raising Critical / Important findings on the third round, stop dispatching and escalate to a human — either the change needs splitting, or the spec is wrong.
+
 ## The Round-Trip
 
 ```
 Author agent  → implements
      ↓
-hs-review-request (this skill)  → dispatches reviewer with brief
+hs-review-request (this skill)  → picks lanes, dispatches in parallel with shared brief
      ↓
-Reviewer subagent (fresh context)  → runs hs-review (conduct)
+Lane subagents (fresh context, parallel)  → each runs hs-review (conduct)
+  ├─ code-reviewer       (always)
+  ├─ security-auditor    (when triggered)
+  └─ test-engineer       (when triggered)
      ↓
-Author agent  → hs-review-receive (apply findings)
+Author agent  → merges reports, runs hs-review-receive (apply findings)
      ↓
 Human  → final call
 ```
@@ -101,6 +141,9 @@ Human  → final call
 - Re-dispatching before the previous round's Critical / Important findings are resolved.
 - Sending the reviewer a diff that spans two unrelated changes — split the change first (`skills/hs-git/SKILL.md`).
 - Copying your session history into the brief — that defeats fresh context.
+- Dispatching every lane on every change ("more reviewers can't hurt") — wastes capacity and dilutes signal. Match the lane to the diff.
+- Auth or LLM-trust-boundary changes that go out without the security lane.
+- Bug fixes that go out without the test lane (no regression test = bug will return).
 
 ## Verification
 
@@ -113,7 +156,10 @@ Before marking a request-round complete:
 
 ## See Also
 
-- `skills/hs-review/SKILL.md` — reviewer-side: five axes, output template, quality bar.
+- `skills/hs-review/SKILL.md` — reviewer-side: five axes, spec compliance pass, output template, quality bar.
 - `skills/hs-review-receive/SKILL.md` — how to handle the reviewer's feedback.
-- `agents/code-reviewer.md` — reviewer subagent definition.
+- `agents/code-reviewer.md` — code lane subagent definition (default).
+- `agents/security-auditor.md` — security lane subagent definition.
+- `agents/test-engineer.md` — tests lane subagent definition.
+- `docs/references/review-checklist.md` — pattern dictionary the reviewer applies.
 - `skills/hs-git/SKILL.md` — change sizing and splitting strategies.

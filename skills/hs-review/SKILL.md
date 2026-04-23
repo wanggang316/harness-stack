@@ -81,11 +81,27 @@ Every finding must include **file:line + what + why**. "LGTM" without citations 
 
 ## Process
 
-1. **Context first.** Read the spec / ExecPlan / PR description. Understand the intended behavior before opening the diff.
+0. **Spec compliance first.** Before opening the diff for quality review, verify the change does what it was asked to do. List each requirement from the spec / ExecPlan / PR description and cross-reference it against the diff.
+   - Read spec / ExecPlan / PR description and extract every requirement (checkbox items, numbered steps, imperative statements, test requirements, migration items).
+   - For each requirement, classify against the diff: **DONE** (clear evidence in diff) / **PARTIAL** (started, incomplete) / **NOT DONE** (no evidence) / **CHANGED** (different approach, same goal).
+   - Run `git diff --stat <BASE>..<HEAD>` and check files changed against stated intent. Files unrelated to the intent are **scope creep**.
+   - Emit a one-line `Scope:` summary at the top of the report (see Output Template).
+   - This pass is **informational and does not block** the five-axis review, but it must surface in the Verdict reasoning. Approving a change that misses requirements is dishonest.
+1. **Context.** Confirm understanding of the intended behavior from spec / ExecPlan / PR description.
 2. **Tests first.** Tests reveal intent and coverage. Ask: do they test behavior, cover edges, and catch regressions?
-3. **Walk the diff.** For each file, apply the five axes.
+3. **Walk the diff.** For each file, apply the five axes. Use `docs/references/review-checklist.md` as a pattern dictionary for high-leverage categories (SQL safety, LLM trust boundary, enum completeness, race conditions, type coercion, magic numbers).
 4. **Categorize and cite.** Every finding gets a severity label and a `file:line` pointer.
 5. **Verify verification.** Did tests run? Build pass? Is there manual / screenshot / benchmark evidence where it matters?
+
+### Read code outside the diff when required
+
+Some categories cannot be evaluated by reading only the diff hunks:
+
+- **Enum & value completeness** — when the diff adds a new enum value, status, tier, or type constant, Grep for sibling values and Read every consumer. Default-branch fall-through is a common silent miss.
+- **Backward-compat shims** — when the diff changes a public function signature, find callers and verify they were updated.
+- **Test coverage** — when the diff modifies a critical path, check whether the test file actually exercises the new branches (not just the file).
+
+`hs-review-receive` enforces the symmetric rule on the author side.
 
 ## Output Template
 
@@ -94,8 +110,14 @@ Emit the review in this shape so the author (and downstream tooling) can parse i
 ```markdown
 ## Review: <title / PR link>
 
-**Scope:** `<BASE_SHA>..<HEAD_SHA>` — N files, ±L lines
+**Range:** `<BASE_SHA>..<HEAD_SHA>` — N files, ±L lines
 **Spec:** `docs/specs/<x>.md` (or ExecPlan path)
+**Scope:** CLEAN | DRIFT | MISSING REQUIREMENTS
+  - Intent: <one-line summary of what was requested>
+  - Delivered: <one-line summary of what the diff does>
+  - Plan items: A DONE, B PARTIAL, C NOT DONE, D CHANGED (omit if no plan items)
+  - [If DRIFT]: list each out-of-scope change
+  - [If MISSING]: list each unaddressed requirement
 
 ### Strengths
 - `path/to/file.ts:L` — specific thing done well
@@ -203,6 +225,7 @@ Don't accept "I'll clean it up later." If cleanup can't land in this change, req
 
 Review is complete when:
 
+- [ ] Spec compliance pass produced a `Scope:` summary (CLEAN / DRIFT / MISSING).
 - [ ] Every finding has a severity label and a `file:line` citation.
 - [ ] All five axes have been considered and named in the report (even if a section has no findings).
 - [ ] Strengths section is populated with at least one specific observation.
@@ -211,10 +234,13 @@ Review is complete when:
 
 ## See Also
 
-- `skills/hs-review-request/SKILL.md` — author side: how to dispatch the reviewer.
+- `skills/hs-review-request/SKILL.md` — author side: how to dispatch the reviewer (and parallel security / test lanes).
 - `skills/hs-review-receive/SKILL.md` — author side: how to handle your findings.
 - `agents/code-reviewer.md` — reviewer subagent definition (input contract and output format).
-- `docs/references/security-checklist.md` — security review checks.
+- `agents/security-auditor.md` — security-focused parallel reviewer.
+- `agents/test-engineer.md` — test-coverage-focused parallel reviewer.
+- `docs/references/review-checklist.md` — high-leverage pattern dictionary (SQL safety, LLM trust boundary, enum completeness, race conditions).
+- `docs/references/security-checklist.md` — OWASP-aligned security baseline.
 - `docs/references/performance-checklist.md` — performance review checks.
 - `skills/hs-security/SKILL.md` — deeper security review and hardening.
 - `skills/hs-git/SKILL.md` — change sizing and splitting strategies for oversized PRs.

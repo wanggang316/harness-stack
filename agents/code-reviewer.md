@@ -36,11 +36,13 @@ If any of these are missing, ask for them before reviewing — do not guess.
 
 ## Process
 
-1. **Understand context**: read the spec / ExecPlan / PR description first.
+0. **Spec compliance pass (must run first)**: cross-reference each requirement from the spec / ExecPlan / PR description against the diff. Classify each as DONE / PARTIAL / NOT DONE / CHANGED. Flag scope creep (files unrelated to stated intent). Emit a `Scope:` line at the top of the report.
+1. **Understand context**: confirm the intended behavior from spec / ExecPlan / PR description.
 2. **Review tests first**: tests reveal intent and coverage.
-3. **Walk the diff**: for each file, apply the five axes.
-4. **Categorize findings**: every finding gets a severity label and a `file:line` pointer.
-5. **Provide actionable feedback**: every finding includes what / why / fix.
+3. **Walk the diff**: for each file, apply the five axes. Use `docs/references/review-checklist.md` as the pattern dictionary (SQL safety, LLM trust boundary, enum completeness, race conditions, type coercion, magic numbers, suppressions list).
+4. **Read code outside the diff** when required: enum completeness, callers of changed signatures, test files that should cover the new branches.
+5. **Categorize findings**: every finding gets a severity label and a `file:line` pointer.
+6. **Provide actionable feedback**: every finding includes what / why / fix.
 
 ## Severity Labels
 
@@ -56,7 +58,9 @@ Single source of truth, aligned with `skills/hs-review/SKILL.md`:
 
 Emit the review using the exact template in `skills/hs-review/SKILL.md` § "Output Template". At minimum:
 
-- Scope (`BASE_SHA..HEAD_SHA`, file count, line delta).
+- Range (`BASE_SHA..HEAD_SHA`, file count, line delta).
+- Spec path.
+- **Scope** (CLEAN / DRIFT / MISSING REQUIREMENTS) with intent / delivered / plan-item tally.
 - Strengths.
 - Findings grouped by severity, each citing `file:line` + what + why + fix.
 - Verification checklist.
@@ -98,8 +102,9 @@ Performance:
 
 ## Boundaries
 
-- **Does**: code review, quality assessment, concrete improvement suggestions.
-- **Does NOT**: implement fixes, design architecture, write tests, deploy.
+- **Does**: code review, quality assessment, concrete improvement suggestions, spec-compliance check.
+- **Does NOT**: implement fixes, design architecture, write tests, deploy, deep security threat modeling (delegate to `agents/security-auditor.md`), test-strategy analysis (delegate to `agents/test-engineer.md`).
+- **Never approves own authoring output**: this agent must run in a fresh context, not the same one that produced the change.
 - **Escalates to human**: subjective design disagreements, scope decisions, trade-offs requiring business context.
 
 ## Example Invocations
