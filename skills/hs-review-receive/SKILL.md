@@ -154,6 +154,5 @@ Before declaring the round complete:
 
 ## See Also
 
-- `skills/hs-review-request/SKILL.md` — how to dispatch the reviewer you're now receiving from.
-- `skills/hs-review/SKILL.md` — five-axis standards, severity labels, output template the reviewer follows.
+- `skills/hs-review-request/SKILL.md` — how to dispatch the reviewer you're now receiving from (severity vocabulary and round budget live here).
 - `skills/hs-tdd/SKILL.md` — how to write the regression tests a reviewer will ask for.

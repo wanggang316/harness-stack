@@ -30,8 +30,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-debug` - Debugging and error recovery
 
 **Review** → Ensure quality
-- `/hs-review-request` - Dispatch a fresh-context reviewer (author side)
-- `/hs-review` - Conduct multi-axis code review (reviewer side)
+- `/hs-review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
 - `/hs-review-receive` - Handle reviewer feedback (author side)
 - `/hs-security` - Security audit
 

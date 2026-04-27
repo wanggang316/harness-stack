@@ -142,7 +142,7 @@ Agent: /hs-exec-plan (execute the plan incrementally)
   ↓
 Agent: /hs-tdd (write tests)
   ↓
-Agent: /hs-review-request → /hs-review (consult hs-code-reviewer) → /hs-review-receive
+Agent: /hs-review-request (dispatch code-reviewer / security-auditor / test-engineer in parallel) → /hs-review-receive
   ↓
 Agent: /hs-ship (deploy, consult hs-git)
   ↓
