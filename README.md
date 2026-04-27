@@ -34,8 +34,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 | Plan | `/hs-exec-plan` | Execute an approved ExecPlan |
 | Build | `/hs-tdd` | Test-driven development |
 | Verify | `/hs-debug` | Debugging and error recovery |
-| Review | `/hs-review-request` | Dispatch a fresh-context reviewer |
-| Review | `/hs-review` | Conduct multi-axis code review |
+| Review | `/hs-review-request` | Dispatch fresh-context reviewers (code / security / tests) |
 | Review | `/hs-review-receive` | Handle reviewer feedback with rigor |
 | Review | `/hs-security` | Security audit |
 | Ship | `/hs-git` | Git workflow and versioning |

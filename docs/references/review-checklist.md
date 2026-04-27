@@ -1,8 +1,8 @@
 # Review Checklist
 
-经验型 review 模式池。五轴 (`skills/hs-review/SKILL.md`) 是框架，这里是项目无关、复用率最高的雷区清单。每条都附带：什么模式、为什么是问题、怎么修。
+经验型 review 模式池。五轴框架定义在 `agents/code-reviewer.md` 系统提示中，这里是项目无关、复用率最高的雷区清单。每条都附带：什么模式、为什么是问题、怎么修。
 
-`hs-review` 在 Process 第 3 步 (walk the diff) 把这份清单当作模式匹配字典使用。安全/性能的细节请配合 `security-checklist.md` 与 `performance-checklist.md`。
+`code-reviewer` 在 Process 第 3 步 (walk the diff) 把这份清单当作模式匹配字典使用。安全/性能的细节请配合 `security-checklist.md` 与 `performance-checklist.md`。
 
 ## 使用方式
 
@@ -165,7 +165,8 @@ LLM 输出 = 不可信用户输入。我们整套 stack 跑 AI agent，这一类
 
 ## See Also
 
-- `skills/hs-review/SKILL.md` — 五轴评审主流程。
+- `agents/code-reviewer.md` — 五轴评审主流程（subagent 系统提示）。
+- `skills/hs-review-request/SKILL.md` — 作者侧调度入口与 lane 选择。
 - `docs/references/security-checklist.md` — OWASP-class 安全检查。
 - `docs/references/performance-checklist.md` — 性能检查。
 - `skills/hs-security/SKILL.md` — 深度安全审计与硬化。
