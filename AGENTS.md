@@ -30,7 +30,9 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-debug` - Debugging and error recovery
 
 **Review** → Ensure quality
-- `/hs-review` - Code review and quality
+- `/hs-review-request` - Dispatch a fresh-context reviewer (author side)
+- `/hs-review` - Conduct multi-axis code review (reviewer side)
+- `/hs-review-receive` - Handle reviewer feedback (author side)
 - `/hs-security` - Security audit
 
 **Ship** → Deploy and release
@@ -60,7 +62,7 @@ When you need expert judgment:
 1. Write spec: `/hs-spec` for new features
 3. Plan work: `/hs-planner` to create execution plan
 4. Build: `/hs-exec-plan` to execute the plan
-5. Review: `/hs-review` before merging
+5. Review: `/hs-review-request` to dispatch, `/hs-review-receive` after feedback
 6. Ship: `/hs-ship` to deploy
 
 ## Documentation

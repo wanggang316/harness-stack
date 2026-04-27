@@ -23,7 +23,9 @@ harness-stack 文档中心。
 | Plan | hs-exec-plan | [SKILL.md](../skills/hs-exec-plan/SKILL.md) |
 | Build | hs-tdd | [SKILL.md](../skills/hs-tdd/SKILL.md) |
 | Verify | hs-debug | [SKILL.md](../skills/hs-debug/SKILL.md) |
+| Review | hs-review-request | [SKILL.md](../skills/hs-review-request/SKILL.md) |
 | Review | hs-review | [SKILL.md](../skills/hs-review/SKILL.md) |
+| Review | hs-review-receive | [SKILL.md](../skills/hs-review-receive/SKILL.md) |
 | Review | hs-security | [SKILL.md](../skills/hs-security/SKILL.md) |
 | Ship | hs-changelog | [SKILL.md](../skills/hs-changelog/SKILL.md) |
 | Ship | hs-git | [SKILL.md](../skills/hs-git/SKILL.md) |
