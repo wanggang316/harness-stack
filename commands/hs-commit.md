@@ -11,7 +11,7 @@ model: claude-haiku-4-5
 - Current branch: !`git branch --show-current`
 - Recent commits: !`git log --oneline -10`
 
-## Commit Rules (from hs-git)
+## Commit Rules
 
 - **Conventional Commits**: `<type>: <short imperative description>`
   - Types: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `chore`
