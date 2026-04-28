@@ -1,0 +1,11 @@
+{
+  "name": "harness-stack",
+  "version": "0.1.0",
+  "description": "Agent-first development framework: lifecycle skills (hs-*), review/security/test subagents, and harness hooks.",
+  "author": {
+    "name": "Gump"
+  },
+  "homepage": "https://github.com/wanggang316/harness-stack",
+  "repository": "https://github.com/wanggang316/harness-stack",
+  "license": "MIT"
+}
