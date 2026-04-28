@@ -1,6 +1,6 @@
 ---
 allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git commit:*), Bash(git restore:*), Bash(grep:*)
-description: Create an atomic git commit following the hs-git skill rules
+description: Create an atomic git commit with conventional-commit format and no attribution trailers
 model: claude-haiku-4-5
 ---
 
