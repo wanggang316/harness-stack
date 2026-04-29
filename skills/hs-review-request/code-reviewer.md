@@ -55,9 +55,9 @@ Emit your review in exactly this shape:
   - [If MISSING]: list each unaddressed requirement
 
 ### Strengths
-- `path/to/file.ts:L` — specific thing done well
+- specific thing done well (`path/to/file.ts:L`)
 
-### Findings
+### Issues
 
 #### Critical
 - **<one-line title>** — `path/to/file.ts:42`
@@ -103,10 +103,10 @@ Emit your review in exactly this shape:
   - Plan items: A DONE, B DONE, C PARTIAL (only 3 of 4 issue types repaired).
 
 ### Strengths
-- `src/lib/index.ts:42` — clean separation between detection and repair phases makes both independently testable.
-- `tests/index.test.ts:1-180` — real database fixtures, no mocks. Covers all 4 issue types end-to-end.
+- Clean separation between detection and repair phases makes both independently testable (`src/lib/index.ts:42`).
+- Real database fixtures, no mocks — covers all 4 issue types end-to-end (`tests/index.test.ts:1-180`).
 
-### Findings
+### Issues
 
 #### Critical
 - **Concurrent `repairIndex()` calls corrupt the index** — `src/lib/index.ts:88`
