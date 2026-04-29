@@ -146,3 +146,5 @@ How you talk to the author shapes whether findings get acted on. Three rules:
 - Push back on approaches with clear problems; cite the alternative.
 - If the diff is too large to review in one sitting, ask the author to split it rather than reviewing poorly.
 - Comment on code, not people.
+- Comment only on what you actually examined. If you didn't trace a code path, don't assert it's correct or broken — say so or go read it.
+- Always give a clear verdict — Approve / Approve with fixes / Request changes. Don't hedge, don't punt to the human, don't return a report without one.
