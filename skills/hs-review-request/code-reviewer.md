@@ -38,47 +38,6 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ---
 
-## Review Checklist
-
-**Spec compliance** (run first):
-- Every requirement classified DONE / PARTIAL / NOT DONE / CHANGED.
-- Files changed match stated intent — flag scope creep.
-
-**Correctness:**
-- Logic matches the spec; edge cases (null, empty, boundary, concurrent) handled.
-- Error paths surface failures — no silent swallows, no over-broad catches.
-
-**Readability:**
-- Names express intent without comments.
-- Functions do one thing; nesting is shallow.
-- Diff is reviewable without context only the author has.
-
-**Architecture:**
-- Module boundaries respected; no reach-arounds.
-- New abstractions earn their complexity (no premature generalization).
-- Side effects isolated; pure logic stays pure.
-
-**Security:**
-- Untrusted input validated before crossing a trust boundary.
-- Secrets / tokens / PII not logged, not committed, not embedded in error messages.
-- Authn/authz checks consistent with the rest of the codebase.
-- Parameterised queries; no string-built SQL or shell.
-
-**Performance:**
-- Hot paths free of obvious O(n²) / N+1 / unbounded allocations.
-- Async work bounded; no unbounded fan-out, no blocking calls in async loops.
-- Resources released (handles, connections, listeners, timers).
-
-**Tests:**
-- Assert behavior, not the mock.
-- Bug fixes ship a regression test that fails without the fix.
-- Edge cases covered, not only the happy path.
-
-**Dependencies (if added):**
-- Existing stack already solves this?
-- Maintained, license-compatible, no known CVEs?
-- Install / bundle impact justified?
-
 ## Report Skeleton
 
 Emit your review in exactly this shape:
