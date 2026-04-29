@@ -9,7 +9,7 @@ description: Dispatches a fresh-context code-reviewer subagent before merge. Use
 
 You are the author. Dispatch a fresh-context code-reviewer subagent to catch issues before merge. The reviewer sees only the diff, the spec, and the brief — never your session history. Fresh context catches what you missed.
 
-The reviewer methodology lives inside the `harness-stack:code-reviewer` subagent. The brief template `code-reviewer.md` (next to this file) turns that methodology into a fillable prompt.
+The reviewer methodology lives inside the `harness-stack:code-reviewer` subagent. The brief template `references/code-reviewer.md` turns that methodology into a fillable prompt.
 
 **Core principle:** Review early, review often.
 
@@ -42,7 +42,7 @@ If the change spans multiple commits, confirm the base matches what the reviewer
 
 ### 2. Fill the brief template
 
-Open `code-reviewer.md` and fill the placeholders:
+Open `references/code-reviewer.md` and fill the placeholders:
 
 | Placeholder | What to put |
 |---|---|
@@ -58,7 +58,7 @@ The brief is the user-message prompt for the subagent. It is intentionally lean 
 ### 3. Dispatch
 
 ```
-Task(subagent_type="harness-stack:code-reviewer", prompt=<filled code-reviewer.md>)
+Task(subagent_type="harness-stack:code-reviewer", prompt=<filled references/code-reviewer.md>)
 ```
 
 The subagent runs in fresh context (independent window, no inherited session state).
@@ -102,7 +102,7 @@ BASE_SHA=$(git merge-base HEAD origin/main)
 HEAD_SHA=$(git rev-parse HEAD)
 # BASE_SHA=a7981ec, HEAD_SHA=3df7661
 
-[Dispatch code-reviewer with filled brief from code-reviewer.md]
+[Dispatch code-reviewer with filled brief from references/code-reviewer.md]
   DESCRIPTION:  Verification and repair functions for conversation index
   SPEC_PATH:    docs/specs/conversation-index.md
   BASE_SHA:     a7981ec
