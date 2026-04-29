@@ -1,7 +1,5 @@
 # Code Review Brief
 
-You are reviewing code changes for production readiness. Apply the five-axis review process: correctness, readability, architecture, security, performance.
-
 **Your task:**
 
 1. Run the spec compliance pass against the diff below.
