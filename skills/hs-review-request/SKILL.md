@@ -9,7 +9,7 @@ description: Dispatches a fresh-context code-reviewer subagent before merge. Use
 
 You are the author. Dispatch a fresh-context code-reviewer subagent to catch issues before merge. The reviewer sees only the diff, the spec, and the brief — never your session history. Fresh context catches what you missed.
 
-The reviewer methodology lives self-contained inside the agent (`agents/code-reviewer.md`). The brief template in this folder turns that methodology into a fillable prompt.
+The reviewer methodology lives inside the `code-reviewer` subagent. The brief template `code-reviewer.md` (next to this file) turns that methodology into a fillable prompt.
 
 **Core principle:** Review early, review often.
 
@@ -42,7 +42,7 @@ If the change spans multiple commits, confirm the base matches what the reviewer
 
 ### 2. Fill the brief template
 
-Open `skills/hs-review-request/code-reviewer.md` and fill the placeholders:
+Open `code-reviewer.md` and fill the placeholders:
 
 | Placeholder | What to put |
 |---|---|
@@ -85,7 +85,7 @@ If the reviewer emits findings without severity labels or `file:line` citations,
 
 **Two rounds.** If the reviewer is still raising Critical / Important findings on the third round, stop dispatching and escalate to a human:
 
-- The change may need splitting (see `skills/hs-git/SKILL.md`).
+- The change may need splitting into smaller pieces.
 - The spec may be wrong or under-specified.
 - The reviewer and author may have an unresolved technical disagreement that needs a third party.
 
@@ -102,7 +102,7 @@ BASE_SHA=$(git merge-base HEAD origin/main)
 HEAD_SHA=$(git rev-parse HEAD)
 # BASE_SHA=a7981ec, HEAD_SHA=3df7661
 
-[Dispatch code-reviewer with filled brief from skills/hs-review-request/code-reviewer.md]
+[Dispatch code-reviewer with filled brief from code-reviewer.md]
   DESCRIPTION:  Verification and repair functions for conversation index
   SPEC_PATH:    docs/specs/conversation-index.md
   BASE_SHA:     a7981ec
@@ -147,7 +147,7 @@ Human → final call
 
 - Dispatching the reviewer without a spec or ExecPlan to ground the review.
 - Re-dispatching before the previous round's Critical / Important findings are resolved.
-- Sending the reviewer a diff that spans two unrelated changes — split first (`skills/hs-git/SKILL.md`).
+- Sending the reviewer a diff that spans two unrelated changes — split first.
 - Copying your session history into the brief — that defeats fresh context.
 
 ## Verification
@@ -157,10 +157,3 @@ Before handing off to `hs-review-receive`:
 - [ ] Brief includes `BASE_SHA`, `HEAD_SHA`, spec path, description, focus, notes.
 - [ ] Reviewer returned a structured report with severity labels and `file:line` citations.
 - [ ] Verdict is one of Approve / Approve with fixes / Request changes.
-
-## See Also
-
-- `skills/hs-review-receive/SKILL.md` — apply the reviewer's findings with technical rigor.
-- `agents/code-reviewer.md` — the code-reviewer subagent.
-- `skills/hs-git/SKILL.md` — change sizing and splitting strategies.
-- `code-reviewer.md` (this folder) — fill and pass to the `code-reviewer` subagent.
