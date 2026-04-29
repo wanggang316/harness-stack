@@ -151,8 +151,3 @@ Before declaring the round complete:
 - [ ] Each fix is tested individually; no regressions.
 - [ ] Each reply cites `file:line` or test evidence; no "fixed" without a reference.
 - [ ] If you pushed back and lost, the correction is stated factually.
-
-## See Also
-
-- `skills/hs-review-request/SKILL.md` — how to dispatch the reviewer you're now receiving from (severity vocabulary and round budget live here).
-- `skills/hs-tdd/SKILL.md` — how to write the regression tests a reviewer will ask for.
