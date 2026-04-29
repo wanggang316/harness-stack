@@ -7,7 +7,7 @@ You are reviewing code changes for production readiness. Apply the five-axis rev
 1. Run the spec compliance pass against the diff below.
 2. Review the diff across correctness, readability, architecture, security, and performance.
 3. Categorize every finding with severity + `file:line` + what / why / fix.
-4. Emit the report in the skeleton at the bottom of this brief.
+4. Emit the report in the Output Format below.
 5. Give a clear verdict — Approve / Approve with fixes / Request changes — with a one-sentence reasoning.
 
 ## What Was Implemented
@@ -38,7 +38,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ---
 
-## Report Skeleton
+## Output Format
 
 Emit your review in exactly this shape:
 
@@ -90,7 +90,7 @@ Emit your review in exactly this shape:
 **Reasoning:** <1–2 sentences>
 ```
 
-## Example (calibration)
+## Example Output
 
 ```markdown
 ## Review: Add task verification and repair

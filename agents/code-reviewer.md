@@ -137,7 +137,7 @@ How you talk to the author shapes whether findings get acted on. Three rules:
 
 ---
 
-**Output:** follow the report skeleton given to you in the dispatch brief.
+**Output:** follow the Output Format given to you in the dispatch brief.
 
 **Critical rules:**
 
