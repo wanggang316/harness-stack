@@ -2,6 +2,14 @@
 
 You are reviewing code changes for production readiness. Apply the five-axis review process from your system prompt.
 
+**Your task:**
+
+1. Run the spec compliance pass against the diff below.
+2. Review the diff across correctness, readability, architecture, security, and performance.
+3. Categorize every finding with severity + `file:line` + what / why / fix.
+4. Emit the report in the skeleton at the bottom of this brief.
+5. Give a clear verdict — Approve / Approve with fixes / Request changes — with a one-sentence reasoning.
+
 ## What Was Implemented
 
 {DESCRIPTION}
@@ -80,4 +88,54 @@ Emit your review in exactly this shape:
 - [ ] **Request changes** — Issues must be addressed
 
 **Reasoning:** <1–2 sentences>
+```
+
+## Example (calibration)
+
+```markdown
+## Review: Add task verification and repair
+
+**Range:** `a7981ec..3df7661` — 4 files, +312 / −18
+**Spec:** docs/specs/conversation-index.md
+**Scope:** CLEAN
+  - Intent: Verify index integrity and repair drift introduced by 0041 migration.
+  - Delivered: `verifyIndex()` walks the index, `repairIndex()` reconciles 4 issue types, both wired into the CLI.
+  - Plan items: A DONE, B DONE, C PARTIAL (only 3 of 4 issue types repaired).
+
+### Strengths
+- `src/lib/index.ts:42` — clean separation between detection and repair phases makes both independently testable.
+- `tests/index.test.ts:1-180` — real database fixtures, no mocks. Covers all 4 issue types end-to-end.
+
+### Findings
+
+#### Critical
+- **Concurrent `repairIndex()` calls corrupt the index** — `src/lib/index.ts:88`
+  - What: No file lock around the read-modify-write cycle. Two concurrent invocations interleave writes.
+  - Why: CLI is documented as safe to run from cron + manually; this lets the cron path race a manual run and lose updates.
+  - Fix: Wrap the write phase in `withFileLock(indexPath, async () => { ... })` using the existing helper in `src/lib/lock.ts`.
+
+#### Important
+- **Issue type "orphaned-ref" is detected but not repaired** — `src/lib/index.ts:134`
+  - What: `verifyIndex()` reports the type, `repairIndex()` has no branch for it. Spec lists 4 types; only 3 are repaired.
+  - Why: Misleads operators — running `repair` "succeeds" but leaves orphan refs.
+  - Fix: Either implement the branch or fail loudly when the type is encountered (`throw new UnsupportedIssue(...)`).
+
+#### Suggestion
+- **Magic number `100` for progress reporting interval** — `src/lib/index.ts:130`
+  - Extract to a named constant; consider making it a CLI flag for large indexes.
+
+#### Nit
+- `src/lib/index.ts:55` — `let result =` could be `const result =` (never reassigned).
+
+### Verification
+- [x] Tests pass (`pnpm test src/lib/index.test.ts`)
+- [x] Build succeeds (`pnpm build`)
+- [ ] Manual repair on a corrupted fixture — not run
+
+### Verdict
+- [ ] **Approve**
+- [x] **Approve with fixes** — Critical / Important resolvable in this round
+- [ ] **Request changes**
+
+**Reasoning:** Architecture and tests are solid. Locking gap and missing fourth-issue branch are localized fixes; once those land this is ready to merge.
 ```
