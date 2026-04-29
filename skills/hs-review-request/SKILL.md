@@ -9,7 +9,7 @@ description: Dispatches a fresh-context code-reviewer subagent before merge. Use
 
 You are the author. Dispatch a fresh-context code-reviewer subagent to catch issues before merge. The reviewer sees only the diff, the spec, and the brief — never your session history. Fresh context catches what you missed.
 
-The reviewer methodology lives inside the `code-reviewer` subagent. The brief template `code-reviewer.md` (next to this file) turns that methodology into a fillable prompt.
+The reviewer methodology lives inside the `harness-stack:code-reviewer` subagent. The brief template `code-reviewer.md` (next to this file) turns that methodology into a fillable prompt.
 
 **Core principle:** Review early, review often.
 
@@ -58,7 +58,7 @@ The brief is the user-message prompt for the subagent. It is intentionally lean 
 ### 3. Dispatch
 
 ```
-Task(subagent_type="code-reviewer", prompt=<filled code-reviewer.md>)
+Task(subagent_type="harness-stack:code-reviewer", prompt=<filled code-reviewer.md>)
 ```
 
 The subagent runs in fresh context (independent window, no inherited session state).
