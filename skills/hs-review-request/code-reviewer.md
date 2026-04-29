@@ -1,5 +1,7 @@
 # Code Review Brief
 
+You are reviewing code changes for production readiness.
+
 **Your task:**
 
 1. Run the spec compliance pass against the diff below.
