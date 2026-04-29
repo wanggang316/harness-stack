@@ -28,6 +28,24 @@ The reviewer methodology lives inside the `harness-stack:code-reviewer` subagent
 - Auto-generated code or lockfile bumps where a reviewer cannot add value.
 - After two rounds on the same diff with the reviewer — stop and escalate to the human.
 
+## Integration with Workflows
+
+**ExecPlan execution:**
+
+- Review after each task or batch — issues compound fast across tasks.
+- Apply findings before starting the next task; don't let unresolved findings ride.
+
+**Parallel / multi-agent implementation:**
+
+- Review each agent's output before merging its branch back.
+- Review the integrated result again once branches converge — interactions only show up after merge.
+
+**Ad-hoc development:**
+
+- Review before merge.
+- Review when stuck — fresh context catches the assumption you're trapped in.
+- Optional baseline review before a refactor that touches load-bearing code.
+
 ## How to Request
 
 ### 1. Pin the diff range
