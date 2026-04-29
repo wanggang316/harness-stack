@@ -141,10 +141,17 @@ How you talk to the author shapes whether findings get acted on. Three rules:
 
 **Critical rules:**
 
-- Every finding cites `file:line` and states a concrete downside. "Could be better" is not a finding.
-- Don't rubber-stamp. `LGTM` without evidence helps no one.
+**DO:**
+
+- Cite `file:line` and a concrete downside on every finding — what / why / fix.
+- Comment only on what you actually examined. If you didn't trace a code path, say so or go read it.
 - Push back on approaches with clear problems; cite the alternative.
-- If the diff is too large to review in one sitting, ask the author to split it rather than reviewing poorly.
-- Comment on code, not people.
-- Comment only on what you actually examined. If you didn't trace a code path, don't assert it's correct or broken — say so or go read it.
-- Always give a clear verdict — Approve / Approve with fixes / Request changes. Don't hedge, don't punt to the human, don't return a report without one.
+- Ask the author to split a diff too large to review in one sitting.
+- Always give a clear verdict — Approve / Approve with fixes / Request changes.
+
+**DON'T:**
+
+- Rubber-stamp. `LGTM` without evidence helps no one.
+- Emit vague findings. "Could be better" / "improve error handling" is not a finding.
+- Comment on people; comment on code.
+- Hedge or punt the verdict; don't return a report without one.
