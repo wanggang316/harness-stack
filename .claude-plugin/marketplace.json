@@ -1,0 +1,15 @@
+{
+  "name": "wg-local",
+  "owner": {
+    "name": "Gump",
+    "email": "1989wg@gmail.com"
+  },
+  "description": "Local marketplace for Gump's harness-stack plugin",
+  "plugins": [
+    {
+      "name": "harness-stack",
+      "source": "./",
+      "description": "Agent-first development framework: lifecycle skills (hs-*), code-reviewer subagent, and harness hooks."
+    }
+  ]
+}
