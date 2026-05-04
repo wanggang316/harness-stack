@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DecisionSynthesis",
+  "description": "Aggregated decision after combining multiple agents' recommendations.",
+  "type": "object",
+  "required": ["decision", "rationale", "support", "confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "decision": {
+      "type": "string",
+      "minLength": 8,
+      "description": "One-sentence final answer. Must be one of the constrained options if the question supplied any."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 60,
+      "description": "Three to six sentences synthesizing the strongest arguments from the supporting agents. Do not just say 'most agents agreed'."
+    },
+    "support": {
+      "type": "object",
+      "required": ["agreed", "total"],
+      "additionalProperties": false,
+      "properties": {
+        "agreed": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of agents whose recommendation aligns with the decision (after merging close paraphrases)."
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Total number of agents who returned a usable recommendation."
+        }
+      }
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "low when agents are split or when many flagged low confidence. medium when a clear majority forms but with real dissent. high when agents converge with mutually-reinforcing reasoning."
+    },
+    "minorityPositions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["position", "rationale"],
+        "additionalProperties": false,
+        "properties": {
+          "position": {
+            "type": "string",
+            "minLength": 8,
+            "description": "The minority recommendation in one sentence."
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 20,
+            "description": "What the minority's reasoning is. Two to three sentences."
+          }
+        }
+      },
+      "description": "Notable disagreement worth surfacing. Empty if there was none."
+    },
+    "uncertainties": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Specific factual or contextual gaps that, if resolved, might change the decision. Empty if none."
+    }
+  }
+}

@@ -36,6 +36,7 @@ Agent-first development framework implementing the harness methodology.
 
 **Deliberate** → Multi-agent reasoning
 - `/hs-debate` - Multi-agent debate among heterogeneous LLM agents on a single question
+- `/hs-decide` - Parallel multi-agent decision support: each agent answers independently, synthesis pass produces final decision with confidence and minority positions
 
 **Ship** → Deploy and release
 - `/hs-changelog` - Changelog management
