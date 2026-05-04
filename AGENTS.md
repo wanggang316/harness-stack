@@ -34,6 +34,9 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-review-receive` - Handle reviewer feedback (author side)
 - `/hs-security` - Security audit
 
+**Deliberate** → Multi-agent reasoning
+- `/hs-debate` - Multi-agent debate among heterogeneous LLM agents on a single question
+
 **Ship** → Deploy and release
 - `/hs-changelog` - Changelog management
 - `/hs-git` - Git workflow and versioning
