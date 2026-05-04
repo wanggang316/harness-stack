@@ -24,6 +24,7 @@ export type {
 } from "./runtime/types.js";
 export { InvocationError, DEFAULT_RETRY_POLICY } from "./runtime/types.js";
 
-export { invoke, applyAgentDefaults } from "./runtime/runner.js";
+export { invoke, invokeMany, applyAgentDefaults, type InvokeManyResult } from "./runtime/runner.js";
+export { withRetry } from "./runtime/retry.js";
 
 export const HS_LLM_VERSION = "0.0.1";

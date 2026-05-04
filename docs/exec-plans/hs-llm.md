@@ -27,7 +27,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - [x] Slice 2 — Package skeleton, config schema, types, and mock provider with library `invoke()` — 2026-05-04
 - [x] Slice 3 — API provider (OpenAI-compatible + Anthropic-compatible) via Vercel AI SDK — 2026-05-04
 - [x] Slice 4 — CLI provider for `claude` and `pi` cliType (subprocess spawn) — 2026-05-04
-- [ ] Slice 5 — `invokeMany()` with partial-failure tolerance and retry/timeout policy
+- [x] Slice 5 — `invokeMany()` with partial-failure tolerance and retry/timeout policy — 2026-05-04
 - [ ] Slice 6 — CLI binary `hs-llm` exposing `invoke` and `invoke-many` commands
 - [ ] Slice 7 — Optional Zod schema-constrained output (validate + retry-on-parse-failure)
 - [ ] Slice 8 — Remaining CLI adapters (gemini, copilot, pi, opencode, droid, amp, generic) and SDK provider

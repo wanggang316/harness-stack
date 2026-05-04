@@ -1,23 +1,72 @@
 import type { HsLlmConfig } from "../config/schema.js";
+import { Semaphore } from "./concurrency.js";
 import { InvocationError } from "./errors.js";
 import { createRunner } from "./registry.js";
-import type {
-  InvocationRequest,
-  InvocationResponse,
-  ProviderTaskRunner,
-  ResolvedAgent
+import { withRetry } from "./retry.js";
+import {
+  DEFAULT_RETRY_POLICY,
+  type InvocationRequest,
+  type InvocationResponse,
+  type ProviderTaskRunner,
+  type ResolvedAgent,
+  type RetryPolicy
 } from "./types.js";
+
+const DEFAULT_INVOKE_MANY_CONCURRENCY = 8;
+
+export type InvokeManyResult = Array<
+  | { agentId: string; status: "ok"; response: InvocationResponse }
+  | { agentId: string; status: "error"; error: InvocationError }
+>;
 
 export async function invoke(args: {
   config: HsLlmConfig;
   agentId: string;
   request: InvocationRequest;
+  retry?: RetryPolicy;
 }): Promise<InvocationResponse> {
   const resolved = resolveAgent(args.config, args.agentId);
   const runner = getRunner(args.config, resolved.providerName);
   const merged = applyAgentDefaults(resolved, args.request);
-  return runner.runTask({ agent: resolved, request: merged });
+  const exec = (): Promise<InvocationResponse> => runner.runTask({ agent: resolved, request: merged });
+  if (args.retry) return withRetry(exec, args.retry);
+  return exec();
 }
+
+export async function invokeMany(args: {
+  config: HsLlmConfig;
+  invocations: Array<{ agentId: string; request: InvocationRequest }>;
+  concurrency?: number;
+  retry?: RetryPolicy;
+}): Promise<InvokeManyResult> {
+  const concurrency = args.concurrency ?? DEFAULT_INVOKE_MANY_CONCURRENCY;
+  const semaphore = new Semaphore(concurrency);
+
+  return Promise.all(
+    args.invocations.map(async (inv) => {
+      await semaphore.acquire();
+      try {
+        const response = await invoke({
+          config: args.config,
+          agentId: inv.agentId,
+          request: inv.request,
+          ...(args.retry !== undefined ? { retry: args.retry } : {})
+        });
+        return { agentId: inv.agentId, status: "ok" as const, response };
+      } catch (err) {
+        return {
+          agentId: inv.agentId,
+          status: "error" as const,
+          error: err instanceof InvocationError ? err : new InvocationError("non-retryable", String(err), { cause: err })
+        };
+      } finally {
+        semaphore.release();
+      }
+    })
+  );
+}
+
+export { DEFAULT_RETRY_POLICY };
 
 function resolveAgent(config: HsLlmConfig, agentId: string): ResolvedAgent {
   const agent = config.agents.find((a) => a.id === agentId);
