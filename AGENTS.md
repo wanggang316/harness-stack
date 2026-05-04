@@ -64,12 +64,19 @@ When you need expert judgment:
 5. Review: `/hs-review-request` to dispatch, `/hs-review-receive` after feedback
 6. Ship: `/hs-ship` to deploy
 
+## Packages
+
+TypeScript runtime packages live under `packages/` and are managed through pnpm workspaces.
+
+- `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `docs/recipes/calling-hs-llm-from-a-skill.md`.
+
 ## Documentation
 
 - [Golden Rules](docs/golden-rules.md) - Core principles
 - [Architecture](docs/architecture.md) - System design
 - [Getting Started](docs/index.md) - Quick start guide
 - [References](docs/references/) - Checklists and patterns
+- [Recipes](docs/recipes/) - How-to guides for cross-cutting tasks
 
 ## How It Works
 

@@ -31,7 +31,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - [x] Slice 6 — CLI binary `hs-llm` exposing `invoke` and `invoke-many` commands — 2026-05-04
 - [x] Slice 7 — Optional Zod schema-constrained output (validate + retry-on-parse-failure) — 2026-05-04
 - [x] Slice 8 — Remaining CLI adapters (gemini, copilot, pi, opencode, droid, amp, generic) and SDK provider — 2026-05-04
-- [ ] Slice 9 — Documentation: README, examples/config.example.json, integration recipe for skills
+- [x] Slice 9 — Documentation: README, examples/config.example.json, integration recipe for skills — 2026-05-04
 
 ## Surprises & Discoveries
 
@@ -99,7 +99,15 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 ## Outcomes & Retrospective
 
-(To be filled at milestone completion)
+**Delivered (2026-05-04).** All nine slices implemented and committed. The package is a stateless TypeScript provider abstraction with both library API (`invoke` / `invokeMany`) and CLI binary (`hs-llm invoke / invoke-many / validate-config`), supporting four provider types — `api` (Vercel AI SDK V2), `cli` (nine subprocess adapters), `sdk` (dynamic-import plugins), `mock` (test fixture) — with a uniform error taxonomy, schema-constrained output, and a configurable retry policy.
+
+**Final test footprint:** 127 unit tests across 8 test files, plus an end-to-end smoke against the built `dist/cli.js`. Type strictness: `strict: true` + `noUncheckedIndexedAccess` + `noImplicitOverride`. Repo footprint: 1 new `packages/` directory; no impact on any existing markdown skill.
+
+**Key plan deviations (recorded in Decision Log):** Vercel AI SDK upgraded from v4 to v6 (V2 LanguageModel interface) before any surface-level coding completed (D19); `applyAgentDefaults` and several utility primitives promoted to public exports for testability and downstream skill reuse (D18, plus schema utilities).
+
+**One-round review applied (Slice 1+2):** Code-reviewer + test-engineer dispatched in parallel via `hs-review-request`. Verdict was Approve with fixes; Critical/Important findings (test coverage gaps, exports key order, indirect default-merge testing) were applied before continuing to Slice 3. No additional review rounds requested by the author for slices 3–9; downstream consumer skills (`hs-decide`, `hs-debate`) will exercise the package end-to-end and provide the next signal.
+
+**Open work intentionally deferred:** Live API tests under `HS_LLM_LIVE_TESTS=1` were scaffolded into the README but not added to CI; vitest coverage thresholds were not configured (test count, not coverage %, was the bar in this iteration); the package is not yet published to npm — consumed only via the workspace.
 
 ## Context and Orientation
 

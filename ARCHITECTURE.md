@@ -26,6 +26,12 @@ harness-stack implements the **harness methodology** from OpenAI's Codex team. I
 - Everything is Skill or Subagent
 - Self-bootstrapping capability
 
+### Note on TypeScript packages
+
+The repository started markdown-only and remains so for skills, agents, and documentation. Where a piece of functionality is genuinely a runtime tool that skills shell out to (rather than a workflow), it lives as a TypeScript package under `packages/` and is built into a CLI binary plus a library entrypoint. The first such package is `@hs/llm`, which gives skills a single command for invoking LLMs across HTTP APIs, local coding-agent CLIs, and custom adapters.
+
+Skills should treat a `packages/` binary the same way they treat any other shell tool — invoke it, parse its JSON output, react to its exit code. Skills must never `import` from `packages/*` at the markdown layer; the package boundary is the binary contract.
+
 ## Architecture Layers
 
 ```
