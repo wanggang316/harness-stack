@@ -25,7 +25,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 - [x] Slice 1 — Repo TS toolchain bootstrap (pnpm workspace, root tsconfig, root package.json) — 2026-05-04
 - [x] Slice 2 — Package skeleton, config schema, types, and mock provider with library `invoke()` — 2026-05-04
-- [ ] Slice 3 — API provider (OpenAI-compatible + Anthropic-compatible) via Vercel AI SDK
+- [x] Slice 3 — API provider (OpenAI-compatible + Anthropic-compatible) via Vercel AI SDK — 2026-05-04
 - [ ] Slice 4 — CLI provider for `claude` and `pi` cliType (subprocess spawn)
 - [ ] Slice 5 — `invokeMany()` with partial-failure tolerance and retry/timeout policy
 - [ ] Slice 6 — CLI binary `hs-llm` exposing `invoke` and `invoke-many` commands
@@ -41,6 +41,8 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - **2026-05-04, Slice 2.** With `noUncheckedIndexedAccess`, indexed access on `config.providers["name"]` returns `T | undefined`. Required defensive narrowing in `runner.ts`, `load.ts`, and the test helper. The strictness paid off — caught two off-by-one assumptions during authoring.
 - **2026-05-04, Slice 2.** Workspace devDeps (typescript, vitest, tsx, prettier) at the root are accessible to packages via PATH inheritance when scripts are run through `pnpm --filter`. Per-package devDeps not needed for the shared toolchain — only runtime deps (zod) live under `packages/hs-llm/dependencies`.
 - **2026-05-04, Slice 1+2 review (round 1).** Code-reviewer + test-engineer dispatched in parallel via `hs-review-request`. Verdict: Approve with fixes. Critical findings concentrated in test coverage gaps (cache reuse, malformed assertion looseness, validateConfig referential checks, abort path). Important findings: `applyAgentDefaults` only indirectly tested, `exports` map key order in `package.json` (must be `types` before `import`). All Critical and Important findings applied; tests grew from 7 → 18.
+- **2026-05-04, Slice 3.** Vercel AI SDK ecosystem has migrated to `LanguageModelV2` interface. The plan's `ai@^4` is V1; `@ai-sdk/openai-compatible@^1` already publishes V2 models, so the V1+V2 mix produced a TS2322 type error on the openai-compatible factory. Resolved by upgrading to coherent V2 stack: `ai@^6`, `@ai-sdk/anthropic@^2`, `@ai-sdk/openai-compatible@^1`. API surface change: `maxTokens → maxOutputTokens`, `usage.{prompt,completion}Tokens → usage.{input,output}Tokens` — the latter happens to match hs-llm's own field names exactly, so no shape translation is needed.
+- **2026-05-04, Slice 3.** First implementation of `isAbortError` matched any error whose message contained "aborted" or "timeout" — false-positively catching `APICallError(statusCode: 408, message: "Request timeout")` and routing it through the abort branch. Reordered classification so `APICallError` is checked first, and tightened `isAbortError` to name-only (`AbortError`/`TimeoutError`). Test fixture pinned the bug.
 
 ## Decision Log
 
@@ -75,6 +77,10 @@ The package is **stateless and business-logic-free**: it does not know about deb
 **D16 — `DEFAULT_RETRY_POLICY` exported from runtime/types.ts.** The plan said retry-policy lives in `runtime/retry.ts` (Slice 5). Exposing the *type* and *default value* in `types.ts` allows Slice 2's `invoke()` signature to stay forward-compatible without forcing a Slice 5 dependency. The `withRetry` function still ships in Slice 5.
 
 **D17 — `InvocationError` split into `runtime/errors.ts`.** Code-review feedback: Slice 2 originally placed the class in `runtime/types.ts`, which forced `config/load.ts` to depend on `runtime/types.ts`. Splitting the runtime class out to a leaf `runtime/errors.ts` lets `config/` and `runtime/{mock,registry,runner}.ts` import the class directly with no cross-layer churn before Slice 3 lands. `runtime/types.ts` re-exports for back-compat at the package boundary, so `index.ts` is unchanged.
+
+**D19 — Vercel AI SDK pinned to V2 stack (ai@^6).** Plan said `ai@^4`. Latest stable `ai` is `6.0.174` (V2 LanguageModel interface); V1 is end-of-life on the publishing cadence. Adopted `ai@^6` + `@ai-sdk/anthropic@^2` + `@ai-sdk/openai-compatible@^1` (last is already V2). V2's `usage.inputTokens`/`outputTokens` shape happens to match hs-llm's normalized fields directly. ExecPlan's "Interfaces and Dependencies" section updated to reflect.
+
+**D20 — `createApiRunner` takes `environment` param.** Slice 3 introduces an explicit `environment: NodeJS.ProcessEnv = process.env` parameter to `createApiRunner` rather than hard-coding `process.env`. Rationale: tests can pass `{ TEST_KEY: "..." }` deterministically without `vi.stubEnv` and Slice 8's SDK provider will need the same affordance. Default falls back to `process.env` for normal CLI consumers.
 
 **D18 — `applyAgentDefaults` exported as a named function.** Code+test review feedback: the merge precedence (request > agent > model) is the single function every future runner depends on, but the existing test couldn't fail because the mock provider doesn't consume the merged fields. Promoting to an exported function lets us unit-test all five fields × three precedence levels directly. Keeping it on the public surface costs nothing and serves as documentation for the contract.
 
@@ -414,8 +420,8 @@ export async function invokeMany(args: {
 **Runtime dependencies (declared in `packages/hs-llm/package.json`):**
 
 - `zod ^3.23` — config validation, schema-constrained output.
-- `ai ^4` — Vercel AI SDK core.
-- `@ai-sdk/anthropic ^1` — Anthropic-compatible adapter.
+- `ai ^6` — Vercel AI SDK core (V2 LanguageModel interface; bumped from plan's ^4 per D19).
+- `@ai-sdk/anthropic ^2` — Anthropic-compatible adapter (V2; bumped from plan's ^1 per D19).
 - `@ai-sdk/openai-compatible ^1` — OpenAI-compatible adapter.
 - `json-schema-to-zod ^2` — added in Slice 7 to convert JSON Schema input from the CLI into a Zod schema at the library boundary (per Q2).
 

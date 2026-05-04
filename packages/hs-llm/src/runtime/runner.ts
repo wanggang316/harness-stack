@@ -59,7 +59,7 @@ function getRunner(config: HsLlmConfig, providerName: string): ProviderTaskRunne
     if (!provider) {
       throw new InvocationError("config", `provider '${providerName}' not found`);
     }
-    runner = createRunner(provider);
+    runner = createRunner(providerName, provider);
     cache.set(providerName, runner);
   }
   return runner;
