@@ -68,14 +68,14 @@ fi
 
 If the binary is missing, tell the user what to run and stop. If you are already inside the harness-stack repo and the user agrees, run the install/build yourself — but do not run those commands silently against an unknown working tree.
 
-**Locate the config.** Try the four sources in order. If none exists, ask the user where they would like the config to live (typical answers: `./hs-llm.config.json` for project-scoped, `~/.config/hs-llm/config.json` for user-scoped). Then offer to copy the starter template:
+**Locate the config.** Try the four sources in order. If none exists, ask the user where they would like the config to live (typical answers: `./hs-llm.config.json` for project-scoped, `~/.config/hs-llm/config.json` for user-scoped). Then offer to copy the canonical example:
 
 ```bash
 mkdir -p "$(dirname "$CONFIG")"
-cp skills/hs-debate/templates/starter-config.json "$CONFIG"
+cp packages/hs-llm/examples/config.example.json "$CONFIG"
 ```
 
-The starter has three mock agents (so the smoke path works without any keys) plus commented templates for Anthropic and OpenAI-compatible providers. Tell the user which environment variables the api providers expect (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) — they need to be set before any api agent will work.
+The example has mock agents (so the smoke path works without any keys), Anthropic and OpenAI-compatible providers with several model agents, and one CLI agent. Tell the user which environment variables the api providers expect (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) — they need to be set before any api agent will work.
 
 **Validate.**
 
