@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConvergenceJudgment",
+  "description": "Judgment on whether a debate round added meaningfully new claims compared to the cumulative claim set from prior rounds.",
+  "type": "object",
+  "required": ["converged", "novelClaimCount", "totalClaimCount", "rationale"],
+  "additionalProperties": false,
+  "properties": {
+    "converged": {
+      "type": "boolean",
+      "description": "True when this round's claims are mostly paraphrases or specializations of claims from prior rounds. False when this round introduced substantively new arguments, objections, or evidence."
+    },
+    "novelClaimCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Count of claims in this round that are not paraphrases of prior claims."
+    },
+    "totalClaimCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Total count of claims in this round across all peers."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 20,
+      "description": "One or two sentences explaining the call. Cite specific claims that are new (or that are restatements) where possible."
+    }
+  }
+}

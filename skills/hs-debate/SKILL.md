@@ -9,11 +9,13 @@ description: Runs a multi-agent debate among heterogeneous LLM agents on a singl
 
 You orchestrate a deliberation in which several LLM agents argue a question across multiple rounds. Each round, every agent reads anonymized statements from the others and revises its position. After the last round, claims from all rounds are aggregated into a catalog and a synthesis pass produces a single coherent answer.
 
-Two design assumptions matter and you must enforce them:
+Two operating principles shape the skill:
 
-**Heterogeneity is not optional.** A debate among instances of the same model collapses to consensus quickly because the participants share priors, training data, and failure modes. The only way disagreement uncovers blind spots is if the participants disagree for genuine reasons. The skill rejects a roster that lacks at least two distinct model families unless the user explicitly opts out.
+**Heterogeneity is recommended, not enforced.** A debate among instances of the same model converges quickly because the participants share priors, training data, and failure modes. We strongly suggest the user pick three or more agents that span different model families (Anthropic + OpenAI-compatible + a third), but the skill does not refuse a homogeneous roster — the user's roster is the user's call. The skill surfaces the recommendation at agent-selection time and lets termination be governed by what actually happens in the debate, not by a static rule about who is talking.
 
 **Peers are anonymized.** Stable identifiers like "Claude said" or "GPT-4 said" introduce status effects. A weaker agent will defer to a perceived stronger one rather than defend its position. Every prompt presented to a participant labels the others as `peer-1`, `peer-2`, etc., and the mapping is kept out of the prompt.
+
+**The debate ends when claims stop moving.** Rather than forcing a fixed number of rounds, the skill checks after each round (starting with round 2) whether the new claims meaningfully extend the prior catalog. When 80% or more of a round's claims are paraphrases or specializations of what was already said, the deliberation has converged and the skill proceeds straight to synthesis. The `--rounds` flag is a maximum budget, not a target.
 
 The runtime substrate is the `@hs/llm` package (`packages/hs-llm/`). All LLM I/O goes through its CLI binary; the skill itself does no network work.
 
@@ -37,10 +39,10 @@ The user invokes this skill with at minimum a question. Optional flags:
 |----------|---------|-------|
 | `--question <text>` (or first positional) | required | The question to debate. Phrase it sharply — "should we X or Y given Z" beats "thoughts on X". |
 | `--agents <a,b,c>` | (interactive) | Comma-separated agent ids from the config. If omitted, you ask the user to pick from the available roster. |
-| `--rounds <n>` | `3` | Number of rounds total (round 1 = opening, round 2..n = followups). |
+| `--rounds <n>` | `3` | **Maximum** number of rounds. Round 1 is the opening; rounds 2..n are followups. The skill stops earlier than this if claims converge (see Phase 2). |
 | `--config <path>` | auto | Path to the hs-llm config file. Auto-resolution order: `--config` → `$HS_LLM_CONFIG` → `./hs-llm.config.json` → `~/.config/hs-llm/config.json`. |
 | `--out-dir <path>` | `./debate-runs/<timestamp>` | Where the debate state and outputs land. |
-| `--allow-homogeneous` | off | Skip the heterogeneity check. Use only when you know what you are giving up. |
+| `--synthesis-agent <id>` | first picked | Which agent runs the convergence checks and the final synthesis. If the config has an agent named like `synth_*` or `judge_*`, prefer that. Otherwise use the first selected debate participant. |
 
 Resolve the question first: if the user invoked the skill without one, ask. Without a question there is nothing to debate.
 
@@ -108,22 +110,11 @@ claude_sonnet   api   anthropic           claude-sonnet-4-5
 gpt5            api   openai-compatible   gpt-5
 ```
 
-Show this to the user. If they passed `--agents` already, parse and proceed. Otherwise, ask which to include. Recommend at least three; recommend that the picks span at least two different "family" or "cliType" values (the third column).
+Show this to the user. If they passed `--agents` already, parse and proceed. Otherwise, ask which to include and surface a one-line recommendation:
 
-**Heterogeneity audit.** Compute the family signature for each selected agent:
+> "I recommend at least three agents and ideally two or more different model families (the third column above). A debate among instances of the same model tends to converge quickly with shared blind spots intact. That said, you choose — the skill will accept whatever roster you pick and rely on the convergence check in Phase 2 to terminate at the right time."
 
-```
-signature(api)  = provider.family + ":" + agent.model    # e.g. "anthropic:claude-haiku-4-5"
-signature(cli)  = "cli:" + provider.cliType
-signature(sdk)  = "sdk:" + provider.adapter
-signature(mock) = "mock:" + agent.id
-```
-
-The roster is heterogeneous if the set of signatures has cardinality ≥ 2 across selected agents. If not, refuse and explain why:
-
-> "All selected agents share the same model family (`anthropic:claude-sonnet-4-5`). A debate among instances of the same model collapses to consensus and reproduces shared blind spots. Pick at least one agent from a different family (e.g. `gpt5`), or pass `--allow-homogeneous` if you accept this trade-off."
-
-If the user passed `--allow-homogeneous`, log a warning and continue.
+If the user picks a homogeneous roster, accept it and continue. The convergence check after round 2 will likely fire early; that is the correct outcome and the skill should not pre-empt it with a refusal.
 
 Save the selection plus a randomized peer-mapping to the debate directory:
 
@@ -151,9 +142,19 @@ AGENTS_JSON="$(printf '%s\n' "${AGENT_IDS[@]}" | shuf | jq -R . | jq -s .)"
 
 `shuf` is GNU coreutils; on macOS use `gshuf` (from `brew install coreutils`) or fall back to `sort -R`.
 
+**Pick the synthesis agent.** This agent runs both the per-round convergence checks and the final synthesis, so it is decided once at the end of Phase 1. Resolution order:
+
+1. The user's `--synthesis-agent <id>` if provided.
+2. An agent in the config whose id starts with `synth_` or `judge_`.
+3. The first selected debate participant (alphabetical by agent id).
+
+Record the choice in `meta.json` under `synthesisAgent`. The synthesis agent may also be one of the debate participants; that is acceptable, with the understanding that it carries some bias toward its own claims at synthesis time. The skill notes the choice openly in the final summary.
+
 ### Phase 2 — Debate
 
-For each round 1..N:
+Run rounds 1..N as a loop. After every round R ≥ 2, run a convergence check (described at the end of this section). If converged, exit the loop early and proceed to Phase 3.
+
+For each round R from 1 to N:
 
 #### Round 1 (opening)
 
@@ -267,6 +268,32 @@ For each round R from 2 to N, for each peer P with a prior-round statement:
 
 If a peer dropped out of round R-1 (no `.txt` file), they are not invited back for round R. The debate proceeds with the remaining peers. If the active peer count drops below 2, abort the round and proceed to synthesis with whatever rounds completed — a one-participant "debate" is not a debate.
 
+#### Convergence check (after every round R ≥ 2)
+
+Once round R's claims are extracted for every active peer, decide whether to run round R+1 or stop. Build two inputs:
+
+- **This round's claims:** flatten every active peer's `round-R/peer-K.claims.json` into a single bullet list of `text` strings.
+- **Cumulative prior claims:** the same flattening over rounds 1..R-1.
+
+Render `prompts/convergence-check.md` with these substituted in, save to `$OUT_DIR/round-$R/convergence.prompt.txt`, and run:
+
+```bash
+$HS_LLM_BIN invoke \
+  --config "$CONFIG" \
+  --agent "$SYNTH_AGENT" \
+  --prompt-file "$OUT_DIR/round-$R/convergence.prompt.txt" \
+  --schema-file skills/hs-debate/schemas/convergence.schema.json \
+  --out "$OUT_DIR/round-$R/convergence.json"
+```
+
+If `parsed.converged === true`, append the round to `meta.json` as the last completed round, record `terminationReason: "converged"`, skip the remaining rounds, and proceed to Phase 3.
+
+If `parsed.converged === false`, continue to round R+1. After the final round (R = N), record `terminationReason: "rounds-exhausted"` and proceed to Phase 3.
+
+The convergence check itself is a deliberate cost: one extra `hs-llm invoke` per round above the first. The cost is bounded by `--rounds - 1`. Skipping it would force every debate to run the full budget; that is wasteful when participants have clearly settled, and it is also misleading when participants are still moving.
+
+If the convergence agent itself errors (schema-repair exhausted, network failure), do not block the run — fall back to "not converged" and continue. Note the failure in `$OUT_DIR/round-$R/convergence.error` for debugging.
+
 ### Phase 3 — Aggregation and synthesis
 
 Build the claim catalog by collecting every claim across every round and counting how many distinct peers raised each.
@@ -298,12 +325,7 @@ write(`${OUT_DIR}/catalog.json`, catalog);
 
 Then construct the synthesis prompt: take `prompts/synthesis.md`, substitute `{{QUESTION}}` and `{{CLAIM_CATALOG}}` (a markdown rendering of `catalog.json` — bullets grouped by peer, with stance and round tags).
 
-Pick a synthesis agent. Two reasonable choices:
-
-- **One of the participants.** Cheaper, but the chosen model has natural bias toward its own claims.
-- **A separate "synthesizer" agent in the config.** Cleaner. If the user has one, use it. Otherwise pick the first participant alphabetically and note the choice in `meta.json`.
-
-Run synthesis with the schema:
+Use the synthesis agent already chosen at the end of Phase 1. Run synthesis with the schema:
 
 ```bash
 $HS_LLM_BIN invoke \
@@ -341,8 +363,8 @@ Render `summary.md` from `synthesis.json` plus `meta.json`. Format:
 ---
 
 **Participants:** <N anonymous peers>
-**Rounds:** <N>
-**Synthesis agent:** <peer-K>  *(public, since synthesis was a single voice)*
+**Rounds run:** <R> of <N> (terminated: <converged | rounds-exhausted>)
+**Synthesis agent:** <agent id>  *(public, since synthesis was a single voice)*
 **Run directory:** <OUT_DIR>
 ```
 
@@ -363,7 +385,9 @@ $OUT_DIR/
 │  ├─ peer-1.claims.json      # extracted claims (parsed + raw response)
 │  └─ peer-2.* / peer-3.*
 ├─ round-2/                   # same shape, plus per-peer prompt.txt
-├─ round-3/
+│  └─ convergence.json        # convergence judgment that decided whether to run round 3
+├─ round-3/                   # only present if round 2 did not converge
+│  └─ convergence.json
 ├─ catalog.json               # all claims across all rounds, grouped by peer
 ├─ synthesis.prompt.txt
 ├─ synthesis.json             # parsed + raw synthesis response
@@ -376,26 +400,29 @@ $OUT_DIR/
 
 | Rationalization | Reality |
 |---|---|
-| "Three Sonnets is faster than mixing." | Yes, and they will agree on the same wrong answer. The whole point is variance reduction, not speed. |
-| "Skip claim extraction; just synthesize the raw transcripts." | The claim layer is what lets minority positions survive a majority-vote synthesis. Without it, minority arguments get diluted by their wordier neighbors. |
-| "Two rounds is enough." | Round 2 is when participants first see disagreement. Round 3 is when they react to the *reaction*. Stopping at 2 captures argument but not refinement. |
+| "Three Sonnets is faster than mixing." | Probably yes, and the convergence check after round 2 will likely fire and cap the cost — but you also lose the variance reduction the skill is for. The skill accepts this roster; you carry the consequence. |
+| "Skip claim extraction; just synthesize the raw transcripts." | The claim layer is what lets minority positions survive a majority-vote synthesis. Without it, minority arguments get diluted by their wordier neighbors, and the convergence check has nothing structured to compare. |
+| "Skip the convergence check, just always run all the rounds." | One extra `hs-llm invoke` per round above the first is cheaper than running rounds that produce no new claims. The check also surfaces the round at which deliberation actually settled, which is useful information for the summary. |
 | "Skip anonymization, the agents are smart enough." | They are smart enough to be sycophantic. Status effects are robust across model sizes. |
-| "Use the same agent for all participants and just resample with high temperature." | Self-MoA works for *decision support* (parallel sampling for a single answer); it does not produce real disagreement, which is what debate is for. Use the `hs-decide` skill for the parallel-sampling pattern. |
+| "Use the same agent for all participants and just resample with high temperature." | This produces correlated samples that share blind spots. The convergence check will catch this and terminate the debate after round 2 — which is the right outcome but a misleading one (you spent the cost of a debate to get a weakly-deliberated single-model answer). For decision support without real cross-perspective, use the `hs-decide` skill. |
 
 ## Red Flags
 
-- A run completes but every peer's claims look near-identical → heterogeneity check passed but the agents are still too similar in practice. Try a wider mix (cli + api, or different api families).
-- Synthesis confidence is `high` but the catalog shows real dissent → synthesis agent is rounding off the disagreement. Re-run synthesis with a different agent and compare.
+- The convergence check fires after round 2 with `novelClaimCount` near zero → the roster is probably too homogeneous. Note this in the summary and recommend the user rerun with a more diverse roster if the question is high-stakes.
+- The convergence check never fires across the full `--rounds` budget → participants are still moving at round N. Either the budget was too small or the question is too broad. The summary should flag this as `terminationReason: "rounds-exhausted"` rather than masking it.
+- Synthesis confidence is `high` but the claim catalog shows real dissent → the synthesis agent rounded off the disagreement. Re-run with a different `--synthesis-agent` and compare.
 - `summary.md` reads like one of the participant statements → synthesis defaulted to its own prior. Re-run with `--synthesis-agent` set to a different participant, or rotate.
-- Round R produces near-zero new claims → debate has converged. Stopping early at R-1 would have been fine. Note for next time; do not retroactively shorten the recorded run.
+- A peer drops out before round 2 (round-1 statement missing or extraction failure) → check `round-1/raw/_index.json` for the underlying error. The debate continues with the surviving peers, but a 2-peer debate from round 1 is fragile.
 
 ## Verification
 
 Before declaring the run complete, confirm:
 
-- [ ] `meta.json` exists with `peers`, `agents`, and `question` populated.
+- [ ] `meta.json` exists with `peers`, `agents`, `question`, `synthesisAgent`, and `terminationReason` populated.
 - [ ] Every active peer has a `.txt` and `.claims.json` file for every round they participated in.
-- [ ] `catalog.json` aggregates claims from at least two distinct peers across at least two distinct rounds.
-- [ ] `synthesis.json` parses and contains a `parsed` field matching the schema.
+- [ ] For every round R ≥ 2 that ran, `round-R/convergence.json` exists with a `parsed` block matching the convergence schema.
+- [ ] If `terminationReason` is `converged`, the convergence.json from the last completed round has `parsed.converged === true`.
+- [ ] `catalog.json` aggregates claims from at least two distinct peers across at least two distinct rounds (or one round, if the debate converged after round 2 with sparse round 2 contributions).
+- [ ] `synthesis.json` parses and contains a `parsed` field matching the synthesis schema.
 - [ ] `summary.md` renders cleanly and the headline is one sentence.
 - [ ] No agent id appears anywhere outside `meta.json` and the per-round `raw/` subdirectories.
