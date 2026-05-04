@@ -34,7 +34,7 @@ export async function invoke<T = unknown>(args: {
   schemaRepairAttempts?: number;
 }): Promise<InvocationResponse & { parsed?: T }> {
   const resolved = resolveAgent(args.config, args.agentId);
-  const runner = getRunner(args.config, resolved.providerName);
+  const runner = await getRunner(args.config, resolved.providerName);
   const merged = applyAgentDefaults(resolved, args.request);
   const exec = (request: InvocationRequest): Promise<InvocationResponse> =>
     args.retry
@@ -138,10 +138,12 @@ function resolveAgent(config: HsLlmConfig, agentId: string): ResolvedAgent {
 // runnerCache assumes the config object is treated as immutable after the first
 // invoke() — runners may close over provider fields read at construction time
 // (e.g., the api runner builds a model factory once). Mutating a cached
-// provider's fields in place is unsupported.
-const runnerCache = new WeakMap<HsLlmConfig, Map<string, ProviderTaskRunner>>();
+// provider's fields in place is unsupported. The cache holds Promise<Runner>
+// so concurrent invocations share a single async construction (e.g. dynamic
+// import for the sdk provider).
+const runnerCache = new WeakMap<HsLlmConfig, Map<string, Promise<ProviderTaskRunner>>>();
 
-function getRunner(config: HsLlmConfig, providerName: string): ProviderTaskRunner {
+function getRunner(config: HsLlmConfig, providerName: string): Promise<ProviderTaskRunner> {
   let cache = runnerCache.get(config);
   if (!cache) {
     cache = new Map();
@@ -153,7 +155,7 @@ function getRunner(config: HsLlmConfig, providerName: string): ProviderTaskRunne
     if (!provider) {
       throw new InvocationError("config", `provider '${providerName}' not found`);
     }
-    runner = createRunner(providerName, provider);
+    runner = Promise.resolve(createRunner(providerName, provider));
     cache.set(providerName, runner);
   }
   return runner;

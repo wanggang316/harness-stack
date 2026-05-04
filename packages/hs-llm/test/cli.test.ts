@@ -51,13 +51,12 @@ describe("buildBaseArgs", () => {
     expect(out.reasoningApplied).toBe(false);
   });
 
-  it("throws config error for unsupported cliTypes", () => {
-    expect(() => buildBaseArgs({ cliType: "codex", modelId: "x" })).toThrow(
-      expect.objectContaining({ kind: "config" })
-    );
-    expect(() => buildBaseArgs({ cliType: "generic", modelId: "x" })).toThrow(
-      expect.objectContaining({ kind: "config" })
-    );
+  it("returns args for every cliType the schema accepts (no unimplemented branches)", () => {
+    const cliTypes = ["claude", "codex", "gemini", "copilot", "pi", "opencode", "droid", "amp", "generic"] as const;
+    for (const t of cliTypes) {
+      const out = buildBaseArgs({ cliType: t, modelId: "x" });
+      expect(out.args).toContain("--model");
+    }
   });
 });
 

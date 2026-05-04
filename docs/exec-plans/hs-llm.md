@@ -30,7 +30,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - [x] Slice 5 — `invokeMany()` with partial-failure tolerance and retry/timeout policy — 2026-05-04
 - [x] Slice 6 — CLI binary `hs-llm` exposing `invoke` and `invoke-many` commands — 2026-05-04
 - [x] Slice 7 — Optional Zod schema-constrained output (validate + retry-on-parse-failure) — 2026-05-04
-- [ ] Slice 8 — Remaining CLI adapters (gemini, copilot, pi, opencode, droid, amp, generic) and SDK provider
+- [x] Slice 8 — Remaining CLI adapters (gemini, copilot, pi, opencode, droid, amp, generic) and SDK provider — 2026-05-04
 - [ ] Slice 9 — Documentation: README, examples/config.example.json, integration recipe for skills
 
 ## Surprises & Discoveries

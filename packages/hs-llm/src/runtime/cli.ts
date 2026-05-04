@@ -72,13 +72,19 @@ export function buildBaseArgs(input: BuildArgsInput): BuildArgsResult {
     case "pi":
       return buildPiArgs(input);
     case "codex":
+      return buildCodexArgs(input);
     case "gemini":
+      return buildGeminiArgs(input);
     case "copilot":
+      return buildCopilotArgs(input);
     case "opencode":
+      return buildOpencodeArgs(input);
     case "droid":
+      return buildDroidArgs(input);
     case "amp":
+      return buildAmpArgs(input);
     case "generic":
-      throw new InvocationError("config", `cliType '${input.cliType}' is not yet supported`);
+      return buildGenericArgs(input);
   }
 }
 
@@ -102,11 +108,66 @@ function buildPiArgs(input: BuildArgsInput): BuildArgsResult {
     const sessionPath = join(tmpdir(), `hs-llm-pi-${input.traceabilityId}`);
     args.push("--session", sessionPath);
   }
-  // pi has no verified reasoning flag; warn once per process when asked and
-  // fall through with reasoningApplied=false rather than failing the invocation.
+  if (input.reasoning) warnReasoningUnsupportedOnce(input.cliType);
+  return { args, reasoningApplied: false };
+}
+
+function buildCodexArgs(input: BuildArgsInput): BuildArgsResult {
+  const args: string[] = ["exec", "--model", input.modelId];
+  let reasoningApplied = false;
   if (input.reasoning) {
-    warnReasoningUnsupportedOnce(input.cliType);
+    args.push("--effort", input.reasoning);
+    reasoningApplied = true;
   }
+  if (input.traceabilityId) args.push("--session-id", input.traceabilityId);
+  return { args, reasoningApplied };
+}
+
+function buildGeminiArgs(input: BuildArgsInput): BuildArgsResult {
+  const args: string[] = ["--prompt-stdin", "--model", input.modelId];
+  if (input.reasoning) warnReasoningUnsupportedOnce(input.cliType);
+  if (input.traceabilityId) args.push("--session", input.traceabilityId);
+  return { args, reasoningApplied: false };
+}
+
+function buildCopilotArgs(input: BuildArgsInput): BuildArgsResult {
+  const args: string[] = ["suggest", "--model", input.modelId];
+  if (input.reasoning) warnReasoningUnsupportedOnce(input.cliType);
+  if (input.traceabilityId) args.push("--session-id", input.traceabilityId);
+  return { args, reasoningApplied: false };
+}
+
+function buildOpencodeArgs(input: BuildArgsInput): BuildArgsResult {
+  const args: string[] = ["run", "--model", input.modelId];
+  let reasoningApplied = false;
+  if (input.reasoning) {
+    args.push("--effort", input.reasoning);
+    reasoningApplied = true;
+  }
+  if (input.traceabilityId) args.push("--session", input.traceabilityId);
+  return { args, reasoningApplied };
+}
+
+function buildDroidArgs(input: BuildArgsInput): BuildArgsResult {
+  const args: string[] = ["run", "--model", input.modelId];
+  if (input.reasoning) warnReasoningUnsupportedOnce(input.cliType);
+  if (input.traceabilityId) args.push("--session", input.traceabilityId);
+  return { args, reasoningApplied: false };
+}
+
+function buildAmpArgs(input: BuildArgsInput): BuildArgsResult {
+  const args: string[] = ["--model", input.modelId];
+  if (input.reasoning) warnReasoningUnsupportedOnce(input.cliType);
+  if (input.traceabilityId) args.push("--thread-id", input.traceabilityId);
+  return { args, reasoningApplied: false };
+}
+
+function buildGenericArgs(input: BuildArgsInput): BuildArgsResult {
+  // The generic adapter just forwards the model id and lets the caller append
+  // any binary-specific flags via the provider's `args` field. No reasoning
+  // flag is emitted, no session concept is assumed.
+  const args: string[] = ["--model", input.modelId];
+  if (input.reasoning) warnReasoningUnsupportedOnce(input.cliType);
   return { args, reasoningApplied: false };
 }
 
