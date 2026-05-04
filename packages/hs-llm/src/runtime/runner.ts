@@ -43,8 +43,8 @@ function resolveAgent(config: HsLlmConfig, agentId: string): ResolvedAgent {
 
 // runnerCache assumes the config object is treated as immutable after the first
 // invoke() — runners may close over provider fields read at construction time
-// (e.g., the Slice 3 api runner builds a model factory once). Mutating a
-// cached provider's fields in place is unsupported.
+// (e.g., the api runner builds a model factory once). Mutating a cached
+// provider's fields in place is unsupported.
 const runnerCache = new WeakMap<HsLlmConfig, Map<string, ProviderTaskRunner>>();
 
 function getRunner(config: HsLlmConfig, providerName: string): ProviderTaskRunner {

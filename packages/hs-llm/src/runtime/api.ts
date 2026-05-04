@@ -52,9 +52,8 @@ export function createApiRunner(
             outputTokens: result.usage.outputTokens
           },
           latencyMs: Date.now() - start,
-          // Q8: API providers do not currently inject the reasoning flag (Vercel AI SDK
-          // does not expose a uniform reasoning param). Reasoning passthrough is a
-          // future enhancement — for now we report it as not applied.
+          // The AI SDK has no uniform reasoning-effort knob across vendors, so we
+          // never set request.reasoning on the underlying call.
           reasoningApplied: false
         };
       } catch (err) {

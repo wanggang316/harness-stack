@@ -26,7 +26,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - [x] Slice 1 — Repo TS toolchain bootstrap (pnpm workspace, root tsconfig, root package.json) — 2026-05-04
 - [x] Slice 2 — Package skeleton, config schema, types, and mock provider with library `invoke()` — 2026-05-04
 - [x] Slice 3 — API provider (OpenAI-compatible + Anthropic-compatible) via Vercel AI SDK — 2026-05-04
-- [ ] Slice 4 — CLI provider for `claude` and `pi` cliType (subprocess spawn)
+- [x] Slice 4 — CLI provider for `claude` and `pi` cliType (subprocess spawn) — 2026-05-04
 - [ ] Slice 5 — `invokeMany()` with partial-failure tolerance and retry/timeout policy
 - [ ] Slice 6 — CLI binary `hs-llm` exposing `invoke` and `invoke-many` commands
 - [ ] Slice 7 — Optional Zod schema-constrained output (validate + retry-on-parse-failure)
@@ -43,6 +43,8 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - **2026-05-04, Slice 1+2 review (round 1).** Code-reviewer + test-engineer dispatched in parallel via `hs-review-request`. Verdict: Approve with fixes. Critical findings concentrated in test coverage gaps (cache reuse, malformed assertion looseness, validateConfig referential checks, abort path). Important findings: `applyAgentDefaults` only indirectly tested, `exports` map key order in `package.json` (must be `types` before `import`). All Critical and Important findings applied; tests grew from 7 → 18.
 - **2026-05-04, Slice 3.** Vercel AI SDK ecosystem has migrated to `LanguageModelV2` interface. The plan's `ai@^4` is V1; `@ai-sdk/openai-compatible@^1` already publishes V2 models, so the V1+V2 mix produced a TS2322 type error on the openai-compatible factory. Resolved by upgrading to coherent V2 stack: `ai@^6`, `@ai-sdk/anthropic@^2`, `@ai-sdk/openai-compatible@^1`. API surface change: `maxTokens → maxOutputTokens`, `usage.{prompt,completion}Tokens → usage.{input,output}Tokens` — the latter happens to match hs-llm's own field names exactly, so no shape translation is needed.
 - **2026-05-04, Slice 3.** First implementation of `isAbortError` matched any error whose message contained "aborted" or "timeout" — false-positively catching `APICallError(statusCode: 408, message: "Request timeout")` and routing it through the abort branch. Reordered classification so `APICallError` is checked first, and tightened `isAbortError` to name-only (`AbortError`/`TimeoutError`). Test fixture pinned the bug.
+- **2026-05-04, Slice 4.** Test-fixture argv ordering bug: when the fake CLI script was invoked as `node fake-cli.mjs --print --model X`, Node parsed `--print` and `--model` as its own flags (`bad option`). Fix: shebang the fixture (`#!/usr/bin/env node`), `chmod +x`, and configure `command: FAKE_CLI_PATH` directly with empty `args` list. This matches how production cliType configs work — the binary is invoked directly with its own flags.
+- **2026-05-04, Slice 4 + planning-refs feedback.** User flagged that comments and tests referenced plan/decision identifiers ("Q6", "Q8", "Slice 8"). Stripped all such references from `src/` and `test/`; kept rationale in plain behavioral language. Plan and design doc remain the source of truth for decision history. Memory entry saved as `feedback_no_planning_refs_in_code` so future slices follow the convention.
 
 ## Decision Log
 

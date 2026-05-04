@@ -97,9 +97,9 @@ describe("invoke (mock provider)", () => {
   });
 
   it("reuses the same runner instance for repeated invocations on a single config object", async () => {
-    // D15: runners are cached per-config-object and reused for invocations on the
-    // same config. We exercise reuse by counting how many times a fresh runner is
-    // built — once and only once, no matter how many invokes follow.
+    // Runners are cached per-config-object and reused for invocations on the same
+    // config. Three invokes on one config + a fresh second config exercise the
+    // reuse path and confirm the cache does not leak across configs.
     const callCounts = new Map<HsLlmConfig, number>();
     const trackingConfig: HsLlmConfig = validateConfig({
       version: 1,
