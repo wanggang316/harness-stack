@@ -28,17 +28,6 @@ export interface InvocationResponse {
   reasoningApplied: boolean;
 }
 
-export type InvocationErrorKind = "config" | "timeout" | "retryable" | "non-retryable" | "abort";
-
-export class InvocationError extends Error {
-  readonly kind: InvocationErrorKind;
-  constructor(kind: InvocationErrorKind, message: string, options?: { cause?: unknown }) {
-    super(message, options);
-    this.name = "InvocationError";
-    this.kind = kind;
-  }
-}
-
 export interface ProviderTaskRunner {
   runTask(args: { agent: ResolvedAgent; request: InvocationRequest }): Promise<InvocationResponse>;
 }
@@ -56,3 +45,5 @@ export const DEFAULT_RETRY_POLICY: RetryPolicy = {
   jitterPct: 25,
   maxWaitMs: 5_000
 };
+
+export { InvocationError, type InvocationErrorKind } from "./errors.js";

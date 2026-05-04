@@ -40,6 +40,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - **2026-05-04, Slice 2.** Vitest ran without needing `pnpm approve-builds` — esbuild's optional build scripts are not required for the use case at hand. Resolved without action.
 - **2026-05-04, Slice 2.** With `noUncheckedIndexedAccess`, indexed access on `config.providers["name"]` returns `T | undefined`. Required defensive narrowing in `runner.ts`, `load.ts`, and the test helper. The strictness paid off — caught two off-by-one assumptions during authoring.
 - **2026-05-04, Slice 2.** Workspace devDeps (typescript, vitest, tsx, prettier) at the root are accessible to packages via PATH inheritance when scripts are run through `pnpm --filter`. Per-package devDeps not needed for the shared toolchain — only runtime deps (zod) live under `packages/hs-llm/dependencies`.
+- **2026-05-04, Slice 1+2 review (round 1).** Code-reviewer + test-engineer dispatched in parallel via `hs-review-request`. Verdict: Approve with fixes. Critical findings concentrated in test coverage gaps (cache reuse, malformed assertion looseness, validateConfig referential checks, abort path). Important findings: `applyAgentDefaults` only indirectly tested, `exports` map key order in `package.json` (must be `types` before `import`). All Critical and Important findings applied; tests grew from 7 → 18.
 
 ## Decision Log
 
@@ -72,6 +73,10 @@ The package is **stateless and business-logic-free**: it does not know about deb
 **D15 — `runnerCache` is a `WeakMap<HsLlmConfig, Map<string, ProviderTaskRunner>>`.** Per-config-object runner caching, garbage-collected when the config is dropped. This means each `loadConfig()` call gets a fresh runner (no cross-call state) — aligning with D8's stateless contract — but within a single config object's lifetime, the runner is reused (so e.g. `invokeMany` doesn't re-instantiate runners per agent).
 
 **D16 — `DEFAULT_RETRY_POLICY` exported from runtime/types.ts.** The plan said retry-policy lives in `runtime/retry.ts` (Slice 5). Exposing the *type* and *default value* in `types.ts` allows Slice 2's `invoke()` signature to stay forward-compatible without forcing a Slice 5 dependency. The `withRetry` function still ships in Slice 5.
+
+**D17 — `InvocationError` split into `runtime/errors.ts`.** Code-review feedback: Slice 2 originally placed the class in `runtime/types.ts`, which forced `config/load.ts` to depend on `runtime/types.ts`. Splitting the runtime class out to a leaf `runtime/errors.ts` lets `config/` and `runtime/{mock,registry,runner}.ts` import the class directly with no cross-layer churn before Slice 3 lands. `runtime/types.ts` re-exports for back-compat at the package boundary, so `index.ts` is unchanged.
+
+**D18 — `applyAgentDefaults` exported as a named function.** Code+test review feedback: the merge precedence (request > agent > model) is the single function every future runner depends on, but the existing test couldn't fail because the mock provider doesn't consume the merged fields. Promoting to an exported function lets us unit-test all five fields × three precedence levels directly. Keeping it on the public surface costs nothing and serves as documentation for the contract.
 
 **D9 — Decisions resolved by approved design doc (`docs/design-docs/hs-llm.md`).** The design doc is the source of truth for the eight design questions Slice-by-Slice steps below depend on. Summary of binding decisions:
 

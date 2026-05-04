@@ -1,11 +1,11 @@
 import type { HsLlmConfig } from "../config/schema.js";
+import { InvocationError } from "./errors.js";
 import { createRunner } from "./registry.js";
-import {
-  InvocationError,
-  type InvocationRequest,
-  type InvocationResponse,
-  type ProviderTaskRunner,
-  type ResolvedAgent
+import type {
+  InvocationRequest,
+  InvocationResponse,
+  ProviderTaskRunner,
+  ResolvedAgent
 } from "./types.js";
 
 export async function invoke(args: {
@@ -41,6 +41,10 @@ function resolveAgent(config: HsLlmConfig, agentId: string): ResolvedAgent {
   return { agent, providerName: agent.provider, provider, model };
 }
 
+// runnerCache assumes the config object is treated as immutable after the first
+// invoke() — runners may close over provider fields read at construction time
+// (e.g., the Slice 3 api runner builds a model factory once). Mutating a
+// cached provider's fields in place is unsupported.
 const runnerCache = new WeakMap<HsLlmConfig, Map<string, ProviderTaskRunner>>();
 
 function getRunner(config: HsLlmConfig, providerName: string): ProviderTaskRunner {
@@ -61,7 +65,7 @@ function getRunner(config: HsLlmConfig, providerName: string): ProviderTaskRunne
   return runner;
 }
 
-function applyAgentDefaults(agent: ResolvedAgent, request: InvocationRequest): InvocationRequest {
+export function applyAgentDefaults(agent: ResolvedAgent, request: InvocationRequest): InvocationRequest {
   const merged: InvocationRequest = { ...request };
   const modelDefaults = agent.model.defaults;
   if (merged.system === undefined && agent.agent.systemPrompt !== undefined) {

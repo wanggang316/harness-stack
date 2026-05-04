@@ -1,6 +1,7 @@
 import type { ProviderConfig } from "../config/schema.js";
+import { InvocationError } from "./errors.js";
 import { createMockRunner } from "./mock.js";
-import { InvocationError, type ProviderTaskRunner } from "./types.js";
+import type { ProviderTaskRunner } from "./types.js";
 
 export function createRunner(provider: ProviderConfig): ProviderTaskRunner {
   switch (provider.type) {

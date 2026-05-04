@@ -24,6 +24,6 @@ export type {
 } from "./runtime/types.js";
 export { InvocationError, DEFAULT_RETRY_POLICY } from "./runtime/types.js";
 
-export { invoke } from "./runtime/runner.js";
+export { invoke, applyAgentDefaults } from "./runtime/runner.js";
 
 export const HS_LLM_VERSION = "0.0.1";

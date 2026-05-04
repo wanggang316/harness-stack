@@ -1,10 +1,10 @@
 import type { MockProviderConfig } from "../config/schema.js";
-import {
-  InvocationError,
-  type InvocationRequest,
-  type InvocationResponse,
-  type ProviderTaskRunner,
-  type ResolvedAgent
+import { InvocationError } from "./errors.js";
+import type {
+  InvocationRequest,
+  InvocationResponse,
+  ProviderTaskRunner,
+  ResolvedAgent
 } from "./types.js";
 
 export function createMockRunner(provider: MockProviderConfig): ProviderTaskRunner {
@@ -30,6 +30,10 @@ export function createMockRunner(provider: MockProviderConfig): ProviderTaskRunn
             latencyMs: Date.now() - start,
             reasoningApplied: false
           };
+        default: {
+          const exhaustive: never = provider.behavior;
+          throw new InvocationError("config", `unhandled mock behavior: ${String(exhaustive)}`);
+        }
       }
     }
   };

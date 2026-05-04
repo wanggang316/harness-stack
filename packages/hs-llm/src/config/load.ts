@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import type { ZodIssue } from "zod";
-import { InvocationError } from "../runtime/types.js";
+import { InvocationError } from "../runtime/errors.js";
 import { HsLlmConfigSchema, type HsLlmConfig } from "./schema.js";
 
 export async function loadConfig(path: string): Promise<HsLlmConfig> {
