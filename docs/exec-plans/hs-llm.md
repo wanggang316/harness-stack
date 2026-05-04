@@ -23,7 +23,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 ## Progress
 
-- [ ] Slice 1 — Repo TS toolchain bootstrap (pnpm workspace, root tsconfig, root package.json)
+- [x] Slice 1 — Repo TS toolchain bootstrap (pnpm workspace, root tsconfig, root package.json) — 2026-05-04
 - [ ] Slice 2 — Package skeleton, config schema, types, and mock provider with library `invoke()`
 - [ ] Slice 3 — API provider (OpenAI-compatible + Anthropic-compatible) via Vercel AI SDK
 - [ ] Slice 4 — CLI provider for `claude` and `pi` cliType (subprocess spawn)
@@ -35,7 +35,8 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 ## Surprises & Discoveries
 
-(None yet)
+- **2026-05-04, Slice 1.** Local pnpm is 10.30.3 (plan said `pnpm@9`). Tooling resolved cleanly under pnpm 10; no migration needed. Adopted pnpm 10 to match the host environment.
+- **2026-05-04, Slice 1.** `pnpm install` warning: "Ignored build scripts: esbuild@0.21.5, esbuild@0.27.7" — these come from `vitest`/`tsx`. Build scripts are blocked by default in pnpm 10 unless allowed. Vitest still runs at this slice's verification level; we will revisit by running `pnpm approve-builds` if Slice 2 tests fail.
 
 ## Decision Log
 
@@ -54,6 +55,12 @@ The package is **stateless and business-logic-free**: it does not know about deb
 **D7 — Schema-constrained output is opt-in (Slice 7).** Many skill use cases (free-form text generation) do not need it; making it required would force every consumer to define a schema. Schemas are passed via `--schema-file` in CLI mode and `schema?: ZodSchema` in library mode.
 
 **D8 — No persistent state, no on-disk session, no message history across invocations.** Each `invoke` is independent. argue's API runner keeps a `messageHistory` for multi-turn — we will not, because skills can construct multi-turn prompts themselves if needed. Rationale: removes a major class of bugs (stale state across runs) and keeps the package truly stateless.
+
+**D10 — pnpm 10 instead of pnpm 9.** Slice 1 adopted pnpm 10.30.3 (the locally installed version) instead of the planned pnpm 9. Rationale: pnpm 10 is the current stable, the lockfile format is forward-compatible, and forcing a downgrade adds cost without benefit. Updated `packageManager` field in root `package.json` to `pnpm@10.30.3`. No other plan changes required — `pnpm-workspace.yaml` and `.npmrc` syntax are unchanged across the major version.
+
+**D11 — `tsconfig.base.json` extras beyond plan.** Added `noUncheckedIndexedAccess`, `noImplicitOverride`, `isolatedModules`, `declarationMap`, `forceConsistentCasingInFileNames`, `resolveJsonModule`, `skipLibCheck` on top of the plan's listed compiler options. Rationale: these are conventional defaults for new strict TS projects and catch bugs the plan's minimal set would miss. Also explicitly set `exactOptionalPropertyTypes: false` because the runtime types use `field?: T` patterns that are stricter to satisfy when this is on; revisit if it causes type pain.
+
+**D12 — `@hs/llm/package.json` adds `exports` map and `files` allowlist.** Plan only listed `main`/`types`/`bin`. The `exports` map is the modern standard for ESM packages and the `files` allowlist scopes the eventual npm publish. Both are additive and do not change Slice 1 verification.
 
 **D9 — Decisions resolved by approved design doc (`docs/design-docs/hs-llm.md`).** The design doc is the source of truth for the eight design questions Slice-by-Slice steps below depend on. Summary of binding decisions:
 
