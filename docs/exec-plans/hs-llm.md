@@ -126,7 +126,7 @@ Edits:
 
 - `packages/hs-llm/src/config/schema.ts` — Zod schemas mirroring argue's `config.ts` shape but narrower. Define `ProviderModelSchema`, `ApiProviderSchema`, `CliProviderSchema`, `SdkProviderSchema`, `MockProviderSchema`, discriminated union `ProviderSchema`, `AgentSchema`, top-level `HsLlmConfigSchema`. Drop argue's engine-specific fields (no `defaultAgents`, `participantsPolicy`, `consensusThreshold`, etc.). Export inferred TS types (`HsLlmConfig`, `ResolvedAgent`, ...).
 - `packages/hs-llm/src/config/load.ts` — `loadConfig(path: string): Promise<HsLlmConfig>`. Reads JSON, parses with Zod, returns. Throws a `ConfigError` with the Zod issue list if invalid.
-- `packages/hs-llm/src/runtime/types.ts` — define interfaces: `InvocationRequest` (`{ prompt: string; system?: string; temperature?: number; maxOutputTokens?: number; timeoutMs?: number; abortSignal?: AbortSignal }`), `InvocationResponse` (`{ text: string; finishReason?: string; usage?: { inputTokens?: number; outputTokens?: number }; latencyMs: number; agentId: string; providerModel: string }`), `InvocationError` (typed: `kind: "config" | "timeout" | "retryable" | "non-retryable" | "abort"`, `message`, `cause?`), `ProviderTaskRunner` (`{ runTask(args: { agent: ResolvedAgent; request: InvocationRequest }): Promise<InvocationResponse> }`).
+- `packages/hs-llm/src/runtime/types.ts` — define interfaces: `InvocationRequest` (`{ prompt: string; system?: string; temperature?: number; maxOutputTokens?: number; reasoning?: "minimal" | "medium" | "high"; timeoutMs?: number; traceabilityId?: string; abortSignal?: AbortSignal }`), `InvocationResponse` (`{ text: string; finishReason?: string; usage?: { inputTokens?: number; outputTokens?: number }; latencyMs: number; agentId: string; providerModel: string; reasoningApplied: boolean }`), `InvocationError` (typed: `kind: "config" | "timeout" | "retryable" | "non-retryable" | "abort"`, `message`, `cause?`), `ProviderTaskRunner` (`{ runTask(args: { agent: ResolvedAgent; request: InvocationRequest }): Promise<InvocationResponse> }`). `traceabilityId` is opt-in passthrough only (Q6); `reasoningApplied` reports whether the runner actually applied a reasoning flag for this invocation (Q8).
 - `packages/hs-llm/src/runtime/mock.ts` — `createMockRunner(provider: MockProviderConfig): ProviderTaskRunner`. Returns deterministic responses based on `prompt` hash + agent id; supports `behavior: "deterministic" | "timeout" | "error" | "malformed"` from config to drive tests. (Pattern from argue's `mock.ts`.)
 - `packages/hs-llm/src/index.ts` — export top-level `invoke(args: { config: HsLlmConfig; agentId: string; request: InvocationRequest }): Promise<InvocationResponse>`. Resolve agent → provider → runner; instantiate runner (cached by provider name); call `runner.runTask()`. For Slice 2, only the mock branch is implemented; api/cli/sdk throw `NotImplementedError`.
 - `packages/hs-llm/src/runtime/registry.ts` — runner factory registry: `getRunner(provider: ResolvedProvider): ProviderTaskRunner`. One entry per provider kind, built lazily.
@@ -165,8 +165,9 @@ Edits:
   3. Spawn subprocess via Node `child_process.spawn`, write prompt to stdin (both claude and pi accept stdin prompts). Apply `timeoutMs` via `AbortController`. Collect stdout/stderr.
   4. On non-zero exit, throw retryable or non-retryable error based on stderr signature.
   5. Return text from stdout.
-- For `pi`: when `task.metadata?.participantSessionKey` is provided, derive a session-file path under `os.tmpdir()` (e.g., `argue-pi-<sessionKey>` — same convention as argue) and pass `--session <path>`; otherwise omit. Note: hs-llm is stateless, so this metadata is per-invocation only — no cross-invocation persistence.
-- For `claude`: when reasoning is set (`minimal` / `medium` / `high`), append `--effort <level>`. When session key is provided, use `--session-id <uuid>` on first call and `--resume <uuid>` on subsequent calls — but since hs-llm is stateless, every call is a "first call" (no `--resume`); session-id is included for traceability if a key is provided.
+- For `pi`: when `request.traceabilityId` is provided, derive a session-file path under `os.tmpdir()` (e.g., `hs-llm-pi-<traceabilityId>`) and pass `--session <path>`; otherwise omit. Per Q6 (traceability passthrough only), the package never reuses, persists, or resumes from this path across invocations — it is a per-invocation observability hook only. `reasoningApplied = false` (pi has no verified reasoning flag).
+- For `claude`: when `request.reasoning` is set (`minimal` / `medium` / `high`), append `--effort <level>` and set `reasoningApplied = true`; otherwise `reasoningApplied = false`. When `request.traceabilityId` is provided, pass `--session-id <traceabilityId>` for log-correlation only. Per Q6, **never** emit `--resume` — every invocation is independent.
+- Reasoning-flag fallback (Q8): if a `cliType` does not support a reasoning flag and `request.reasoning` is set, log a warning the first time per `(processId, cliType)` pair (deduplicated via a module-level `Set`), then ignore the flag and set `reasoningApplied = false`. The warning goes to stderr, not stdout.
 - `packages/hs-llm/src/runtime/cli.ts` also exports `usesStdinPrompt(cliType)` and `renderTemplate` (env var substitution with `{requestId}`, `{agentId}`, etc.) — copied in spirit from argue, narrowed.
 - Hook `cli` into `runtime/registry.ts`.
 - `packages/hs-llm/test/cli.test.ts` — uses a fake binary script (a small `tsx`-runnable Node script that echoes its argv + stdin as JSON) to verify args are constructed correctly per cliType. Two test groups: `claude` (assert `--print`, `--model <id>`, optional `--effort`, stdin == prompt) and `pi` (assert `--model <id>`, optional `--session <tmpdir-path>`, stdin == prompt).
@@ -181,8 +182,8 @@ This slice gives skills a robust way to fan out to N agents in parallel and tole
 
 Edits:
 
-- `packages/hs-llm/src/index.ts` — add `invokeMany(args: { config, agents: Array<{ agentId: string; request: InvocationRequest }>; concurrency?: number }): Promise<InvokeManyResult>` where `InvokeManyResult = Array<{ agentId: string; status: "ok"; response: InvocationResponse } | { agentId: string; status: "error"; error: InvocationError }>`. Uses a small concurrency limiter (no extra dependency: a hand-rolled semaphore in `runtime/concurrency.ts`).
-- `packages/hs-llm/src/runtime/retry.ts` — `withRetry(fn, policy: { attempts: number; backoffMs: number })` — retries only `kind: "retryable" | "timeout"` errors, exponential backoff, jitter ±25%. Default policy: 3 attempts, base 500ms.
+- `packages/hs-llm/src/index.ts` — add `invokeMany(args: { config, agents: Array<{ agentId: string; request: InvocationRequest }>; concurrency?: number }): Promise<InvokeManyResult>` where `InvokeManyResult = Array<{ agentId: string; status: "ok"; response: InvocationResponse } | { agentId: string; status: "error"; error: InvocationError }>`. Uses a small concurrency limiter (no extra dependency: a hand-rolled semaphore in `runtime/concurrency.ts`). Per Q5, default `concurrency = 8` when caller does not specify, to bound rate-limit storms; callers may override (including upward).
+- `packages/hs-llm/src/runtime/retry.ts` — `withRetry(fn, policy: RetryPolicy)` where `RetryPolicy = { attempts: number; backoffMs: number; jitterPct: number; maxWaitMs: number }`. Retries only `kind: "retryable" | "timeout"` errors. Per-attempt wait = `min(backoffMs * 2^(n-1), maxWaitMs)` with `±jitterPct%` jitter. Per Q7 default policy: `{ attempts: 3, backoffMs: 500, jitterPct: 25, maxWaitMs: 5_000 }`.
 - Wire `withRetry` into `invoke` (per-call) and `invokeMany` (per-agent independently).
 - `packages/hs-llm/test/invoke-many.test.ts` — use mock provider with mixed behaviors: agent A deterministic, agent B `timeout`, agent C `error`, agent D `deterministic`. Assert result is `[ok, error(timeout), error(non-retryable), ok]`. Then re-run with an agent C that flakes once then succeeds; assert retry recovers.
 
@@ -214,7 +215,7 @@ Edits:
 - Wrap `invoke` with optional `schema?: ZodSchema` parameter. On parse/validate failure, retry up to 2 times with an appended "your previous output failed validation: <error>" message. After exhaustion, surface a `non-retryable` error with the last raw output preserved.
 - For API runner with `@ai-sdk/openai-compatible`, use `generateObject` instead of `generateText` when a schema is supplied, to leverage native structured-output where available.
 - Library API: `invoke({ ..., schema })` returns `{ ...response, parsed: T }`.
-- CLI: `--schema-file path/to/schema.json`. The schema file is a JSON Schema (we convert via `zod-to-json-schema` reverse with `json-schema-to-zod`, or accept Zod-as-JSON via a small bespoke loader; **decision deferred to Slice 7 implementation, prototyping required**).
+- CLI: `--schema-file path/to/schema.json`. Per Q2 the schema file is a JSON Schema; the CLI loads it and converts to a Zod schema via `json-schema-to-zod` at the library boundary, then hands the Zod schema to `invoke()`. Add `json-schema-to-zod ^2` as a runtime dependency in this slice.
 - Tests: schema success path, schema failure → retry → success, schema failure → exhaustion.
 
 Verify: `vitest` passes. CLI smoke: pass a schema requiring `{ "answer": string, "confidence": number }`, call against a mock, verify `parsed` field.
@@ -367,6 +368,7 @@ export async function invokeMany(args: {
   "finishReason": "stop",
   "usage": { "inputTokens": 42, "outputTokens": 17 },
   "latencyMs": 1832,
+  "reasoningApplied": true,
   "parsed": null
 }
 ```
@@ -392,6 +394,7 @@ export async function invokeMany(args: {
 - `ai ^4` — Vercel AI SDK core.
 - `@ai-sdk/anthropic ^1` — Anthropic-compatible adapter.
 - `@ai-sdk/openai-compatible ^1` — OpenAI-compatible adapter.
+- `json-schema-to-zod ^2` — added in Slice 7 to convert JSON Schema input from the CLI into a Zod schema at the library boundary (per Q2).
 
 No other runtime dependencies. Subprocess spawning and CLI arg parsing use Node built-ins.
 
@@ -432,8 +435,9 @@ export interface InvocationRequest {
   system?: string;
   temperature?: number;
   maxOutputTokens?: number;
-  reasoning?: string;
+  reasoning?: "minimal" | "medium" | "high";
   timeoutMs?: number;
+  traceabilityId?: string;
   abortSignal?: AbortSignal;
 }
 
@@ -444,6 +448,7 @@ export interface InvocationResponse {
   finishReason?: string;
   usage?: { inputTokens?: number; outputTokens?: number };
   latencyMs: number;
+  reasoningApplied: boolean;
 }
 
 export type InvocationErrorKind = "config" | "timeout" | "retryable" | "non-retryable" | "abort";
@@ -457,6 +462,8 @@ export class InvocationError extends Error {
 export interface RetryPolicy {
   attempts: number;
   backoffMs: number;
+  jitterPct: number;
+  maxWaitMs: number;
 }
 ```
 
