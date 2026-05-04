@@ -25,6 +25,7 @@
     "lint": "tsc --noEmit -p tsconfig.json",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "dependencies": {
+    "zod": "^3.25.76"
+  }
 }

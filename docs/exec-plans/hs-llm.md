@@ -24,7 +24,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 ## Progress
 
 - [x] Slice 1 — Repo TS toolchain bootstrap (pnpm workspace, root tsconfig, root package.json) — 2026-05-04
-- [ ] Slice 2 — Package skeleton, config schema, types, and mock provider with library `invoke()`
+- [x] Slice 2 — Package skeleton, config schema, types, and mock provider with library `invoke()` — 2026-05-04
 - [ ] Slice 3 — API provider (OpenAI-compatible + Anthropic-compatible) via Vercel AI SDK
 - [ ] Slice 4 — CLI provider for `claude` and `pi` cliType (subprocess spawn)
 - [ ] Slice 5 — `invokeMany()` with partial-failure tolerance and retry/timeout policy
@@ -37,6 +37,9 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 - **2026-05-04, Slice 1.** Local pnpm is 10.30.3 (plan said `pnpm@9`). Tooling resolved cleanly under pnpm 10; no migration needed. Adopted pnpm 10 to match the host environment.
 - **2026-05-04, Slice 1.** `pnpm install` warning: "Ignored build scripts: esbuild@0.21.5, esbuild@0.27.7" — these come from `vitest`/`tsx`. Build scripts are blocked by default in pnpm 10 unless allowed. Vitest still runs at this slice's verification level; we will revisit by running `pnpm approve-builds` if Slice 2 tests fail.
+- **2026-05-04, Slice 2.** Vitest ran without needing `pnpm approve-builds` — esbuild's optional build scripts are not required for the use case at hand. Resolved without action.
+- **2026-05-04, Slice 2.** With `noUncheckedIndexedAccess`, indexed access on `config.providers["name"]` returns `T | undefined`. Required defensive narrowing in `runner.ts`, `load.ts`, and the test helper. The strictness paid off — caught two off-by-one assumptions during authoring.
+- **2026-05-04, Slice 2.** Workspace devDeps (typescript, vitest, tsx, prettier) at the root are accessible to packages via PATH inheritance when scripts are run through `pnpm --filter`. Per-package devDeps not needed for the shared toolchain — only runtime deps (zod) live under `packages/hs-llm/dependencies`.
 
 ## Decision Log
 
@@ -61,6 +64,14 @@ The package is **stateless and business-logic-free**: it does not know about deb
 **D11 — `tsconfig.base.json` extras beyond plan.** Added `noUncheckedIndexedAccess`, `noImplicitOverride`, `isolatedModules`, `declarationMap`, `forceConsistentCasingInFileNames`, `resolveJsonModule`, `skipLibCheck` on top of the plan's listed compiler options. Rationale: these are conventional defaults for new strict TS projects and catch bugs the plan's minimal set would miss. Also explicitly set `exactOptionalPropertyTypes: false` because the runtime types use `field?: T` patterns that are stricter to satisfy when this is on; revisit if it causes type pain.
 
 **D12 — `@hs/llm/package.json` adds `exports` map and `files` allowlist.** Plan only listed `main`/`types`/`bin`. The `exports` map is the modern standard for ESM packages and the `files` allowlist scopes the eventual npm publish. Both are additive and do not change Slice 1 verification.
+
+**D13 — `validateConfig(unknown)` exposed alongside `loadConfig(path)`.** Slice 2 splits config validation from filesystem reading. `loadConfig` reads + parses + validates; `validateConfig` validates a pre-parsed object. Rationale: tests construct config objects in memory and need validation without round-tripping through disk; library consumers may also have their own loading mechanism (e.g., remote config). No cost to expose both.
+
+**D14 — Cross-reference validation in `validateConfig`.** Beyond Zod schema validation, we additionally verify every `agent.provider` and `agent.model` reference resolves. Zod's discriminated union catches shape errors but not referential integrity. Errors are aggregated and surfaced together so the user sees all bad references in one shot, not iteratively.
+
+**D15 — `runnerCache` is a `WeakMap<HsLlmConfig, Map<string, ProviderTaskRunner>>`.** Per-config-object runner caching, garbage-collected when the config is dropped. This means each `loadConfig()` call gets a fresh runner (no cross-call state) — aligning with D8's stateless contract — but within a single config object's lifetime, the runner is reused (so e.g. `invokeMany` doesn't re-instantiate runners per agent).
+
+**D16 — `DEFAULT_RETRY_POLICY` exported from runtime/types.ts.** The plan said retry-policy lives in `runtime/retry.ts` (Slice 5). Exposing the *type* and *default value* in `types.ts` allows Slice 2's `invoke()` signature to stay forward-compatible without forcing a Slice 5 dependency. The `withRetry` function still ships in Slice 5.
 
 **D9 — Decisions resolved by approved design doc (`docs/design-docs/hs-llm.md`).** The design doc is the source of truth for the eight design questions Slice-by-Slice steps below depend on. Summary of binding decisions:
 
