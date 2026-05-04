@@ -29,6 +29,7 @@
     "@ai-sdk/anthropic": "^2.0.79",
     "@ai-sdk/openai-compatible": "^1",
     "ai": "^6.0.174",
+    "json-schema-to-zod": "^2.8.1",
     "zod": "^3.25.76"
   }
 }

@@ -26,5 +26,12 @@ export { InvocationError, DEFAULT_RETRY_POLICY } from "./runtime/types.js";
 
 export { invoke, invokeMany, applyAgentDefaults, type InvokeManyResult } from "./runtime/runner.js";
 export { withRetry } from "./runtime/retry.js";
+export {
+  parseSchemaResponse,
+  jsonSchemaFileContentsToZod,
+  stripCodeFences,
+  SchemaParseError,
+  DEFAULT_SCHEMA_REPAIR_ATTEMPTS
+} from "./runtime/schema.js";
 
 export const HS_LLM_VERSION = "0.0.1";

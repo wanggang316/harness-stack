@@ -1,8 +1,14 @@
+import type { ZodTypeAny } from "zod";
 import type { HsLlmConfig } from "../config/schema.js";
 import { Semaphore } from "./concurrency.js";
 import { InvocationError } from "./errors.js";
 import { createRunner } from "./registry.js";
 import { withRetry } from "./retry.js";
+import {
+  DEFAULT_SCHEMA_REPAIR_ATTEMPTS,
+  parseSchemaResponse,
+  SchemaParseError
+} from "./schema.js";
 import {
   DEFAULT_RETRY_POLICY,
   type InvocationRequest,
@@ -15,29 +21,66 @@ import {
 const DEFAULT_INVOKE_MANY_CONCURRENCY = 8;
 
 export type InvokeManyResult = Array<
-  | { agentId: string; status: "ok"; response: InvocationResponse }
+  | { agentId: string; status: "ok"; response: InvocationResponse & { parsed?: unknown } }
   | { agentId: string; status: "error"; error: InvocationError }
 >;
 
-export async function invoke(args: {
+export async function invoke<T = unknown>(args: {
   config: HsLlmConfig;
   agentId: string;
   request: InvocationRequest;
   retry?: RetryPolicy;
-}): Promise<InvocationResponse> {
+  schema?: ZodTypeAny;
+  schemaRepairAttempts?: number;
+}): Promise<InvocationResponse & { parsed?: T }> {
   const resolved = resolveAgent(args.config, args.agentId);
   const runner = getRunner(args.config, resolved.providerName);
   const merged = applyAgentDefaults(resolved, args.request);
-  const exec = (): Promise<InvocationResponse> => runner.runTask({ agent: resolved, request: merged });
-  if (args.retry) return withRetry(exec, args.retry);
-  return exec();
+  const exec = (request: InvocationRequest): Promise<InvocationResponse> =>
+    args.retry
+      ? withRetry(() => runner.runTask({ agent: resolved, request }), args.retry)
+      : runner.runTask({ agent: resolved, request });
+
+  if (!args.schema) {
+    return exec(merged);
+  }
+
+  const repairAttempts = args.schemaRepairAttempts ?? DEFAULT_SCHEMA_REPAIR_ATTEMPTS;
+  let request = merged;
+  let lastResponse: InvocationResponse | undefined;
+  let lastError: SchemaParseError | undefined;
+  for (let attempt = 0; attempt <= repairAttempts; attempt++) {
+    const response = await exec(request);
+    lastResponse = response;
+    try {
+      const result = parseSchemaResponse<T>(response.text, args.schema);
+      return { ...response, parsed: result.parsed };
+    } catch (err) {
+      if (!(err instanceof SchemaParseError) || attempt === repairAttempts) {
+        if (err instanceof SchemaParseError) lastError = err;
+        break;
+      }
+      lastError = err;
+      request = withRepairHint(merged, err);
+    }
+  }
+  throw new InvocationError(
+    "non-retryable",
+    `schema-constrained output failed after ${repairAttempts + 1} attempts: ${lastError?.message ?? "unknown error"}\nlast raw output:\n${lastResponse?.text ?? "(no response)"}`
+  );
+}
+
+function withRepairHint(request: InvocationRequest, error: SchemaParseError): InvocationRequest {
+  const hint = `\n\nYour previous output failed validation: ${error.message}\nReturn ONLY a JSON object that satisfies the requested schema.`;
+  return { ...request, prompt: `${request.prompt}${hint}` };
 }
 
 export async function invokeMany(args: {
   config: HsLlmConfig;
-  invocations: Array<{ agentId: string; request: InvocationRequest }>;
+  invocations: Array<{ agentId: string; request: InvocationRequest; schema?: ZodTypeAny }>;
   concurrency?: number;
   retry?: RetryPolicy;
+  schemaRepairAttempts?: number;
 }): Promise<InvokeManyResult> {
   const concurrency = args.concurrency ?? DEFAULT_INVOKE_MANY_CONCURRENCY;
   const semaphore = new Semaphore(concurrency);
@@ -50,7 +93,9 @@ export async function invokeMany(args: {
           config: args.config,
           agentId: inv.agentId,
           request: inv.request,
-          ...(args.retry !== undefined ? { retry: args.retry } : {})
+          ...(args.retry !== undefined ? { retry: args.retry } : {}),
+          ...(inv.schema !== undefined ? { schema: inv.schema } : {}),
+          ...(args.schemaRepairAttempts !== undefined ? { schemaRepairAttempts: args.schemaRepairAttempts } : {})
         });
         return { agentId: inv.agentId, status: "ok" as const, response };
       } catch (err) {

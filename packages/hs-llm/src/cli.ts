@@ -3,8 +3,10 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { argv as processArgv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import type { ZodTypeAny } from "zod";
 import { InvocationError } from "./runtime/errors.js";
 import { invoke, invokeMany, type InvokeManyResult } from "./runtime/runner.js";
+import { jsonSchemaFileContentsToZod } from "./runtime/schema.js";
 import type { InvocationRequest } from "./runtime/types.js";
 import { loadConfig } from "./config/load.js";
 
@@ -30,11 +32,14 @@ Common flags:
 
 invoke flags:
   --out <path>            Write response JSON to this file. Default: stdout.
+  --schema-file <path>    Validate the LLM output against this JSON Schema file
+                          (response gains a 'parsed' field on success).
 
 invoke-many flags:
   --concurrency <n>       Default: 8.
   --serial                Equivalent to --concurrency 1.
   --out-dir <path>        Write per-agent JSON files plus _index.json.
+  --schema-file <path>    Apply the same JSON Schema to every invocation.
 
 Exit codes:
   0  success (invoke-many returns 0 even on partial failure; inspect per-result status)
@@ -156,6 +161,17 @@ async function buildRequest(flags: ParsedArgs["flags"]): Promise<InvocationReque
   return request;
 }
 
+async function loadSchemaFromFile(path: string): Promise<ZodTypeAny> {
+  const raw = await readFile(resolve(path), "utf8");
+  let json: unknown;
+  try {
+    json = JSON.parse(raw);
+  } catch (err) {
+    throw new UsageError(`--schema-file is not valid JSON: ${(err as Error).message}`);
+  }
+  return jsonSchemaFileContentsToZod(json);
+}
+
 async function runInvoke(
   argv: string[],
   out: NodeJS.WritableStream,
@@ -168,7 +184,14 @@ async function runInvoke(
     const agentId = requireString(parsed.flags, "agent");
     const request = await buildRequest(parsed.flags);
     const config = await loadConfig(configPath);
-    const response = await invoke({ config, agentId, request });
+    const schemaPath = optionalString(parsed.flags, "schema-file");
+    const schema = schemaPath !== undefined ? await loadSchemaFromFile(schemaPath) : undefined;
+    const response = await invoke({
+      config,
+      agentId,
+      request,
+      ...(schema !== undefined ? { schema } : {})
+    });
     const json = `${JSON.stringify(response, null, 2)}\n`;
     const outPath = optionalString(parsed.flags, "out");
     if (outPath !== undefined) {
@@ -204,10 +227,16 @@ async function runInvokeMany(
     const concurrencyArg = optionalNumber(parsed.flags, "concurrency");
     const serial = parsed.flags.serial === true;
     const concurrency = serial ? 1 : concurrencyArg;
+    const schemaPath = optionalString(parsed.flags, "schema-file");
+    const schema = schemaPath !== undefined ? await loadSchemaFromFile(schemaPath) : undefined;
 
     const results: InvokeManyResult = await invokeMany({
       config,
-      invocations: agentIds.map((agentId) => ({ agentId, request })),
+      invocations: agentIds.map((agentId) => ({
+        agentId,
+        request,
+        ...(schema !== undefined ? { schema } : {})
+      })),
       ...(concurrency !== undefined ? { concurrency } : {})
     });
 
