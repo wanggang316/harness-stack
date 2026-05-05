@@ -17,10 +17,15 @@ git clone https://github.com/wanggang316/harness-stack.git
 cd harness-stack
 pnpm install
 pnpm --filter @hs/llm build
-pnpm --filter @hs/llm link --global
+
+# Link the package globally. In pnpm 10 this command runs from inside
+# the package directory; it does not compose with --filter or --global.
+cd packages/hs-llm
+pnpm link
+cd -
 ```
 
-After `link --global`, `hs-llm` is on your `PATH`:
+After `pnpm link`, the binary lives at `$(pnpm bin -g)/hs-llm` (typically `~/Library/pnpm/hs-llm` on macOS, `~/.local/share/pnpm/hs-llm` on Linux). Make sure that directory is on your `PATH`:
 
 ```bash
 hs-llm --help
@@ -29,8 +34,11 @@ hs-llm --help
 To unlink later:
 
 ```bash
-pnpm --filter @hs/llm unlink --global
+cd packages/hs-llm
+pnpm unlink
 ```
+
+> **Note.** `pnpm --filter @hs/llm link --global` will NOT work — pnpm 10 rejects `--filter` (which implies `--recursive`) on the `link` command. Run `pnpm link` from inside the package directory instead.
 
 ### Inside the harness-stack monorepo
 
