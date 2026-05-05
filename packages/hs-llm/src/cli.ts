@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { argv as processArgv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -16,11 +17,20 @@ interface MainStreams {
 }
 
 const HELP_TEXT = `Usage:
-  hs-llm invoke         --config <path> --agent <id> [flags]
-  hs-llm invoke-many    --config <path> --agents <a,b,c> [flags]
-  hs-llm validate-config <path>
+  hs-llm init           [--config <path>] [--force]
+  hs-llm invoke         --agent <id> [flags]
+  hs-llm invoke-many    --agents <a,b,c> [flags]
+  hs-llm validate-config [<path>]
+
+Config resolution (when --config / positional path is omitted):
+  1. $HS_LLM_CONFIG
+  2. ./hs-llm.config.json
+  3. \$XDG_CONFIG_HOME/hs-llm/config.json
+     (default: ~/.config/hs-llm/config.json)
 
 Common flags:
+  --config <path>         Path to the hs-llm config file. Optional;
+                          falls back to the resolution order above.
   --prompt <str>          Prompt text. Mutually exclusive with --prompt-file.
   --prompt-file <path>    Read prompt from file.
   --system <str>          System message.
@@ -41,9 +51,14 @@ invoke-many flags:
   --out-dir <path>        Write per-agent JSON files plus _index.json.
   --schema-file <path>    Apply the same JSON Schema to every invocation.
 
+init flags:
+  --config <path>         Where to write the starter config. Default:
+                          ~/.config/hs-llm/config.json (or \$HS_LLM_CONFIG if set).
+  --force                 Overwrite an existing file at the target path.
+
 Exit codes:
   0  success (invoke-many returns 0 even on partial failure; inspect per-result status)
-  1  config error (bad path, validation failure, missing api key)
+  1  config error (no config found, validation failure, missing api key)
   2  invocation error (bad agent / unimplemented provider / runtime error from invoke)
   3  usage error
 `;
@@ -53,6 +68,8 @@ export async function main(argv: string[], streams: MainStreams = {}): Promise<n
   const err = streams.stderr ?? stderr;
   const [subcommand, ...rest] = argv;
   switch (subcommand) {
+    case "init":
+      return runInit(rest, out, err);
     case "invoke":
       return runInvoke(rest, out, err);
     case "invoke-many":
@@ -70,6 +87,53 @@ export async function main(argv: string[], streams: MainStreams = {}): Promise<n
       err.write(`unknown subcommand: ${subcommand}\n${HELP_TEXT}`);
       return 3;
   }
+}
+
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    const s = await stat(path);
+    return s.isFile();
+  } catch {
+    return false;
+  }
+}
+
+function defaultUserConfigPath(env: NodeJS.ProcessEnv = process.env): string {
+  if (env.HS_LLM_CONFIG !== undefined && env.HS_LLM_CONFIG.length > 0) return env.HS_LLM_CONFIG;
+  const xdg = env.XDG_CONFIG_HOME && env.XDG_CONFIG_HOME.length > 0
+    ? env.XDG_CONFIG_HOME
+    : join(homedir(), ".config");
+  return join(xdg, "hs-llm", "config.json");
+}
+
+async function resolveConfigPath(
+  flags: ParsedArgs["flags"],
+  positional?: string,
+  env: NodeJS.ProcessEnv = process.env
+): Promise<string> {
+  const explicit = optionalString(flags, "config") ?? positional;
+  if (explicit !== undefined) return resolve(explicit);
+
+  const tried: string[] = [];
+
+  if (env.HS_LLM_CONFIG !== undefined && env.HS_LLM_CONFIG.length > 0) {
+    tried.push(`$HS_LLM_CONFIG (${env.HS_LLM_CONFIG})`);
+    if (await fileExists(env.HS_LLM_CONFIG)) return resolve(env.HS_LLM_CONFIG);
+  }
+
+  const projectLocal = resolve(process.cwd(), "hs-llm.config.json");
+  tried.push(projectLocal);
+  if (await fileExists(projectLocal)) return projectLocal;
+
+  const userGlobal = defaultUserConfigPath(env);
+  tried.push(userGlobal);
+  if (await fileExists(userGlobal)) return userGlobal;
+
+  throw new UsageError(
+    `no config file found. Tried:\n  - ${tried.join("\n  - ")}\n` +
+      "Run `hs-llm init` to scaffold one at the user-global location, " +
+      "or pass --config <path> explicitly."
+  );
 }
 
 interface ParsedArgs {
@@ -180,7 +244,7 @@ async function runInvoke(
   let parsed: ParsedArgs;
   try {
     parsed = parseArgs(argv);
-    const configPath = requireString(parsed.flags, "config");
+    const configPath = await resolveConfigPath(parsed.flags);
     const agentId = requireString(parsed.flags, "agent");
     const request = await buildRequest(parsed.flags);
     const config = await loadConfig(configPath);
@@ -214,7 +278,7 @@ async function runInvokeMany(
   let parsed: ParsedArgs;
   try {
     parsed = parseArgs(argv);
-    const configPath = requireString(parsed.flags, "config");
+    const configPath = await resolveConfigPath(parsed.flags);
     const agentsCsv = requireString(parsed.flags, "agents");
     const agentIds = agentsCsv
       .split(",")
@@ -283,21 +347,51 @@ async function runValidateConfig(
   err: NodeJS.WritableStream
 ): Promise<number> {
   const parsed = parseArgs(argv);
-  const path = parsed.positional[0];
-  if (path === undefined) {
-    err.write("usage: hs-llm validate-config <path>\n");
-    return 3;
-  }
   try {
+    const path = await resolveConfigPath(parsed.flags, parsed.positional[0]);
     await loadConfig(path);
     out.write(`OK: ${path}\n`);
     return 0;
   } catch (e) {
-    if (e instanceof InvocationError) {
-      err.write(`${e.message}\n`);
-      return e.kind === "config" ? 1 : 2;
+    return reportError(e, err);
+  }
+}
+
+async function runInit(
+  argv: string[],
+  out: NodeJS.WritableStream,
+  err: NodeJS.WritableStream
+): Promise<number> {
+  const parsed = parseArgs(argv);
+  try {
+    const target = resolve(optionalString(parsed.flags, "config") ?? defaultUserConfigPath());
+    const force = parsed.flags.force === true;
+
+    if (!force && (await fileExists(target))) {
+      throw new UsageError(
+        `config already exists at ${target}; use --force to overwrite, ` +
+          "or pass --config <path> to write somewhere else."
+      );
     }
-    throw e;
+
+    const exampleUrl = new URL("../examples/config.example.json", import.meta.url);
+    const examplePath = fileURLToPath(exampleUrl);
+    const exampleContent = await readFile(examplePath, "utf8");
+
+    await mkdir(dirname(target), { recursive: true });
+    await writeFile(target, exampleContent, "utf8");
+
+    out.write(`wrote starter config to ${target}\n\n`);
+    out.write("Next steps:\n");
+    out.write(`  1. Edit ${target} — remove agents you don't need.\n`);
+    out.write("  2. Set the api key env vars for any api providers you keep:\n");
+    out.write("       export ANTHROPIC_API_KEY=...\n");
+    out.write("       export OPENAI_API_KEY=...\n");
+    out.write("  3. Run: hs-llm validate-config\n");
+    out.write("  4. Smoke test: hs-llm invoke --agent mock_a --prompt 'hi'\n");
+    return 0;
+  } catch (e) {
+    return reportError(e, err);
   }
 }
 

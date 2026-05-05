@@ -1,21 +1,131 @@
 # @hs/llm
 
-A stateless TypeScript package that gives a single uniform interface for invoking large language models — whether through HTTP API, a local coding-agent CLI subprocess, or a custom adapter — from either TypeScript code or a shell command.
+A stateless TypeScript package and CLI for invoking large language models through a single uniform interface — whether the underlying provider is an HTTP API (OpenAI-compatible, Anthropic), a local coding-agent CLI subprocess (claude, codex, gemini, copilot, pi, opencode, droid, amp, generic), or a custom adapter you bring yourself.
 
-`@hs/llm` is the runtime layer beneath harness-stack skills like `hs-decide` and `hs-debate`. It does not implement debate, voting, claim catalogs, sessions, or any other policy. Those concepts belong to the skill layer; this package only knows how to send a prompt to a model and return the response.
+`@hs/llm` is the runtime layer beneath harness-stack skills like `hs-debate` and `hs-decide`, but it is fully usable on its own as a CLI tool or imported as a library.
 
 ## Install
 
-This package is not published to npm. Inside the harness-stack monorepo:
+The package is not yet published to npm. Two install paths:
+
+### From source (local)
+
+Clone the harness-stack repo, build, and link the binary globally:
 
 ```bash
+git clone https://github.com/wanggang316/harness-stack.git
+cd harness-stack
 pnpm install
 pnpm --filter @hs/llm build
+pnpm --filter @hs/llm link --global
 ```
 
-The CLI binary lives at `packages/hs-llm/dist/cli.js` after build. Wire it into your shell PATH or invoke it via `node packages/hs-llm/dist/cli.js`.
+After `link --global`, `hs-llm` is on your `PATH`:
 
-## Library usage
+```bash
+hs-llm --help
+```
+
+To unlink later:
+
+```bash
+pnpm --filter @hs/llm unlink --global
+```
+
+### Inside the harness-stack monorepo
+
+Skills shipping inside this monorepo can use the binary directly without linking:
+
+```bash
+node packages/hs-llm/dist/cli.js --help
+```
+
+## Configure
+
+`hs-llm` reads a JSON config file that lists providers (where to send requests) and agents (named bindings of provider + model + optional defaults).
+
+### First-run bootstrap
+
+```bash
+hs-llm init
+```
+
+By default this writes a starter config to `~/.config/hs-llm/config.json`. The starter has three mock agents (so you can smoke-test without any API keys), Anthropic and OpenAI-compatible providers, and one Claude CLI agent.
+
+After `init`, the printed next-step hints are:
+
+```text
+1. Edit ~/.config/hs-llm/config.json — remove agents you don't need.
+2. Set the api key env vars for any api providers you keep:
+     export ANTHROPIC_API_KEY=...
+     export OPENAI_API_KEY=...
+3. Run: hs-llm validate-config
+4. Smoke test: hs-llm invoke --agent mock_a --prompt 'hi'
+```
+
+`init` flags:
+
+- `--config <path>` — write somewhere other than the user-global default.
+- `--force` — overwrite an existing file at the target path.
+
+### Where the config is read from
+
+When you run `hs-llm invoke` / `invoke-many` / `validate-config` without an explicit `--config <path>`, the binary resolves the config in this order and uses the first existing file:
+
+1. `--config <path>` flag (or positional argument for `validate-config`).
+2. `$HS_LLM_CONFIG` environment variable.
+3. `./hs-llm.config.json` in the current working directory.
+4. `$XDG_CONFIG_HOME/hs-llm/config.json` (default: `~/.config/hs-llm/config.json`).
+
+If none of these exist, the command exits with status 3 and a message listing every path it tried.
+
+### Provider types
+
+| `type` | Notes |
+|--------|-------|
+| `api` | HTTP API. `family: "openai-compatible" \| "anthropic"`. Backed by Vercel AI SDK. API key resolved from the env var named in `apiKeyEnv`. |
+| `cli` | Subprocess. `cliType` selects argument shape: `claude`, `codex`, `gemini`, `copilot`, `pi`, `opencode`, `droid`, `amp`, `generic`. Prompt is piped on stdin. |
+| `sdk` | Bring-your-own. `adapter` is a local module path that exports a `createHsLlmAdapter` factory returning a `ProviderTaskRunner`. Bare module specifiers are rejected for safety. |
+| `mock` | Deterministic in-memory provider for tests. `behavior: "deterministic" \| "timeout" \| "error" \| "malformed"`. |
+
+See `examples/config.example.json` for a full example with all four provider types.
+
+## Use
+
+### CLI
+
+```bash
+# Validate the config (uses the resolution chain when no path is given).
+hs-llm validate-config
+
+# Single invocation. Prints JSON to stdout.
+hs-llm invoke --agent haiku --prompt "Reply with the single word: ok"
+
+# Single invocation, response written to a file, schema-validated.
+hs-llm invoke \
+  --agent haiku \
+  --prompt-file ./prompt.txt \
+  --schema-file ./expected-output.schema.json \
+  --out ./result.json
+
+# Fan out to several agents in parallel.
+hs-llm invoke-many \
+  --agents haiku,sonnet,gpt5 \
+  --prompt "What database should we use for this load?" \
+  --concurrency 3 \
+  --out-dir ./results
+```
+
+Exit codes:
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success. `invoke-many` returns 0 even on partial failure — inspect each result's `status`. |
+| `1` | Config error: no config found, validation failure, missing api key, unsupported provider type. |
+| `2` | Invocation error: unknown agent, runtime failure from the underlying provider. |
+| `3` | Usage error: missing flag, mutually exclusive flags, malformed schema file. |
+
+### Library
 
 ```ts
 import { invoke, invokeMany, loadConfig } from "@hs/llm";
@@ -25,7 +135,7 @@ const config = await loadConfig("./hs-llm.config.json");
 
 const single = await invoke({
   config,
-  agentId: "haiku_test",
+  agentId: "haiku",
   request: { prompt: "Reply with a single word: ok" }
 });
 console.log(single.text); // "ok"
@@ -33,72 +143,22 @@ console.log(single.text); // "ok"
 const fanout = await invokeMany({
   config,
   invocations: [
-    { agentId: "haiku_test", request: { prompt: "Q?" } },
-    { agentId: "claude_local", request: { prompt: "Q?" } }
+    { agentId: "haiku", request: { prompt: "Q?" } },
+    { agentId: "gpt5",  request: { prompt: "Q?" } }
   ],
   concurrency: 4
 });
-for (const r of fanout) {
-  if (r.status === "ok") console.log(r.agentId, r.response.text);
-  else console.error(r.agentId, r.error.kind, r.error.message);
-}
 
-// schema-constrained: returns res.parsed when the LLM output validates
+// Schema-constrained: returns res.parsed when the LLM output validates.
 const schema = z.object({ answer: z.string(), confidence: z.number() });
 const structured = await invoke<{ answer: string; confidence: number }>({
   config,
-  agentId: "haiku_test",
+  agentId: "haiku",
   request: { prompt: "Answer in JSON with answer:string, confidence:number" },
   schema
 });
 console.log(structured.parsed); // { answer: "...", confidence: 0.x }
 ```
-
-## CLI usage
-
-```bash
-hs-llm validate-config ./hs-llm.config.json
-
-hs-llm invoke \
-  --config ./hs-llm.config.json \
-  --agent haiku_test \
-  --prompt "Reply with a single word: ok"
-
-hs-llm invoke-many \
-  --config ./hs-llm.config.json \
-  --agents haiku_test,claude_local \
-  --prompt-file ./prompt.txt \
-  --concurrency 2 \
-  --out-dir ./results
-
-hs-llm invoke \
-  --config ./hs-llm.config.json \
-  --agent haiku_test \
-  --prompt "..." \
-  --schema-file ./expected-output.schema.json
-```
-
-Exit codes:
-
-| Code | Meaning |
-|------|---------|
-| `0`  | Success. `invoke-many` returns 0 even on partial failure — inspect per-result `status`. |
-| `1`  | Config error: bad path, validation failure, missing API key, unsupported provider type. |
-| `2`  | Invocation error: unknown agent, runtime failure from the underlying provider. |
-| `3`  | Usage error: missing flag, mutually exclusive flags, malformed schema file. |
-
-## Provider types
-
-The config file declares one or more providers under `providers`, then references them by name from `agents`.
-
-| `type` | What it does |
-|--------|--------------|
-| `api`     | HTTP API. `family: "openai-compatible" \| "anthropic"`. Backed by Vercel AI SDK. API key resolved from the env var named in `apiKeyEnv`. |
-| `cli`     | Subprocess. `cliType` selects argument shape from a fixed set: `claude`, `codex`, `gemini`, `copilot`, `pi`, `opencode`, `droid`, `amp`, `generic`. Prompt is piped on stdin. |
-| `sdk`     | Bring-your-own. `adapter` is a local module path that exports a `createHsLlmAdapter` factory returning a `ProviderTaskRunner`. Bare module specifiers are rejected. |
-| `mock`    | Deterministic in-memory provider for tests. `behavior: "deterministic" \| "timeout" \| "error" \| "malformed"`. |
-
-See `examples/config.example.json` for a three-provider example.
 
 ## Error taxonomy
 
@@ -106,11 +166,11 @@ See `examples/config.example.json` for a three-provider example.
 
 | Kind | Caller action |
 |------|---------------|
-| `config`        | Fix the config or environment. Not retryable. |
-| `timeout`       | The request exceeded `timeoutMs`. Retryable by default policy. |
-| `retryable`     | Transient runtime error (network, 5xx, rate limit). Retryable. |
+| `config` | Fix the config or environment. Not retryable. |
+| `timeout` | The request exceeded `timeoutMs`. Retryable by default policy. |
+| `retryable` | Transient runtime error (network, 5xx, rate limit). Retryable. |
 | `non-retryable` | Permanent runtime error (4xx, model-not-found, malformed). Do not retry. |
-| `abort`         | The caller's `AbortSignal` fired. Surface as cancellation. |
+| `abort` | The caller's `AbortSignal` fired. Surface as cancellation. |
 
 `withRetry` only retries `retryable` and `timeout`. The default `RetryPolicy` is `{ attempts: 3, backoffMs: 500, jitterPct: 25, maxWaitMs: 5000 }`.
 
@@ -118,7 +178,7 @@ See `examples/config.example.json` for a three-provider example.
 
 Every `invoke` is independent. The package never persists messages, never resumes a prior session, and never reads or writes anything outside the response. `request.traceabilityId` is forwarded to the underlying provider as a session/thread identifier (e.g. `claude --session-id`, `pi --session <tmpdir>/hs-llm-pi-<id>`) for log-correlation only — it is not used to recover prior exchanges.
 
-If a skill needs multi-turn behavior, it constructs the prompt itself by concatenating prior responses; this package does not help with that.
+If you need multi-turn behavior, construct the prompt yourself by concatenating prior responses; this package does not help with that.
 
 ## Reasoning effort
 
@@ -131,7 +191,8 @@ pnpm --filter @hs/llm test       # vitest unit tests
 pnpm --filter @hs/llm typecheck  # tsc --noEmit
 pnpm --filter @hs/llm build      # produces dist/
 
+# Live API tests, opt-in:
 HS_LLM_LIVE_TESTS=1 ANTHROPIC_API_KEY=... pnpm --filter @hs/llm test
 ```
 
-The `examples/config.example.json` round-trips through `validate-config` as part of the test suite, so it's always known-good.
+`examples/config.example.json` round-trips through `validate-config` as part of the test suite, so the bundled example is always known-good.
