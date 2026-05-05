@@ -121,6 +121,48 @@ gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body='<reply>'
 
 Not as a top-level PR comment. Threaded replies keep the context local to the finding.
 
+## Examples
+
+**Performative agreement — anti-pattern**
+
+> Reviewer: Remove the legacy LRU cache; it duplicates the new one in `cache.ts`.
+>
+> Author: You're absolutely right! Removing now...
+
+Neither verified the claim nor stated what the diff will look like. Pure noise.
+
+**Technical verification — correct**
+
+> Reviewer: Remove the legacy LRU cache; it duplicates the new one in `cache.ts`.
+>
+> Author: Checked — `cache.ts:42` is per-request; `legacy-cache.ts:11` is process-wide and used by `worker.ts:88` and `scheduler.ts:24`. Not a duplicate. Want them consolidated, or keep both?
+
+Cites code, names the disagreement, asks a precise question.
+
+**YAGNI pushback — correct**
+
+> Reviewer: Implement proper metrics — persist to DB, support date filters, add CSV export.
+>
+> Author: Grepped `src/` — nothing calls `/metrics`. Proposing deletion (YAGNI). Reopen if there's usage I missed.
+
+Grep before "implementing properly". Deletion is a valid fix when the code is unused.
+
+**Unclear feedback — correct**
+
+> Reviewer drops six findings. The author understands 1, 2, 3, 6 but not 4 or 5.
+>
+> Author: Understand 1, 2, 3, 6. Need clarification on 4 (which timeout?) and 5 (which call site?) before implementing — they look related.
+
+No partial implementation. Asks for the missing piece and names the ambiguity precisely.
+
+**Pushed back, was wrong — correct**
+
+> Earlier round, the author disagreed with a finding.
+>
+> Author: You were right — checked `tasks.ts:120` and the call does return nullable. Adding the guard.
+
+Stated factually. No apology, no defense, no over-explanation.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -151,8 +193,3 @@ Before declaring the round complete:
 - [ ] Each fix is tested individually; no regressions.
 - [ ] Each reply cites `file:line` or test evidence; no "fixed" without a reference.
 - [ ] If you pushed back and lost, the correction is stated factually.
-
-## See Also
-
-- `skills/hs-review-request/SKILL.md` — how to dispatch the reviewer you're now receiving from (severity vocabulary and round budget live here).
-- `skills/hs-tdd/SKILL.md` — how to write the regression tests a reviewer will ask for.

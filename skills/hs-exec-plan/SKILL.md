@@ -14,8 +14,11 @@ Execute an approved ExecPlan by following its Plan of Work, implementing each ta
 - You have an approved ExecPlan and need to implement it
 - You are resuming work on a partially completed ExecPlan
 - You need to pick up where another agent or session left off
+- The plan is small, the work is iterative, or you'll need to make in-flight design decisions while implementing — i.e. the controller benefits from staying in the loop
 
 **When NOT to use:** No plan exists yet (use `hs-planner` first), or the change is a single-file fix with obvious scope.
+
+**vs `hs-team`:** Use `hs-team` when the plan has 3+ tasks, the tasks are well-specified enough to dispatch to fresh-context implementers, and you want full subagent automation (controller does not write code, every task gets spec + code review gates). Use `hs-exec-plan` (this skill) when the plan is smaller, the work is exploratory, or the controller needs to keep hands on the keyboard for in-flight decisions.
 
 ## Process
 
