@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DebateClaims",
+  "description": "Atomic claims extracted from a single agent's statement in a debate round.",
+  "type": "object",
+  "required": ["claims"],
+  "additionalProperties": false,
+  "properties": {
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["text", "stance"],
+        "additionalProperties": false,
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 8,
+            "description": "One self-contained claim, complete in a single sentence. No filler. No rephrasings of the question."
+          },
+          "stance": {
+            "type": "string",
+            "enum": ["assertion", "objection", "concession"],
+            "description": "assertion = introducing a position. objection = refuting a peer's prior claim. concession = acknowledging a peer made a valid point."
+          },
+          "supportingReason": {
+            "type": "string",
+            "description": "Optional: a single sentence stating the reasoning behind the claim. Omit if the claim is self-evident."
+          }
+        }
+      }
+    }
+  }
+}

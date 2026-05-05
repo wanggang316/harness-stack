@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "providers": {
+    "mock_local": {
+      "type": "mock",
+      "behavior": "deterministic",
+      "latencyMs": 0,
+      "responseTemplate": "MOCK[{agentId}]: {prompt}",
+      "models": [{ "id": "mock-1" }]
+    },
+    "anthropic_remote": {
+      "type": "api",
+      "family": "anthropic",
+      "baseURL": "https://api.anthropic.com/v1",
+      "apiKeyEnv": "ANTHROPIC_API_KEY",
+      "models": [
+        { "id": "claude-haiku-4-5", "defaults": { "temperature": 0.7, "maxOutputTokens": 1024 } },
+        { "id": "claude-sonnet-4-5", "defaults": { "temperature": 0.7, "maxOutputTokens": 4096 } }
+      ]
+    },
+    "openai_remote": {
+      "type": "api",
+      "family": "openai-compatible",
+      "baseURL": "https://api.openai.com/v1",
+      "apiKeyEnv": "OPENAI_API_KEY",
+      "models": [
+        { "id": "gpt-5", "defaults": { "temperature": 0.7, "maxOutputTokens": 2048 } }
+      ]
+    },
+    "claude_cli_local": {
+      "type": "cli",
+      "cliType": "claude",
+      "command": "claude",
+      "models": [{ "id": "claude-sonnet-4-5" }]
+    }
+  },
+  "agents": [
+    { "id": "mock_a", "provider": "mock_local", "model": "mock-1" },
+    { "id": "mock_b", "provider": "mock_local", "model": "mock-1", "systemPrompt": "you are a haiku." },
+    { "id": "mock_c", "provider": "mock_local", "model": "mock-1" },
+    { "id": "haiku", "provider": "anthropic_remote", "model": "claude-haiku-4-5" },
+    { "id": "sonnet", "provider": "anthropic_remote", "model": "claude-sonnet-4-5" },
+    { "id": "gpt5", "provider": "openai_remote", "model": "gpt-5" },
+    { "id": "claude_local", "provider": "claude_cli_local", "model": "claude-sonnet-4-5" }
+  ]
+}

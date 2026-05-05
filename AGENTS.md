@@ -34,6 +34,10 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-review-receive` - Handle reviewer feedback (author side)
 - `/hs-security` - Security audit
 
+**Deliberate** → Multi-agent reasoning
+- `/hs-debate` - Multi-agent debate among heterogeneous LLM agents on a single question
+- `/hs-decide` - Parallel multi-agent decision support: each agent answers independently, synthesis pass produces final decision with confidence and minority positions
+
 **Ship** → Deploy and release
 - `/hs-changelog` - Changelog management
 - `/hs-git` - Git workflow and versioning
@@ -64,12 +68,19 @@ When you need expert judgment:
 5. Review: `/hs-review-request` to dispatch, `/hs-review-receive` after feedback
 6. Ship: `/hs-ship` to deploy
 
+## Packages
+
+TypeScript runtime packages live under `packages/` and are managed through pnpm workspaces.
+
+- `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `docs/recipes/calling-hs-llm-from-a-skill.md`.
+
 ## Documentation
 
 - [Golden Rules](docs/golden-rules.md) - Core principles
 - [Architecture](docs/architecture.md) - System design
 - [Getting Started](docs/index.md) - Quick start guide
 - [References](docs/references/) - Checklists and patterns
+- [Recipes](docs/recipes/) - How-to guides for cross-cutting tasks
 
 ## How It Works
 

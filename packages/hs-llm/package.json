@@ -1,0 +1,36 @@
+{
+  "name": "@hs/llm",
+  "version": "0.0.1",
+  "description": "Stateless LLM provider abstraction for harness-stack skills",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "bin": {
+    "hs-llm": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "examples",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.79",
+    "@ai-sdk/openai-compatible": "^1",
+    "ai": "^6.0.174",
+    "json-schema-to-zod": "^2.8.1",
+    "zod": "^3.25.76"
+  }
+}

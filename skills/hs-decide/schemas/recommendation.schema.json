@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DecisionRecommendation",
+  "description": "A single agent's structured recommendation in response to a decision question.",
+  "type": "object",
+  "required": ["recommendation", "rationale", "confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "recommendation": {
+      "type": "string",
+      "minLength": 8,
+      "description": "One-sentence answer to the question. If the question constrains options, the recommendation must name one of the supplied options verbatim."
+    },
+    "rationale": {
+      "type": "string",
+      "minLength": 40,
+      "description": "Three to six sentences explaining the reasoning behind the recommendation. Cite the trade-offs that mattered."
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["low", "medium", "high"],
+      "description": "low = the question is genuinely hard or under-specified. medium = a defensible answer with real trade-offs. high = a clear-cut answer."
+    },
+    "alternativesConsidered": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["option", "whyNot"],
+        "additionalProperties": false,
+        "properties": {
+          "option": {
+            "type": "string",
+            "minLength": 4,
+            "description": "An option you considered but did not recommend."
+          },
+          "whyNot": {
+            "type": "string",
+            "minLength": 20,
+            "description": "One or two sentences on what made this option weaker than the recommendation."
+          }
+        }
+      },
+      "description": "Optional list of alternatives weighed and rejected. Empty if only one option was viable."
+    }
+  }
+}
