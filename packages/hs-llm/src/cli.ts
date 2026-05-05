@@ -11,6 +11,17 @@ import { jsonSchemaFileContentsToZod } from "./runtime/schema.js";
 import type { InvocationRequest } from "./runtime/types.js";
 import { loadConfig } from "./config/load.js";
 
+// CLI consumers parse stdout JSON; the AI SDK's "specificationVersion is in
+// compatibility mode" warning on stderr is informational noise that pollutes
+// machine-readable workflows. Default to silencing it. Set
+// HS_LLM_AI_SDK_WARNINGS=1 to opt back in for debugging.
+{
+  type WarningGlobal = { AI_SDK_LOG_WARNINGS?: boolean | ((opts: unknown) => void) };
+  if (process.env.HS_LLM_AI_SDK_WARNINGS !== "1") {
+    (globalThis as WarningGlobal).AI_SDK_LOG_WARNINGS = false;
+  }
+}
+
 interface MainStreams {
   stdout?: NodeJS.WritableStream;
   stderr?: NodeJS.WritableStream;

@@ -103,7 +103,9 @@ function buildClaudeArgs(input: BuildArgsInput): BuildArgsResult {
 }
 
 function buildPiArgs(input: BuildArgsInput): BuildArgsResult {
-  const args: string[] = ["--model", input.modelId];
+  // -p forces non-interactive mode; without it the binary launches a TUI even
+  // when stdin is piped, which deadlocks under child_process.spawn.
+  const args: string[] = ["-p", "--model", input.modelId];
   if (input.traceabilityId) {
     const sessionPath = join(tmpdir(), `hs-llm-pi-${input.traceabilityId}`);
     args.push("--session", sessionPath);

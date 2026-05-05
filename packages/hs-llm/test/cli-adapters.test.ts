@@ -17,7 +17,7 @@ describe("buildBaseArgs — every cliType", () => {
     },
     {
       cliType: "pi",
-      expectedFlags: ["--model", "M"],
+      expectedFlags: ["-p", "--model", "M"],
       reasoningFlag: { args: [], reasoningApplied: false },
       traceabilityFlag: { args: ["--session"] }
     },

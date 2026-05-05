@@ -37,12 +37,13 @@ describe("buildBaseArgs", () => {
     expect(out.reasoningApplied).toBe(false);
   });
 
-  it("builds pi args with --model and --session under tmpdir when traceabilityId is provided", () => {
+  it("builds pi args with -p, --model and --session under tmpdir when traceabilityId is provided", () => {
     const out = buildBaseArgs({ cliType: "pi", modelId: "pi-1", traceabilityId: "trace-xyz" });
-    expect(out.args[0]).toBe("--model");
-    expect(out.args[1]).toBe("pi-1");
-    expect(out.args[2]).toBe("--session");
-    expect(out.args[3]).toMatch(/hs-llm-pi-trace-xyz$/);
+    expect(out.args[0]).toBe("-p");
+    expect(out.args[1]).toBe("--model");
+    expect(out.args[2]).toBe("pi-1");
+    expect(out.args[3]).toBe("--session");
+    expect(out.args[4]).toMatch(/hs-llm-pi-trace-xyz$/);
     expect(out.reasoningApplied).toBe(false);
   });
 
