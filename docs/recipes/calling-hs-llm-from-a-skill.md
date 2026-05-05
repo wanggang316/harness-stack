@@ -4,15 +4,29 @@ Skills run in markdown with shell access. To call an LLM from a skill step, writ
 
 ## Prerequisites
 
-The skill author owns the config file. A reasonable place for it is `~/.config/hs-llm/config.json` or a project-local `hs-llm.config.json`. The skill instructs the user to set up the file once; the skill itself only references agent ids.
+The user owns the config file. The `hs-llm` CLI resolves it from this chain when `--config` is omitted:
 
-Validate the config before relying on it:
+1. `$HS_LLM_CONFIG`
+2. `./hs-llm.config.json` (project-local)
+3. `$XDG_CONFIG_HOME/hs-llm/config.json` (default `~/.config/hs-llm/config.json`)
+
+If the user has not set up a config yet, they can bootstrap one:
 
 ```bash
-hs-llm validate-config "$HS_LLM_CONFIG"
+hs-llm init   # writes ~/.config/hs-llm/config.json from the bundled example
+# edit the file to remove agents you do not want
+# set api keys for any api providers you keep:
+export ANTHROPIC_API_KEY=...
 ```
 
-Exit code 0 means everything resolves; 1 means the user needs to fix something. The skill should fail closed if validation fails.
+Validate the config before relying on it. The skill can either let `hs-llm` resolve the path or pin a specific file via `--config`:
+
+```bash
+hs-llm validate-config             # uses the chain
+hs-llm validate-config "$MY_PATH"  # pin a specific file
+```
+
+Exit codes: `0` = everything resolves; `1` = the file exists but is broken; `3` = no config found anywhere. The skill should fail closed on anything non-zero and tell the user how to recover.
 
 ## Single invocation
 
@@ -26,7 +40,6 @@ You are reviewing a pull request. List three concerns.
 EOF
 
 hs-llm invoke \
-  --config "$HS_LLM_CONFIG" \
   --agent reviewer \
   --prompt-file "$PROMPT_FILE" \
   --out "$RESULT_FILE" \
@@ -50,7 +63,6 @@ When a skill samples opinions from several agents, `invoke-many` runs them concu
 RESULT_DIR="$(mktemp -d)"
 
 hs-llm invoke-many \
-  --config "$HS_LLM_CONFIG" \
   --agents reviewer_a,reviewer_b,reviewer_c \
   --prompt-file "$PROMPT_FILE" \
   --out-dir "$RESULT_DIR" \
@@ -89,7 +101,6 @@ When the skill needs structured JSON back from the LLM, ship a JSON Schema next 
 
 ```bash
 hs-llm invoke \
-  --config "$HS_LLM_CONFIG" \
   --agent reviewer \
   --prompt-file "$PROMPT_FILE" \
   --schema-file ./expected-output.schema.json \
@@ -103,7 +114,7 @@ If the LLM's first response does not parse as JSON or fails validation, `hs-llm`
 ## Error handling pattern
 
 ```bash
-if ! hs-llm invoke --config "$HS_LLM_CONFIG" --agent X --prompt "..." --out "$RESULT_FILE" 2> "$ERR_FILE"; then
+if ! hs-llm invoke --agent X --prompt "..." --out "$RESULT_FILE" 2> "$ERR_FILE"; then
   rc=$?
   case $rc in
     1) echo "config error — ask the user to run validate-config" >&2; exit 1 ;;

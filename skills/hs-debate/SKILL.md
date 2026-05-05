@@ -40,7 +40,7 @@ The user invokes this skill with at minimum a question. Optional flags:
 | `--question <text>` (or first positional) | required | The question to debate. Phrase it sharply — "should we X or Y given Z" beats "thoughts on X". |
 | `--agents <a,b,c>` | (interactive) | Comma-separated agent ids from the config. If omitted, you ask the user to pick from the available roster. |
 | `--rounds <n>` | `3` | **Maximum** number of rounds. Round 1 is the opening; rounds 2..n are followups. The skill stops earlier than this if claims converge (see Phase 2). |
-| `--config <path>` | auto | Path to the hs-llm config file. Auto-resolution order: `--config` → `$HS_LLM_CONFIG` → `./hs-llm.config.json` → `~/.config/hs-llm/config.json`. |
+| `--config <path>` | auto | Path to the hs-llm config file. The hs-llm CLI resolves the path itself: `--config` → `$HS_LLM_CONFIG` → `./hs-llm.config.json` → `~/.config/hs-llm/config.json`. Pass through to every `hs-llm` invocation if you want to pin a specific file. |
 | `--out-dir <path>` | `./debate-runs/<timestamp>` | Where the debate state and outputs land. |
 | `--synthesis-agent <id>` | first picked | Which agent runs the convergence checks and the final synthesis. If the config has an agent named like `synth_*` or `judge_*`, prefer that. Otherwise use the first selected debate participant. |
 
@@ -68,22 +68,31 @@ fi
 
 If the binary is missing, tell the user what to run and stop. If you are already inside the harness-stack repo and the user agrees, run the install/build yourself — but do not run those commands silently against an unknown working tree.
 
-**Locate the config.** Try the four sources in order. If none exists, ask the user where they would like the config to live (typical answers: `./hs-llm.config.json` for project-scoped, `~/.config/hs-llm/config.json` for user-scoped). Then offer to copy the canonical example:
+**Validate the config.** The CLI resolves the config path itself when `--config` is omitted, walking through `$HS_LLM_CONFIG` → `./hs-llm.config.json` → `~/.config/hs-llm/config.json`. Run:
 
 ```bash
-mkdir -p "$(dirname "$CONFIG")"
-cp packages/hs-llm/examples/config.example.json "$CONFIG"
+$HS_LLM_BIN validate-config
 ```
 
-The example has mock agents (so the smoke path works without any keys), Anthropic and OpenAI-compatible providers with several model agents, and one CLI agent. Tell the user which environment variables the api providers expect (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, etc.) — they need to be set before any api agent will work.
+Three outcomes:
 
-**Validate.**
+- **Exit 0** — the config parses and every agent reference resolves. The path it used is printed to stdout (e.g. `OK: /home/u/.config/hs-llm/config.json`). Capture it into `$CONFIG` so later phases pin to the same file:
 
-```bash
-$HS_LLM_BIN validate-config "$CONFIG"
-```
+  ```bash
+  CONFIG="$($HS_LLM_BIN validate-config | sed -n 's/^OK: //p')"
+  ```
 
-Exit 0 means the config parses and every agent reference resolves. Anything else is a config error — surface the message to the user and stop. They fix it; you re-run.
+- **Exit 3** — no config found anywhere. The error lists every path the binary tried. Offer to bootstrap one with `hs-llm init`, which copies the example config to the user-global default:
+
+  ```bash
+  $HS_LLM_BIN init
+  ```
+
+  After init, tell the user to set `ANTHROPIC_API_KEY` / `OPENAI_API_KEY` (or whichever api providers they kept), then re-run validate-config. Some agents in the starter use api providers; those will need keys before they can be used.
+
+- **Exit 1** — a config exists but is broken (bad shape, unknown provider reference, etc). Surface the error to the user and stop. They fix it; you re-run.
+
+If the user wants to use a non-default location, they can set `$HS_LLM_CONFIG` for the duration of the session, or pass `--config <path>` explicitly to every subsequent command. The skill captures `$CONFIG` once and uses it consistently.
 
 ### Phase 1 — Agent selection
 
