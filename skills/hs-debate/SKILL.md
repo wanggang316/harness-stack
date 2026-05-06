@@ -377,7 +377,15 @@ Render `summary.md` from `synthesis.json` plus `meta.json`. Format:
 **Run directory:** <OUT_DIR>
 ```
 
-Print the path to `summary.md` and the headline to stdout. Done.
+Then render an HTML report for visual review:
+
+```bash
+node skills/hs-debate/render.mjs "$OUT_DIR"
+```
+
+This produces `$OUT_DIR/report.html` — a self-contained file (data inlined, no external assets) covering the headline, synthesis, per-round transcripts with extracted claims, the cross-peer claim catalog, and a collapsed details section with the peer→agent mapping. Open it directly with `open "$OUT_DIR/report.html"` (macOS) or any browser.
+
+Print the paths to `summary.md` and `report.html` plus the headline to stdout. Done.
 
 ## Output
 
@@ -400,7 +408,8 @@ $OUT_DIR/
 ├─ catalog.json               # all claims across all rounds, grouped by peer
 ├─ synthesis.prompt.txt
 ├─ synthesis.json             # parsed + raw synthesis response
-└─ summary.md                 # human-readable result
+├─ summary.md                 # human-readable result
+└─ report.html                # self-contained visual report (rendered by skills/hs-debate/render.mjs)
 ```
 
 `meta.json` is the only place agent ids (the de-anonymizing map) are stored. Treat it like a debug artifact — never feed its contents into a prompt.
@@ -434,4 +443,5 @@ Before declaring the run complete, confirm:
 - [ ] `catalog.json` aggregates claims from at least two distinct peers across at least two distinct rounds (or one round, if the debate converged after round 2 with sparse round 2 contributions).
 - [ ] `synthesis.json` parses and contains a `parsed` field matching the synthesis schema.
 - [ ] `summary.md` renders cleanly and the headline is one sentence.
-- [ ] No agent id appears anywhere outside `meta.json` and the per-round `raw/` subdirectories.
+- [ ] `report.html` was generated and opens in a browser without console errors.
+- [ ] No agent id appears anywhere outside `meta.json`, the per-round `raw/` subdirectories, and the collapsed "Run details" section of `report.html`.
