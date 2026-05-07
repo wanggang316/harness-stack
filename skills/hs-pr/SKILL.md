@@ -117,9 +117,19 @@ or system-visible outcome, not the implementation.>
 ## Linked Issues
 
 - Closes #<n>  /  Refs #<n>  /  (none)
+
+## Reviewer Focus  (optional)
+
+- <Files, modules, or axes that deserve extra scrutiny — concurrency, error paths, state machines, etc.>
+- <Omit this section for small or self-evident diffs.>
+
+## Context not in the diff  (optional)
+
+- <Upstream constraints, prior decisions, known compromises, deferred follow-ups.>
+- <Things a reviewer cannot infer from the code alone. Omit if there is nothing to add.>
 ```
 
-Adjust sections to fit the change — a docs-only PR doesn't need Risks; a migration PR must have it. Don't pad sections with filler.
+Adjust sections to fit the change — a docs-only PR doesn't need Risks; a migration PR must have it. The two `(optional)` sections may be dropped entirely when they would be filler. Don't pad sections with placeholder content.
 
 **No tool / model attribution.** Same rule as commit messages: no `Co-Authored-By:`, no `Generated with ...`, no banners. The PR author field already records authorship.
 
@@ -232,7 +242,7 @@ Before reporting the PR as opened:
 - [ ] Branch is synced (rebased or merged) with the base.
 - [ ] Local tests passed; commits are atomic and conventionally formatted.
 - [ ] Title is short, imperative, standalone; under 70 chars.
-- [ ] Body filled via `--body-file -`: Summary, Changes, Test Plan, Risks/Rollback, Linked Issues.
+- [ ] Body filled via `--body-file -`: Summary, Changes, Test Plan, Risks/Rollback, Linked Issues; optional Reviewer Focus and Context-not-in-the-diff included only when they add signal.
 - [ ] No `Co-Authored-By`, model, or tool attribution in title, body, or commits.
 - [ ] PR URL returned and confirmed reachable via `gh pr view`.
 - [ ] User has been offered reviewer-assignment and (when supported) polling options.
