@@ -175,32 +175,6 @@ Report back:
 - Draft / ready state
 - One-line summary of what was opened
 
-### Step 7: Offer next-step actions
-
-After the PR is open, ask the user how to proceed. Use `AskUserQuestion` to present a single decision:
-
-**Reviewer assignment** — pick one and post the appropriate trigger / assignee:
-
-| Choice | Action |
-|---|---|
-| `@codex review` | `gh pr comment <n> --body "@codex review"` |
-| `@claude review` | `gh pr comment <n> --body "@claude review"` |
-| Other agent handle | Post the user-specified handle as a PR comment. |
-| Human reviewer(s) | `gh pr edit <n> --add-reviewer <login[,login...]>` — ask the user for GitHub logins. |
-| Skip for now | Do nothing; user assigns later. |
-
-Substitute `<n>` with the PR number from Step 6.
-
-**Polling for results** — if the runtime supports scheduled wake-ups or background tasks (e.g. `ScheduleWakeup`, `loop`), offer to poll the PR for review activity and report back when something happens. Suggest a sensible interval (default: 10–20 min) and confirm before scheduling. The poll should watch for:
-
-- New review comments (`gh pr view <n> --json comments,reviews`)
-- Review state changes (APPROVED / CHANGES_REQUESTED)
-- CI status changes (`gh pr checks <n>`)
-
-When polling fires and finds new findings, surface them to the user. Do not auto-apply changes without explicit instruction.
-
-If the runtime does not support polling, say so and stop here.
-
 ## PR Size Guidance
 
 Same thresholds as commits in `hs-git`:
@@ -245,4 +219,3 @@ Before reporting the PR as opened:
 - [ ] Body filled via `--body-file -`: Summary, Changes, Test Plan, Risks/Rollback, Linked Issues; optional Reviewer Focus and Context-not-in-the-diff included only when they add signal.
 - [ ] No `Co-Authored-By`, model, or tool attribution in title, body, or commits.
 - [ ] PR URL returned and confirmed reachable via `gh pr view`.
-- [ ] User has been offered reviewer-assignment and (when supported) polling options.
