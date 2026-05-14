@@ -177,7 +177,7 @@ Report back:
 
 ## PR Size Guidance
 
-Same thresholds as commits in `hs-git`:
+Same thresholds as commits — see [hs-git/references/commit.md](../hs-git/references/commit.md):
 
 | Diff size | Action |
 |---|---|
