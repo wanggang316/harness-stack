@@ -49,12 +49,14 @@ The subagents own the methodology (how to do the role). The brief templates carr
 ## Step 0 — Plan Ingestion (once)
 
 1. Read the ExecPlan in full.
-2. For each task, extract: task ID, full text, scene context, declared file scope, dependencies on prior tasks.
-3. Build a batch plan:
+2. For each task, extract: task ID, full text, scene context, declared file scope, dependencies on prior tasks, **assertion IDs the task is bound to in the plan's Acceptance Assertions Coverage table**, and any **procedures** the task or surrounding milestone requires.
+3. Verify the coverage table is complete: every assertion declared in the spec appears in ≥ 1 task row. If not, stop and ask the planner to revise — implementation cannot begin against an incomplete contract.
+4. Build a batch plan:
    - Tasks whose file scopes intersect → must share a serial batch.
    - Tasks whose file scopes are disjoint **and** which have no logical dependency on each other → can be a parallel batch.
-4. Create a TodoWrite list with every task; mark batch boundaries.
-5. Announce the batch plan to the user before dispatching the first implementer.
+   - If the plan uses milestones, batches do not cross milestone boundaries; the Milestone Exit Gate (see below) must run before the next milestone's first batch dispatches.
+5. Create a TodoWrite list with every task; mark batch boundaries and milestone boundaries.
+6. Announce the batch plan to the user before dispatching the first implementer.
 
 ## Step 1..N — Per-Batch Loop
 
@@ -140,14 +142,29 @@ When spec-reviewer or code-reviewer returns issues:
 
 The controller never edits the code itself. That defeats the fresh-context invariant.
 
+## Milestone Exit Gate (when the plan uses milestones)
+
+A milestone is more than a batch. Static review catches code-shaped problems; only running the application catches behaviour-shaped problems. Run the gate at every milestone boundary, before the next milestone's first batch dispatches.
+
+For the milestone just completed:
+
+1. Confirm every task in the milestone reached `harness-stack:spec-reviewer` ✅ and `harness-stack:code-reviewer` approve (no Critical findings), and produced an atomic commit on the working branch.
+2. Compute the assertion IDs this milestone is responsible for, as listed in the plan's Exit Gate for that milestone.
+3. Invoke `hs-validate-runtime` with: the milestone's diff range (`MILESTONE_BASE_SHA..HEAD_SHA`), the Acceptance Assertions table from the spec, and the assertion ID subset for this milestone. The runtime validator runs in a fresh subagent that has never seen the implementation.
+4. The validator returns a coverage matrix with PASS / FAIL and evidence per assertion. Any FAIL → scope follow-up tasks, append them to the plan, dispatch implementers, re-run the gate. Do not proceed to the next milestone until every required assertion is PASS.
+5. Update the plan's Progress section: append a handoff log line, tick off the milestone, record the validator's evidence path.
+
+For flat plans (no milestones), run the gate once between the final batch and the Final Integration Review, over the whole plan's assertion set.
+
 ## Step N+1 — Final Integration Review (once)
 
-After all batches complete:
+After all batches complete and the final milestone exit gate (or the flat-plan gate above) is green:
 
 1. Compute the full `BASE_SHA..HEAD_SHA` covering every task in the plan.
 2. Dispatch one more `harness-stack:code-reviewer` with `references/code-reviewer.md` against the **integrated diff**. Per-task reviews didn't see cross-task interactions; this one does.
-3. Any Critical / Important findings → fix per the review failure loop, then re-run the final review.
-4. Once clean, hand off for commit / PR.
+3. **Assertion Coverage Gate.** Confirm every assertion in the spec's Acceptance Assertions table has at least one PASS entry across the milestone gate transcripts. Any assertion that was never probed → run `hs-validate-runtime` over the remaining IDs before merging.
+4. Any Critical / Important findings → fix per the review failure loop, then re-run the final review.
+5. Once clean, hand off for commit / PR.
 
 ## Round Budget
 
@@ -166,6 +183,9 @@ then **stop dispatching and escalate to the human**. The plan, the spec, or the 
 - **Code review starts before spec review passes.** Wrong order; re-run spec first.
 - **Same `BLOCKED` task re-dispatched without changing context, model, or task split.** Same input, same failure.
 - **Skipping the final integration review.** Per-task reviews can't catch cross-task interactions, especially after a parallel batch.
+- **Skipping the milestone exit gate.** Static review never starts the application. Runtime validation is the only thing that catches "tests pass but it doesn't actually work" before merge.
+- **Implementer reports DONE without an atomic commit / with a dirty tree.** Treat as BLOCKED; the next worker cannot inherit a clean slate.
+- **Plan's Acceptance Assertions Coverage table is incomplete.** Assertions without a covering task = unprobed behaviour at merge time. Send the plan back to the planner.
 - **Controller fixes review findings instead of looping back to the implementer.** Defeats fresh context.
 - **Implementer reads the plan file.** The controller curates the brief; the implementer only sees what was handed in.
 - **Round count > 3 on a single task without explicit human override.** If it's still failing, the problem isn't this round.
@@ -187,6 +207,9 @@ Before declaring the workflow complete:
 - [ ] Every task in the original plan is marked complete in TodoWrite.
 - [ ] Every task passed `harness-stack:spec-reviewer` ✅ at least once.
 - [ ] Every task passed `harness-stack:code-reviewer` Approve / Approve with fixes (no Critical) at least once.
+- [ ] Every task ended with an atomic commit on the working branch and a clean tree.
+- [ ] Every milestone exit gate returned PASS for its declared assertion subset (or, for flat plans, the single gate at plan end did).
+- [ ] Every assertion in the spec's Acceptance Assertions table has at least one PASS across the gate transcripts.
 - [ ] The final integration review against the full diff returned Approve / Approve with fixes (no Critical).
 - [ ] Full test suite passes on the integrated diff.
 - [ ] No task hit the round budget cap without explicit human override.

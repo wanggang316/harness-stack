@@ -122,6 +122,27 @@ Write a product spec following this template. Save to `docs/product-specs/<name>
 <!-- Specific, testable conditions for "done" -->
 <!-- Format: Given [context], when [action], then [result] -->
 
+## Acceptance Assertions
+
+<!--
+A flat numbered list of behaviour-level assertions. Each one MUST:
+- Be binary (PASS / FAIL); no "good enough" wording.
+- Reference observable state only: HTTP response, DOM, DB row, log line, file
+  on disk. Never reference function names, file paths, or implementation
+  internals.
+- Be verifiable by a single runtime probe (one HTTP call, one DOM query, one
+  SQL select) so an independent validator that has never seen the code can
+  decide PASS / FAIL.
+
+Use these later as the contract every implementation task must cover.
+-->
+
+| ID | Assertion | Verification method |
+|----|-----------|---------------------|
+| A1 | Anonymous user visiting /login sees a form with email + password fields | DOM query |
+| A2 | Submitting valid credentials redirects to /dashboard within 2s | network log |
+| A3 | Invalid password returns HTTP 401 with body `{"error":"invalid_credentials"}` | API call |
+
 ## Design
 
 <!-- Link to design doc or architecture decisions if applicable -->
@@ -135,6 +156,7 @@ Write a product spec following this template. Save to `docs/product-specs/<name>
 
 - User stories drive requirements, not the reverse
 - Every must-have requirement needs a matching acceptance criterion
+- Every acceptance criterion expands into one or more **acceptance assertions** — assertions are the verifier-facing form: binary, behaviour-only, independently probable
 - Open questions must be resolved before implementation begins
 - Status field tracks the spec lifecycle: Draft → Approved → In Progress → Shipped
 
@@ -189,6 +211,7 @@ With approved spec, proceed to:
 
 - [ ] At least 3 clarifying questions asked and answered
 - [ ] User stories written with acceptance criteria
+- [ ] Acceptance assertions written — every must-have criterion has ≥ 1 assertion, every assertion is binary and references observable state only
 - [ ] Scope boundaries (in/out) defined
 - [ ] Requirements prioritized (must/should/could/won't)
 - [ ] Human has reviewed and approved the spec

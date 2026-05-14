@@ -20,7 +20,25 @@ This is a living document. The Progress, Surprises & Discoveries, Decision Log, 
 
 <!-- A flat status dashboard across all work. Every stopping point must be documented here, even if it requires splitting a partially completed item into "done" vs "remaining". This section must always reflect the actual current state. Use timestamps to measure rates of progress.
 
-This is the ONLY section that uses checklists. All other sections are prose. -->
+This is the ONLY section that uses checklists. All other sections are prose.
+
+The header block below is a live dashboard. Whoever is driving the plan (a controller, an implementer, or a human) updates it at every state change so a fresh reader can pick up the plan within seconds. -->
+
+**State:** Draft | Running | Blocked | Completed
+**Active worker:** (task ID + role + started-at, or "none")
+**Last handoff:** (timestamp — task ID — outcome)
+
+### Handoff log
+
+<!-- Append-only. One line per completed dispatch. Newest at the bottom.
+Format: `<ISO timestamp> <task-id> <role> <outcome> [<commit-sha>]`
+Example:
+2026-05-14T11:18Z  T6  implementer  DONE              abc123
+2026-05-14T11:25Z  T6  spec-review  pass
+2026-05-14T11:31Z  T6  code-review  approve-with-fixes
+-->
+
+### Task checklist
 
 - [ ] Step description
 
@@ -76,7 +94,34 @@ Milestones are narrative, not bureaucracy. Introduce each with a brief paragraph
 
 [Prose describing scope and what will exist at the end that did not exist before.]
 
-[Describe each task: what to change, where, and why. State observable acceptance for this milestone.] -->
+[Describe each task: what to change, where, and why. State observable acceptance for this milestone.]
+
+**Exit Gate:**
+
+- Every task in this milestone has spec-reviewer ✅ and code-reviewer approve (no Critical findings)
+- Every task ended with an atomic commit on the working branch
+- Runtime validator returns PASS for assertions {A1, A2, ...} — the subset of the Acceptance Assertions table covered by this milestone
+- Handoff log entries appended in Progress
+-->
+
+## Acceptance Assertions Coverage
+
+<!--
+Bind each task in the plan to the assertion IDs declared in the spec's
+Acceptance Assertions table. Every assertion in the spec MUST appear in this
+table at least once. Missing rows = the plan is incomplete and must be revised
+before implementation begins.
+
+| Task | Assertions covered |
+|------|---------------------|
+| T1   | A1, A2              |
+| T2   | A3                  |
+| T3   | A4, A5              |
+
+If a task touches behaviour but adds no new assertion coverage (refactor, infra,
+test scaffolding), still list it with `—` and explain in one sentence why no
+assertion applies.
+-->
 
 ## Concrete Steps
 
@@ -86,7 +131,14 @@ Milestones are narrative, not bureaucracy. Introduce each with a brief paragraph
 
 <!-- Describe how to exercise the completed system and what to observe. Phrase acceptance as behavior with specific inputs and expected outputs.
 
-Example: "Run `npm test` from the project root and expect 42 passed. The new test `user.registration.test.ts` fails before this change and passes after." -->
+Two layers of validation must be considered:
+
+1. **Static** — automated tests (unit, integration, e2e), lint, type-check, code review. Cheap, fast, run on every diff.
+2. **Runtime** — start the application and probe each entry in the Acceptance Assertions table against the live system. Run at milestone boundaries (or at plan completion for flat plans) by an independent verifier that has not seen the implementation. See `skills/hs-validate-runtime/`.
+
+The plan is not complete until both layers pass and every assertion has been probed at least once with evidence captured.
+
+Example: "Run `npm test` from the project root and expect 42 passed. The new test `user.registration.test.ts` fails before this change and passes after. Then run runtime validation against the Acceptance Assertions table; expect A1..A7 all PASS." -->
 
 ## Idempotence and Recovery
 

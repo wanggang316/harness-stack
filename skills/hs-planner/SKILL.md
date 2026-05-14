@@ -69,6 +69,8 @@ Save to `docs/exec-plans/<name>.md`. Follow the template at `skills/hs-planner/r
 - **Be prescriptive about interfaces.** In the Interfaces and Dependencies section, name the libraries, types, traits/interfaces, and function signatures that must exist at the end. Don't leave these for the implementer to invent.
 - **Keep tasks small.** Each task should be implementable, testable, and verifiable in a single focused session. If a task touches more than ~5 files, break it down further.
 - **Plan of Work is prose, not a task list.** Describe the sequence of edits in narrative form. Milestones are one way to organize this — but for simpler plans, a flat prose description is fine.
+- **Bind tasks to assertions.** If the spec declares an Acceptance Assertions table, fill out the Acceptance Assertions Coverage table in the plan. Every assertion in the spec must appear in the table; every task either covers ≥ 1 assertion or is explicitly marked as non-behavioural (refactor, infra) with a one-line reason.
+- **Milestone Exit Gate.** When using milestones, give each one an Exit Gate listing the assertion IDs it must satisfy at runtime, in addition to the usual static review gates.
 
 ### Step 4: Hand Off
 
@@ -114,6 +116,8 @@ Before handing off, confirm:
 - [ ] Plan is self-navigating — references spec/design docs by path
 - [ ] Every section from the template is present
 - [ ] Observable acceptance criteria with expected output
+- [ ] Acceptance Assertions Coverage table is filled; every assertion from the spec appears in ≥ 1 row
+- [ ] Each milestone (if used) has an Exit Gate listing required assertion IDs
 - [ ] Repository context is explicit (full paths, function names, module descriptions)
 - [ ] No task touches more than ~5 files
 - [ ] Risks and unknowns addressed (with prototyping if needed)

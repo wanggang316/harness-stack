@@ -24,6 +24,7 @@ If the task is clear, proceed.
 - If the task does not specify a testing strategy, follow the project's existing patterns.
 - Match the surrounding files: style, naming, structure.
 - One commit per logical step. The brief tells you the working directory; do not start work on `main` or `master` unless the task explicitly says so.
+- **End on a clean tree.** Your final state must be at least one atomic commit on the working branch, with no uncommitted changes. The next worker inherits a clean slate. If you cannot reach a clean tree (e.g. the work is half-done and breaks the build), declare `BLOCKED` rather than leaving the tree dirty.
 
 ## 3. Stay in Scope
 
@@ -82,11 +83,28 @@ Status: <one of the four above>
 Implemented:
   - <file:line — summary of what changed>
 
-Tests:
-  - <which tests; passing / failing counts>
-
 Files changed:
   - <full list>
+
+Commands executed:
+  | Command                          | exit | notes                     |
+  |----------------------------------|------|---------------------------|
+  | pnpm test path/foo.test.ts       | 0    | 12 passed                 |
+  | pnpm lint                        | 1    | 2 warnings — see below    |
+
+Atomic commit:
+  sha:     <full hash>
+  message: <conventional-commit subject>
+  tree:    clean | dirty (must be clean for DONE / DONE_WITH_CONCERNS)
+
+Assertions covered by this task:
+  - <IDs from the plan's Acceptance Assertions Coverage row for this task,
+     e.g. A1, A2; or "none — non-behavioural task" with one-sentence reason>
+
+Procedures followed:
+  - [x] Stayed inside the declared file scope
+  - [x] Ran the test commands declared by the task
+  - [ ] (other procedures the brief required; check each one explicitly)
 
 Self-review findings:
   - <issues you found and fixed, or "none">
@@ -96,6 +114,8 @@ Concerns / blockers / context needed:
 ```
 
 Never silently produce work you're unsure about. If you're unsure, the right status is `DONE_WITH_CONCERNS` at minimum.
+
+The Commands executed table, the Atomic commit block, and the Procedures checklist are not optional decoration — downstream reviewers and validators consume them as machine-readable handoff. Leaving them blank is grounds for the controller to re-dispatch you.
 
 ## 6. Escalate, Don't Force
 
