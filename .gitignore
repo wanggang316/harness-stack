@@ -26,3 +26,7 @@ Thumbs.db
 
 # Reference materials (not part of harness-stack)
 raw/
+
+# Generated run artifacts
+debate-runs/
+decision-runs/
