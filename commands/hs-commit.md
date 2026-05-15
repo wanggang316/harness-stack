@@ -18,7 +18,9 @@ model: claude-haiku-4-5
 - **Atomic**: one commit does one logical thing. If the diff mixes refactor + feature, or formatting + behavior, split it first (`git restore --staged` and re-stage by path).
 - **Subject line**: short, imperative, standalone (`Delete the FizzBuzz RPC`, not `Deleted...` / `Updating...`).
 - **Body** (when non-trivial): explain *why*, not *what*. Reference design decisions, constraints, or context not visible in the diff.
-- **Anti-patterns**: `fix bug`, `update X`, `Phase 1`, `misc` — none of these survive history.
+- **Anti-patterns**: `fix bug`, `update X`, `misc` — none of these survive history.
+- **No planning refs**: never use planning/task/milestone numbers (`Phase 1`, `Slice 2`, `D-12`, `Q3 cleanup`, `see ExecPlan`) as commit content. These rot. Describe the change itself.
+- **No discussion recap**: the body describes the delivered change, not the alternatives weighed or the conversation that led to it. State rationale, don't narrate deliberation. Long rationale belongs in the PR description.
 - **No attribution lines**: never append `Co-Authored-By:`, `Generated with ...`, or any model/tool banner. Strip such lines if tooling injects them.
 - **No secrets**: scan the staged diff for `password`, `secret`, `api_key`, `token` before committing.
 

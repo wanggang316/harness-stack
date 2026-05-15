@@ -45,9 +45,57 @@ update auth.ts
 | Don't | Why |
 |---|---|
 | `fix bug`, `update X`, `misc` | Doesn't survive outside the moment it was written. |
-| `Phase 1`, `WIP`, `Slice 2` | Planning references rot; describe the change itself. |
+| `Phase 1`, `WIP`, `Slice 2` | Planning references rot; describe the change itself. See below. |
 | `Moving code from A to B` | The diff already shows the move; explain why it moved. |
 | `Add convenience functions` | Vague — name the convenience. |
+
+## Don't Reference Ephemeral Planning Artifacts
+
+Planning numbers — `Phase 1`, `Slice 2`, `Q3-Q5`, `D-12`, `Task #007`, "per the ExecPlan", "see design doc above" — are scoped to one conversation or one in-flight planning document. They mean nothing to someone reading `git log` next quarter, and the artifacts they reference may have been renamed, moved, or never merged.
+
+Describe what the commit *does* in terms that stand alone:
+
+```
+# Bad
+feat: complete Slice 3 of task creation
+fix: address review item D-12
+chore: finish Q2 cleanup checklist
+
+# Good
+feat: validate task creation input at the route handler
+fix: reject empty task titles before persisting
+chore: remove unused legacy session helpers
+```
+
+Applies to both subject and body. If a tracking ID is durable and useful (a bug tracker ticket that will outlive the branch, an RFC number kept in-tree), it's fine to mention — but never as the entire description.
+
+## Describe the Change, Not the Discussion
+
+The body explains the **delivered change**, not the discussion that produced it. Skip:
+
+- Alternatives that were considered and rejected ("we also looked at X, but…")
+- Option comparisons ("Approach A vs Approach B")
+- Conversational reasoning that belongs in a design doc or PR description
+- Recaps of who proposed what, or what an earlier draft did
+
+Keep what helps a future reader understand the diff: what the change does, why it does it *that* way, any constraint or invariant not visible in the code. If a longer rationale exists, it belongs in the PR description (which links to the commit), not in the commit message.
+
+```
+# Bad
+fix: validate emails
+
+We considered three approaches: regex in the handler, Zod schema, and a
+third-party library. Regex was rejected for edge cases; the third-party
+library adds 100KB. Zod is consistent with auth.ts. Going with Zod.
+
+# Good
+fix: validate registration emails with the existing Zod schema
+
+Matches the validation pattern used by auth.ts, keeping schema
+definitions in one place.
+```
+
+The "Good" example still gives a reason — that's not the same as recapping the discussion. State the rationale; don't narrate the deliberation.
 
 ## No Attribution Lines
 
@@ -140,6 +188,8 @@ EOF
 - [ ] One logical change
 - [ ] Conventional type, imperative subject, ≤ 72 chars
 - [ ] Body explains why (when non-trivial)
+- [ ] No planning / task / milestone numbers in subject or body
+- [ ] Body describes the change, not the discussion that produced it
 - [ ] No secrets in staged diff
 - [ ] No attribution trailers
 - [ ] No stray artifacts staged
