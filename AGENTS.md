@@ -42,6 +42,7 @@ Agent-first development framework implementing the harness methodology.
 **Ship** → Deploy and release
 - `/hs-changelog` - Changelog management
 - `/hs-git` - Git workflow and versioning
+- `/hs-land` - Drive an open PR to a clean merge
 - `/hs-ship` - Shipping and launch
 
 ### Specialized Agents

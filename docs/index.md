@@ -28,6 +28,7 @@ harness-stack 文档中心。
 | Review | hs-security | [SKILL.md](../skills/hs-security/SKILL.md) |
 | Ship | hs-changelog | [SKILL.md](../skills/hs-changelog/SKILL.md) |
 | Ship | hs-git | [SKILL.md](../skills/hs-git/SKILL.md) |
+| Ship | hs-land | [SKILL.md](../skills/hs-land/SKILL.md) |
 | Ship | hs-ship | [SKILL.md](../skills/hs-ship/SKILL.md) |
 
 ### Subagents

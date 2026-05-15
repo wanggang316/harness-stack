@@ -20,7 +20,7 @@ A non-trivial change moves through these phases. Pick the skill that matches the
 | **Verify** | Something is broken or unverified | `hs-debug` (root cause), `hs-validate-runtime` (behaviour-level runtime probes) |
 | **Review** | Change is ready for scrutiny | `hs-review-request` (dispatch), `hs-review-receive` (handle findings), `hs-security` (security audit) |
 | **Deliberate** | Question is contested or high-risk | `hs-debate` (multi-round), `hs-decide` (one-shot parallel) |
-| **Ship** | Code is approved | `hs-commit` → `hs-pr` → `hs-changelog` → `hs-ship` |
+| **Ship** | Code is approved | `hs-commit` → `hs-pr` → `hs-changelog` → `hs-land` → `hs-ship` |
 | **Meta** | Manage the framework itself | `hs-docs-init`, `hs-env-init`, `hs-skill-create` |
 
 Trivial work (one-line fix, typo, obvious rename) skips the lifecycle. Use judgment: the skills exist to prevent the failure modes of skipping them, not as ceremony.
