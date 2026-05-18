@@ -13,8 +13,8 @@ A non-trivial change moves through these phases. Pick the skill that matches the
 
 | Phase | Trigger | Skill |
 |---|---|---|
-| **Define** | What/why is unclear | `hs-define-product`, `hs-define-architecture`, `hs-define-api-spec`, `hs-define-frontend-spec`, `hs-define-ui-spec` (one-time, project-wide) |
-| **Spec** | Feature or change needs requirements | `hs-spec` (product-level), `hs-design` (technical/architectural) |
+| **Define** | What/why is unclear | `hs-define-product`, `hs-define-architecture`, `hs-define-api-spec`, `hs-define-frontend-spec`, `hs-define-ui-spec`, `hs-define-test-spec` (one-time, project-wide) |
+| **Spec** | Feature or change needs requirements | `hs-spec` (PM view), `hs-design` (engineering view), `hs-test-spec` (QA view) |
 | **Plan** | Spec exists, work needs decomposition | `hs-planner` produces an ExecPlan |
 | **Build** | ExecPlan ready | `hs-exec-plan` (single agent), `hs-team` (multi-agent), `hs-tdd` (test-first) |
 | **Verify** | Something is broken or unverified | `hs-debug` (root cause), `hs-validate-runtime` (behaviour-level runtime probes) |

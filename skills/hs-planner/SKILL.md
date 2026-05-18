@@ -37,10 +37,11 @@ Create an execution plan (ExecPlan) that enables any agent to deliver a working 
 Before planning, read and understand:
 
 1. **The spec** — Read the product spec or requirements in full
-2. **The design docs** — Read related design documents in `docs/design-docs/` if they exist; these contain technical decisions, alternatives considered, and rationale that the plan must respect
-3. **The codebase** — Read relevant source files, identify patterns and conventions
-4. **The architecture** — Read architecture docs if they exist
-5. **The constraints** — Read golden-rules and project conventions
+2. **The user tests** — Read `docs/user-tests/<feature>.md` if it exists; case IDs from here populate the User Test Coverage table later
+3. **The design docs** — Read related design documents in `docs/design-docs/` if they exist; these contain technical decisions, alternatives considered, and rationale that the plan must respect
+4. **The codebase** — Read relevant source files, identify patterns and conventions
+5. **The architecture** — Read architecture docs if they exist
+6. **The constraints** — Read golden-rules and project conventions
 
 Map dependencies between components. Note risks, unknowns, and areas that may need prototyping.
 
@@ -69,8 +70,8 @@ Save to `docs/exec-plans/<name>.md`. Follow the template at `skills/hs-planner/r
 - **Be prescriptive about interfaces.** In the Interfaces and Dependencies section, name the libraries, types, traits/interfaces, and function signatures that must exist at the end. Don't leave these for the implementer to invent.
 - **Keep tasks small.** Each task should be implementable, testable, and verifiable in a single focused session. If a task touches more than ~5 files, break it down further.
 - **Plan of Work is prose, not a task list.** Describe the sequence of edits in narrative form. Milestones are one way to organize this — but for simpler plans, a flat prose description is fine.
-- **Bind tasks to assertions.** If the spec declares an Acceptance Assertions table, fill out the Acceptance Assertions Coverage table in the plan. Every assertion in the spec must appear in the table; every task either covers ≥ 1 assertion or is explicitly marked as non-behavioural (refactor, infra) with a one-line reason.
-- **Milestone Exit Gate.** When using milestones, give each one an Exit Gate listing the assertion IDs it must satisfy at runtime, in addition to the usual static review gates.
+- **Bind tasks to user-test cases.** If `docs/user-tests/<feature>.md` exists, fill out the User Test Coverage table in the plan. Every case in the user-test set must appear in the table; every task either covers ≥ 1 case or is explicitly marked as non-behavioural (refactor, infra) with a one-line reason.
+- **Milestone Exit Gate.** When using milestones, give each one an Exit Gate listing the case IDs it must satisfy at runtime, in addition to the usual static review gates.
 
 ### Step 4: Hand Off
 
@@ -116,8 +117,8 @@ Before handing off, confirm:
 - [ ] Plan is self-navigating — references spec/design docs by path
 - [ ] Every section from the template is present
 - [ ] Observable acceptance criteria with expected output
-- [ ] Acceptance Assertions Coverage table is filled; every assertion from the spec appears in ≥ 1 row
-- [ ] Each milestone (if used) has an Exit Gate listing required assertion IDs
+- [ ] User Test Coverage table is filled; every case from `docs/user-tests/<feature>.md` appears in ≥ 1 row
+- [ ] Each milestone (if used) has an Exit Gate listing required case IDs
 - [ ] Repository context is explicit (full paths, function names, module descriptions)
 - [ ] No task touches more than ~5 files
 - [ ] Risks and unknowns addressed (with prototyping if needed)

@@ -119,29 +119,18 @@ Write a product spec following this template. Save to `docs/product-specs/<name>
 
 ## Acceptance Criteria
 
-<!-- Specific, testable conditions for "done" -->
-<!-- Format: Given [context], when [action], then [result] -->
-
-## Acceptance Assertions
-
 <!--
-A flat numbered list of behaviour-level assertions. Each one MUST:
-- Be binary (PASS / FAIL); no "good enough" wording.
-- Reference observable state only: HTTP response, DOM, DB row, log line, file
-  on disk. Never reference function names, file paths, or implementation
-  internals.
-- Be verifiable by a single runtime probe (one HTTP call, one DOM query, one
-  SQL select) so an independent validator that has never seen the code can
-  decide PASS / FAIL.
+PM-readable conditions for "done". One bullet per criterion, with an ID
+(AC1, AC2, ...) so downstream artifacts (user tests, exec plans) can cite them.
+Format: Given [context], when [action], then [result].
 
-Use these later as the contract every implementation task must cover.
+This section captures *intent*. The runnable, observable form lives in
+`docs/user-tests/<feature>.md`, authored separately by /hs-test-spec. Do NOT
+embed implementation-level assertions here.
 -->
 
-| ID | Assertion | Verification method |
-|----|-----------|---------------------|
-| A1 | Anonymous user visiting /login sees a form with email + password fields | DOM query |
-| A2 | Submitting valid credentials redirects to /dashboard within 2s | network log |
-| A3 | Invalid password returns HTTP 401 with body `{"error":"invalid_credentials"}` | API call |
+- **AC1.** Given an anonymous visitor, when they load /, then they see a list of completed reports in reverse chronological order.
+- **AC2.** Given an unauthenticated user, when they POST invalid credentials, then the response is HTTP 401 and no session cookie is set.
 
 ## Design
 
@@ -156,7 +145,8 @@ Use these later as the contract every implementation task must cover.
 
 - User stories drive requirements, not the reverse
 - Every must-have requirement needs a matching acceptance criterion
-- Every acceptance criterion expands into one or more **acceptance assertions** — assertions are the verifier-facing form: binary, behaviour-only, independently probable
+- Every acceptance criterion gets an ID (AC1, AC2, ...) so user tests and exec plans can cite it
+- Acceptance criteria capture *intent*; the runnable, observable form lives in `docs/user-tests/<feature>.md`, authored separately by `/hs-test-spec`
 - Open questions must be resolved before implementation begins
 - Status field tracks the spec lifecycle: Draft → Approved → In Progress → Shipped
 
@@ -175,8 +165,11 @@ SPEC READY FOR REVIEW:
 
 With approved spec, proceed to:
 - `/hs-design` for technical design decisions (if multiple approaches exist)
+- `/hs-test-spec` for the user-test set (cases binding to AC IDs)
 - `/hs-planner` for creating the execution plan
 - `/hs-exec-plan` for implementation
+
+`/hs-design` and `/hs-test-spec` can run in parallel — they are independent views (engineering vs QA) of the same approved spec.
 
 ## Keeping the Spec Alive
 
@@ -211,7 +204,8 @@ With approved spec, proceed to:
 
 - [ ] At least 3 clarifying questions asked and answered
 - [ ] User stories written with acceptance criteria
-- [ ] Acceptance assertions written — every must-have criterion has ≥ 1 assertion, every assertion is binary and references observable state only
+- [ ] Every acceptance criterion has an ID (AC1, AC2, ...) for downstream citation
+- [ ] Acceptance criteria capture intent only — no implementation references; runnable assertions deferred to `/hs-test-spec`
 - [ ] Scope boundaries (in/out) defined
 - [ ] Requirements prioritized (must/should/could/won't)
 - [ ] Human has reviewed and approved the spec

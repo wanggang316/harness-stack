@@ -26,19 +26,23 @@ Do not start work on `main` or `master` unless this brief explicitly says so.
 
 {DEPENDENCIES_OF_THIS_TASK}
 
-## Assertions This Task Must Cover
+## User-Test Cases This Task Must Cover
 
-{ASSERTIONS_FOR_THIS_TASK}
+{CASES_FOR_THIS_TASK}
 
 <!--
-List the assertion IDs (and one-line restatement of each) drawn from the plan's
-Acceptance Assertions Coverage table for this task. Examples:
+List the user-test case IDs (and one-line restatement of each) drawn from the
+plan's User Test Coverage table for this task. Examples:
 
-  - A1 — Anonymous user at /login sees email + password fields
-  - A2 — Valid credentials redirect to /dashboard within 2s
+  - UT-LOGIN-001 — Anonymous user at /login sees email + password fields
+  - UT-LOGIN-002 — Valid credentials redirect to /dashboard within 2s
+
+The full case definitions (preconditions, steps, assertions) live in
+`docs/user-tests/<feature>.md`; the implementer does not need to read them, the
+runtime validator will probe them after the implementer reports DONE.
 
 If this task is non-behavioural (refactor, infra, test scaffolding) and covers
-no assertions, write a single line stating that and why.
+no cases, write a single line stating that and why.
 -->
 
 ## Required Procedures

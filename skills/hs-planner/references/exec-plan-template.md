@@ -100,27 +100,27 @@ Milestones are narrative, not bureaucracy. Introduce each with a brief paragraph
 
 - Every task in this milestone has spec-reviewer ✅ and code-reviewer approve (no Critical findings)
 - Every task ended with an atomic commit on the working branch
-- Runtime validator returns PASS for assertions {A1, A2, ...} — the subset of the Acceptance Assertions table covered by this milestone
+- Runtime validator returns PASS for cases {UT-FEATURE-001, UT-FEATURE-002, ...} — the subset of the user-test set covered by this milestone
 - Handoff log entries appended in Progress
 -->
 
-## Acceptance Assertions Coverage
+## User Test Coverage
 
 <!--
-Bind each task in the plan to the assertion IDs declared in the spec's
-Acceptance Assertions table. Every assertion in the spec MUST appear in this
-table at least once. Missing rows = the plan is incomplete and must be revised
-before implementation begins.
+Bind each task in the plan to the user-test case IDs declared in
+`docs/user-tests/<feature>.md`. Every case in the user-test set MUST appear in
+this table at least once. Missing rows = the plan is incomplete and must be
+revised before implementation begins.
 
-| Task | Assertions covered |
-|------|---------------------|
-| T1   | A1, A2              |
-| T2   | A3                  |
-| T3   | A4, A5              |
+| Task | User-test cases covered |
+|------|--------------------------|
+| T1   | UT-FEATURE-001, UT-FEATURE-002 |
+| T2   | UT-FEATURE-003           |
+| T3   | UT-FEATURE-004, UT-FEATURE-005 |
 
-If a task touches behaviour but adds no new assertion coverage (refactor, infra,
-test scaffolding), still list it with `—` and explain in one sentence why no
-assertion applies.
+If a task is non-behavioural (refactor, infra, test scaffolding) and covers
+no cases, still list it with `—` and explain in one sentence why no case
+applies.
 -->
 
 ## Concrete Steps
@@ -134,11 +134,11 @@ assertion applies.
 Two layers of validation must be considered:
 
 1. **Static** — automated tests (unit, integration, e2e), lint, type-check, code review. Cheap, fast, run on every diff.
-2. **Runtime** — start the application and probe each entry in the Acceptance Assertions table against the live system. Run at milestone boundaries (or at plan completion for flat plans) by an independent verifier that has not seen the implementation. See `skills/hs-validate-runtime/`.
+2. **Runtime** — start the application and run each user-test case in `docs/user-tests/<feature>.md` against the live system. Performed at milestone boundaries (or at plan completion for flat plans) by an independent verifier that has not seen the implementation. See `skills/hs-validate-runtime/`.
 
-The plan is not complete until both layers pass and every assertion has been probed at least once with evidence captured.
+The plan is not complete until both layers pass and every user-test case has been probed at least once with evidence captured.
 
-Example: "Run `npm test` from the project root and expect 42 passed. The new test `user.registration.test.ts` fails before this change and passes after. Then run runtime validation against the Acceptance Assertions table; expect A1..A7 all PASS." -->
+Example: "Run `npm test` from the project root and expect 42 passed. The new test `user.registration.test.ts` fails before this change and passes after. Then run runtime validation against the user-test set; expect UT-LOGIN-001..UT-LOGIN-007 all PASS." -->
 
 ## Idempotence and Recovery
 

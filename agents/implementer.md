@@ -97,9 +97,10 @@ Atomic commit:
   message: <conventional-commit subject>
   tree:    clean | dirty (must be clean for DONE / DONE_WITH_CONCERNS)
 
-Assertions covered by this task:
-  - <IDs from the plan's Acceptance Assertions Coverage row for this task,
-     e.g. A1, A2; or "none — non-behavioural task" with one-sentence reason>
+User-test cases covered by this task:
+  - <case IDs from the plan's User Test Coverage row for this task,
+     e.g. UT-LOGIN-001, UT-LOGIN-002; or "none — non-behavioural task"
+     with one-sentence reason>
 
 Procedures followed:
   - [x] Stayed inside the declared file scope
