@@ -30,7 +30,7 @@ Agent-first development framework implementing the harness methodology.
 
 **Verify** → Debug and test
 - `/hs-debug` - Debugging and error recovery
-- `/hs-validate-runtime` - Probe a running system against user-test cases; reports PASS/FAIL with evidence
+- `/hs-user-test` - Probe a running system against user-test cases; reports PASS/FAIL with evidence
 
 **Review** → Ensure quality
 - `/hs-review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
@@ -52,7 +52,6 @@ Agent-first development framework implementing the harness methodology.
 When you need expert judgment:
 - `hs-architect` - System design, technical decisions
 - `hs-code-reviewer` - PR review, quality checks
-- `hs-test-engineer` - Test strategy, coverage
 
 ## Golden Rules
 

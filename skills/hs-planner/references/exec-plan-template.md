@@ -134,7 +134,7 @@ applies.
 Two layers of validation must be considered:
 
 1. **Static** — automated tests (unit, integration, e2e), lint, type-check, code review. Cheap, fast, run on every diff.
-2. **Runtime** — start the application and run each user-test case in `docs/user-tests/<feature>.md` against the live system. Performed at milestone boundaries (or at plan completion for flat plans) by an independent verifier that has not seen the implementation. See `skills/hs-validate-runtime/`.
+2. **Runtime** — start the application and run each user-test case in `docs/user-tests/<feature>.md` against the live system. Performed at milestone boundaries (or at plan completion for flat plans) by an independent verifier that has not seen the implementation. See `skills/hs-user-test/`.
 
 The plan is not complete until both layers pass and every user-test case has been probed at least once with evidence captured.
 

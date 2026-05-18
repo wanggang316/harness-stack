@@ -19,7 +19,7 @@ This skill produces the project-wide guide once (per major platform/tooling chan
 - Tests written across teams diverge in style, selectors, or fixture layout
 - A new platform has been added (project gains a mobile client, etc.)
 
-**When NOT to use:** Pure CLI tools or libraries with no user-facing surface. Use `agents/test-engineer.md` strategy guidance instead.
+**When NOT to use:** Pure CLI tools or libraries with no user-facing surface. Drive unit and integration coverage with `/hs-tdd` and `docs/references/testing-patterns.md`.
 
 ## Philosophy
 

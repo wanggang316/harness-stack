@@ -1,6 +1,6 @@
 ---
-name: runtime-validator
-description: Behaviour-level runtime verifier. Takes a subset of fully-resolved user-test cases and a running system, runs each case through its steps and assertions using observable state only, and emits a coverage matrix with evidence. Never reads the implementation source. Use after a task implementation, at milestone boundaries, or before merge when behaviour-level verification is needed beyond static review.
+name: user-test-validator
+description: Behaviour-level user-test verifier. Takes a subset of fully-resolved user-test cases and a running system, runs each case through its steps and assertions using observable state only, and emits a coverage matrix with evidence. Never reads the implementation source. Use after a task implementation, at milestone boundaries, or before merge when behaviour-level verification is needed beyond static review.
 tools: Read, Bash, Glob, Grep
 model: inherit
 ---

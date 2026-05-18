@@ -17,7 +17,7 @@ A non-trivial change moves through these phases. Pick the skill that matches the
 | **Spec** | Feature or change needs requirements | `hs-spec` (PM view), `hs-design` (engineering view), `hs-test-spec` (QA view) |
 | **Plan** | Spec exists, work needs decomposition | `hs-planner` produces an ExecPlan |
 | **Build** | ExecPlan ready | `hs-exec-plan` (single agent), `hs-team` (multi-agent), `hs-tdd` (test-first) |
-| **Verify** | Something is broken or unverified | `hs-debug` (root cause), `hs-validate-runtime` (behaviour-level runtime probes) |
+| **Verify** | Something is broken or unverified | `hs-debug` (root cause), `hs-user-test` (behaviour-level user-test probes) |
 | **Review** | Change is ready for scrutiny | `hs-review-request` (dispatch), `hs-review-receive` (handle findings), `hs-security` (security audit) |
 | **Deliberate** | Question is contested or high-risk | `hs-debate` (multi-round), `hs-decide` (one-shot parallel) |
 | **Ship** | Code is approved | `hs-commit` → `hs-pr` → `hs-changelog` → `hs-land` → `hs-ship` |

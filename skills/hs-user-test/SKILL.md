@@ -1,9 +1,9 @@
 ---
-name: hs-validate-runtime
+name: hs-user-test
 description: Runs an application against a subset of user-test cases and reports PASS/FAIL with evidence per case. Use after a task implementation, at milestone boundaries, or before merge when behaviour-level verification is needed beyond static review.
 ---
 
-# hs-validate-runtime: Runtime Case Verification
+# hs-user-test: Runtime Case Verification
 
 ## Overview
 
@@ -59,7 +59,7 @@ The fully resolved case bundle is what goes into the validator's brief. The vali
 
 ### Step 4: Dispatch the runtime verifier
 
-Dispatch `runtime-validator` (see `agents/runtime-validator.md`) with a brief containing:
+Dispatch `user-test-validator` (see `agents/user-test-validator.md`) with a brief containing:
 
 - The resolved cases for this run (one per requested ID).
 - The base URL or other entry coordinates of the running system.

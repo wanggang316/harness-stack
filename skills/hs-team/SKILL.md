@@ -1,24 +1,24 @@
 ---
 name: hs-team
-description: Multi-agent implementation workflow. Controller serially orchestrates implementer, spec-reviewer, code-reviewer, and runtime-validator subagents per task with strict review gates. Use when an ExecPlan has multiple tasks and you want full subagent automation rather than controller-driven manual implementation.
+description: Multi-agent implementation workflow. Controller serially orchestrates implementer, spec-reviewer, code-reviewer, and user-test-validator subagents per task with strict review gates. Use when an ExecPlan has multiple tasks and you want full subagent automation rather than controller-driven manual implementation.
 ---
 
 # Multi-Agent Implementation Team
 
 ## Overview
 
-Controller does not write code. Every implementation, every spec check, every code review, every runtime probe happens in a fresh subagent with curated context. The controller's job is to ingest the plan, walk it one task at a time, dispatch the right subagent at the right point, and integrate the results.
+Controller does not write code. Every implementation, every spec check, every code review, every user-test probe happens in a fresh subagent with curated context. The controller's job is to ingest the plan, walk it one task at a time, dispatch the right subagent at the right point, and integrate the results.
 
 Four roles:
 
 - `harness-stack:implementer` — does the work
 - `harness-stack:spec-reviewer` — checks the diff against the task spec
 - `harness-stack:code-reviewer` — checks production readiness
-- `runtime-validator` (via `hs-validate-runtime`) — probes the running system against user-test cases the task is bound to
+- `user-test-validator` (via `hs-user-test`) — probes the running system against user-test cases the task is bound to
 
-**Execution is serial.** One task at a time, full impl → spec review → code review → runtime probe → next. Read-only side calls inside a single phase (parallel research subagents, parallel code review of independent files) are permitted; multiple implementers writing concurrently are not. Serial throughput is lower in raw token-rate but the error rate drops dramatically, and on multi-day runs that correctness compounds.
+**Execution is serial.** One task at a time, full impl → spec review → code review → user-test probe → next. Read-only side calls inside a single phase (parallel research subagents, parallel code review of independent files) are permitted; multiple implementers writing concurrently are not. Serial throughput is lower in raw token-rate but the error rate drops dramatically, and on multi-day runs that correctness compounds.
 
-**Core principle:** the controller curates context. Implementers don't read the plan; spec-reviewers don't trust implementer reports; code-reviewers don't substitute for spec-reviewers; runtime-validators don't read the source.
+**Core principle:** the controller curates context. Implementers don't read the plan; spec-reviewers don't trust implementer reports; code-reviewers don't substitute for spec-reviewers; user-test-validators don't read the source.
 
 ## When to Use
 
@@ -42,7 +42,7 @@ For small / iterative / exploratory work where the controller needs to make in-f
 | Implementation | `harness-stack:implementer` | `references/implementer.md` |
 | Spec compliance | `harness-stack:spec-reviewer` | `references/spec-reviewer.md` |
 | Code quality | `harness-stack:code-reviewer` | `references/code-reviewer.md` |
-| Runtime probing | `runtime-validator` via `/hs-validate-runtime` | brief assembled by the skill |
+| User-test probing | `user-test-validator` via `/hs-user-test` | brief assembled by the skill |
 
 The subagents own the methodology (how to do the role). The brief templates carry per-dispatch inputs (task text, git range, etc.).
 
@@ -86,7 +86,7 @@ Execution is strictly one task at a time. Each task walks four gates; failures l
 │ Approve with fixes (Critical present)    → re-dispatch; loop     │
 │ Request changes                          → re-dispatch; loop     │
 ├──────────────────────────────────────────────────────────────────┤
-│ invoke /hs-validate-runtime over the case IDs this task covers   │
+│ invoke /hs-user-test over the case IDs this task covers   │
 │   ↓ verdict                                                      │
 │ PASS (all cases)                         → mark task complete    │
 │ FAIL (≥ 1 case)                          → re-dispatch implementer│
@@ -123,13 +123,13 @@ The controller never edits the code itself. That defeats the fresh-context invar
 
 ## Milestone Exit Gate (when the plan uses milestones)
 
-Per-task runtime probes catch behaviour problems on the diff just written. A milestone gate catches *interaction* problems — when several tasks together produce a user-observable regression no single task's case set exercised. Run the gate at every milestone boundary, before the next milestone's first task dispatches.
+Per-task user-test probes catch behaviour problems on the diff just written. A milestone gate catches *interaction* problems — when several tasks together produce a user-observable regression no single task's case set exercised. Run the gate at every milestone boundary, before the next milestone's first task dispatches.
 
 For the milestone just completed:
 
-1. Confirm every task in the milestone reached `harness-stack:spec-reviewer` ✅ and `harness-stack:code-reviewer` approve (no Critical findings), every per-task runtime probe PASS'd, and every task produced an atomic commit on the working branch.
+1. Confirm every task in the milestone reached `harness-stack:spec-reviewer` ✅ and `harness-stack:code-reviewer` approve (no Critical findings), every per-task user-test probe PASS'd, and every task produced an atomic commit on the working branch.
 2. Compute the case IDs this milestone is responsible for, as listed in the plan's Exit Gate for that milestone (typically the union of every task's covered cases plus any cross-task journeys the milestone declared).
-3. Invoke `/hs-validate-runtime` with: the milestone's diff range (`MILESTONE_BASE_SHA..HEAD_SHA`), the user-test set at `docs/user-tests/<feature>.md`, and the case ID subset for this milestone. The runtime validator runs in a fresh subagent that has never seen the implementation.
+3. Invoke `/hs-user-test` with: the milestone's diff range (`MILESTONE_BASE_SHA..HEAD_SHA`), the user-test set at `docs/user-tests/<feature>.md`, and the case ID subset for this milestone. The user-test validator runs in a fresh subagent that has never seen the implementation.
 4. The validator returns a coverage matrix with PASS / FAIL and evidence per case. Any FAIL → scope follow-up tasks, append them to the plan, dispatch implementers, re-run the gate. Do not proceed to the next milestone until every required case is PASS.
 5. Update the plan's Progress section: append a handoff log line, tick off the milestone, record the validator's evidence path.
 
@@ -141,7 +141,7 @@ After every task is complete and the final milestone exit gate (or the flat-plan
 
 1. Compute the full `BASE_SHA..HEAD_SHA` covering every task in the plan.
 2. Dispatch one more `harness-stack:code-reviewer` with `references/code-reviewer.md` against the **integrated diff**. Per-task reviews didn't see cross-task interactions; this one does.
-3. **Case Coverage Gate.** Confirm every case in `docs/user-tests/<feature>.md` has at least one PASS entry across the gate transcripts. Any case never probed → run `/hs-validate-runtime` over the remaining IDs before merging.
+3. **Case Coverage Gate.** Confirm every case in `docs/user-tests/<feature>.md` has at least one PASS entry across the gate transcripts. Any case never probed → run `/hs-user-test` over the remaining IDs before merging.
 4. Any Critical / Important findings → fix per the review failure loop, then re-run the final review.
 5. Once clean, hand off for commit / PR.
 
@@ -177,7 +177,7 @@ then **stop dispatching and escalate to the human**. The plan, the spec, or the 
 | "I'll just patch this one finding myself, it's tiny." | Once the controller writes code, the fresh-context invariant is gone for the rest of the run. Loop back to the implementer. |
 | "Running two implementers in parallel will save half the wall-clock time." | The error rate jumps and the rework eats the savings. Serial is the load-bearing choice. |
 | "Spec compliance and code quality overlap; I'll skip spec review for trivial tasks." | Spec compliance is binary and cheap to verify; skipping it lets "wrong feature, well-built" through. |
-| "The unit tests pass, I'll skip the runtime probe." | Unit tests assert against the code's own expectations. The runtime probe asserts against the user-test contract from outside the system. They catch different bugs. |
+| "The unit tests pass, I'll skip the user-test probe." | Unit tests assert against the code's own expectations. The user-test probe asserts against the user-test contract from outside the system. They catch different bugs. |
 | "The implementer is on round 4 but it's so close — one more round." | Round budget is a circuit breaker for a reason. Either the spec is wrong, the task is too big, or the model is wrong for this work. Escalate. |
 | "Final integration review is redundant; every task already passed code review." | Per-task reviews see one diff at a time. Integration interactions only appear after merge. |
 
@@ -189,7 +189,7 @@ Before declaring the workflow complete:
 - [ ] Every task passed `harness-stack:spec-reviewer` ✅ at least once.
 - [ ] Every task passed `harness-stack:code-reviewer` Approve / Approve with fixes (no Critical) at least once.
 - [ ] Every task ended with an atomic commit on the working branch and a clean tree.
-- [ ] Every task's per-task runtime probe returned PASS for its covered case IDs.
+- [ ] Every task's per-task user-test probe returned PASS for its covered case IDs.
 - [ ] Every milestone exit gate returned PASS for its declared case subset (or, for flat plans, the single gate at plan end did).
 - [ ] Every case in `docs/user-tests/<feature>.md` has at least one PASS across the gate transcripts.
 - [ ] The final integration review against the full diff returned Approve / Approve with fixes (no Critical).

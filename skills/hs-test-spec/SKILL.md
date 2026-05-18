@@ -26,7 +26,7 @@ Downstream, the planner binds tasks to case IDs and the runtime validator probes
 
 **When NOT to use:**
 
-- The feature has no user-observable surface (pure refactor, internal optimization). Use `agents/test-engineer.md` strategy guidance for unit/integration coverage instead.
+- The feature has no user-observable surface (pure refactor, internal optimization). Drive unit and integration coverage with `/hs-tdd` and `docs/references/testing-patterns.md`.
 - `docs/user-test-patterns.md` does not yet exist for the project. Run `/hs-define-test-spec` first.
 
 ## Philosophy

@@ -45,7 +45,6 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 |-------|-----------|
 | `hs-architect` | System design, technical decisions |
 | `hs-code-reviewer` | PR review, quality checks |
-| `hs-test-engineer` | Test strategy, coverage |
 
 ## Naming Convention
 

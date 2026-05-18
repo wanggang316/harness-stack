@@ -34,7 +34,6 @@ harness-stack 文档中心。
 ### Subagents
 - [hs-architect](../agents/architect.md) — 系统设计
 - [hs-code-reviewer](../agents/code-reviewer.md) — 代码审查
-- [hs-test-engineer](../agents/test-engineer.md) — 测试工程
 
 ## References
 - [Testing Patterns](references/testing-patterns.md)
