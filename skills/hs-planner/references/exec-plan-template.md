@@ -18,29 +18,45 @@ This is a living document. The Progress, Surprises & Discoveries, Decision Log, 
 
 ## Progress
 
-<!-- A flat status dashboard across all work. Every stopping point must be documented here, even if it requires splitting a partially completed item into "done" vs "remaining". This section must always reflect the actual current state. Use timestamps to measure rates of progress.
+<!--
+State is held in JSON files, not in this markdown. See
+`docs/references/orchestration-state-schema.md`.
 
-This is the ONLY section that uses checklists. All other sections are prose.
+- `docs/runs/<plan-slug>/state/features.json` — per-task lifecycle
+- `docs/runs/<plan-slug>/state/validation-state.json` — per-case verification
 
-The header block below is a live dashboard. Whoever is driving the plan (a controller, an implementer, or a human) updates it at every state change so a fresh reader can pick up the plan within seconds. -->
+The block below is a human-readable rendering of those files. Update it after
+every meaningful state change; on conflict between this block and the JSON
+files, trust the JSON files.
+
+A fresh reader who wants the exact current state should `cat` the JSON; this
+section gives the at-a-glance view.
+-->
 
 **State:** Draft | Running | Blocked | Completed
 **Active worker:** (task ID + role + started-at, or "none")
 **Last handoff:** (timestamp — task ID — outcome)
+**Cases:** (passed / total — from validation-state.json)
 
-### Handoff log
+### Task summary
 
-<!-- Append-only. One line per completed dispatch. Newest at the bottom.
-Format: `<ISO timestamp> <task-id> <role> <outcome> [<commit-sha>]`
-Example:
-2026-05-14T11:18Z  T6  implementer  DONE              abc123
-2026-05-14T11:25Z  T6  spec-review  pass
-2026-05-14T11:31Z  T6  code-review  approve-with-fixes
+- [ ] T1 — <title> — `status` (from features.json)
+
+### Recent handoffs
+
+<!-- Append-only excerpt of the latest 5–10 handoffs. Format:
+`<ISO timestamp> <task-id> <role> <outcome> [<commit-sha>]`
+Older handoffs may be trimmed; the full record lives in the JSON state files
+and the runtime validator artifacts directory.
 -->
 
-### Task checklist
+### Dismissed items
 
-- [ ] Step description
+<!-- Mirror of features.json `dismissed[]`. Append-only. Each entry: who
+dismissed, what was dismissed, ≥ 20-char justification, when. Never delete a
+row; wrong dismissals get a new row that references the prior one. -->
+
+(None yet)
 
 ## Surprises & Discoveries
 
@@ -50,7 +66,16 @@ Example:
 
 ## Decision Log
 
-<!-- Record every key design decision made while working on the plan. -->
+<!--
+Append-only mirror of features.json `decisions[]`. Every AskUser exchange
+must produce a row here. Format:
+
+  <ISO timestamp> — <question> — options: [a, b, c] — chosen: <answer>
+
+This is the negotiation audit trail. No free-form open-ended questions: the
+controller may only ask 1–4 option multiple-choice questions; see
+`skills/hs-team/SKILL.md` §AskUser constraint.
+-->
 
 (None yet)
 
@@ -100,27 +125,43 @@ Milestones are narrative, not bureaucracy. Introduce each with a brief paragraph
 
 - Every task in this milestone has spec-reviewer ✅ and code-reviewer approve (no Critical findings)
 - Every task ended with an atomic commit on the working branch
-- Runtime validator returns PASS for cases {UT-FEATURE-001, UT-FEATURE-002, ...} — the subset of the user-test set covered by this milestone
-- Handoff log entries appended in Progress
+- User-test validator returns PASS for cases {UT-FEATURE-001, UT-FEATURE-002, ...} — the subset of the user-test set covered by this milestone
+- features.json status for every task in this milestone is `completed`
+- Any failed cases routed through `/hs-followup-scope` to a decision (merged | new feature | misc bucket | escalated)
+
+### Milestone misc-1: small follow-ups for Milestone 1
+
+<!-- Auto-managed by `/hs-followup-scope`. Each milestone may have at most ONE
+misc bucket, holding at most 5 small non-blocking follow-up tasks discovered
+during that milestone. When the bucket is full, the next follow-up must open
+a real milestone-level task or escalate to a human. -->
+
+- (empty)
 -->
 
 ## User Test Coverage
 
 <!--
 Bind each task in the plan to the user-test case IDs declared in
-`docs/user-tests/<feature>.md`. Every case in the user-test set MUST appear in
-this table at least once. Missing rows = the plan is incomplete and must be
-revised before implementation begins.
+`docs/user-tests/<feature>.md` via the `fulfills` field in features.json.
+The table below is the human-readable rendering of those `fulfills` claims.
 
-| Task | User-test cases covered |
-|------|--------------------------|
-| T1   | UT-FEATURE-001, UT-FEATURE-002 |
-| T2   | UT-FEATURE-003           |
-| T3   | UT-FEATURE-004, UT-FEATURE-005 |
+Coverage rules (enforced at plan ingestion):
 
-If a task is non-behavioural (refactor, infra, test scaffolding) and covers
-no cases, still list it with `—` and explain in one sentence why no case
-applies.
+1. Every case in `docs/user-tests/<feature>.md` MUST appear in exactly one
+   task's `fulfills` set. The union of all `fulfills` == the full case set.
+2. Only leaf tasks (no children) may claim cases. A composite task that
+   spawns sub-tasks delegates coverage to its leaves.
+3. Non-behavioural tasks (refactor, infra, test scaffolding) carry
+   `fulfills: []` and the table cell `—` with a one-line reason.
+
+The controller fails plan ingestion if any rule above is violated.
+
+| Task | fulfills              | Reason if `—`            |
+|------|------------------------|--------------------------|
+| T1   | UT-FEATURE-001, UT-FEATURE-002 | |
+| T2   | UT-FEATURE-003         | |
+| T3   | —                      | Pure refactor, no observable change |
 -->
 
 ## Concrete Steps

@@ -27,6 +27,7 @@ Agent-first development framework implementing the harness methodology.
 - `/hs-planner` - Create execution plans (ExecPlans)
 - `/hs-exec-plan` - Execute an approved ExecPlan
 - `/hs-tdd` - Test-driven development
+- `/hs-followup-scope` - Route mid-flight discoveries (merge / new feature / misc bucket / escalate)
 
 **Verify** → Debug and test
 - `/hs-debug` - Debugging and error recovery

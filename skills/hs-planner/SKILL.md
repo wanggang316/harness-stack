@@ -70,7 +70,8 @@ Save to `docs/exec-plans/<name>.md`. Follow the template at `skills/hs-planner/r
 - **Be prescriptive about interfaces.** In the Interfaces and Dependencies section, name the libraries, types, traits/interfaces, and function signatures that must exist at the end. Don't leave these for the implementer to invent.
 - **Keep tasks small.** Each task should be implementable, testable, and verifiable in a single focused session. If a task touches more than ~5 files, break it down further.
 - **Plan of Work is prose, not a task list.** Describe the sequence of edits in narrative form. Milestones are one way to organize this — but for simpler plans, a flat prose description is fine.
-- **Bind tasks to user-test cases.** If `docs/user-tests/<feature>.md` exists, fill out the User Test Coverage table in the plan. Every case in the user-test set must appear in the table; every task either covers ≥ 1 case or is explicitly marked as non-behavioural (refactor, infra) with a one-line reason.
+- **Bind tasks to user-test cases via `fulfills`.** If `docs/user-tests/<feature>.md` exists, fill out the User Test Coverage table in the plan. The union of every task's `fulfills` set MUST equal the full case set; no case may appear in two tasks; only leaf tasks may claim cases. Non-behavioural tasks (refactor, infra) carry `fulfills: []` with a one-line reason.
+- **Per-task verification block.** For each task, write three plain-text fields the implementer and validator will both read: `preconditions` (state the system must be in before the task starts), `expected_behavior` (what the user can do after), `verification_steps` (numbered observable checks, prefixed with `Manual:` when a human must run them). These are the source of truth the controller copies into `features.json` at plan ingestion.
 - **Milestone Exit Gate.** When using milestones, give each one an Exit Gate listing the case IDs it must satisfy at runtime, in addition to the usual static review gates.
 
 ### Step 4: Hand Off
@@ -117,7 +118,8 @@ Before handing off, confirm:
 - [ ] Plan is self-navigating — references spec/design docs by path
 - [ ] Every section from the template is present
 - [ ] Observable acceptance criteria with expected output
-- [ ] User Test Coverage table is filled; every case from `docs/user-tests/<feature>.md` appears in ≥ 1 row
+- [ ] User Test Coverage table is filled; union of all `fulfills` equals the case set in `docs/user-tests/<feature>.md`; no case is claimed twice
+- [ ] Every task has `preconditions`, `expected_behavior`, and `verification_steps` plain-text fields
 - [ ] Each milestone (if used) has an Exit Gate listing required case IDs
 - [ ] Repository context is explicit (full paths, function names, module descriptions)
 - [ ] No task touches more than ~5 files

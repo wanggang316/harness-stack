@@ -80,6 +80,10 @@ Report format:
 ```
 Status: <one of the four above>
 
+Escalate: false | true
+Escalate reason: <required when Escalate=true; one sentence on why the
+                  controller must intervene before another task begins>
+
 Implemented:
   - <file:line — summary of what changed>
 
@@ -107,8 +111,20 @@ Procedures followed:
   - [x] Ran the test commands declared by the task
   - [ ] (other procedures the brief required; check each one explicitly)
 
+Discovered issues:
+  - <issues you noticed during this task that are OUT OF SCOPE for it —
+     dead code in adjacent files, suspicious patterns, suboptimal assumptions
+     elsewhere. One bullet each; describe the symptom and where you saw it.
+     Do NOT fix any of these in this task. The controller decides where
+     they go (follow-up feature, misc bucket, dismissed). Empty if none.>
+
+What was left undone:
+  - <work IN SCOPE for this task that you did not finish — e.g. the task
+     asked for handling of three error cases and you handled two. List
+     each, with one sentence on why. Empty if the task is fully done.>
+
 Self-review findings:
-  - <issues you found and fixed, or "none">
+  - <issues you found in your own diff and already fixed, or "none">
 
 Concerns / blockers / context needed:
   - <details when status ≠ DONE>
@@ -116,7 +132,22 @@ Concerns / blockers / context needed:
 
 Never silently produce work you're unsure about. If you're unsure, the right status is `DONE_WITH_CONCERNS` at minimum.
 
-The Commands executed table, the Atomic commit block, and the Procedures checklist are not optional decoration — downstream reviewers and validators consume them as machine-readable handoff. Leaving them blank is grounds for the controller to re-dispatch you.
+The Commands executed table, the Atomic commit block, the Procedures checklist, and the three-way split (Discovered / Left undone / dismissals — the controller writes the `dismissed` list later) are not optional decoration — downstream reviewers and validators consume them as machine-readable handoff. Leaving them blank is grounds for the controller to re-dispatch you.
+
+## 7. Escalate When Direction, Not Just Detail, Is Wrong
+
+A clean tree and passing tests are not enough if the task itself is pointing at the wrong thing.
+
+Set `Escalate: true` when:
+
+- The task is technically completable but you believe the resulting code will be the wrong design for the broader system (e.g. you're adding a third special case to a function that should have been refactored two tasks ago).
+- The spec / user-test contract appears inconsistent with itself or with reality you observed in the codebase.
+- The plan's task ordering forces you to write code you'll have to undo in the next task.
+- You can complete the task as written but you have a concrete alternative that would save N tasks downstream.
+
+Escalating with a clean commit is fine — it just tells the controller "the increment landed, but stop and rethink before continuing." Escalating without committing your work is BLOCKED.
+
+`Escalate` and `Status` are independent: a task can be `DONE` AND `Escalate: true`. Do not bury direction concerns in `Self-review findings` — that's where they go to die. Use the explicit flag.
 
 ## 6. Escalate, Don't Force
 

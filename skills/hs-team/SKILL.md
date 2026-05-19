@@ -48,58 +48,117 @@ The subagents own the methodology (how to do the role). The brief templates carr
 
 ## Step 0 — Plan Ingestion (once)
 
+State is held in two JSON files (see `docs/references/orchestration-state-schema.md`):
+
+- `docs/runs/<plan>/state/features.json` — per-task lifecycle, dependencies, fulfills, dismissed log, decisions log
+- `docs/runs/<plan>/state/validation-state.json` — per-case verification status
+
+If those files do not yet exist, generate them now from the ExecPlan and `docs/user-tests/<feature>.md`. If they already exist (resuming), use them as the source of truth — the ExecPlan markdown is narration; the JSON is state.
+
 1. Read the ExecPlan in full.
-2. For each task, extract: task ID, full text, scene context, declared file scope, dependencies on prior tasks, **user-test case IDs the task is bound to in the plan's User Test Coverage table**, and any **procedures** the task or surrounding milestone requires.
-3. Verify the coverage table is complete: every case declared in `docs/user-tests/<feature>.md` appears in ≥ 1 task row. If not, stop and ask the planner to revise — implementation cannot begin against an incomplete contract.
-4. Order the tasks:
+2. For each task, extract from the User Test Coverage table the `fulfills` set, along with: task ID, full text, scene context, declared file scope, declared dependencies, and any `procedures` the task or surrounding milestone requires.
+3. **Coverage validation** (hard gate):
+   - The union of every task's `fulfills` set MUST equal the full case set in `docs/user-tests/<feature>.md` — no gaps, no orphan cases.
+   - No case may appear in two tasks' `fulfills` (no double-claim).
+   - Only leaf tasks (no children) may claim cases.
+   - If any rule is violated, stop and ask the planner to revise. Implementation cannot begin against an incomplete contract.
+4. **Write or merge state files:**
+   - `features.json`: one entry per task with `status: pending`, `depends_on`, `fulfills`, `preconditions`, `expected_behavior`, `verification_steps`. The last three come from the planner's per-task block in the ExecPlan; if missing, stop and ask the planner to add them.
+   - `validation-state.json`: one entry per user-test case with `status: pending` and `fulfilled_by_task` set from the coverage check above.
+   - When resuming, do not overwrite existing entries — only add new ones.
+5. Order the tasks:
    - Respect declared dependencies (a task that depends on another must come later).
    - Within a milestone, order tasks by the smallest reasonable serial chain.
    - If the plan uses milestones, the Milestone Exit Gate (see below) runs before the next milestone's first task dispatches.
-5. Create a TodoWrite list with every task in execution order; mark milestone boundaries.
-6. Announce the execution order to the user before dispatching the first implementer.
+6. Create a TodoWrite list with every task in execution order; mark milestone boundaries.
+7. Announce the execution order to the user before dispatching the first implementer.
 
 ## Step 1..N — Per-Task Loop (serial)
 
-Execution is strictly one task at a time. Each task walks four gates; failures loop back to the appropriate gate without advancing.
+Execution is strictly one task at a time. Each task walks four gates; failures loop back to the appropriate gate without advancing. After every gate transition, mutate `features.json` (status changes) and after every probe run, mutate `validation-state.json` (case statuses).
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│ dispatch harness-stack:implementer (references/implementer.md)   │
-│   ↓ status code                                                  │
-│ DONE                → proceed to spec review                     │
-│ DONE_WITH_CONCERNS  → review concerns;                           │
-│                       correctness/scope issue → re-dispatch      │
-│                       observation → proceed to spec review       │
-│ NEEDS_CONTEXT       → fill missing context, re-dispatch          │
-│ BLOCKED             → escalate per Round Budget                  │
-├──────────────────────────────────────────────────────────────────┤
-│ dispatch harness-stack:spec-reviewer (references/spec-reviewer.md)│
-│   ↓ verdict                                                      │
-│ ✅ Spec compliant   → proceed to code review                     │
-│ ❌ Issues           → re-dispatch implementer with findings      │
-│                       loop until ✅                              │
-├──────────────────────────────────────────────────────────────────┤
-│ dispatch harness-stack:code-reviewer (references/code-reviewer.md)│
-│   ↓ verdict                                                      │
-│ Approve                                  → proceed to runtime    │
-│ Approve with fixes (no Critical)         → proceed to runtime    │
-│ Approve with fixes (Critical present)    → re-dispatch; loop     │
-│ Request changes                          → re-dispatch; loop     │
-├──────────────────────────────────────────────────────────────────┤
-│ invoke /hs-user-test over the case IDs this task covers   │
-│   ↓ verdict                                                      │
-│ PASS (all cases)                         → mark task complete    │
-│ FAIL (≥ 1 case)                          → re-dispatch implementer│
-│                                            with the failing case │
-│                                            evidence; loop        │
-├──────────────────────────────────────────────────────────────────┤
-│ TodoWrite: mark task complete; advance to next task              │
-└──────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│ features.json: set task status=in-progress, started_at=now             │
+├────────────────────────────────────────────────────────────────────────┤
+│ dispatch harness-stack:implementer (references/implementer.md)         │
+│   ↓ Status code + Escalate flag                                        │
+│ Escalate=true (any status)  → §Direction Escalation; do NOT advance    │
+│ DONE                        → process handoff three-way split; proceed │
+│ DONE_WITH_CONCERNS          → review concerns;                         │
+│                               correctness/scope issue → re-dispatch    │
+│                               observation → proceed                    │
+│ NEEDS_CONTEXT               → fill missing context, re-dispatch        │
+│ BLOCKED                     → §Round Budget                            │
+├────────────────────────────────────────────────────────────────────────┤
+│ §Process handoff three-way split:                                      │
+│   - "What was left undone"  → re-dispatch implementer with the         │
+│                                remaining items (still inside scope)    │
+│   - "Discovered issues"     → for each, invoke /hs-followup-scope and  │
+│                                apply the returned decision; record in  │
+│                                features.json. None of these block the  │
+│                                current task from advancing.            │
+│   - Anything dismissed      → append to features.json dismissed[]      │
+│                                with ≥ 20-char justification            │
+├────────────────────────────────────────────────────────────────────────┤
+│ dispatch harness-stack:spec-reviewer (references/spec-reviewer.md)     │
+│   ↓ verdict                                                            │
+│ ✅ Spec compliant           → proceed to code review                   │
+│ ❌ Issues                   → re-dispatch implementer; loop until ✅   │
+├────────────────────────────────────────────────────────────────────────┤
+│ dispatch harness-stack:code-reviewer (references/code-reviewer.md)     │
+│   ↓ verdict                                                            │
+│ Approve                                  → proceed to user-test probe  │
+│ Approve with fixes (no Critical)         → proceed to user-test probe  │
+│ Approve with fixes (Critical present)    → re-dispatch implementer     │
+│ Request changes                          → re-dispatch implementer     │
+├────────────────────────────────────────────────────────────────────────┤
+│ invoke /hs-user-test over the case IDs this task covers (its fulfills) │
+│   ↓ verdict + per-case pattern (systemic | isolated)                   │
+│ PASS (all cases)            → features.json: status=completed,         │
+│                                commit=<sha>, completed_at=now          │
+│ FAIL (≥ 1 case)             → for each FAIL, invoke /hs-followup-scope │
+│                                with the case ID, pattern, and current  │
+│                                task. Apply the returned decision:      │
+│                                  merge → re-dispatch implementer       │
+│                                  new-feature-top → write to            │
+│                                    features.json, do NOT mark current  │
+│                                    task completed yet; current task    │
+│                                    blocks on the new feature           │
+│                                  misc-bucket → write to features.json, │
+│                                    current task may still complete     │
+│                                    (small + non-blocking by definition)│
+│                                  escalate → §Direction Escalation      │
+├────────────────────────────────────────────────────────────────────────┤
+│ TodoWrite: mark task complete; advance to next task                    │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### Why serial only
 
 Parallel implementers stomp on shared state, duplicate work, and make inconsistent architectural decisions; the coordination overhead eats the throughput gains while burning tokens. Read-only parallelism inside a single phase is still useful (parallel research subagents, parallel code review of independent files); concurrent writers are not.
+
+### Direction Escalation (Escalate flag on the implementer report)
+
+When an implementer returns `Escalate: true` regardless of `Status`, the controller MUST:
+
+1. Stop the per-task loop. Do not dispatch the next gate, do not start the next task.
+2. Read the `Escalate reason`.
+3. Re-enter planning via `/hs-design` or `/hs-planner` with the reason as input. The plan may need re-shaping; the next task may need to be redefined.
+4. If a human is in the loop, surface the escalation via the AskUser 1–4 constraint (see §AskUser constraint below) — typical options: `[continue as-is, re-plan from here, split this task, cancel this milestone]`.
+5. Record the resolution in `features.json` `decisions[]`.
+
+A clean atomic commit + `Escalate: true` is a valid combination: the increment lands, but the direction is wrong for the next step.
+
+### AskUser constraint
+
+When the controller must ask the human a question — escalation, ambiguous follow-up scope, unresolvable conflict between cases — the question MUST:
+
+- be a **multiple-choice question with 1 to 4 options** (open-ended questions forbidden);
+- offer mutually-exclusive, action-shaped options;
+- record the answer in `features.json` `decisions[]` immediately, with the chosen option and timestamp.
+
+This is the only legitimate "negotiation" channel between the controller and the human. Free-form discussion is a sign the plan is too vague; re-plan instead of grilling the user.
 
 ### 4-Status Code Handling
 
@@ -127,21 +186,22 @@ Per-task user-test probes catch behaviour problems on the diff just written. A m
 
 For the milestone just completed:
 
-1. Confirm every task in the milestone reached `harness-stack:spec-reviewer` ✅ and `harness-stack:code-reviewer` approve (no Critical findings), every per-task user-test probe PASS'd, and every task produced an atomic commit on the working branch.
-2. Compute the case IDs this milestone is responsible for, as listed in the plan's Exit Gate for that milestone (typically the union of every task's covered cases plus any cross-task journeys the milestone declared).
-3. Invoke `/hs-user-test` with: the milestone's diff range (`MILESTONE_BASE_SHA..HEAD_SHA`), the user-test set at `docs/user-tests/<feature>.md`, and the case ID subset for this milestone. The user-test validator runs in a fresh subagent that has never seen the implementation.
-4. The validator returns a coverage matrix with PASS / FAIL and evidence per case. Any FAIL → scope follow-up tasks, append them to the plan, dispatch implementers, re-run the gate. Do not proceed to the next milestone until every required case is PASS.
-5. Update the plan's Progress section: append a handoff log line, tick off the milestone, record the validator's evidence path.
+1. Read `features.json` and confirm every task in this milestone has `status=completed` with a recorded commit SHA. Any task in any other state aborts the gate — finish the task first.
+2. Compute the case IDs this milestone is responsible for, as listed in the plan's Exit Gate for that milestone (typically the union of every task's `fulfills` set plus any cross-task journeys the milestone declared).
+3. Invoke `/hs-user-test` with: the milestone's diff range (`MILESTONE_BASE_SHA..HEAD_SHA`), the user-test set at `docs/user-tests/<feature>.md`, and the case ID subset for this milestone. The user-test validator runs in a fresh subagent that has never seen the implementation. It will skip cases whose `validation-state.json` entry is already `passed` for the current diff window — only `failed`, `pending`, or `inconclusive` cases re-run.
+4. The validator returns a coverage matrix with PASS / FAIL + `pattern` per case, and writes the new statuses back into `validation-state.json`.
+5. For every FAIL, invoke `/hs-followup-scope` with the case ID, pattern, and the milestone context. Apply the returned decision to `features.json`. **Do not proceed to the next milestone** until every required case is `passed` OR routed to a `misc-bucket` whose item has already completed.
+6. Update the plan's Progress markdown to mirror the new state files (recent handoffs, dismissed items).
 
 For flat plans (no milestones), the per-task probe already covered each case; the gate runs once at plan end over the whole user-test set, plus any cross-feature journeys that no single task owns.
 
 ## Step N+1 — Final Integration Review (once)
 
-After every task is complete and the final milestone exit gate (or the flat-plan gate above) is green:
+After every task is `completed` in `features.json` and the final milestone exit gate (or the flat-plan gate above) is green:
 
 1. Compute the full `BASE_SHA..HEAD_SHA` covering every task in the plan.
 2. Dispatch one more `harness-stack:code-reviewer` with `references/code-reviewer.md` against the **integrated diff**. Per-task reviews didn't see cross-task interactions; this one does.
-3. **Case Coverage Gate.** Confirm every case in `docs/user-tests/<feature>.md` has at least one PASS entry across the gate transcripts. Any case never probed → run `/hs-user-test` over the remaining IDs before merging.
+3. **Case Coverage Gate.** Read `validation-state.json` and confirm every case has `status=passed`. Any other status → either re-run via `/hs-user-test` (if `pending`/`inconclusive`) or route to follow-up (if `failed`) before merging.
 4. Any Critical / Important findings → fix per the review failure loop, then re-run the final review.
 5. Once clean, hand off for commit / PR.
 
@@ -158,14 +218,20 @@ then **stop dispatching and escalate to the human**. The plan, the spec, or the 
 ## Red Flags
 
 - **Controller writes code.** The moment the controller starts editing files, the workflow has degenerated into manual implementation. Stop and start over.
+- **Controller mutates state outside `features.json` / `validation-state.json`.** Those are the single source of truth. Encoding state in TodoWrite, conversation memory, or ad-hoc markdown defeats resume.
 - **Multiple implementers dispatched concurrently.** Serial only. Implementers stomp on shared state and produce inconsistent decisions.
 - **Code review starts before spec review passes.** Wrong order; re-run spec first.
-- **Runtime probe skipped for a task because "the test suite passed".** Static suites don't run the application. Per-task probe is mandatory.
+- **User-test probe skipped for a task because "the test suite passed".** Static suites don't run the application. Per-task probe is mandatory.
+- **Implementer's `Escalate: true` ignored or treated as a regular concern.** Escalate stops the loop. If you continue, you've made the decision the human was supposed to make.
+- **Free-form question asked of the human.** AskUser is restricted to 1–4 multiple-choice options; open-ended questions hide that the controller doesn't know what it's asking.
+- **Discovered issues silently dropped.** Every item in the handoff's `Discovered issues` list must be routed through `/hs-followup-scope`. Forgetting one is how technical debt vanishes.
+- **`dismissed[]` entry without ≥ 20-char justification** or with "low priority" as the reason. The dismissed log exists so future readers can audit the decision; weak reasons break the audit.
+- **Misc bucket fills past 5 items.** When it would, the next item must open a real follow-up feature or escalate. The cap is the bucket's purpose.
 - **Same `BLOCKED` task re-dispatched without changing context, model, or task split.** Same input, same failure.
 - **Skipping the final integration review.** Per-task reviews can't catch cross-task interactions.
 - **Skipping the milestone exit gate.** Per-task probes catch single-task regressions; milestone gate catches cross-task ones. Both are required.
 - **Implementer reports DONE without an atomic commit / with a dirty tree.** Treat as BLOCKED; the next worker cannot inherit a clean slate.
-- **Plan's User Test Coverage table is incomplete.** Cases without a covering task = unprobed behaviour at merge time. Send the plan back to the planner.
+- **Plan's User Test Coverage incomplete** (a case has no task in its `fulfills`, or a case is claimed by two tasks). Send the plan back to the planner.
 - **Controller fixes review findings instead of looping back to the implementer.** Defeats fresh context.
 - **Implementer reads the plan file.** The controller curates the brief; the implementer only sees what was handed in.
 - **Round count > 3 on a single task without explicit human override.** If it's still failing, the problem isn't this round.
@@ -185,13 +251,17 @@ then **stop dispatching and escalate to the human**. The plan, the spec, or the 
 
 Before declaring the workflow complete:
 
-- [ ] Every task in the original plan is marked complete in TodoWrite.
+- [ ] `features.json` exists and every task has `status=completed` with a recorded commit SHA.
+- [ ] `validation-state.json` exists and every case has `status=passed`.
 - [ ] Every task passed `harness-stack:spec-reviewer` ✅ at least once.
 - [ ] Every task passed `harness-stack:code-reviewer` Approve / Approve with fixes (no Critical) at least once.
 - [ ] Every task ended with an atomic commit on the working branch and a clean tree.
-- [ ] Every task's per-task user-test probe returned PASS for its covered case IDs.
+- [ ] Every task's per-task user-test probe returned PASS for its `fulfills` set.
 - [ ] Every milestone exit gate returned PASS for its declared case subset (or, for flat plans, the single gate at plan end did).
-- [ ] Every case in `docs/user-tests/<feature>.md` has at least one PASS across the gate transcripts.
+- [ ] Every entry in `features.json` `dismissed[]` has ≥ 20-char justification.
+- [ ] Every misc bucket holds ≤ 5 items.
+- [ ] Every `decisions[]` row carries a 1–4 option set, an answer, and a timestamp (no open-ended questions).
+- [ ] No `Escalate: true` handoff was ignored — each one resolved via re-planning or AskUser.
 - [ ] The final integration review against the full diff returned Approve / Approve with fixes (no Critical).
 - [ ] Full test suite passes on the integrated diff.
 - [ ] No task hit the round budget cap without explicit human override.

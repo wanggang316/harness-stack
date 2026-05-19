@@ -67,5 +67,16 @@ The implementer's final report must check off each line.
 ## Handoff Format
 
 When you finish, report using the format defined in `agents/implementer.md`
-§"Report format". The Commands executed table, Atomic commit block,
-Assertions covered, and Procedures followed checklist are mandatory.
+§"Report format". Mandatory sections:
+
+- Commands executed table
+- Atomic commit block (with `tree: clean`; dirty tree = BLOCKED)
+- User-test cases covered
+- Procedures followed checklist
+- **Discovered issues** (out-of-scope problems you noticed; do NOT fix them
+  here — the controller routes them later via `/hs-followup-scope`)
+- **What was left undone** (in-scope work you did not finish; empty if fully
+  done)
+- **Escalate** flag — set `true` when direction (not just detail) is wrong;
+  the controller will stop the task loop and re-plan rather than open the
+  next task

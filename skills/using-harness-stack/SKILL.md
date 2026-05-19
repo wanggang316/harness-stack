@@ -16,7 +16,7 @@ A non-trivial change moves through these phases. Pick the skill that matches the
 | **Define** | What/why is unclear | `hs-define-product`, `hs-define-architecture`, `hs-define-api-spec`, `hs-define-frontend-spec`, `hs-define-ui-spec`, `hs-define-test-spec` (one-time, project-wide) |
 | **Spec** | Feature or change needs requirements | `hs-spec` (PM view), `hs-design` (engineering view), `hs-test-spec` (QA view) |
 | **Plan** | Spec exists, work needs decomposition | `hs-planner` produces an ExecPlan |
-| **Build** | ExecPlan ready | `hs-exec-plan` (single agent), `hs-team` (multi-agent), `hs-tdd` (test-first) |
+| **Build** | ExecPlan ready | `hs-exec-plan` (single agent), `hs-team` (multi-agent), `hs-tdd` (test-first); `hs-followup-scope` decides where mid-flight discoveries go |
 | **Verify** | Something is broken or unverified | `hs-debug` (root cause), `hs-user-test` (behaviour-level user-test probes) |
 | **Review** | Change is ready for scrutiny | `hs-review-request` (dispatch), `hs-review-receive` (handle findings), `hs-security` (security audit) |
 | **Deliberate** | Question is contested or high-risk | `hs-debate` (multi-round), `hs-decide` (one-shot parallel) |

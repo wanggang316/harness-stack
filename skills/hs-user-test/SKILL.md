@@ -30,6 +30,7 @@ Static tools — unit tests, lint, type-check, code review — read the code. Th
 4. **Runnable target** — a command that brings the system up (`pnpm dev`, `cargo run`, `docker compose up`) and a known ready signal (URL responds, log line, port open). Defined in `docs/user-test-patterns.md`.
 5. **Diff range** — `BASE_SHA..HEAD_SHA` covering the work being validated, so the report can be attached to a task, milestone, or PR.
 6. **Case subset** — the case IDs this run is responsible for (e.g. `{UT-LOGIN-001, UT-LOGIN-002}` when validating one task). Use the full set when validating a flat plan or a PR end-to-end.
+7. **State file** at `docs/runs/<plan>/state/validation-state.json` — see `docs/references/orchestration-state-schema.md`. Read previous statuses; write new ones at the end of the run.
 
 ## Process
 
@@ -45,7 +46,7 @@ Start the target as a background process from the resolved working directory. Ap
 
 If the system refuses to start, the run aborts with `BLOCKED`: report the startup log and stop. Do not invent probes against a system that never came up.
 
-### Step 3: Resolve the case subset
+### Step 3: Resolve the case subset and apply the resume rule
 
 For each case ID in the requested subset, load from `docs/user-tests/<feature>.md`:
 
@@ -55,7 +56,13 @@ For each case ID in the requested subset, load from `docs/user-tests/<feature>.m
 - The assertions and their verification methods
 - The artifacts-on-FAIL list
 
-The fully resolved case bundle is what goes into the validator's brief. The validator does not re-derive any of this from the source.
+Then read `docs/runs/<plan>/state/validation-state.json` and **apply the resume rule**:
+
+- Cases whose status is `passed` AND whose evidence path falls within the current `BASE_SHA..HEAD_SHA` window → **skip**. They do not need to re-pass.
+- Cases whose status is `failed`, `pending`, or `inconclusive` → run.
+- Cases whose status is `blocked` (their `fulfilled_by_task` is cancelled or a precondition case has not passed) → skip and report as still blocked.
+
+The fully resolved case bundle for the cases that will actually run is what goes into the validator's brief. The validator does not re-derive any of this from the source.
 
 ### Step 4: Dispatch the runtime verifier
 
@@ -83,18 +90,31 @@ The validator returns one row per case in the requested subset:
 
 A case PASSES only when every assertion inside it passes. A case FAILS as soon as one assertion fails (record which one). Every FAIL row must include a reproducer per `docs/user-test-patterns.md`'s artifacts contract.
 
-### Step 6: Tear down
+### Step 6: Write back to validation-state.json
 
-Stop the background process. Apply the patterns doc's retention rule to the run artifacts directory. The artifacts path is what gets appended to the plan's Progress handoff log.
+For each case that actually ran, update its entry in `docs/runs/<plan>/state/validation-state.json`:
 
-### Step 7: Report
+- `status` ← PASS → `passed`, FAIL → `failed`, INCONCLUSIVE → `inconclusive`, SKIP (blocked) → `blocked`
+- `last_run` ← run timestamp
+- `evidence` ← path to the case's artifact directory
+- For FAILs, also set:
+  - `pattern` ← `systemic` (this failure is shared with sibling cases that ran in the same batch) or `isolated` (only this case among the batch failed). The validator agent decides this from its coverage matrix.
+  - `failure_summary` ← one-paragraph natural-language description; downstream `/hs-followup-scope` uses it to decide scope
+
+Cases that were skipped because they were already passed are NOT rewritten; their existing entry stays.
+
+### Step 7: Tear down
+
+Stop the background process. Apply the patterns doc's retention rule to the run artifacts directory. The artifacts path is what gets appended to the plan's Progress markdown rendering.
+
+### Step 8: Report
 
 Return to the caller:
 
 - A one-line verdict: `PASS (N/N)`, `FAIL (k/N)`, or `BLOCKED (system did not start)`.
-- The coverage matrix.
+- The coverage matrix (cases run in this batch; skipped cases listed separately as `skipped: already passed`).
 - The artifacts path.
-- For any FAIL, a "What to fix" stub citing the failing assertion and the reproducer path, so the caller can hand it back to an implementer.
+- For any FAIL, the `pattern` (`systemic` | `isolated`) and a "What to fix" stub citing the failing assertion and the reproducer path. The caller hands these to `/hs-followup-scope` to decide where the fix lives (merge / new feature / misc bucket / escalate).
 
 ## Coverage Rules
 
@@ -126,9 +146,11 @@ Return to the caller:
 
 - [ ] `docs/user-tests/<feature>.md` is present and the requested case IDs resolve cleanly to fully-formed cases.
 - [ ] `docs/user-test-patterns.md` is present and named the tool used for this run.
+- [ ] `validation-state.json` was read; resume rule applied (already-passed cases skipped, others re-run).
 - [ ] System started cleanly with a captured ready signal.
 - [ ] State-isolation protocol applied before any case ran.
 - [ ] Validator subagent ran in fresh context and did not read the implementation source.
-- [ ] Every case ID in the requested subset has PASS, FAIL, or INCONCLUSIVE with evidence.
-- [ ] All FAIL rows include a reproducer at the path declared by the patterns doc.
-- [ ] Run artifacts persisted at a stable path and that path appended to the plan's Progress section.
+- [ ] Every case ID in the requested subset has PASS, FAIL, INCONCLUSIVE, or `skipped: already passed`.
+- [ ] All FAIL rows include `pattern`, `failure_summary`, and a reproducer at the path declared by the patterns doc.
+- [ ] `validation-state.json` written back with new statuses, timestamps, evidence paths, and patterns.
+- [ ] Run artifacts persisted at a stable path.

@@ -54,7 +54,18 @@ Rules:
 - **Verification method is part of the contract.** A probe that gets the right answer through a method other than the one declared is a FAIL.
 - **Flaky probes get re-attempted ≤ 3 times under controlled conditions.** If still unstable, declare `INCONCLUSIVE` with the attempt log; do not silently retry forever.
 
-## 4. Build the Coverage Matrix
+## 4. Classify Each Failure: systemic vs isolated
+
+After all cases in this run have a verdict, look across them:
+
+- A FAIL is **systemic** when two or more sibling cases in this same batch fail in a way that points to a single underlying defect (same code path, same response shape, same selector resolution).
+- A FAIL is **isolated** when only this one case among the batch fails.
+
+Record the classification per failing case. The caller's `/hs-followup-scope` skill uses it to decide whether to open one cross-cutting follow-up or several small ones.
+
+If you cannot determine the pattern from the evidence in front of you, label it `isolated` and add a note in the failure summary. Do not guess at code-level shared causes — you have not read the source.
+
+## 5. Build the Coverage Matrix
 
 Emit one row per case in the requested subset:
 
@@ -73,7 +84,7 @@ Status values:
 - `INCONCLUSIVE` — the case could not be run deterministically (flaky network after retries, missing precondition fixture). Include the attempt log; the caller decides whether to re-dispatch or split the case.
 - `SKIP` — only when a prior case in the same run already FAIL'd and this case cannot be probed as a result. Record the dependency explicitly: `SKIP — blocked by UT-LOGIN-001`.
 
-## 5. Persist Artifacts
+## 6. Persist Artifacts
 
 Write per-case artifacts to the directory the brief named. For each case, follow the artifacts-on-FAIL contract declared in the case:
 
@@ -84,7 +95,7 @@ Write per-case artifacts to the directory the brief named. For each case, follow
 
 A FAIL must be reproducible from the artifacts alone.
 
-## 6. Report
+## 7. Report
 
 Return:
 
@@ -99,6 +110,9 @@ Artifacts:
 
 For each FAIL:
   - UT-LOGIN-003 (assertion 3 of 4): expected vs observed in one line;
+    pattern: systemic | isolated
+    failure_summary: <one paragraph; downstream /hs-followup-scope uses
+                      this to decide scope>
     repro: <path>
 
 Notes:

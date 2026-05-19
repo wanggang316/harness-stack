@@ -24,7 +24,12 @@ Execute an approved ExecPlan by following its Plan of Work, implementing each ta
 
 ### Step 1: Load the Plan and Context
 
-Read the ExecPlan in full. Check the Progress section to understand current state — what's done, what's in progress, what's remaining.
+Read the ExecPlan in full. State is held in two JSON files (see `docs/references/orchestration-state-schema.md`):
+
+- `docs/runs/<plan>/state/features.json` — per-task lifecycle, dependencies, fulfills, dismissed log, decisions log
+- `docs/runs/<plan>/state/validation-state.json` — per-case verification status
+
+If those files do not yet exist, generate them now from the ExecPlan and `docs/user-tests/<feature>.md` (same coverage rules as `hs-team` §Plan Ingestion: union of all `fulfills` equals the case set, no double-claim, only leaf tasks claim cases). If they already exist (resuming), they are the source of truth — the ExecPlan markdown is narration, the JSON files are the live state.
 
 Then load the context you need to execute well:
 
@@ -34,34 +39,44 @@ Then load the context you need to execute well:
 
 A plan is a guide. If the plan says "add a validation function" but the codebase already has a validation pattern, follow the existing pattern even if the plan doesn't mention it.
 
-If resuming work from another session, the Progress section is your entry point. But still re-read the code relevant to the next task — don't assume prior sessions left everything as described.
+If resuming work from another session, `features.json` + `validation-state.json` are your entry point. `cat` both files to see exactly which tasks are `pending`/`in-progress`/`completed` and which cases are `pending`/`passed`/`failed`. Re-read the code relevant to the next task — don't assume prior sessions left everything as described.
 
 ### Step 2: Execute
 
-Work through the Plan of Work sequentially (whether organized as milestones or flat prose). For each task:
+Work through `features.json` in dependency order. For each task whose `status=pending` and whose `depends_on` are all `completed`:
 
-1. Read the task description and acceptance criteria
-2. Implement the smallest complete piece of functionality
-3. Verify it works (run tests, check build, manual verification)
-4. Commit the change with a descriptive message
-5. Update the Progress section immediately
-6. Move to the next task
+1. Read the task's `preconditions`, `expected_behavior`, and `verification_steps` from `features.json`
+2. Update its `status` to `in-progress` and set `started_at`
+3. Implement the smallest complete piece of functionality
+4. Verify it works (run tests, check build, manual verification per `verification_steps`)
+5. Commit the change with a descriptive message; record the SHA in `features.json` `commit`
+6. Probe the user-test cases this task `fulfills` via `/hs-user-test`; on FAIL, invoke `/hs-followup-scope`
+7. Update `status` to `completed`, set `completed_at`
+8. Mirror the change in the ExecPlan's Progress markdown rendering
 
-**Resolve ambiguities autonomously.** If the plan is unclear on a detail, make a reasonable decision, record it in the Decision Log, and keep moving. Do not stop to ask unless the ambiguity could lead to significant rework.
+**Resolve ambiguities autonomously.** If the plan is unclear on a detail, make a reasonable decision, record it in `features.json` `decisions[]` with a 1–4 multiple-choice framing (even if you answer it yourself: write the options you considered and the one you chose). Do not stop to ask unless the ambiguity could lead to significant rework.
+
+**Handoff three-way split.** Even though `hs-exec-plan` is single-agent, follow the same handoff discipline as `hs-team`: at every task's completion, write down `discoveredIssues` (out-of-scope problems you noticed; route each via `/hs-followup-scope`), `leftUndone` (in-scope work not finished; usually triggers a re-loop), and any `dismissed` items (with ≥ 20-char justification, appended to `features.json` `dismissed[]`). This is what makes the audit trail recoverable.
+
+**Direction Escalation.** If you find yourself building something the spec / plan does not justify, stop. Treat it as an `Escalate: true` self-report: open `/hs-design` or `/hs-planner` to re-shape the plan before continuing.
 
 **Commit frequently.** Each task should result in at least one commit. Small commits are free; large commits hide bugs.
 
 If the plan uses milestones, validate milestone acceptance criteria before moving to the next milestone.
 
-### Step 3: Maintain the Living Document
+### Step 3: Maintain the State Files
 
-The plan must be updated at every stopping point. This is not optional.
+`features.json` and `validation-state.json` must be updated at every stopping point. This is not optional. The ExecPlan markdown sections below are *renderings* of those files — keep them in sync, but the JSON is the source of truth.
 
-**Progress** — Update after every task. If a task is partially done, split it into "completed" and "remaining" entries. Add timestamps. This is a flat dashboard across all work — the reader should see the full picture at a glance.
+**features.json** — Update at every task transition (`pending` → `in-progress` → `completed`). Record `commit`, `started_at`, `completed_at`. Append to `dismissed[]` and `decisions[]` as events happen.
+
+**validation-state.json** — Updated by `/hs-user-test` after every probe run; you don't write here directly.
+
+**ExecPlan Progress** — Mirror `features.json` task statuses, recent handoffs, and the dismissed list at a human-readable level. Older handoffs may be trimmed (JSON keeps the full record).
 
 **Surprises & Discoveries** — When you encounter unexpected behavior, performance tradeoffs, bugs, or insights that shaped your approach, record them with evidence.
 
-**Decision Log** — When you make a choice not prescribed by the plan, record it with rationale.
+**Decision Log** — Mirror `features.json` `decisions[]`. Every choice not prescribed by the plan goes through the 1–4 multiple-choice framing.
 
 **Outcomes & Retrospective** — At milestone completion (or after significant progress on flat plans), summarize what was achieved, what remains, and lessons learned.
 
@@ -135,7 +150,11 @@ Each task should be independently revertable. Prefer additive changes. Avoid del
 ## Red Flags
 
 - More than 100 lines of code written without running tests
-- Progress section not updated after completing tasks
+- State files (`features.json` / `validation-state.json`) not updated after task transitions
+- Progress markdown drifts from state files (when in doubt, trust the JSON)
+- Discovered issues not routed through `/hs-followup-scope`
+- Free-form questions to the user (must be 1–4 multiple-choice; record in `decisions[]`)
+- Dismissed items without ≥ 20-char justification
 - Surprises encountered but not recorded
 - Decisions made but not logged
 - Plan revised without updating all affected sections
@@ -151,7 +170,10 @@ After completing the full plan:
 
 - [ ] All acceptance criteria from the plan pass
 - [ ] Final Validation and Acceptance passes
-- [ ] Progress section reflects actual state with timestamps
+- [ ] `features.json` and `validation-state.json` reflect actual state with timestamps; Progress markdown matches
+- [ ] Every `dismissed[]` entry has ≥ 20-char justification; misc buckets hold ≤ 5 items each
+- [ ] Every `decisions[]` row records a 1–4 option set, the chosen answer, and a timestamp
+- [ ] Discovered issues routed through `/hs-followup-scope`, not silently dropped
 - [ ] Surprises & Discoveries captures non-obvious findings
 - [ ] Decision Log records all choices not prescribed by the plan
 - [ ] Outcomes & Retrospective is written
