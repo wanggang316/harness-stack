@@ -13,15 +13,14 @@ Agent-first development framework implementing the harness methodology.
 
 ### Lifecycle Skills
 
-**Define** → Define product, architecture, API, UI, testing
+**Define** → Define product, architecture, API, UI
 - `/hs-define-product` - Product definition (global)
 - `/hs-define-architecture` - Architecture definition (global)
 - `/hs-define-api-spec` - API specification (global)
 - `/hs-define-ui-spec` - UI design system (DESIGN.md)
-- `/hs-define-test-spec` - User-test conventions per platform (docs/user-test-patterns.md)
 - `/hs-spec` - Product specification, PM view (feature-level)
 - `/hs-design` - Design document, engineering view (feature-level)
-- `/hs-test-spec` - User-test set, QA view (feature-level, docs/user-tests/)
+- `/hs-test-spec` - User-test set, QA view (feature-level, docs/user-tests/); first run also bootstraps docs/user-test-patterns.md
 
 **Plan** → Create and execute plans
 - `/hs-planner` - Create execution plans (ExecPlans)

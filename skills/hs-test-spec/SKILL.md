@@ -1,6 +1,6 @@
 ---
 name: hs-test-spec
-description: Writes the user-test set for a feature. Use when a product spec is approved and you need the QA-side artifact — personas, journeys, and observable test cases — that downstream planning and runtime validation will consume. Produces docs/user-tests/&lt;feature&gt;.md.
+description: Writes the user-test set for a feature. Use when a product spec is approved and you need the QA-side artifact — personas, journeys, and observable test cases — that downstream planning and runtime validation will consume. Produces docs/user-tests/&lt;feature&gt;.md. On first use in a project, also bootstraps the project-level conventions at docs/user-test-patterns.md.
 ---
 
 # hs-test-spec: Feature-Level User Tests
@@ -27,7 +27,6 @@ Downstream, the planner binds tasks to case IDs and the runtime validator probes
 **When NOT to use:**
 
 - The feature has no user-observable surface (pure refactor, internal optimization). Drive unit and integration coverage with `/hs-tdd` and `docs/references/testing-patterns.md`.
-- `docs/user-test-patterns.md` does not yet exist for the project. Run `/hs-define-test-spec` first.
 
 ## Philosophy
 
@@ -42,14 +41,16 @@ You are the QA voice in a three-way split. PM owns intent (spec). Engineering ow
 ## Prerequisites
 
 1. Product spec at `docs/product-specs/<feature>.md` — approved
-2. Project test conventions at `docs/user-test-patterns.md` — present
-3. Personas registry at `docs/user-tests/_shared/personas.yaml` — present (may be empty on first use; add personas as needed)
+2. Project test conventions at `docs/user-test-patterns.md` — if missing, Step 0 below bootstraps it
+3. Personas registry at `docs/user-tests/_shared/personas.yaml` — if missing, Step 0 creates it (may be empty; add personas as cases need them)
 
-If any of these is missing, stop and surface the gap.
+If the spec is missing, stop. Items 2 and 3 are handled by Step 0 on first run.
 
 ## Process
 
 ```
+[Step 0: BOOTSTRAP — first run only] ──┐
+                                       ▼
 INGEST ──→ DECOMPOSE ──→ WRITE ──→ COVER ──→ APPROVE
    │           │            │         │          │
    ▼           ▼            ▼         ▼          ▼
@@ -57,6 +58,81 @@ Read spec   Identify    Draft        Map every   Human
 + patterns  journeys    cases per    spec AC     confirms
 + personas  + personas  journey      to ≥1 case
 ```
+
+### Step 0: Bootstrap project conventions (first run only)
+
+Run once per project. Skip when `docs/user-test-patterns.md` already exists and is approved. The bootstrap defines the testing contract that every later `/hs-test-spec` invocation (and the runtime validator) reads.
+
+You are defining the testing contract, not writing test cases. Five rules guide the doc:
+
+- **Platform-shaped.** Web, macOS, iOS, Android have different runners and observable surfaces. Pick the right tool per platform; do not pretend one stack covers all.
+- **Observable-only.** Selectors and assertions reference what a user can see or what an external probe can read. CSS classes, file paths, and function names are forbidden — they rot.
+- **State-isolated.** Every case starts from a known seed. No case borrows side effects from another.
+- **Persona-anchored.** A case names a persona; the persona supplies credentials, permissions, data. Without personas, "valid user" turns into ten different definitions.
+- **Reproducible.** Every artifact (screenshot, video, log) lands at a predictable path so a failure can be replayed.
+
+#### 0.1 Discover
+
+Read project manifests to infer scope:
+
+- `package.json` / `Cargo.toml` / `pyproject.toml` / `Podfile` / `build.gradle` etc.
+- Existing test directories (`tests/`, `e2e/`, `cypress/`, `playwright/`, `Tests/`, `androidTest/`, `xcuitest/`)
+- Architecture doc (`docs/architecture.md`) — which surfaces are user-facing?
+
+Surface assumptions before drafting:
+
+```
+ASSUMPTIONS I'M MAKING:
+1. Target platforms = Web (Vite + React)
+2. Primary user surface = browser at localhost:5173
+3. No mobile client in this iteration
+4. Backend exposes HTTP under /api
+→ Correct me now or I'll proceed with these.
+```
+
+#### 0.2 Pick platforms and tooling
+
+For each target platform, pick exactly one primary runner and document the fallback:
+
+| Platform | Primary tool (LLM-agent friendly) | Fallback |
+|---|---|---|
+| Web | Chrome DevTools MCP (DOM / network / console / screenshot / a11y tree) | Playwright |
+| macOS app | computer-use API + screenshots; XCUITest for in-app introspection | AppleScript |
+| iOS app | WebDriverAgent / Appium on simulator + computer-use | XCUITest |
+| Android app | UIAutomator / Maestro / Appium | adb + screenshots |
+| HTTP API | curl + JSON parse | recorded fixtures |
+| Background workers | log grep + DB select | metrics endpoint |
+
+Document **which** tool, **why** chosen, **how** the agent invokes it (exact command or MCP call), and **what** counts as a ready signal before probing.
+
+#### 0.3 Write `docs/user-test-patterns.md`
+
+Use the template at `skills/hs-test-spec/assets/user-test-patterns.md`. Pick the subsections that apply to this project. The doc must answer:
+
+1. **Platforms in scope** — list with one-line justification each.
+2. **Tooling per platform** — primary + fallback, with invocation pattern.
+3. **Case dimensions** — happy path, edge, error, accessibility, performance, i18n, security. Which are mandatory per case, which are optional.
+4. **Selector and assertion rules** — observable-only; one positive + one negative example each.
+5. **State isolation** — every case starts from a known seed; fixture / DB reset protocol.
+6. **Personas registry format** — yaml/json schema, where the file lives, how to add a new persona.
+7. **Fixtures and test data layout** — where fixtures live, naming convention.
+8. **Artifacts** — where screenshots / videos / logs from a run are written; retention rules.
+9. **Failure-reproduction expectation** — every FAIL ships with a runnable reproducer; format and location.
+10. **Anti-patterns** — concrete examples of forbidden selectors / hallucinated assertions / state leak / grader gaming.
+
+#### 0.4 Hand off
+
+```
+USER-TEST PATTERNS READY FOR REVIEW:
+- Platforms in scope: [list]
+- Primary tooling: [list]
+- Personas registry: [path]
+- Fixtures layout: [path]
+- Anti-patterns called out: [count]
+→ Approve, or tell me what to change.
+```
+
+Once approved, continue with Step 1 below. Subsequent `/hs-test-spec` runs in this project skip Step 0 entirely.
 
 ### Step 1: Ingest
 
@@ -171,7 +247,9 @@ Once approved, the planner can bind tasks to case IDs and the runtime validator 
 
 ## Verification
 
-- [ ] All prerequisites present (spec approved, patterns doc exists, personas registry exists)
+- [ ] Spec approved at `docs/product-specs/<feature>.md`
+- [ ] If first run in project: `docs/user-test-patterns.md` written and approved per Step 0 (all 10 sections present; selector rules have positive + negative examples; anti-patterns called out)
+- [ ] `docs/user-tests/_shared/personas.yaml` exists (may be empty initially)
 - [ ] Every case follows the template at `references/user-test-template.md`
 - [ ] Every case has persona, preconditions, steps, assertions, Covers AC, artifacts on FAIL
 - [ ] Coverage matrix lists every spec AC with ≥ 1 case (or a one-line reason for non-coverage)

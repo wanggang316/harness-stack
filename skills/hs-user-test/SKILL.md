@@ -25,7 +25,7 @@ Static tools — unit tests, lint, type-check, code review — read the code. Th
 ## Prerequisites
 
 1. **User-test set** at `docs/user-tests/<feature>.md` — each case carries persona, preconditions, steps, assertions (observable-only), and `Covers AC` mapping. See `skills/hs-test-spec/`.
-2. **Project test conventions** at `docs/user-test-patterns.md` — declares per-platform tooling, ready signals, state-isolation protocol, artifacts layout. See `skills/hs-define-test-spec/`.
+2. **Project test conventions** at `docs/user-test-patterns.md` — declares per-platform tooling, ready signals, state-isolation protocol, artifacts layout. Bootstrapped by `/hs-test-spec` Step 0 on first use; see `skills/hs-test-spec/assets/user-test-patterns.md` for the template.
 3. **Personas registry** at `docs/user-tests/_shared/personas.yaml` — referenced cases must find their persona here.
 4. **Runnable target** — a command that brings the system up (`pnpm dev`, `cargo run`, `docker compose up`) and a known ready signal (URL responds, log line, port open). Defined in `docs/user-test-patterns.md`.
 5. **Diff range** — `BASE_SHA..HEAD_SHA` covering the work being validated, so the report can be attached to a task, milestone, or PR.

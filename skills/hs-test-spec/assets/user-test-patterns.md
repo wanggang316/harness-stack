@@ -1,6 +1,6 @@
 # User-Test Patterns
 
-> Project-wide conventions for writing user-level tests. Authored by `/hs-define-test-spec`. Read this before writing any individual user-test case; case files live in `docs/user-tests/`.
+> Project-wide conventions for writing user-level tests. Authored during the first run of `/hs-test-spec` (Step 0: Bootstrap). Read this before writing any individual user-test case; case files live in `docs/user-tests/`.
 
 ## Status
 
