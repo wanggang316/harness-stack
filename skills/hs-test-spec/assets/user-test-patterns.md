@@ -106,6 +106,24 @@ Every case must start from a known seed. Document the reset protocol.
 - **No cross-case state:** a case must not depend on another case having run; ordering must not matter
 - **External services:** mock / replay third-party APIs with recorded fixtures in `tests/fixtures/external/`; never hit real third-party endpoints in CI
 
+## Surface Cost Tiers
+
+<!--
+Classify each user surface by what it costs to validate one case against it. The
+runtime validator reads this to plan isolation and batching: cheap surfaces run
+one case per step; expensive surfaces are batched and sequenced to minimise
+resets. Adjust the examples to this project's real surfaces.
+-->
+
+| Tier | What it costs | Isolation strategy | Example surfaces (this project) |
+|---|---|---|---|
+| **cheap** | One probe, no shared state, sub-second | One case per validation step; no batching needed | HTTP API via `curl`; pure CLI invocation; library function call |
+| **medium** | A session that several cases can share | Group cases that share a session and don't mutate each other's state; reset between groups | Browser session (one login, several read-only assertions) |
+| **expensive** | A full environment reset per case | Minimise resets; sequence reset-requiring cases at the end of a batch | Full DB reseed per case; device/simulator boot; destructive workflows |
+
+Default tier if unsure: **medium**. Record the tier next to each surface in the
+Tooling section above so the validator doesn't have to guess.
+
 ## Personas Registry
 
 <!--
@@ -199,13 +217,42 @@ Each item: name, what it looks like, why it's wrong, what to do instead.
 **Why wrong:** The grader is a proxy, not the truth.
 **Do instead:** Pair LLM judges with deterministic probes (DOM / HTTP / DB) for the same assertion; require both to PASS.
 
+## Knowledge Persistence
+
+<!--
+This doc is living. When a runtime validation run discovers a setup fact worth
+keeping — a wrong healthcheck command, a missing seed step, a faster way to reach
+a ready state, a surface gotcha — the validator records it back here so the next
+run is faster. This section is where those facts accumulate.
+-->
+
+**Who writes here:** the runtime validator, after a run, for facts that outlive a
+single run. Author-time conventions (tooling, selectors, isolation) stay in their
+own sections above; this section is for operational discoveries.
+
+**Format:** one entry per fact.
+
+```
+- [YYYY-MM-DD] <surface / step>: <fact discovered>. <what to do next time>.
+```
+
+**Examples:**
+
+- `[2026-06-01] web ready signal: GET /health 200 fires ~3s before the SPA hydrates; wait for the role=main element, not just the health probe.`
+- `[2026-06-01] db seed: tests/fixtures/seed/large-list.sql must run AFTER migrations, not before; ordering caused a FK error.`
+
+**Rule:** facts only, no test cases. If a discovery changes a convention (e.g. the
+real ready signal), also fix the relevant section above and note it here.
+
 ## Verification Checklist (for the patterns doc itself)
 
 - [ ] Every platform in scope has primary + fallback tool with invocation pattern
 - [ ] Case dimensions table is filled (mandatory vs optional explicit)
 - [ ] Selector rules include both allowed and forbidden examples
 - [ ] State isolation protocol named (which command resets state)
+- [ ] Surface cost tiers classified (cheap / medium / expensive) with isolation strategy
 - [ ] Personas registry path + schema documented
 - [ ] Fixtures layout documented
 - [ ] Artifacts path + retention rule documented
+- [ ] Knowledge Persistence section present (may start empty)
 - [ ] At least 4 anti-patterns called out concretely
