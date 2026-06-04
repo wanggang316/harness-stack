@@ -14,10 +14,9 @@ A non-trivial change moves through these phases. Pick the skill that matches the
 | Phase | Trigger | Skill |
 |---|---|---|
 | **Define** | What/why is unclear | `harness-stack:define-product`, `harness-stack:define-architecture`, `harness-stack:define-api-spec`, `harness-stack:define-frontend-spec`, `harness-stack:define-ui-spec` (one-time, project-wide) |
-| **Spec** | Feature or change needs requirements | `harness-stack:spec` (PM view), `harness-stack:design` (engineering view), `harness-stack:test-spec` (QA view) |
-| **Plan** | Spec exists, work needs decomposition | `harness-stack:planner` produces an ExecPlan |
-| **Build** | ExecPlan ready | `harness-stack:exec-plan` (single agent), `harness-stack:team` (multi-agent), `harness-stack:tdd` (test-first) |
-| **Verify** | Something is broken or unverified | `harness-stack:debug` (root cause), `harness-stack:user-test` (behaviour-level user-test probes) |
+| **Design** (optional) | Solution is ambiguous; the technical approach should be argued first | `harness-stack:design` — a standalone technical doc → `docs/design-docs/`. Not a step in the main flow; FDD reads it if present. |
+| **Build** (main flow) | Any non-trivial change | `harness-stack:feature-driven-development` — contract-first: plan → validation-contract → features → milestone-gated execution loop. Subsumes the old spec/planner/exec-plan/team; uses `harness-stack:test-spec` (Phase 2) and `harness-stack:user-test` (Phase 4) internally. `harness-stack:tdd` (test-first) inside an implementer's task. |
+| **Verify** | Something is broken or unverified | `harness-stack:debug` (root cause), `harness-stack:user-test` (probe the running system against contract assertions; writes `validation-state.json`) |
 | **Review** | Change is ready for scrutiny | `harness-stack:review-request` (dispatch), `harness-stack:review-receive` (handle findings), `harness-stack:security` (security audit) |
 | **Deliberate** | Question is contested or high-risk | `harness-stack:debate` (multi-round), `harness-stack:decide` (one-shot parallel) |
 | **Ship** | Code is approved | `harness-stack:commit` → `harness-stack:pr` → `harness-stack:changelog` → `harness-stack:land` → `harness-stack:ship` |
@@ -46,8 +45,10 @@ These hold across every skill. Full text in `docs/golden-rules.md`.
 
 - TypeScript runtime packages live under `packages/`, managed via pnpm workspaces.
 - `@hs/llm` (`packages/hs-llm/`) is the stateless LLM provider abstraction (api / cli / sdk / mock). Skills that call models go through it.
-- All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:spec`, `harness-stack:code-reviewer`); the plugin name provides collision isolation, so individual skills and agents carry no extra prefix.
-- Documentation root is `docs/`. `docs/recipes/` holds cross-cutting how-tos; `docs/references/` holds checklists and patterns.
+- `@hs/plan` (`packages/hs-plan/`, bin `hs-plan`) is the deterministic bookkeeping CLI for feature-driven development. The FDD skill delegates all per-plan state transitions to it.
+- All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:feature-driven-development`, `harness-stack:code-reviewer`); the plugin name provides collision isolation, so individual skills and agents carry no extra prefix.
+- `docs/` is the project **Library**: durable conventions + memory (architecture, design-docs, references, golden-rules, testing conventions). **Code is the source of truth** for specific requirements and implementation.
+- Per-plan FDD state (plan, validation-contract, features) lives in `.harness-runtime/plans/<slug>/` — **gitignored**, never in `docs/`.
 
 ## How to use this document
 

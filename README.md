@@ -28,12 +28,11 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 |-------|---------|-------------|
 | Define | `/harness-stack:define-product` | Product definition (global) |
 | Define | `/harness-stack:define-architecture` | Architecture definition (global) |
-| Define | `/harness-stack:spec` | Product specification (feature-level) |
-| Define | `/harness-stack:design` | Design document (technical) |
-| Plan | `/harness-stack:planner` | Create execution plans (ExecPlans) |
-| Plan | `/harness-stack:exec-plan` | Execute an approved ExecPlan |
+| Design (optional) | `/harness-stack:design` | Standalone technical design doc (`docs/design-docs/`) |
+| Build (main flow) | `/harness-stack:feature-driven-development` | Contract-first plan → features → milestone-gated execution loop |
 | Build | `/harness-stack:tdd` | Test-driven development |
 | Verify | `/harness-stack:debug` | Debugging and error recovery |
+| Verify | `/harness-stack:user-test` | Probe running system against contract assertions |
 | Review | `/harness-stack:review-request` | Dispatch fresh-context reviewers (code / security / tests) |
 | Review | `/harness-stack:review-receive` | Handle reviewer feedback with rigor |
 | Review | `/harness-stack:security` | Security audit |

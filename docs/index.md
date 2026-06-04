@@ -17,12 +17,12 @@ harness-stack 文档中心。
 |-------|-------|------|
 | Define | harness-stack:define-product | [SKILL.md](../skills/define-product/SKILL.md) |
 | Define | harness-stack:define-architecture | [SKILL.md](../skills/define-architecture/SKILL.md) |
-| Define | harness-stack:spec | [SKILL.md](../skills/spec/SKILL.md) |
-| Define | harness-stack:design | [SKILL.md](../skills/design/SKILL.md) |
-| Plan | harness-stack:planner | [SKILL.md](../skills/planner/SKILL.md) |
-| Plan | harness-stack:exec-plan | [SKILL.md](../skills/exec-plan/SKILL.md) |
+| Design（可选）| harness-stack:design | [SKILL.md](../skills/design/SKILL.md) |
+| Build（主流程）| harness-stack:feature-driven-development | [SKILL.md](../skills/feature-driven-development/SKILL.md) |
+| Build | harness-stack:test-spec | [SKILL.md](../skills/test-spec/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/tdd/SKILL.md) |
 | Verify | harness-stack:debug | [SKILL.md](../skills/debug/SKILL.md) |
+| Verify | harness-stack:user-test | [SKILL.md](../skills/user-test/SKILL.md) |
 | Review | harness-stack:review-request | [SKILL.md](../skills/review-request/SKILL.md) |
 | Review | harness-stack:review-receive | [SKILL.md](../skills/review-receive/SKILL.md) |
 | Review | harness-stack:security | [SKILL.md](../skills/security/SKILL.md) |

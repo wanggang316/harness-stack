@@ -13,23 +13,22 @@ Agent-first development framework implementing the harness methodology.
 
 ### Lifecycle Skills
 
-**Define** → Define product, architecture, API, UI
+**Define** (one-time, project-wide) → product, architecture, API, UI
 - `/harness-stack:define-product` - Product definition (global)
 - `/harness-stack:define-architecture` - Architecture definition (global)
 - `/harness-stack:define-api-spec` - API specification (global)
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
-- `/harness-stack:spec` - Product specification, PM view (feature-level)
-- `/harness-stack:design` - Design document, engineering view (feature-level)
-- `/harness-stack:test-spec` - User-test set, QA view (feature-level, docs/user-tests/); first run also bootstraps docs/user-test-patterns.md
 
-**Plan** → Create and execute plans
-- `/harness-stack:planner` - Create execution plans (ExecPlans)
-- `/harness-stack:exec-plan` - Execute an approved ExecPlan
-- `/harness-stack:tdd` - Test-driven development
+**Design** (optional, standalone) → technical decision docs
+- `/harness-stack:design` - Technical design doc → `docs/design-docs/`; human-invoked, not part of the main flow
+
+**Build** (main flow) → feature-driven development
+- `/harness-stack:feature-driven-development` - Contract-first plan → features → milestone-gated execution loop. Subsumes the old spec/planner/exec-plan/team; uses `test-spec` (Phase 2) and `user-test` (Phase 4) internally.
+- `/harness-stack:tdd` - Test-driven development (inside an implementer's task)
 
 **Verify** → Debug and test
 - `/harness-stack:debug` - Debugging and error recovery
-- `/harness-stack:user-test` - Probe a running system against user-test cases; reports PASS/FAIL with evidence
+- `/harness-stack:user-test` - Probe a running system against a plan's validation-contract assertions; writes results to validation-state.json
 
 **Review** → Ensure quality
 - `/harness-stack:review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
@@ -52,6 +51,11 @@ When you need expert judgment:
 - `harness-stack:architect` - System design, technical decisions
 - `harness-stack:code-reviewer` - PR review, quality checks
 
+Reused by feature-driven-development's execution loop:
+- `harness-stack:implementer` - Builds one feature, emits a handoff JSON
+- `harness-stack:spec-reviewer` - Checks a diff against the feature spec
+- `harness-stack:user-test-validator` - Probes contract assertions against the running system
+
 ## Golden Rules
 
 1. **Progressive Disclosure** - AGENTS.md is a map, not a manual
@@ -64,17 +68,16 @@ When you need expert judgment:
 
 ## Getting Started
 
-1. Write spec: `/harness-stack:spec` for new features
-3. Plan work: `/harness-stack:planner` to create execution plan
-4. Build: `/harness-stack:exec-plan` to execute the plan
-5. Review: `/harness-stack:review-request` to dispatch, `/harness-stack:review-receive` after feedback
-6. Ship: `/harness-stack:ship` to deploy
+1. Build a feature: `/harness-stack:feature-driven-development <goal>` for any non-trivial change — it drives plan → contract → features → execution.
+2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
+3. Ship: `/harness-stack:commit` → `/harness-stack:pr` → `/harness-stack:land` → `/harness-stack:ship`.
 
 ## Packages
 
 TypeScript runtime packages live under `packages/` and are managed through pnpm workspaces.
 
 - `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `docs/recipes/calling-hs-llm-from-a-skill.md`.
+- `@hs/plan` (`packages/hs-plan/`, bin `hs-plan`) — Deterministic bookkeeping CLI for feature-driven development: manages `features.json` / `validation-state.json` / handoffs and enforces coverage + gate over per-plan state in the gitignored `.harness-runtime/`. See `packages/hs-plan/README.md`.
 
 ## Documentation
 
