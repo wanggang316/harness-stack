@@ -35,7 +35,7 @@ See [Architecture](docs/architecture.md) for domains, layers, and dependency rul
 1. **AGENTS.md is a map, not a manual** — keep this file under 150 lines
 2. **Validate boundaries** — parse and validate data at system edges, never probe
 3. **Prefer shared utilities** — centralize invariants, avoid hand-rolled duplicates
-4. **Every complex change gets an execution plan** — plan before building
+4. **Every complex change runs feature-driven development** — contract-first plan before building
 5. **Fix the environment, not the prompt** — when agents struggle, add missing tools/docs/guardrails
 
 See [Golden Rules](docs/golden-rules.md) for the complete list with rationale and enforcement.
@@ -48,18 +48,19 @@ See [Golden Rules](docs/golden-rules.md) for the complete list with rationale an
 |---|---|
 | [docs/architecture.md](docs/architecture.md) | System architecture, domains, layers |
 | [docs/golden-rules.md](docs/golden-rules.md) | Enforced principles and conventions |
-| [docs/design-docs/](docs/design-docs/) | Design documents |
-| [docs/exec-plans/](docs/exec-plans/) | Execution plans for complex work |
-| [docs/product-specs/](docs/product-specs/) | Product specifications |
+| [docs/design-docs/](docs/design-docs/) | Technical design documents (human-authored) |
+| [docs/user-tests/](docs/user-tests/) | Testing Library: personas + shared fixtures |
+| docs/user-test-patterns.md | Project-wide testing conventions |
 | [docs/references/](docs/references/) | External docs, API references |
 | [docs/generated/](docs/generated/) | Auto-generated artifacts |
+| `.harness-runtime/` | Per-plan FDD state (plans, contracts, features) — **gitignored**, not part of docs |
 
 ## Working with This Repository
 
 <!-- Key workflows and boundaries -->
 
 - Before making changes, read the relevant docs for the area you're touching
-- For complex work, create an execution plan before starting
+- For complex work, run feature-driven development (`harness-stack:feature-driven-development`) before starting
 - Run lint and tests before submitting PRs
 - Follow the dependency rules in architecture docs
 - When something fails, ask: "What capability is missing?" — then add it

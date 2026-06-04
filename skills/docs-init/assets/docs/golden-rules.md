@@ -30,17 +30,17 @@ If it's not in the repo, it doesn't exist to the agent. Slack discussions, verba
 
 **Enforcement:** Cross-link review, repository structure checks.
 
-## 5. Every complex change gets an execution plan
+## 5. Every complex change runs feature-driven development
 
-For non-trivial work, create an exec plan in `docs/exec-plans/` before starting. Plans track progress, surprises, and decisions. They are living documents checked into the repo.
+For non-trivial work, run `harness-stack:feature-driven-development` before building: capture a plan, define the validation contract, decompose into features, then drive a milestone-gated execution loop. Per-plan state (plan, contract, features) lives in `.harness-runtime/plans/<slug>/` (gitignored); durable conventions live in `docs/`; code is the source of truth for specific implementation.
 
-**Enforcement:** Process convention, plan template structure validation.
+**Enforcement:** Process convention; `hs-plan contract-coverage` and `hs-plan gate`.
 
 ## 6. Fix the environment, not the prompt
 
 When an agent fails, treat it as an environment bug. The fix is always one of: missing tool, missing documentation, missing guardrail, or missing feedback loop. Fix it structurally so it never recurs.
 
-**Enforcement:** Culture, retrospectives in exec plan outcomes.
+**Enforcement:** Culture, retrospectives in the plan's Decision Log / outcomes.
 
 ## 7. Enforce architecture mechanically
 

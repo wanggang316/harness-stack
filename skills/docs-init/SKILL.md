@@ -7,7 +7,7 @@ description: One-time initialization of the project's documentation structure an
 
 ## Overview
 
-A one-time initialization that scaffolds the standard documentation layout and base documents from templates in `assets/`. After running, the project has the directory tree, placeholder templates, and foundational docs (golden-rules, quality-scorecard) in place. Content belonging to other domains (architecture, product specs, design docs, exec plans, changelog) is created by the skill that owns it.
+A one-time initialization that scaffolds the standard documentation **Library** layout and base documents from templates in `assets/`, and ensures the project ignores the `.harness-runtime/` tree (where per-plan FDD state lives). After running, the project has the `docs/` Library tree, placeholder templates, and foundational docs (golden-rules) in place. Content belonging to other domains (architecture, design docs, changelog) is created by the skill that owns it; per-plan state (plans, contracts, features) is never in `docs/` — it lives in the gitignored `.harness-runtime/`.
 
 ## When to Use
 
@@ -28,18 +28,19 @@ A one-time initialization that scaffolds the standard documentation layout and b
 | `README.md` | `assets/README.md` (only if no README exists) |
 | `docs/README.md` | `assets/docs/README.md` |
 | `docs/golden-rules.md` | `assets/docs/golden-rules.md` |
-| `docs/product-specs/{README,_template}.md` | `assets/docs/product-specs/` |
 | `docs/design-docs/{README,_template}.md` | `assets/docs/design-docs/` |
-| `docs/exec-plans/{README,_template}.md` | `assets/docs/exec-plans/` |
+| `docs/user-tests/README.md` | `assets/docs/user-tests/README.md` |
+| `docs/user-tests/_shared/personas.yaml` | `assets/docs/user-tests/_shared/personas.yaml` |
 | `docs/references/README.md` | `assets/docs/references/README.md` |
 | `docs/generated/README.md` | `assets/docs/generated/README.md` |
+| `.gitignore` entry `.harness-runtime/` | appended if missing (see Step 4b) |
 
 **This skill does not create:**
 
 - `docs/architecture.md` — architecture content is defined elsewhere
-- `docs/product-specs/<spec>.md` — individual specs are authored elsewhere
 - `docs/design-docs/<doc>.md` — individual design docs are authored elsewhere
-- `docs/exec-plans/<plan>.md` — individual plans are authored elsewhere
+- `docs/user-test-patterns.md` — bootstrapped by `harness-stack:test-spec` on first run
+- `.harness-runtime/` content — per-plan state is created by `harness-stack:feature-driven-development` and the `hs-plan` CLI; it is gitignored, not scaffolded
 - `CHANGELOG.md` — changelog is maintained elsewhere
 
 ## Process
@@ -83,6 +84,14 @@ If a command cannot be detected confidently, leave the bracketed placeholder and
 
 Copy each template to its target path and apply the substitutions above. For `CLAUDE.md`, create a symlink pointing to `AGENTS.md`. On platforms or filesystems that do not support symlinks, fall back to a one-line file: `See [AGENTS.md](AGENTS.md).`
 
+### Step 4b: Ignore the runtime tree
+
+Ensure the project's `.gitignore` contains `.harness-runtime/`. This is where
+feature-driven-development keeps per-plan state (plans, contracts, features, handoffs);
+it must never be committed. Idempotent: if the line is already present, do nothing; if
+`.gitignore` is missing, create it with the entry; otherwise append it under a short
+comment. Do not touch any other `.gitignore` entry.
+
 ### Step 5: Offer suggestions on conflict
 
 When something blocks clean initialization, stop and surface the specific situation plus a short list of options. Do not silently choose. Typical cases:
@@ -106,7 +115,9 @@ After writing, print a table covering every target in the scope table with one o
 - [ ] `CLAUDE.md` resolves to `AGENTS.md` (symlink or stub)
 - [ ] `README.md` exists (either pre-existing or created from template)
 - [ ] `docs/README.md` and `docs/golden-rules.md` exist
-- [ ] `docs/{product-specs,design-docs,exec-plans}/` each contain `README.md` and `_template.md`
+- [ ] `docs/design-docs/` contains `README.md` and `_template.md`
+- [ ] `docs/user-tests/README.md` and `docs/user-tests/_shared/personas.yaml` exist
 - [ ] `docs/references/README.md` and `docs/generated/README.md` exist
+- [ ] `.gitignore` contains `.harness-runtime/`
 - [ ] Every placeholder is either substituted or called out in the report
 - [ ] No file with pre-existing real content was overwritten

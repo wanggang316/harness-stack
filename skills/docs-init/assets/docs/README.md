@@ -8,11 +8,15 @@ This directory is the **system of record** for all project knowledge. If it's no
 |---|---|
 | [architecture.md](architecture.md) | System architecture, domains, layers |
 | [golden-rules.md](golden-rules.md) | Enforced principles and conventions |
-| [product-specs/](product-specs/) | Product specifications and requirements |
-| [design-docs/](design-docs/) | Feature and system design documentation |
-| [exec-plans/](exec-plans/) | Versioned execution plans with progress |
+| [design-docs/](design-docs/) | Technical design documents (human-authored) |
+| [user-tests/](user-tests/) | Testing Library: personas + shared fixtures |
+| user-test-patterns.md | Project-wide testing conventions |
 | [references/](references/) | External references, API docs, integration notes |
 | [generated/](generated/) | Auto-generated artifacts — do not edit manually |
+
+Per-plan feature-driven-development state (plan, validation contract, features) lives in
+the gitignored `.harness-runtime/plans/<slug>/` tree — not in `docs/`. The Library holds
+durable conventions and memory; code is the source of truth for specific implementation.
 
 ## Conventions
 
