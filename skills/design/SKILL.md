@@ -1,6 +1,6 @@
 ---
 name: design
-description: Creates design docs before coding. Use when the solution is ambiguous due to problem complexity or solution complexity. Covers feature design, technical refactors, architecture decisions, and migrations.
+description: Writes a technical design doc (docs/design-docs/) for a specific implementation decision. Standalone and human-invoked — NOT part of the main build flow. Use when a solution is ambiguous enough that the technical approach should be argued before building; covers feature design, technical refactors, architecture decisions, and migrations.
 ---
 
 # design: Design Document
@@ -39,7 +39,7 @@ Ask questions solution              meet reality
 Before proposing anything, deeply understand the problem space. This phase is critical — a design built on shallow understanding produces shallow solutions.
 
 **Load context:**
-- Read the product spec if one exists (`docs/product-specs/`)
+- Read the global product definition if one exists (`docs/product-spec.md`)
 - Read existing design docs for related systems (`docs/design-docs/`)
 - Read the architecture documentation
 - Load and read the relevant source code — understand how the system works today, not just how you think it works
@@ -184,15 +184,13 @@ DESIGN DOC READY FOR REVIEW:
 
 As plans meet reality during implementation, shortcomings and unaddressed requirements will surface. **Update the design doc** when this happens — keep the doc aligned with what was actually built. If major changes happen post-ship, add an "Amendments" section linking to follow-up design docs.
 
-With approved design doc, proceed to:
-- `/harness-stack:planner` for creating the execution plan
-- `/harness-stack:exec-plan` for implementation
+The approved design doc lives in `docs/design-docs/` as durable Library. When you go to build, run `harness-stack:feature-driven-development` — it reads an existing design doc if one is present.
 
 ## Relationship to Other Skills
 
-- **harness-stack:spec** defines *what* to build (product requirements) — use harness-stack:spec first when building a new product feature; harness-stack:design is not required for every spec
-- **harness-stack:design** defines *how* to build it and *why this way* — can be used independently for refactors, migrations, or technical decisions that don't need a product spec
-- **harness-stack:planner** creates the execution plan from the approved design — comes after harness-stack:design
+- **harness-stack:design** is **standalone and optional** — it is not a step in the main build flow. Reach for it when a solution is ambiguous enough that the technical approach should be argued and recorded before building (a non-trivial refactor, migration, or architecture decision).
+- Its output `docs/design-docs/<name>.md` is versioned Library: the source of truth for *why* a system was designed the way it was.
+- **harness-stack:feature-driven-development** is the main flow for building features. It reads a relevant design doc if one exists, but never requires or invokes `design`.
 
 ## Common Rationalizations
 
