@@ -2,21 +2,21 @@
 
 Hand this to a fresh subagent during Step 3 (Investigate), one per area. Fill the
 `<…>` placeholders. The subagent enumerates user interactions for a single area;
-it does **not** write cases. Its output is the raw material the author turns into
-cases in Step 4.
+it does **not** write assertions. Its output is the raw material the author turns
+into assertions in Step 4.
 
-Read-only access is sufficient — the subagent reads the spec and source, and
+Read-only access is sufficient — the subagent reads the plan and source, and
 returns a list. Dispatch one subagent per area in parallel.
 
 ---
 
 ```
 Goal: enumerate every user interaction for the "<area name>" area of the
-"<feature name>" feature, so the author can write user-test cases. You are NOT
-writing cases — you return an interaction inventory.
+"<plan slug>" plan, so the author can write validation-contract assertions. You
+are NOT writing assertions — you return an interaction inventory.
 
 Context to read:
-- Product spec: docs/product-specs/<feature>.md  (this area covers: <AC ids>)
+- Plan: .harness-runtime/plans/<slug>/plan.md  (this area covers: <plan requirements>)
 - Project test conventions: docs/user-test-patterns.md  (dimensions + personas)
 - Personas registry: docs/user-tests/_shared/personas.yaml
 - Relevant source / entry points: <paths, URL routes, API endpoints, CLI cmds>
@@ -41,7 +41,7 @@ Task:
 Rules:
 - Observable-only. Describe what a user perceives or an external probe reads.
   Do NOT reference function names, file paths, CSS classes, or internal test ids.
-- Do NOT write case markdown, IDs, preconditions, or assertions. Just the
+- Do NOT write assertion markdown, VAL- ids, or evidence. Just the
   grouped bullet list.
 - Be diligent on SUBTLE and ERROR/EDGE — that is where this pass earns its keep.
   A list that is all OBVIOUS has failed.

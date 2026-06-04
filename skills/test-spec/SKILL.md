@@ -1,56 +1,56 @@
 ---
 name: test-spec
-description: Writes the user-test set for a feature — the QA-side artifact of personas, areas, and observable cases that proves the feature works end-to-end. Built through per-area investigation subagents and adversarial review passes, not solo authoring. Produces docs/user-tests/&lt;feature&gt;.md. On first use in a project, also bootstraps the project-level conventions at docs/user-test-patterns.md.
+description: Authors the validation contract for a plan — the definition of done as a set of testable, user-observable assertions (VAL-<AREA>-NNN) with personas and declared evidence. Phase 2 of feature-driven-development. Built through per-area investigation subagents and adversarial review passes, not solo authoring. Produces .harness-runtime/plans/<slug>/validation-contract.md and seeds validation-state.json via hs-plan init-state. On first use in a project, also bootstraps the project-level conventions at docs/user-test-patterns.md.
 ---
 
-# test-spec: Feature-Level User Tests
+# test-spec: Authoring the Validation Contract
 
 ## Overview
 
-After the product spec defines what to build (PM view) and the design doc defines how to build it (engineering view), this skill writes the QA view: a structured set of user-test cases that anyone — human or agent — can run to prove the feature works end-to-end from a user's perspective.
+This is **Phase 2 of feature-driven-development**: after the plan defines what to build, this skill writes the definition of done — the **validation contract**, a structured set of testable, user-observable **assertions** that anyone (human or agent) can probe to prove the build works from a user's perspective.
 
-The output, `docs/user-tests/<feature>.md`, becomes the single source of truth for:
+The output, `.harness-runtime/plans/<slug>/validation-contract.md`, becomes the source of truth for:
 
-- Which user-visible behaviours must hold for this feature
+- Which user-visible behaviours must hold
 - Which personas must be able to do them
-- The exact observable assertions that prove each behaviour
-- The evidence each case must capture, and the fixtures and starting state required
+- The exact observable assertion (`VAL-<AREA>-NNN`) that proves each behaviour
+- The evidence each assertion's probe must capture, and the fixtures and starting state required
 
-The unit of work is the **feature**: one feature spec maps to one user-test document (same slug). Inside the document, the feature is decomposed into **areas** (its user-visible sub-capabilities); each area holds journeys, and each journey holds cases.
+The unit of work is the **plan**. The plan is decomposed into **areas** (its user-visible sub-capabilities); each area holds the assertions for that capability. Each assertion gets a stable id `VAL-<AREA>-NNN` — those ids are what `features.json` binds to (`fulfills`) in Phase 3 and what the runtime validator probes in Phase 4. When the contract changes, the assertion ids stay stable.
 
-A test set authored by a single pass has blind spots. This skill instead **investigates each area with a dedicated subagent**, drafts cases from their findings, then **runs adversarial review passes to hunt for gaps** before handing off. The diligence is the point.
+A contract authored in a single pass has blind spots. This skill instead **investigates each area with a dedicated subagent**, drafts assertions from their findings, then **runs adversarial review passes to hunt for gaps** before handing off. The diligence is the point.
 
 ## When to Use
 
-- A product spec (`docs/product-specs/<feature>.md`) has been approved
-- The feature has user-observable behaviour (UI, API, CLI output, side effects a user can see)
-- Before planning starts — the case IDs are what planning binds to
+- A plan exists and is accepted at `.harness-runtime/plans/<slug>/plan.md` (Phase 1 of FDD)
+- The build has user-observable behaviour (UI, API, CLI output, side effects a user can see)
+- Before features are decomposed — the `VAL-` ids are what `features.json` binds to
 
 **When NOT to use:**
 
-- The feature has no user-observable surface (pure refactor, internal optimization). Drive unit and integration coverage with test-first development and `docs/references/testing-patterns.md` instead.
-- Integration flows that span **multiple features**. This document is scoped to one feature; cross-feature behaviour is verified at the milestone integration gate, not here.
+- The work has no user-observable surface (pure refactor, internal optimization). Drive unit and integration coverage with test-first development and `docs/references/testing-patterns.md` instead.
+- There is no accepted plan yet. Run FDD Phase 1 first; the contract is authored against the plan.
 
 ## Philosophy
 
-You are the QA voice in a three-way split. PM owns intent (spec). Engineering owns realization (design doc). You own *proof* — every claim the spec makes must reduce to one or more observable, reproducible probes.
+You own the *definition of done*. Every requirement the plan states must reduce to one or more observable, reproducible assertions.
 
-- **Cases, not scripts.** A case names a user-visible outcome and how to verify it; the runner is decided by the patterns doc, not by you.
+- **Assertions, not scripts.** An assertion names a user-visible outcome and how to verify it; the runner is decided by the patterns doc, not by you.
 - **Personas anchor truth.** "A user" is ambiguous. A persona is concrete and reusable across cases.
 - **Areas decompose the feature.** A feature is a set of user-visible sub-capabilities. Naming them up front gives investigation and review a spine to fan out across.
 - **Journeys for the multi-step.** When the value only emerges across multiple actions (login → add to cart → checkout), the case captures the whole journey, not just the last assertion.
 - **Observable-only assertions.** No implementation references. If the assertion cannot be probed from outside the running system, it does not belong here.
-- **Evidence is declared, not improvised.** Each case names the proof a validator must capture — a screenshot, a network signature, a DB row — so PASS is backed by an artifact, not a claim.
-- **Don't trust the first draft.** A solo-authored set looks complete and isn't. Investigation surfaces what one mind forgets; adversarial review surfaces what the draft still missed.
-- **Cover the spec exhaustively, in both directions.** Every Acceptance Criterion maps to ≥ 1 case, and every case traces back to ≥ 1 AC (or is explicitly marked non-AC). Gaps in either direction are coverage holes.
+- **Evidence is declared, not improvised.** Each assertion names the proof a validator must capture — a screenshot, a network signature, a DB row — so PASS is backed by an artifact, not a claim.
+- **Don't trust the first draft.** A solo-authored contract looks complete and isn't. Investigation surfaces what one mind forgets; adversarial review surfaces what the draft still missed.
+- **Cover the plan exhaustively.** Every requirement in the plan maps to ≥ 1 assertion. A requirement with no assertion is a coverage hole. (The reverse direction — every assertion claimed by exactly one feature — is enforced later by `hs-plan contract-coverage` in Phase 3.)
 
 ## Prerequisites
 
-1. Product spec at `docs/product-specs/<feature>.md` — approved
+1. Accepted plan at `.harness-runtime/plans/<slug>/plan.md` — Phase 1 of FDD
 2. Project test conventions at `docs/user-test-patterns.md` — if missing, Step 0 below bootstraps it
-3. Personas registry at `docs/user-tests/_shared/personas.yaml` — if missing, Step 0 creates it (may be empty; add personas as cases need them)
+3. Personas registry at `docs/user-tests/_shared/personas.yaml` — if missing, Step 0 creates it (may be empty; add personas as assertions need them)
 
-If the spec is missing, stop. Items 2 and 3 are handled by Step 0 on first run.
+If the plan is missing, stop. Items 2 and 3 are handled by Step 0 on first run.
 
 ## Process
 
@@ -60,9 +60,9 @@ If the spec is missing, stop. Items 2 and 3 are handled by Step 0 on first run.
 INGEST → AREAS → INVESTIGATE → WRITE → REVIEW (≥2) → COVER → APPROVE
    │       │         │           │        │           │        │
    ▼       ▼         ▼           ▼        ▼           ▼        ▼
- read   feature   one sub-    draft     adversarial  bi-      human
- spec   → sub-    agent per   rich      gap-hunt,    direct.  confirms
- +conv  capab.    area        cases     update doc   matrix
+ read   plan →    one sub-    draft     adversarial  req →    human
+ plan   sub-      agent per   rich      gap-hunt,    assert.  confirms
+ +conv  capab.    area        assert.   update doc   matrix
 ```
 
 ### Step 0: Bootstrap project conventions (first run only)
@@ -145,18 +145,18 @@ Once approved, continue with Step 1 below. Subsequent runs in this project skip 
 
 Read in this order:
 
-1. `docs/product-specs/<feature>.md` — extract user stories, personas referenced, acceptance criteria
+1. `.harness-runtime/plans/<slug>/plan.md` — extract the requirements, milestones, personas referenced, testing surface
 2. `docs/user-test-patterns.md` — confirm which tooling, dimensions, and cost tiers apply
 3. `docs/user-tests/_shared/personas.yaml` — see what personas already exist
-4. `docs/design-docs/<feature>.md` (if exists) — for surface entry points (URL paths, API endpoints, CLI commands); do **not** import implementation details into cases
+4. `docs/design-docs/<name>.md` (if a relevant design doc exists) — for surface entry points (URL paths, API endpoints, CLI commands); do **not** import implementation details into assertions
 
 State assumptions:
 
 ```
 ASSUMPTIONS I'M MAKING:
-1. AC1..AC6 each map to a Web UI journey; AC7..AC9 map to API + DB probes
+1. Requirements R1..R6 map to Web UI journeys; R7..R9 map to API + DB probes
 2. Persona "returning_reader" must be added (not yet in registry)
-3. No mobile platform applies to this feature
+3. No mobile platform applies to this build
 → Correct me now or I'll proceed with these.
 ```
 
@@ -164,7 +164,7 @@ ASSUMPTIONS I'M MAKING:
 
 Decompose the feature into its user-visible sub-capabilities — the **areas**. An area is a coherent slice of the feature a user perceives as one thing: for a login feature, areas might be *credential sign-in*, *password recovery*, *session persistence*. These become the `## Area:` sections of the document and the spine for investigation and review.
 
-- **Scale to the feature.** A simple feature is one area (the feature itself) — do not split artificially. A rich feature has several. Let the spec's acceptance criteria and user stories suggest the seams.
+- **Scale to the plan.** A simple plan is one area — do not split artificially. A rich plan has several. Let the plan's requirements and milestones suggest the seams.
 - **One cross-area slot.** Flows that span sub-capabilities *within this feature* (e.g. "recover password → then sign in with the new one") go in a single `## Cross-Area Journeys` section.
 - **Stop at the feature boundary.** Flows that cross into *other features* are out of scope here — record them as an Open Question pointing to milestone integration verification, and move on.
 
@@ -172,15 +172,15 @@ List the areas and confirm them before investigating:
 
 ```
 AREAS FOR <feature>:
-1. <sub-capability A> — covers AC1, AC2
-2. <sub-capability B> — covers AC3, AC4, AC5
-   Cross-area: <within-feature flow spanning A+B> — covers AC6
+1. <sub-capability A> — covers R1, R2
+2. <sub-capability B> — covers R3, R4, R5
+   Cross-area: <within-plan flow spanning A+B> — covers R6
 → Correct the decomposition or I'll investigate these.
 ```
 
 ### Step 3: Investigate (one subagent per area)
 
-For each area, dispatch a fresh subagent to enumerate every user interaction before any case is written. The subagent reads the spec and the relevant source, and returns a bulleted interaction list grouped into **obvious / subtle / error-edge** — it does not write cases. Use the prompt at `skills/test-spec/references/investigation-prompt.md`.
+For each area, dispatch a fresh subagent to enumerate every user interaction before any assertion is written. The subagent reads the plan and the relevant source, and returns a bulleted interaction list grouped into **obvious / subtle / error-edge** — it does not write assertions. Use the prompt at `skills/test-spec/references/investigation-prompt.md`.
 
 - Dispatch areas in parallel; each subagent owns one area.
 - For a single-area feature, one subagent suffices (or investigate inline if the feature is trivial).
@@ -188,19 +188,18 @@ For each area, dispatch a fresh subagent to enumerate every user interaction bef
 
 Synthesise the returned lists; they are the raw material for Step 4. Do not paste them into the document verbatim — they are interaction inventories, not cases.
 
-### Step 4: Write Cases
+### Step 4: Write Assertions
 
-Turn the investigation inventory into cases, grouped under their area. Each case has its own ID (`UT-<FEATURE-SLUG>-<NNN>`, zero-padded) and follows the structure in `references/user-test-template.md`. Fields:
+Turn the investigation inventory into assertions, grouped under their area. Each assertion is an H3 heading exactly `### VAL-<AREA>-NNN: <title>` (AREA uppercase alnum, NNN zero-padded 3 digits — this exact heading is what `hs-plan init-state` parses), followed by the block in `references/user-test-template.md`. Fields:
 
+- **Behaviour:** one observable, persona-anchored paragraph describing what must hold. No implementation references.
 - **Persona:** name from the registry
-- **Preconditions:** fixtures loaded, DB seed, environment state, auth method
-- **Steps:** numbered observable actions (navigate, click by role, POST with payload). No implementation references.
-- **Assertions:** numbered, binary, observable-only. Each one names its verification method (DOM query / API call / DB select / log grep / file check).
-- **Evidence:** the proof a validator must capture to call this case PASS — e.g. `screenshot of dashboard`, `network: POST /sessions → 303`, `DB row orders(user_id=$persona.id)`. This is the proof obligation regardless of outcome; on-FAIL artifacts are separate (below).
-- **Covers AC:** the Acceptance Criterion ID(s) from the spec this case verifies
-- **Artifacts on FAIL:** what gets captured when the case fails (screenshot, network HAR, query result, reproducer)
+- **Preconditions:** fixtures loaded, DB seed, environment state, auth method (when state matters)
+- **Evidence:** the proof a validator must capture to call this assertion PASS — e.g. `screenshot of dashboard`, `network: POST /sessions → 303`, `DB row orders(user_id=$persona.id)`. Use the patterns-doc vocabulary (screenshot / console-errors / network(...) / terminal-output). On-FAIL artifacts are separate (below).
+- **Traces to:** the plan requirement(s) this assertion proves
+- **Artifacts on FAIL:** what gets captured when the assertion fails (screenshot, network HAR, query result, reproducer)
 
-Keep cases small: one journey end-state per case. Multiple closely-related end-states → multiple cases sharing setup.
+Multi-step value (login → add to cart → checkout) is captured as a single assertion describing the whole journey's observable end-state. Put assertions that span sub-capabilities *within this plan* under a `## Cross-Area Flows` section. Keep each assertion to one observable end-state; closely-related end-states → multiple assertions sharing setup.
 
 ### Step 5: Adversarial Review (≥ 2 sequential passes)
 
@@ -216,24 +215,24 @@ After each pass:
 
 Passes run sequentially so each builds on the previous pass's additions. Two passes is the floor: the first mostly catches surface gaps, the second is where depth shows up. Stop when a pass surfaces nothing material.
 
-### Step 6: Build the Coverage Matrix
+### Step 6: Build the Requirement Coverage Matrix
 
-Write a matrix at the end of the document mapping every spec AC to its covering cases:
+Write a matrix at the end of the contract mapping every plan requirement to its covering assertions:
 
 ```
-| Spec AC | Covered by              |
-|---------|-------------------------|
-| AC1     | UT-LOGIN-001, UT-LOGIN-002 |
-| AC2     | UT-LOGIN-003            |
-| AC3     | UT-DASHBOARD-001        |
+| Plan requirement                  | Covered by                  |
+|-----------------------------------|-----------------------------|
+| R1 — user can sign in             | VAL-AUTH-001, VAL-AUTH-002  |
+| R2 — invalid creds rejected       | VAL-AUTH-003                |
+| R3 — dashboard loads after login  | VAL-DASH-001                |
 ```
 
-Coverage is verified in **both directions**:
+- **Every requirement → ≥ 1 assertion.** A missing row is missing coverage. If a requirement is intentionally not covered at the user-observable level (e.g. a pure perf budget verified elsewhere), record the row with a one-line reason.
+- An assertion that proves no plan requirement is either hallucinated coverage (delete it) or a plan gap (surface it). A deliberately non-requirement assertion (a regression guard) is marked `(guard: <reason>)`.
 
-- **Every AC → ≥ 1 case.** A missing row is missing coverage. If an AC is intentionally not covered at the user-test level (e.g. a pure perf budget verified elsewhere), record the row with a one-line reason: `AC9 — verified by perf-budget gate, not a user-observable case`.
-- **Every case → ≥ 1 AC.** A case that traces to no AC is either hallucinated coverage (delete it) or a spec gap (surface it). A case that is deliberately non-AC (a within-feature integration flow, a regression guard) is marked `(non-AC: <reason>)` rather than left dangling.
+The reverse direction — every assertion claimed by exactly one feature — is **not** checked here; `hs-plan contract-coverage` enforces it in Phase 3.
 
-If you discover the spec is incomplete or ambiguous while building the matrix, stop and surface it. Do **not** invent acceptance behaviour the spec doesn't declare.
+If you discover the plan is incomplete or ambiguous while building the matrix, stop and surface it. Do **not** invent behaviour the plan doesn't declare.
 
 ### Step 7: Update Registries and Hand Off
 
@@ -242,47 +241,53 @@ If a case requires a persona or fixture not yet in `docs/user-tests/_shared/`, a
 - New persona → append to `personas.yaml`
 - New fixture → write to `_shared/fixtures/<name>.<ext>` (or `<feature>/fixtures/` for feature-local)
 
-Document the addition in the case's Preconditions and in the document's "Personas / Fixtures Added" section.
+Document the addition in the assertion's Preconditions and in the contract's "Personas / Fixtures Added" section.
 
-Then present for human review:
+Then seed the state file and present for human review:
+
+```bash
+hs-plan init-state          # parses the VAL- headings into validation-state.json (all pending)
+```
+
+Re-run `hs-plan init-state` after any adversarial pass that added or removed assertion headings; it preserves the status of ids that already exist.
 
 ```
-USER TESTS READY FOR REVIEW:
-- Feature: <name>
+VALIDATION CONTRACT READY FOR REVIEW:
+- Plan: <slug>
 - Areas: <list>
-- Cases written: <count>  (investigation surfaced <N>, review added <M>)
+- Assertions written: <count>  (investigation surfaced <N>, review added <M>)
 - Personas referenced: <list>
-- Spec ACs covered: <covered>/<total>; orphan cases: <count, should be 0>
+- Plan requirements covered: <covered>/<total>
 - Personas/fixtures added: <list, if any>
 → Approve, or tell me what to change.
 ```
 
-Once approved, the case IDs are stable inputs for planning and runtime validation.
+Once approved, the `VAL-` ids are stable inputs for `features.json` (Phase 3) and runtime validation (Phase 4).
 
 ## Common Rationalizations
 
 | Rationalization | Reality |
 |---|---|
-| "The spec's Acceptance Criteria are already testable; I don't need cases." | ACs are PM-readable prose. Cases are runnable: persona + preconditions + observable steps + binary assertions + declared evidence. Different artifact, different consumer. |
+| "The plan's requirements are already testable; I don't need a contract." | Plan requirements are prose intent. Assertions are runnable: persona + observable behaviour + declared evidence + a stable VAL- id that features bind to. Different artifact, different consumer. |
 | "I'll just write the cases myself; investigation subagents are overhead." | Solo authoring is exactly the failure this skill exists to prevent. One mind lists the happy path and forgets the subtle interactions. The investigation pass is where they surface. |
 | "One review pass is enough." | The first pass catches surface gaps; the second is where depth happens. Two is the floor, not the ceiling. |
 | "The reviewers agreed it's complete." | If a reviewer rubber-stamped, the prompt wasn't adversarial. Reviewers must be told to hunt for what's missing, or they find nothing. |
 | "One case per AC is enough." | One AC often covers happy + error + edge; one case per branch is the floor, not the ceiling. |
 | "Personas are overhead — 'a logged-in user' is fine." | Five cases each redefine 'a logged-in user' slightly differently and drift apart. Five lines of yaml prevents weeks of pain. |
 | "On-FAIL artifacts are enough; I don't need an Evidence field." | On-FAIL artifacts explain a failure. Declared evidence is what makes a PASS trustworthy — without it, "it passed" is a claim, not a record. |
-| "I noticed a behaviour the spec doesn't cover; I'll add a case for it." | Stop. That's spec drift. Surface it to the PM; the spec gets updated; then the case follows. |
+| "I noticed a behaviour the plan doesn't cover; I'll add an assertion for it." | Stop. That's scope drift. Surface it; the plan gets updated; then the assertion follows. |
 | "This flow spans two features but it's important; I'll add it here." | This document is one feature. Cross-feature flows belong to milestone integration verification. Note it as an Open Question and keep this set scoped. |
 
 ## Red Flags
 
 - The document was written in one pass with no investigation and no adversarial review
 - A reviewer returned "looks good" with no missing cases — it wasn't adversarial
-- A case asserts behaviour not traceable to a spec AC, and isn't marked `(non-AC: ...)` (hallucinated coverage)
+- An assertion proves no plan requirement and isn't marked `(guard: ...)` (hallucinated coverage)
 - A case references implementation (function name, file path, internal data-test id naming a code module)
 - A case has no persona, or "any user"
 - A case has no Evidence field, or evidence that can't be captured ("verify manually")
 - A case's preconditions are missing — the runtime validator can't reproduce state
-- The coverage matrix omits an AC, or a case traces to no AC
+- The requirement coverage matrix omits a plan requirement
 - An area was split so finely that each "area" is a single case — over-decomposition
 - Two cases depend on shared mutable state (one must run before another)
 - A new persona was used without being added to the registry
@@ -290,16 +295,16 @@ Once approved, the case IDs are stable inputs for planning and runtime validatio
 
 ## Verification
 
-- [ ] Spec approved at `docs/product-specs/<feature>.md`
+- [ ] Plan accepted at `.harness-runtime/plans/<slug>/plan.md`
 - [ ] If first run in project: `docs/user-test-patterns.md` written and approved per Step 0 (all 11 sections present; selector rules have positive + negative examples; surface cost tiers set; anti-patterns called out)
 - [ ] `docs/user-tests/_shared/personas.yaml` exists (may be empty initially)
-- [ ] Feature decomposed into areas; areas confirmed before investigation
-- [ ] Each area investigated by a subagent (or inline for a trivial single-area feature)
-- [ ] At least two adversarial review passes run; the document was edited between passes
-- [ ] Every case follows the template at `references/user-test-template.md`
-- [ ] Every case has persona, preconditions, steps, assertions, Evidence, Covers AC, artifacts on FAIL
-- [ ] Coverage matrix is bidirectional: every AC has ≥ 1 case; every case traces to ≥ 1 AC or is marked non-AC
+- [ ] Plan decomposed into areas; areas confirmed before investigation
+- [ ] Each area investigated by a subagent (or inline for a trivial single-area plan)
+- [ ] At least two adversarial review passes run; the contract was edited between passes
+- [ ] Every assertion is an `### VAL-<AREA>-NNN: <title>` H3 and follows the template at `references/user-test-template.md`
+- [ ] Every assertion has behaviour, persona, preconditions, Evidence, Traces to, artifacts on FAIL
+- [ ] Requirement coverage matrix: every plan requirement has ≥ 1 assertion
 - [ ] Selectors and assertions observable-only (no implementation references)
 - [ ] New personas / fixtures added to shared registries
 - [ ] Human reviewed and approved
-- [ ] File saved to `docs/user-tests/<feature>.md`
+- [ ] Contract saved to `.harness-runtime/plans/<slug>/validation-contract.md` and `hs-plan init-state` run

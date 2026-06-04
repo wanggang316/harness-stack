@@ -160,7 +160,7 @@ personas:
 
 ## Fixtures and Test Data
 
-**Location:** `docs/user-tests/_shared/fixtures/` for cross-feature fixtures; `docs/user-tests/<feature>/fixtures/` for feature-local.
+**Location:** `docs/user-tests/_shared/fixtures/` — reusable fixtures shared across plans (durable Library). Plan-specific throwaway fixtures may live under the plan's gitignored runtime dir.
 
 **Naming:** `<scenario>.<format>` — e.g. `empty-inbox.json`, `three-completed-reports.sql`, `large-list-1000.json`.
 

@@ -1,203 +1,112 @@
-# User-Test Document Template
+# Validation Contract Template
 
-Use this skeleton when authoring `docs/user-tests/<feature>.md`. Every section is required. The case structure is mandatory — downstream tooling parses it. The document is organized by **area** (the feature's user-visible sub-capabilities); within each area, journeys group cases.
+Use this skeleton when authoring `.harness-runtime/plans/<slug>/validation-contract.md`.
+Every assertion MUST be an H3 heading of the exact form `### VAL-<AREA>-NNN: <title>`
+(AREA uppercase alnum, NNN zero-padded 3 digits) — `hs-plan init-state` parses those
+headings to seed `validation-state.json`. The contract is organized by **area** (the
+plan's user-visible sub-capabilities).
 
 ---
 
 ```markdown
----
-name: <feature-slug>
-description: User-test set for <feature>. Authored by /harness-stack:test-spec. Read `docs/user-test-patterns.md` for project-wide testing conventions before editing.
----
+# Validation Contract: <Plan Title>
 
-# User Tests: <Feature Title>
-
-**Status:** Draft | Approved | In Progress | Verified
-**Author:** [name]
-**Date:** YYYY-MM-DD
-**Spec:** [docs/product-specs/<feature>.md](../product-specs/<feature>.md)
-**Design:** [docs/design-docs/<feature>.md](../design-docs/<feature>.md) (if exists)
+**Plan:** <plan-slug>
+**Status:** Draft | Approved
+**Patterns:** see `docs/user-test-patterns.md` for project-wide testing conventions
 
 ## Personas Used
 
-<!--
-Reference personas by ID from `docs/user-tests/_shared/personas.yaml`. One line
-per persona, with the in-context purpose.
--->
+<!-- Reference personas by ID from `docs/user-tests/_shared/personas.yaml`. -->
 
 - `anonymous_visitor` — drives the public read path
 - `returning_reader` — drives the subscription / personalized paths
-- `site_admin` — verifies admin paths are not broken
-
-If a persona had to be added during authoring, note it here and confirm the
-addition landed in the shared registry.
 
 ## Areas
 
-<!--
-List the feature's user-visible sub-capabilities. Each becomes an `## Area:`
-section below. Scale to the feature: a simple feature is one area; do not split
-artificially. Flows that span areas WITHIN this feature go in Cross-Area
-Journeys. Flows that cross into OTHER features are out of scope — record them in
-Open Questions.
--->
+<!-- The plan's user-visible sub-capabilities. Each becomes an `## Area:` section.
+Scale to the plan: a simple plan is one area. Flows spanning areas within this plan
+go in `## Cross-Area Flows`. -->
 
 1. Credential sign-in
 2. Password recovery
-3. Session persistence
 
 ## Area: Credential sign-in
 
-<!--
-A journey is one persona reaching one observable outcome via a sequence of
-actions. One subsection per journey. Each contains one or more cases.
--->
+### VAL-AUTH-001: Anonymous visitor can sign in with valid credentials
 
-### Journey 1: <verb phrase from persona's view>
+**Behaviour:** A `returning_reader` with valid credentials submits the login form and
+lands on the dashboard with an active session.
 
-**Persona:** `<persona-id>`
-**Outcome:** <what the user achieves at the end>
-
-#### Case `UT-<FEATURE>-001`: <one-line case name>
-
-**Covers AC:** AC1, AC2
+**Persona:** `returning_reader`
 
 **Preconditions:**
-- DB seed: `docs/user-tests/_shared/fixtures/seed/three-completed-reports.sql`
-- Auth: persona `anonymous_visitor` (no session)
-- Environment: `VITE_SITE_URL` resolves to a reachable origin
+- DB seed: `docs/user-tests/_shared/fixtures/seed/one-active-user.sql`
+- Auth: no session
 - App started: see ready signal in `docs/user-test-patterns.md`
 
-**Steps:**
-1. Navigate to `<base-url>/`
-2. Wait for the heading with role=heading + name=/InboxLM AI Daily/ to be visible
-3. Read all `<a>` elements inside the main list region
+**Evidence:** screenshot of the dashboard; network(POST /sessions → 303 → GET /dashboard)
 
-**Assertions:**
-1. (DOM query) The header contains the text `InboxLM AI Daily`
-2. (DOM query) The list region contains exactly 3 `<a>` elements
-3. (DOM query) Each `<a>` element has an `href` matching `/d/[a-z0-9-]+`
-4. (DOM query) The first list item's date label matches the most recent report's `window_end` (per fixture)
+**Traces to:** R1 (user can sign in)
 
-**Evidence:**
-<!-- The proof a validator must capture to call this case PASS, regardless of
-outcome. Distinct from the per-assertion verification method (how you check)
-and from Artifacts on FAIL (what you keep when it fails). -->
-- `screenshot` of the rendered list region
-- `network: GET / → 200`
-- DOM snapshot of the 3 `<a>` hrefs
+**Artifacts on FAIL:** screenshot.png at first failure; network.har; a repro.sh
 
-**Artifacts on FAIL:**
-- `screenshot.png` of the page state at first failed assertion
-- `console.log` and `network.har` from the navigation
-- For each FAIL, a `repro.sh` that reruns the probe in isolation
+### VAL-AUTH-002: Invalid credentials are rejected without leaking which field was wrong
 
-#### Case `UT-<FEATURE>-002`: <next case>
+**Behaviour:** Submitting a wrong password shows a generic "invalid credentials" error
+and stays on the login page; no session is created.
 
-(repeat structure)
+**Persona:** `returning_reader`
+
+**Preconditions:** App started; no session
+
+**Evidence:** screenshot of the error; network(POST /sessions → 401)
+
+**Traces to:** R2 (invalid credentials rejected)
+
+**Artifacts on FAIL:** screenshot.png; network.har; repro.sh
 
 ## Area: Password recovery
 
-### Journey 2: <next journey>
+### VAL-RECOVER-001: <title>
 
-(repeat structure)
+(repeat the block structure)
 
-## Cross-Area Journeys
+## Cross-Area Flows
 
-<!--
-Flows that span sub-capabilities WITHIN this feature (e.g. recover password →
-then sign in with the new one). Same case structure. Leave the section present
-but empty if the feature has no within-feature integration flow.
--->
+<!-- Flows that span sub-capabilities WITHIN this plan (e.g. recover password → then
+sign in with the new one). Same block structure. Leave present but empty if none. -->
 
-### Journey N: Recover password then sign in
+### VAL-CROSS-001: New password works on next sign-in
 
-#### Case `UT-<FEATURE>-050`: New password works on next sign-in
+**Behaviour:** After completing recovery, the `returning_reader` signs in with the new
+password and reaches the dashboard.
 
-**Covers AC:** AC6  <!-- or (non-AC: within-feature integration guard) -->
+**Persona:** `returning_reader`
+**Preconditions:** recovery completed in the same session/run
+**Evidence:** screenshot of dashboard; network(POST /sessions → 303)
+**Traces to:** R6
+**Artifacts on FAIL:** screenshot.png; network.har; repro.sh
 
-(repeat structure)
+## Requirement Coverage Matrix
 
-## Negative & Edge Journeys
+<!-- Every plan requirement → ≥ 1 assertion. The reverse direction (every assertion
+claimed by exactly one feature) is enforced by `hs-plan contract-coverage` in Phase 3,
+not here. -->
 
-<!--
-Error paths, edge inputs, and forbidden actions. Same case structure.
--->
-
-### Journey M: Unauthorized access is rejected
-
-#### Case `UT-<FEATURE>-099`: Anonymous visitor cannot reach /admin
-
-**Covers AC:** AC8
-
-**Preconditions:**
-- Auth: persona `anonymous_visitor`
-- App started
-
-**Steps:**
-1. Navigate to `<base-url>/admin`
-2. Wait for navigation to settle
-
-**Assertions:**
-1. (URL) Final URL path is `/login`
-2. (DOM query) Page contains a flash message with role=alert
-3. (Network) The request to `/admin` returned HTTP 302 (or 401, per spec)
-
-**Evidence:**
-- `screenshot` of the `/login` page with the flash message
-- `network: GET /admin → 302`
-
-**Artifacts on FAIL:**
-- `screenshot.png`, `network.har`
-
-## Coverage Matrix
-
-<!--
-Bidirectional coverage.
-- Every Acceptance Criterion MUST appear with ≥ 1 covering case. If an AC is
-  intentionally not covered here, record the row with a one-line reason.
-- Every case MUST trace to ≥ 1 AC, or be marked `(non-AC: <reason>)`. No case
-  is left dangling (no orphans).
--->
-
-### AC → cases
-
-| Spec AC | Covered by |
-|---------|------------|
-| AC1 | UT-<FEATURE>-001 |
-| AC2 | UT-<FEATURE>-001, UT-<FEATURE>-002 |
-| AC3 | UT-<FEATURE>-003 |
-| AC8 | UT-<FEATURE>-099 |
-| AC9 | — verified by build gate (`pnpm --filter web check`), not a user-observable case |
-
-### Case → AC (orphan check)
-
-| Case | Traces to |
-|------|-----------|
-| UT-<FEATURE>-001 | AC1, AC2 |
-| UT-<FEATURE>-050 | (non-AC: within-feature integration guard) |
-| UT-<FEATURE>-099 | AC8 |
+| Plan requirement                | Covered by                 |
+|---------------------------------|----------------------------|
+| R1 — user can sign in           | VAL-AUTH-001               |
+| R2 — invalid creds rejected     | VAL-AUTH-002               |
+| R6 — recovery then sign-in      | VAL-CROSS-001              |
+| R9 — perf budget                | — verified by build gate, not a user-observable assertion |
 
 ## Personas / Fixtures Added During Authoring
 
-<!--
-If this document introduced new personas or fixtures into the shared registry,
-record them here so a reviewer can trace the additions.
--->
-
 - Added persona `returning_reader` to `docs/user-tests/_shared/personas.yaml`
-- Added fixture `three-completed-reports.sql` to `docs/user-tests/_shared/fixtures/seed/`
+- Added fixture `one-active-user.sql` to `docs/user-tests/_shared/fixtures/seed/`
 
 ## Open Questions
 
-<!--
-Questions that cannot be resolved without input from the PM (spec author) or the
-design-doc author. Each should have a default proposed answer so this document
-is not blocked. Also record any cross-feature integration flows that surfaced
-during authoring but are out of scope here — they belong to milestone
-integration verification.
--->
-
-1. Should `UT-<FEATURE>-099` also assert the flash message survives a page reload? **Default:** no — out of scope for this iteration.
-2. Cross-feature flow surfaced: "checkout reserves inventory from the catalog feature". Out of scope here; verify at milestone integration.
+1. Should VAL-AUTH-002 also assert the error survives a reload? **Default:** no — out of scope this iteration.
 ```
