@@ -30,3 +30,6 @@ raw/
 # Generated run artifacts
 debate-runs/
 decision-runs/
+
+# Feature-driven development per-plan runtime state (managed by @hs/plan)
+.harness-runtime/
