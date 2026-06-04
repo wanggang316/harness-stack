@@ -164,7 +164,7 @@ Everything else (`runtime/registry.ts`, `runtime/api.ts`, ...) is internal.
 
 ### API Design
 
-**Library API** (sketch — full signatures in ExecPlan §Interfaces):
+**Library API** (sketch — full signatures in the `packages/hs-llm/` source, which is the source of truth):
 
 - `invoke({ config, agentId, request, schema?, retry? }) → Promise<InvocationResponse & { parsed?: T }>`
 - `invokeMany({ config, invocations, concurrency?, retry? }) → Promise<InvokeManyResult>`
@@ -437,7 +437,7 @@ They provide multi-provider abstractions out of the box. Rejected:
 
 ### Migration / rollout
 
-- Repo already has Slice 1 (TS toolchain) as a structural change. Ship `hs-llm` as `0.0.x` until the public API has been validated by `harness-stack:decide` and `harness-stack:debate` ExecPlans. Bump to `0.1.0` when both consumer skills land.
+- Repo already has Slice 1 (TS toolchain) as a structural change. Ship `hs-llm` as `0.0.x` until the public API has been validated by the `harness-stack:decide` and `harness-stack:debate` skills. Bump to `0.1.0` when both consumer skills land.
 - No data migration (stateless package).
 - Rollback: deleting `packages/hs-llm/` and reverting `package.json`/`pnpm-workspace.yaml` is the rollback. No external systems touched.
 
