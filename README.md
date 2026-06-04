@@ -21,34 +21,34 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 ### Meta (Manage harness itself)
 | Command | Description |
 |---------|-------------|
-| `/hs-skill-create` | Create new skills |
+| `/harness-stack:skill-create` | Create new skills |
 
 ### Lifecycle (Full development workflow)
 | Phase | Command | Description |
 |-------|---------|-------------|
-| Define | `/hs-define-product` | Product definition (global) |
-| Define | `/hs-define-architecture` | Architecture definition (global) |
-| Define | `/hs-spec` | Product specification (feature-level) |
-| Define | `/hs-design` | Design document (technical) |
-| Plan | `/hs-planner` | Create execution plans (ExecPlans) |
-| Plan | `/hs-exec-plan` | Execute an approved ExecPlan |
-| Build | `/hs-tdd` | Test-driven development |
-| Verify | `/hs-debug` | Debugging and error recovery |
-| Review | `/hs-review-request` | Dispatch fresh-context reviewers (code / security / tests) |
-| Review | `/hs-review-receive` | Handle reviewer feedback with rigor |
-| Review | `/hs-security` | Security audit |
-| Ship | `/hs-git` | Git workflow and versioning |
-| Ship | `/hs-ship` | Shipping and launch |
+| Define | `/harness-stack:define-product` | Product definition (global) |
+| Define | `/harness-stack:define-architecture` | Architecture definition (global) |
+| Define | `/harness-stack:spec` | Product specification (feature-level) |
+| Define | `/harness-stack:design` | Design document (technical) |
+| Plan | `/harness-stack:planner` | Create execution plans (ExecPlans) |
+| Plan | `/harness-stack:exec-plan` | Execute an approved ExecPlan |
+| Build | `/harness-stack:tdd` | Test-driven development |
+| Verify | `/harness-stack:debug` | Debugging and error recovery |
+| Review | `/harness-stack:review-request` | Dispatch fresh-context reviewers (code / security / tests) |
+| Review | `/harness-stack:review-receive` | Handle reviewer feedback with rigor |
+| Review | `/harness-stack:security` | Security audit |
+| Ship | `/harness-stack:git` | Git workflow and versioning |
+| Ship | `/harness-stack:ship` | Shipping and launch |
 
 ### Subagents (Expert judgment)
 | Agent | Expertise |
 |-------|-----------|
-| `hs-architect` | System design, technical decisions |
-| `hs-code-reviewer` | PR review, quality checks |
+| `harness-stack:architect` | System design, technical decisions |
+| `harness-stack:code-reviewer` | PR review, quality checks |
 
 ## Naming Convention
 
-All skills and agents use `h-` prefix to avoid conflicts with other tools.
+All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:spec`, `harness-stack:code-reviewer`), which isolates them from other plugins — no per-skill prefix is needed.
 
 ## Documentation
 

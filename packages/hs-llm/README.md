@@ -2,7 +2,7 @@
 
 A stateless TypeScript package and CLI for invoking large language models through a single uniform interface — whether the underlying provider is an HTTP API (OpenAI-compatible, Anthropic), a local coding-agent CLI subprocess (claude, codex, gemini, copilot, pi, opencode, droid, amp, generic), or a custom adapter you bring yourself.
 
-`@hs/llm` is the runtime layer beneath harness-stack skills like `hs-debate` and `hs-decide`, but it is fully usable on its own as a CLI tool or imported as a library.
+`@hs/llm` is the runtime layer beneath harness-stack skills like `harness-stack:debate` and `harness-stack:decide`, but it is fully usable on its own as a CLI tool or imported as a library.
 
 ## Install
 

@@ -1,11 +1,11 @@
 ---
 name: using-harness-stack
-description: Bootstrap doctrine for the harness-stack framework. Loaded automatically at session start to introduce the lifecycle map, golden rules, and how to pick the right hs-* skill. Read this before invoking any hs-* skill for the first time in a session.
+description: Bootstrap doctrine for the harness-stack framework. Loaded automatically at session start to introduce the lifecycle map, golden rules, and how to pick the right harness-stack:* skill. Read this before invoking any harness-stack:* skill for the first time in a session.
 ---
 
 # Using harness-stack
 
-harness-stack is an agent-first development framework. Humans give direction; agents execute through a fixed catalogue of `hs-*` skills, each owning one phase of the software lifecycle. This document is the entry point — it tells you which skill to reach for, not how each skill works internally.
+harness-stack is an agent-first development framework. Humans give direction; agents execute through a fixed catalogue of `harness-stack:*` skills, each owning one phase of the software lifecycle. This document is the entry point — it tells you which skill to reach for, not how each skill works internally.
 
 ## Lifecycle map
 
@@ -13,15 +13,15 @@ A non-trivial change moves through these phases. Pick the skill that matches the
 
 | Phase | Trigger | Skill |
 |---|---|---|
-| **Define** | What/why is unclear | `hs-define-product`, `hs-define-architecture`, `hs-define-api-spec`, `hs-define-frontend-spec`, `hs-define-ui-spec` (one-time, project-wide) |
-| **Spec** | Feature or change needs requirements | `hs-spec` (PM view), `hs-design` (engineering view), `hs-test-spec` (QA view) |
-| **Plan** | Spec exists, work needs decomposition | `hs-planner` produces an ExecPlan |
-| **Build** | ExecPlan ready | `hs-exec-plan` (single agent), `hs-team` (multi-agent), `hs-tdd` (test-first) |
-| **Verify** | Something is broken or unverified | `hs-debug` (root cause), `hs-user-test` (behaviour-level user-test probes) |
-| **Review** | Change is ready for scrutiny | `hs-review-request` (dispatch), `hs-review-receive` (handle findings), `hs-security` (security audit) |
-| **Deliberate** | Question is contested or high-risk | `hs-debate` (multi-round), `hs-decide` (one-shot parallel) |
-| **Ship** | Code is approved | `hs-commit` → `hs-pr` → `hs-changelog` → `hs-land` → `hs-ship` |
-| **Meta** | Manage the framework itself | `hs-docs-init`, `hs-env-init`, `hs-skill-create` |
+| **Define** | What/why is unclear | `harness-stack:define-product`, `harness-stack:define-architecture`, `harness-stack:define-api-spec`, `harness-stack:define-frontend-spec`, `harness-stack:define-ui-spec` (one-time, project-wide) |
+| **Spec** | Feature or change needs requirements | `harness-stack:spec` (PM view), `harness-stack:design` (engineering view), `harness-stack:test-spec` (QA view) |
+| **Plan** | Spec exists, work needs decomposition | `harness-stack:planner` produces an ExecPlan |
+| **Build** | ExecPlan ready | `harness-stack:exec-plan` (single agent), `harness-stack:team` (multi-agent), `harness-stack:tdd` (test-first) |
+| **Verify** | Something is broken or unverified | `harness-stack:debug` (root cause), `harness-stack:user-test` (behaviour-level user-test probes) |
+| **Review** | Change is ready for scrutiny | `harness-stack:review-request` (dispatch), `harness-stack:review-receive` (handle findings), `harness-stack:security` (security audit) |
+| **Deliberate** | Question is contested or high-risk | `harness-stack:debate` (multi-round), `harness-stack:decide` (one-shot parallel) |
+| **Ship** | Code is approved | `harness-stack:commit` → `harness-stack:pr` → `harness-stack:changelog` → `harness-stack:land` → `harness-stack:ship` |
+| **Meta** | Manage the framework itself | `harness-stack:docs-init`, `harness-stack:env-init`, `harness-stack:skill-create` |
 
 Trivial work (one-line fix, typo, obvious rename) skips the lifecycle. Use judgment: the skills exist to prevent the failure modes of skipping them, not as ceremony.
 
@@ -46,7 +46,7 @@ These hold across every skill. Full text in `docs/golden-rules.md`.
 
 - TypeScript runtime packages live under `packages/`, managed via pnpm workspaces.
 - `@hs/llm` (`packages/hs-llm/`) is the stateless LLM provider abstraction (api / cli / sdk / mock). Skills that call models go through it.
-- All skills and agents use the `hs-` prefix to avoid namespace collisions with other plugins.
+- All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:spec`, `harness-stack:code-reviewer`); the plugin name provides collision isolation, so individual skills and agents carry no extra prefix.
 - Documentation root is `docs/`. `docs/recipes/` holds cross-cutting how-tos; `docs/references/` holds checklists and patterns.
 
 ## How to use this document

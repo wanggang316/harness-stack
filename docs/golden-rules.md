@@ -48,7 +48,7 @@ harness-stack 的核心原则。所有 Skills 和 Agents 必须遵守。
 
 ## 10. 自举能力
 - harness 可以用自己的 Skills 改进自己
-- hs-skill-create 创建新 Skills
+- harness-stack:skill-create 创建新 Skills
 - 自身质量可验证
 
 ## 11. 修复环境，不修复提示

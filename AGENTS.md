@@ -7,50 +7,50 @@ Agent-first development framework implementing the harness methodology.
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
-- `/hs-docs-init` - One-time scaffold of docs structure and base documents
-- `/hs-env-init` - Initialize per-worktree isolated runtime environment
-- `/hs-skill-create` - Create new skills
+- `/harness-stack:docs-init` - One-time scaffold of docs structure and base documents
+- `/harness-stack:env-init` - Initialize per-worktree isolated runtime environment
+- `/harness-stack:skill-create` - Create new skills
 
 ### Lifecycle Skills
 
 **Define** → Define product, architecture, API, UI
-- `/hs-define-product` - Product definition (global)
-- `/hs-define-architecture` - Architecture definition (global)
-- `/hs-define-api-spec` - API specification (global)
-- `/hs-define-ui-spec` - UI design system (DESIGN.md)
-- `/hs-spec` - Product specification, PM view (feature-level)
-- `/hs-design` - Design document, engineering view (feature-level)
-- `/hs-test-spec` - User-test set, QA view (feature-level, docs/user-tests/); first run also bootstraps docs/user-test-patterns.md
+- `/harness-stack:define-product` - Product definition (global)
+- `/harness-stack:define-architecture` - Architecture definition (global)
+- `/harness-stack:define-api-spec` - API specification (global)
+- `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
+- `/harness-stack:spec` - Product specification, PM view (feature-level)
+- `/harness-stack:design` - Design document, engineering view (feature-level)
+- `/harness-stack:test-spec` - User-test set, QA view (feature-level, docs/user-tests/); first run also bootstraps docs/user-test-patterns.md
 
 **Plan** → Create and execute plans
-- `/hs-planner` - Create execution plans (ExecPlans)
-- `/hs-exec-plan` - Execute an approved ExecPlan
-- `/hs-tdd` - Test-driven development
+- `/harness-stack:planner` - Create execution plans (ExecPlans)
+- `/harness-stack:exec-plan` - Execute an approved ExecPlan
+- `/harness-stack:tdd` - Test-driven development
 
 **Verify** → Debug and test
-- `/hs-debug` - Debugging and error recovery
-- `/hs-user-test` - Probe a running system against user-test cases; reports PASS/FAIL with evidence
+- `/harness-stack:debug` - Debugging and error recovery
+- `/harness-stack:user-test` - Probe a running system against user-test cases; reports PASS/FAIL with evidence
 
 **Review** → Ensure quality
-- `/hs-review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
-- `/hs-review-receive` - Handle reviewer feedback (author side)
-- `/hs-security` - Security audit
+- `/harness-stack:review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
+- `/harness-stack:review-receive` - Handle reviewer feedback (author side)
+- `/harness-stack:security` - Security audit
 
 **Deliberate** → Multi-agent reasoning
-- `/hs-debate` - Multi-agent debate among heterogeneous LLM agents on a single question
-- `/hs-decide` - Parallel multi-agent decision support: each agent answers independently, synthesis pass produces final decision with confidence and minority positions
+- `/harness-stack:debate` - Multi-agent debate among heterogeneous LLM agents on a single question
+- `/harness-stack:decide` - Parallel multi-agent decision support: each agent answers independently, synthesis pass produces final decision with confidence and minority positions
 
 **Ship** → Deploy and release
-- `/hs-changelog` - Changelog management
-- `/hs-git` - Git workflow and versioning
-- `/hs-land` - Drive an open PR to a clean merge
-- `/hs-ship` - Shipping and launch
+- `/harness-stack:changelog` - Changelog management
+- `/harness-stack:git` - Git workflow and versioning
+- `/harness-stack:land` - Drive an open PR to a clean merge
+- `/harness-stack:ship` - Shipping and launch
 
 ### Specialized Agents
 
 When you need expert judgment:
-- `hs-architect` - System design, technical decisions
-- `hs-code-reviewer` - PR review, quality checks
+- `harness-stack:architect` - System design, technical decisions
+- `harness-stack:code-reviewer` - PR review, quality checks
 
 ## Golden Rules
 
@@ -64,11 +64,11 @@ When you need expert judgment:
 
 ## Getting Started
 
-1. Write spec: `/hs-spec` for new features
-3. Plan work: `/hs-planner` to create execution plan
-4. Build: `/hs-exec-plan` to execute the plan
-5. Review: `/hs-review-request` to dispatch, `/hs-review-receive` after feedback
-6. Ship: `/hs-ship` to deploy
+1. Write spec: `/harness-stack:spec` for new features
+3. Plan work: `/harness-stack:planner` to create execution plan
+4. Build: `/harness-stack:exec-plan` to execute the plan
+5. Review: `/harness-stack:review-request` to dispatch, `/harness-stack:review-receive` after feedback
+6. Ship: `/harness-stack:ship` to deploy
 
 ## Packages
 
@@ -92,4 +92,4 @@ harness-stack uses **pure Agent-driven architecture**:
 - Subagents provide specialized expertise
 - Self-bootstrapping capability
 
-All skills and agents use `h-` prefix to avoid conflicts.
+All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:spec`, `harness-stack:code-reviewer`), which provides collision isolation — no per-skill prefix is needed.

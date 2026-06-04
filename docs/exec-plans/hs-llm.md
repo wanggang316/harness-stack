@@ -9,7 +9,7 @@ This is a living document. The Progress, Surprises & Discoveries, Decision Log, 
 
 ## Purpose
 
-After this plan is implemented, a skill author (e.g., the future `hs-decide` and `hs-debate` skills) can invoke any configured LLM — whether through HTTP API, a local coding-agent CLI subprocess, or a custom adapter — through a single uniform interface, from either TypeScript code or a shell command. The author specifies "which agent" by ID (resolved against a JSON config) and what prompt to send; the package hides the differences between OpenAI-compatible APIs, Anthropic APIs, and the nine supported coding-agent CLIs (`claude`, `codex`, `gemini`, `copilot`, `pi`, `opencode`, `droid`, `amp`, `generic`).
+After this plan is implemented, a skill author (e.g., the future `harness-stack:decide` and `harness-stack:debate` skills) can invoke any configured LLM — whether through HTTP API, a local coding-agent CLI subprocess, or a custom adapter — through a single uniform interface, from either TypeScript code or a shell command. The author specifies "which agent" by ID (resolved against a JSON config) and what prompt to send; the package hides the differences between OpenAI-compatible APIs, Anthropic APIs, and the nine supported coding-agent CLIs (`claude`, `codex`, `gemini`, `copilot`, `pi`, `opencode`, `droid`, `amp`, `generic`).
 
 Concretely, after this plan:
 
@@ -40,7 +40,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - **2026-05-04, Slice 2.** Vitest ran without needing `pnpm approve-builds` — esbuild's optional build scripts are not required for the use case at hand. Resolved without action.
 - **2026-05-04, Slice 2.** With `noUncheckedIndexedAccess`, indexed access on `config.providers["name"]` returns `T | undefined`. Required defensive narrowing in `runner.ts`, `load.ts`, and the test helper. The strictness paid off — caught two off-by-one assumptions during authoring.
 - **2026-05-04, Slice 2.** Workspace devDeps (typescript, vitest, tsx, prettier) at the root are accessible to packages via PATH inheritance when scripts are run through `pnpm --filter`. Per-package devDeps not needed for the shared toolchain — only runtime deps (zod) live under `packages/hs-llm/dependencies`.
-- **2026-05-04, Slice 1+2 review (round 1).** Code-reviewer + test-engineer dispatched in parallel via `hs-review-request`. Verdict: Approve with fixes. Critical findings concentrated in test coverage gaps (cache reuse, malformed assertion looseness, validateConfig referential checks, abort path). Important findings: `applyAgentDefaults` only indirectly tested, `exports` map key order in `package.json` (must be `types` before `import`). All Critical and Important findings applied; tests grew from 7 → 18.
+- **2026-05-04, Slice 1+2 review (round 1).** Code-reviewer + test-engineer dispatched in parallel via `harness-stack:review-request`. Verdict: Approve with fixes. Critical findings concentrated in test coverage gaps (cache reuse, malformed assertion looseness, validateConfig referential checks, abort path). Important findings: `applyAgentDefaults` only indirectly tested, `exports` map key order in `package.json` (must be `types` before `import`). All Critical and Important findings applied; tests grew from 7 → 18.
 - **2026-05-04, Slice 3.** Vercel AI SDK ecosystem has migrated to `LanguageModelV2` interface. The plan's `ai@^4` is V1; `@ai-sdk/openai-compatible@^1` already publishes V2 models, so the V1+V2 mix produced a TS2322 type error on the openai-compatible factory. Resolved by upgrading to coherent V2 stack: `ai@^6`, `@ai-sdk/anthropic@^2`, `@ai-sdk/openai-compatible@^1`. API surface change: `maxTokens → maxOutputTokens`, `usage.{prompt,completion}Tokens → usage.{input,output}Tokens` — the latter happens to match hs-llm's own field names exactly, so no shape translation is needed.
 - **2026-05-04, Slice 3.** First implementation of `isAbortError` matched any error whose message contained "aborted" or "timeout" — false-positively catching `APICallError(statusCode: 408, message: "Request timeout")` and routing it through the abort branch. Reordered classification so `APICallError` is checked first, and tightened `isAbortError` to name-only (`AbortError`/`TimeoutError`). Test fixture pinned the bug.
 - **2026-05-04, Slice 4.** Test-fixture argv ordering bug: when the fake CLI script was invoked as `node fake-cli.mjs --print --model X`, Node parsed `--print` and `--model` as its own flags (`bad option`). Fix: shebang the fixture (`#!/usr/bin/env node`), `chmod +x`, and configure `command: FAKE_CLI_PATH` directly with empty `args` list. This matches how production cliType configs work — the binary is invoked directly with its own flags.
@@ -48,7 +48,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 ## Decision Log
 
-**D1 — Stateless tool, business logic in skill layer.** Confirmed with user. The package exposes `invoke` / `invokeMany` only; it does not implement debate rounds, voting, claim catalogs, or session state. Rationale: keeps the package reusable across multiple skills (`hs-decide`, `hs-debate`, future skills) and decouples runtime from policy.
+**D1 — Stateless tool, business logic in skill layer.** Confirmed with user. The package exposes `invoke` / `invokeMany` only; it does not implement debate rounds, voting, claim catalogs, or session state. Rationale: keeps the package reusable across multiple skills (`harness-stack:decide`, `harness-stack:debate`, future skills) and decouples runtime from policy.
 
 **D2 — Library API + CLI binary, both shipped.** The CLI is the primary surface for skills (skill markdown invokes Bash); the library API exists for downstream TS consumers and tests. The CLI is a thin wrapper over the library.
 
@@ -105,7 +105,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 
 **Key plan deviations (recorded in Decision Log):** Vercel AI SDK upgraded from v4 to v6 (V2 LanguageModel interface) before any surface-level coding completed (D19); `applyAgentDefaults` and several utility primitives promoted to public exports for testability and downstream skill reuse (D18, plus schema utilities).
 
-**One-round review applied (Slice 1+2):** Code-reviewer + test-engineer dispatched in parallel via `hs-review-request`. Verdict was Approve with fixes; Critical/Important findings (test coverage gaps, exports key order, indirect default-merge testing) were applied before continuing to Slice 3. No additional review rounds requested by the author for slices 3–9; downstream consumer skills (`hs-decide`, `hs-debate`) will exercise the package end-to-end and provide the next signal.
+**One-round review applied (Slice 1+2):** Code-reviewer + test-engineer dispatched in parallel via `harness-stack:review-request`. Verdict was Approve with fixes; Critical/Important findings (test coverage gaps, exports key order, indirect default-merge testing) were applied before continuing to Slice 3. No additional review rounds requested by the author for slices 3–9; downstream consumer skills (`harness-stack:decide`, `harness-stack:debate`) will exercise the package end-to-end and provide the next signal.
 
 **Open work intentionally deferred:** Live API tests under `HS_LLM_LIVE_TESTS=1` were scaffolded into the README but not added to CI; vitest coverage thresholds were not configured (test count, not coverage %, was the bar in this iteration); the package is not yet published to npm — consumed only via the workspace.
 
@@ -117,7 +117,7 @@ The package is **stateless and business-logic-free**: it does not know about deb
 - Repo entry: `AGENTS.md`
 - Architecture overview: `ARCHITECTURE.md`
 - Golden rules: `docs/golden-rules.md`
-- Future consumer skills (not yet written): `skills/hs-decide/SKILL.md`, `skills/hs-debate/SKILL.md`
+- Future consumer skills (not yet written): `skills/decide/SKILL.md`, `skills/debate/SKILL.md`
 
 **Reference implementation studied (external, not vendored):**
 - `~/dev/opensource/argue/packages/argue-cli/src/runtime/types.ts` — `ProviderTaskRunner` interface shape we will mirror (narrower).
@@ -217,7 +217,7 @@ Verify: unit tests pass for both cliTypes. Both smoke tests return non-empty res
 
 ### Slice 5: `invokeMany()` with partial-failure tolerance
 
-This slice gives skills a robust way to fan out to N agents in parallel and tolerate per-agent failures — required by `hs-decide`'s parallel sampling and `hs-debate`'s round-1 broadcast.
+This slice gives skills a robust way to fan out to N agents in parallel and tolerate per-agent failures — required by `harness-stack:decide`'s parallel sampling and `harness-stack:debate`'s round-1 broadcast.
 
 Edits:
 
@@ -246,7 +246,7 @@ Verify: from repo root, `node packages/hs-llm/dist/cli.js validate-config packag
 
 ### Slice 7: Schema-constrained output (optional)
 
-This slice adds a `--schema-file` mode for callers who want guaranteed JSON. Not required by any default skill flow, but used by `hs-debate`'s claim-extraction step.
+This slice adds a `--schema-file` mode for callers who want guaranteed JSON. Not required by any default skill flow, but used by `harness-stack:debate`'s claim-extraction step.
 
 Edits:
 

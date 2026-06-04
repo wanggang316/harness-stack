@@ -90,7 +90,7 @@ LLM 输出 = 不可信用户输入。我们整套 stack 跑 AI agent，这一类
 - 负路径只断言了 status / type，没断言副作用（URL 是否附加、callback 是否触发、外部服务是否被调用）。
 - 不应调用外部服务的路径缺 `expect(spy).not.toHaveBeenCalled()` 之类的反向断言。
 - 安全/限流/权限拦截类功能只有单元测试，缺端到端验证拦截真实生效。
-- Bug fix 没附回归测试（先用失败测试钉住 bug，再修；见 `skills/hs-tdd/SKILL.md`）。
+- Bug fix 没附回归测试（先用失败测试钉住 bug，再修；见 `skills/tdd/SKILL.md`）。
 
 ### LLM Prompt Issues
 
@@ -166,8 +166,8 @@ LLM 输出 = 不可信用户输入。我们整套 stack 跑 AI agent，这一类
 ## See Also
 
 - `agents/code-reviewer.md` — 五轴评审主流程（subagent 系统提示）。
-- `skills/hs-review-request/SKILL.md` — 作者侧调度入口与 lane 选择。
+- `skills/review-request/SKILL.md` — 作者侧调度入口与 lane 选择。
 - `docs/references/security-checklist.md` — OWASP-class 安全检查。
 - `docs/references/performance-checklist.md` — 性能检查。
-- `skills/hs-security/SKILL.md` — 深度安全审计与硬化。
-- `skills/hs-tdd/SKILL.md` — Bug fix 的回归测试编写。
+- `skills/security/SKILL.md` — 深度安全审计与硬化。
+- `skills/tdd/SKILL.md` — Bug fix 的回归测试编写。

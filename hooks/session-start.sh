@@ -14,7 +14,7 @@ if [ ! -f "$SKILL_FILE" ]; then
 fi
 
 CONTENT=$(cat "$SKILL_FILE")
-WRAPPED=$(printf '<EXTREMELY_IMPORTANT>\nharness-stack loaded. Use the lifecycle map to pick the right hs-* skill.\n\n%s\n</EXTREMELY_IMPORTANT>' "$CONTENT")
+WRAPPED=$(printf '<EXTREMELY_IMPORTANT>\nharness-stack loaded. Use the lifecycle map to pick the right harness-stack:* skill.\n\n%s\n</EXTREMELY_IMPORTANT>' "$CONTENT")
 
 if command -v jq >/dev/null 2>&1; then
   jq -n --arg ctx "$WRAPPED" \

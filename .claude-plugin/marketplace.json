@@ -9,7 +9,7 @@
     {
       "name": "harness-stack",
       "source": "./",
-      "description": "Agent-first development framework: lifecycle skills (hs-*), code-reviewer subagent, and harness hooks."
+      "description": "Agent-first development framework: lifecycle skills (harness-stack:*), code-reviewer subagent, and harness hooks."
     }
   ]
 }

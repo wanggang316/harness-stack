@@ -1,7 +1,7 @@
 {
   "name": "harness-stack",
   "version": "0.1.0",
-  "description": "Agent-first development framework: lifecycle skills (hs-*), review/security/test subagents, and harness hooks.",
+  "description": "Agent-first development framework: lifecycle skills (harness-stack:*), review/security/test subagents, and harness hooks.",
   "author": {
     "name": "Gump"
   },

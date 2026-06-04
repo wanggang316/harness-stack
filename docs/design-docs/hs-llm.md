@@ -6,7 +6,7 @@
 
 ## Context and Scope
 
-harness-stack is currently a markdown-only skills framework. Future skills `hs-decide` (parallel-first decision support, Self-MoA pattern) and `hs-debate` (multi-agent debate with anonymized peers) will need to invoke heterogeneous LLMs from skill instructions. Today, doing so requires each skill author to hand-roll subprocess spawns or HTTP calls — fragile, inconsistent, untestable.
+harness-stack is currently a markdown-only skills framework. Future skills `harness-stack:decide` (parallel-first decision support, Self-MoA pattern) and `harness-stack:debate` (multi-agent debate with anonymized peers) will need to invoke heterogeneous LLMs from skill instructions. Today, doing so requires each skill author to hand-roll subprocess spawns or HTTP calls — fragile, inconsistent, untestable.
 
 `hs-llm` is the first TypeScript package introduced into the repo (under a new `packages/` workspace). Its only job is to provide a **uniform invocation surface** over four kinds of LLM access: HTTP APIs (OpenAI/Anthropic-compatible), local coding-agent CLIs (Claude Code, Inflection Pi, Codex, Gemini, etc.), custom user-supplied adapters, and a deterministic mock for tests.
 
@@ -61,7 +61,7 @@ The central trade-off the design optimizes for is **statelessness vs. ergonomics
 
 The chosen middle ground: callers pass an in-memory `HsLlmConfig` object (loaded once at the start of an invocation cycle), but **no resolver-layer or runner-layer state survives a single `invoke` / `invokeMany` call**. The `ProviderTaskRunner` instances are cached by provider name *within* a call (so 3 parallel invocations of the same provider share one runner), but the cache is discarded when the call returns.
 
-This trade-off matters because the consuming skills (`hs-decide`, `hs-debate`) are themselves stateless: each user query starts a fresh sequence of `invoke` calls and ends when the report is written. Trying to share state across queries adds bug surface (stale auth tokens, leaked memory, race conditions in async code) for no real benefit.
+This trade-off matters because the consuming skills (`harness-stack:decide`, `harness-stack:debate`) are themselves stateless: each user query starts a fresh sequence of `invoke` calls and ends when the report is written. Trying to share state across queries adds bug surface (stale auth tokens, leaked memory, race conditions in async code) for no real benefit.
 
 ### System Context Diagram
 
@@ -275,7 +275,7 @@ The principle: `index.ts` exports only what callers need to use the library; `ru
 
 **Chosen: 5 kinds: `config`, `timeout`, `retryable`, `non-retryable`, `abort`.**
 
-argue uses 2 kinds (`retryable` / `non-retryable`). We expand to 5 because the consumers (`hs-decide`, `hs-debate`) make different decisions per kind:
+argue uses 2 kinds (`retryable` / `non-retryable`). We expand to 5 because the consumers (`harness-stack:decide`, `harness-stack:debate`) make different decisions per kind:
 
 - `config` — author-time error (bad config file, unknown agent ID, missing API key env var). Surfaces immediately to the user; never retried.
 - `timeout` — exceeded `timeoutMs`. **Retryable**, but reported separately because the right response is often "increase timeout" rather than "retry blindly". Skills can decide whether to re-attempt.
@@ -315,7 +315,7 @@ The semaphore is ~30 lines. It avoids a dependency (`p-limit` or similar) for a 
 argue uses `participantSessionKey` to chain calls within a debate (so a debater "remembers" what it said in round 1 when responding in round 2). hs-llm rejects this because:
 
 1. argue's session chain is part of *engine state*; we have no engine.
-2. Skill-layer multi-turn (e.g., `hs-debate` round 2 sees round 1's outputs) is implemented by **constructing a longer prompt** that includes prior context — not by relying on provider-side session memory. This is more portable: API providers, mock, and sdk runners all support "longer prompts"; not all support sessions.
+2. Skill-layer multi-turn (e.g., `harness-stack:debate` round 2 sees round 1's outputs) is implemented by **constructing a longer prompt** that includes prior context — not by relying on provider-side session memory. This is more portable: API providers, mock, and sdk runners all support "longer prompts"; not all support sessions.
 3. Cross-invocation session files (pi's `--session <path>`) are a maintenance burden (tmp-dir cleanup, concurrent access, stale state).
 
 **Alternatives:**
@@ -392,14 +392,14 @@ Could fork `argue-cli` and strip its engine, keeping just the runtime. Rejected 
 ### A2 — Bake LLM access into each skill (no shared package)
 
 Each skill writes its own subprocess spawn or HTTP call. Rejected because:
-- `hs-decide` and `hs-debate` would diverge in error handling, retry, validation — exactly the bugs that hurt async no-human-in-loop systems.
+- `harness-stack:decide` and `harness-stack:debate` would diverge in error handling, retry, validation — exactly the bugs that hurt async no-human-in-loop systems.
 - Any future skill needing LLM access starts from zero.
 - argue's engine validates this approach is wrong: they explicitly factored out a runtime layer.
 
 ### A3 — Single-binding API (Anthropic only)
 
 Skip the multi-provider abstraction; just call the Anthropic SDK directly. Rejected because:
-- The `hs-debate` skill *requires* heterogeneity (Du et al. 2023, "Stop Overvaluing MAD" 2025) — different model families are a hard requirement, not a nice-to-have.
+- The `harness-stack:debate` skill *requires* heterogeneity (Du et al. 2023, "Stop Overvaluing MAD" 2025) — different model families are a hard requirement, not a nice-to-have.
 - Reduces to a single-vendor decision system, which the research portion of the conversation explicitly identified as a regression.
 
 ### A4 — Use LangChain or LlamaIndex
@@ -437,7 +437,7 @@ They provide multi-provider abstractions out of the box. Rejected:
 
 ### Migration / rollout
 
-- Repo already has Slice 1 (TS toolchain) as a structural change. Ship `hs-llm` as `0.0.x` until the public API has been validated by `hs-decide` and `hs-debate` ExecPlans. Bump to `0.1.0` when both consumer skills land.
+- Repo already has Slice 1 (TS toolchain) as a structural change. Ship `hs-llm` as `0.0.x` until the public API has been validated by `harness-stack:decide` and `harness-stack:debate` ExecPlans. Bump to `0.1.0` when both consumer skills land.
 - No data migration (stateless package).
 - Rollback: deleting `packages/hs-llm/` and reverting `package.json`/`pnpm-workspace.yaml` is the rollback. No external systems touched.
 
