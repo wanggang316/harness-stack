@@ -42,6 +42,12 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
 
+  packages/hs-plan:
+    dependencies:
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+
 packages:
 
   '@ai-sdk/anthropic@2.0.79':
