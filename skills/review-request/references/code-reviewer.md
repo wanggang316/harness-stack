@@ -14,7 +14,7 @@ You are reviewing code changes for production readiness.
 
 {DESCRIPTION}
 
-## Spec / ExecPlan
+## Spec / plan
 
 {SPEC_PATH}
 

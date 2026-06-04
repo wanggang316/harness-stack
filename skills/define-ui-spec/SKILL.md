@@ -116,12 +116,11 @@ DESIGN SYSTEM READY:
 
 ## Relationship to Other Skills
 
-- **harness-stack:spec** defines *what* to build — the product requirements
-- **harness-stack:define-ui-spec** defines *how it should look* — the visual design language
-- **harness-stack:exec-plan** reads `docs/ui-design.md` when implementing UI components
-- **harness-stack:design** defines *how to build it technically* — architecture decisions
+- **harness-stack:define-ui-spec** defines *how it should look* — the visual design language (`docs/ui-design.md`)
+- **harness-stack:design** defines *how to build it technically* — architecture decisions, when needed
+- **harness-stack:feature-driven-development** is the main build flow; its implementers read `docs/ui-design.md` when building UI components
 
-Recommended sequence for new UI features: `harness-stack:spec` → `harness-stack:define-ui-spec` → `harness-stack:planner` → `harness-stack:exec-plan`
+Recommended sequence for new UI features: `harness-stack:define-ui-spec` (once) → `harness-stack:feature-driven-development` for each feature
 
 ## Available Pre-built Styles
 

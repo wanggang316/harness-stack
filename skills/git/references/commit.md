@@ -51,7 +51,7 @@ update auth.ts
 
 ## Don't Reference Ephemeral Planning Artifacts
 
-Planning numbers — `Phase 1`, `Slice 2`, `Q3-Q5`, `D-12`, `Task #007`, "per the ExecPlan", "see design doc above" — are scoped to one conversation or one in-flight planning document. They mean nothing to someone reading `git log` next quarter, and the artifacts they reference may have been renamed, moved, or never merged.
+Planning numbers — `Phase 1`, `Slice 2`, `Q3-Q5`, `D-12`, `Task #007`, "per the plan", "see design doc above" — are scoped to one conversation or one in-flight planning document (plan slugs live in gitignored runtime state). They mean nothing to someone reading `git log` next quarter, and the artifacts they reference may have been renamed, moved, or never merged.
 
 Describe what the commit *does* in terms that stand alone:
 

@@ -47,7 +47,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 
 ## Naming Convention
 
-All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:spec`, `harness-stack:code-reviewer`), which isolates them from other plugins — no per-skill prefix is needed.
+All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:feature-driven-development`, `harness-stack:code-reviewer`), which isolates them from other plugins — no per-skill prefix is needed.
 
 ## Documentation
 

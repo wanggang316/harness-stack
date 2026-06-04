@@ -18,7 +18,7 @@ The reviewer methodology lives inside the `harness-stack:code-reviewer` subagent
 **Mandatory:**
 
 - Before opening or merging a PR.
-- After `harness-stack:exec-plan` completes an ExecPlan task or batch.
+- After a feature-driven-development feature or milestone (FDD already gates each feature; use this for a standalone review).
 - After a non-trivial feature, bug fix, or refactor.
 - When you are about to ship AI-generated code — it needs more scrutiny, not less.
 
@@ -30,9 +30,9 @@ The reviewer methodology lives inside the `harness-stack:code-reviewer` subagent
 
 ## Integration with Workflows
 
-**ExecPlan execution:**
+**Feature-driven development:**
 
-- Review after each task or batch — issues compound fast across tasks.
+- Review after each feature or milestone — issues compound fast across features.
 - Apply findings before starting the next task; don't let unresolved findings ride.
 
 **Parallel / multi-agent implementation:**
@@ -65,7 +65,7 @@ Open `references/code-reviewer.md` and fill the placeholders:
 | Placeholder | What to put |
 |---|---|
 | `{DESCRIPTION}` | One paragraph on what was implemented. |
-| `{SPEC_PATH}` | Path to spec / ExecPlan / PR description, e.g. `docs/specs/<feature>.md`. |
+| `{SPEC_PATH}` | Path to the spec / plan / PR description that grounds the review, e.g. `.harness-runtime/plans/<slug>/plan.md` or a design doc. |
 | `{BASE_SHA}` | The base SHA from step 1. |
 | `{HEAD_SHA}` | The head SHA from step 1. |
 | `{FOCUS_AREAS}` | Files or axes that deserve extra scrutiny. |
@@ -163,7 +163,7 @@ Human → final call
 
 ## Red Flags
 
-- Dispatching the reviewer without a spec or ExecPlan to ground the review.
+- Dispatching the reviewer without a spec or plan to ground the review.
 - Re-dispatching before the previous round's Critical / Important findings are resolved.
 - Sending the reviewer a diff that spans two unrelated changes — split first.
 - Copying your session history into the brief — that defeats fresh context.

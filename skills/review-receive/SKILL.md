@@ -63,7 +63,7 @@ If any check fails, push back with technical reasoning. Cite code (`file:line`),
 ## When to Push Back
 
 - Suggestion breaks existing functionality.
-- Reviewer lacks full context (didn't see the spec / ExecPlan).
+- Reviewer lacks full context (didn't see the spec / plan).
 - Violates YAGNI (proposes features the codebase doesn't actually use).
 - Technically incorrect for this stack, platform, or target version.
 - Legacy / compatibility reasons that the reviewer couldn't know.

@@ -9,7 +9,7 @@ description: Defines the product at the global level. Use when starting a new pr
 
 Define what the product is at the global level. `docs/product-spec.md` is the single most important document in a project — it is the starting point for all design, planning, and implementation. It answers: who does this serve, what problem does it solve, what are its core capabilities, and what is explicitly out of scope.
 
-This is not a feature spec. Feature-level specs live in `docs/product-specs/`. This document defines the product itself — the frame within which all features exist.
+This is not a feature spec. Per-feature requirements are captured per-plan by `harness-stack:feature-driven-development` (in `.harness-runtime/plans/<slug>/`), and code is the source of truth for what each feature does. This document defines the product itself — the frame within which all features exist.
 
 ## When to Use
 
@@ -19,7 +19,7 @@ This is not a feature spec. Feature-level specs live in `docs/product-specs/`. T
 - Team (or agent) doesn't understand what the product fundamentally is
 - Scope has drifted and boundaries need re-establishing
 
-**When NOT to use:** The product is well-defined and stable. If you need a feature-level spec, use `/harness-stack:spec`. If you need a technical design, use `/harness-stack:design`.
+**When NOT to use:** The product is well-defined and stable. To build a feature, use `/harness-stack:feature-driven-development`. If you need a technical design doc, use `/harness-stack:design`.
 
 ## Philosophy
 
@@ -217,11 +217,11 @@ PRODUCT DEFINITION READY FOR REVIEW:
 ## Relationship to Other Skills
 
 - **harness-stack:define-product** defines the product globally → `docs/product-spec.md`
-- **harness-stack:spec** defines individual features → `docs/product-specs/<feature>.md`
+- **harness-stack:feature-driven-development** builds individual features → per-plan state in `.harness-runtime/plans/<slug>/`
 - **harness-stack:define-architecture** defines system architecture → `docs/architecture.md`
 - **harness-stack:design** defines technical approach for specific changes → `docs/design-docs/<name>.md`
 
-The product definition is the root. Feature specs, architecture, and design docs all derive from it.
+The product definition is the root. Feature builds, architecture, and design docs all derive from it.
 
 ## Common Rationalizations
 
