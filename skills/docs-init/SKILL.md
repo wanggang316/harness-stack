@@ -29,8 +29,6 @@ A one-time initialization that scaffolds the standard documentation **Library** 
 | `docs/README.md` | `assets/docs/README.md` |
 | `docs/golden-rules.md` | `assets/docs/golden-rules.md` |
 | `docs/design-docs/{README,_template}.md` | `assets/docs/design-docs/` |
-| `docs/user-tests/README.md` | `assets/docs/user-tests/README.md` |
-| `docs/user-tests/_shared/personas.yaml` | `assets/docs/user-tests/_shared/personas.yaml` |
 | `docs/references/README.md` | `assets/docs/references/README.md` |
 | `docs/generated/README.md` | `assets/docs/generated/README.md` |
 | `.gitignore` entry `.harness-runtime/` | appended if missing (see Step 4b) |
@@ -39,7 +37,7 @@ A one-time initialization that scaffolds the standard documentation **Library** 
 
 - `docs/architecture.md` — architecture content is defined elsewhere
 - `docs/design-docs/<doc>.md` — individual design docs are authored elsewhere
-- `docs/user-test-patterns.md` — bootstrapped by `harness-stack:test-spec` on first run
+- `docs/user-test-patterns.md` — bootstrapped by `harness-stack:validation-contract` on first run
 - `.harness-runtime/` content — per-plan state is created by `harness-stack:feature-driven-development` and the `hs-plan` CLI; it is gitignored, not scaffolded
 - `CHANGELOG.md` — changelog is maintained elsewhere
 
@@ -116,7 +114,6 @@ After writing, print a table covering every target in the scope table with one o
 - [ ] `README.md` exists (either pre-existing or created from template)
 - [ ] `docs/README.md` and `docs/golden-rules.md` exist
 - [ ] `docs/design-docs/` contains `README.md` and `_template.md`
-- [ ] `docs/user-tests/README.md` and `docs/user-tests/_shared/personas.yaml` exist
 - [ ] `docs/references/README.md` and `docs/generated/README.md` exist
 - [ ] `.gitignore` contains `.harness-runtime/`
 - [ ] Every placeholder is either substituted or called out in the report

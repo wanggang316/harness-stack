@@ -18,7 +18,6 @@ are NOT writing assertions — you return an interaction inventory.
 Context to read:
 - Plan: .harness-runtime/plans/<slug>/plan.md  (this area covers: <plan requirements>)
 - Project test conventions: docs/user-test-patterns.md  (dimensions + personas)
-- Personas registry: docs/user-tests/_shared/personas.yaml
 - Relevant source / entry points: <paths, URL routes, API endpoints, CLI cmds>
 
 Task:

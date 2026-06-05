@@ -23,7 +23,7 @@ Agent-first development framework implementing the harness methodology.
 - `/harness-stack:design` - Technical design doc → `docs/design-docs/`; human-invoked, not part of the main flow
 
 **Build** (main flow) → feature-driven development
-- `/harness-stack:feature-driven-development` - Contract-first plan → features → milestone-gated execution loop. Uses `test-spec` (Phase 2) and `user-test` (Phase 4) internally.
+- `/harness-stack:feature-driven-development` - Contract-first plan → features → milestone-gated execution loop. Uses `validation-contract` (Phase 2) and `user-test` (Phase 4) internally.
 - `/harness-stack:tdd` - Test-driven development (inside an implementer's task)
 
 **Verify** → Debug and test

@@ -1,6 +1,6 @@
 # User-Test Patterns
 
-> Project-wide conventions for writing user-level tests. Authored during the first run of `/harness-stack:test-spec` (Step 0: Bootstrap). Read this before writing any individual user-test case; case files live in `docs/user-tests/`.
+> Project-wide conventions for runtime user-level verification. Authored during the first run of `/harness-stack:validation-contract` (Step 0: Bootstrap). Read this before authoring a plan's validation contract or probing it; the contract assertions live in `.harness-runtime/plans/<slug>/validation-contract.md`.
 
 ## Status
 
@@ -124,47 +124,23 @@ resets. Adjust the examples to this project's real surfaces.
 Default tier if unsure: **medium**. Record the tier next to each surface in the
 Tooling section above so the validator doesn't have to guess.
 
-## Personas Registry
+## Personas
 
-<!--
-Personas live as a single registry file readable by humans and agents alike.
--->
+A persona is a concrete, reusable identity an assertion names inline (e.g.
+`anonymous_visitor`, `returning_reader`, `site_admin`) so that "a user" never drifts
+into ten different meanings. Document here, in one line each, how each persona this
+project uses authenticates and what it can access — that's all the validator needs to
+stand the persona up.
 
-**Location:** `docs/user-tests/_shared/personas.yaml`
-
-**Schema:**
-
-```yaml
-personas:
-  - id: anonymous_visitor
-    description: Not logged in
-    auth: null
-    permissions: []
-  - id: returning_reader
-    description: Has account, subscribed to RSS
-    auth:
-      kind: session
-      storageState: .auth/returning_reader.json
-    permissions: [read]
-    fixtures:
-      user_row: tests/fixtures/personas/returning_reader.user.json
-  - id: site_admin
-    description: Has /admin access
-    auth:
-      kind: api_token
-      env_var: ADMIN_API_TOKEN
-    permissions: [read, write, admin]
-```
-
-**How to add:** open the file, append a new entry, run `/harness-stack:test-spec` to bind it to a case.
+- `anonymous_visitor` — not logged in; no auth.
+- `returning_reader` — session auth; read access.
+- `site_admin` — admin API token (`ADMIN_API_TOKEN`); read/write/admin.
 
 ## Fixtures and Test Data
 
-**Location:** `docs/user-tests/_shared/fixtures/` — reusable fixtures shared across plans (durable Library). Plan-specific throwaway fixtures may live under the plan's gitignored runtime dir.
-
 **Naming:** `<scenario>.<format>` — e.g. `empty-inbox.json`, `three-completed-reports.sql`, `large-list-1000.json`.
 
-**Rule:** fixtures are static data. They do not import code. They can be loaded by any test runner or by the runtime validator directly.
+**Rule:** fixtures are static data. They do not import code. They can be loaded by any test runner or by the runtime validator directly. Keep them wherever the project's tests already live (`tests/fixtures/` or similar).
 
 ## Artifacts
 

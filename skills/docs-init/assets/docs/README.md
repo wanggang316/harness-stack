@@ -9,8 +9,7 @@ This directory is the **system of record** for all project knowledge. If it's no
 | [architecture.md](architecture.md) | System architecture, domains, layers |
 | [golden-rules.md](golden-rules.md) | Enforced principles and conventions |
 | [design-docs/](design-docs/) | Technical design documents (human-authored) |
-| [user-tests/](user-tests/) | Testing Library: personas + shared fixtures |
-| user-test-patterns.md | Project-wide testing conventions |
+| user-test-patterns.md | Project-wide testing conventions (tooling, cost tiers, personas) |
 | [references/](references/) | External references, API docs, integration notes |
 | [generated/](generated/) | Auto-generated artifacts — do not edit manually |
 

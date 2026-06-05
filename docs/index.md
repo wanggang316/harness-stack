@@ -19,7 +19,7 @@ harness-stack 文档中心。
 | Define | harness-stack:define-architecture | [SKILL.md](../skills/define-architecture/SKILL.md) |
 | Design（可选）| harness-stack:design | [SKILL.md](../skills/design/SKILL.md) |
 | Build（主流程）| harness-stack:feature-driven-development | [SKILL.md](../skills/feature-driven-development/SKILL.md) |
-| Build | harness-stack:test-spec | [SKILL.md](../skills/test-spec/SKILL.md) |
+| Build | harness-stack:validation-contract | [SKILL.md](../skills/validation-contract/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/tdd/SKILL.md) |
 | Verify | harness-stack:debug | [SKILL.md](../skills/debug/SKILL.md) |
 | Verify | harness-stack:user-test | [SKILL.md](../skills/user-test/SKILL.md) |

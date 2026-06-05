@@ -18,10 +18,11 @@ else. The contract is organized by **area** (the plan's user-visible sub-capabil
 
 ## Personas Used
 
-<!-- Reference personas by ID from `docs/user-tests/_shared/personas.yaml`. -->
+<!-- A short legend of the personas named in the assertions below — one line each.
+No registry file; a persona is just a concrete, reusable identity named inline. -->
 
-- `anonymous_visitor` — drives the public read path
-- `returning_reader` — drives the subscription / personalized paths
+- `anonymous_visitor` — a logged-out visitor on the public surface
+- `returning_reader` — a subscriber with an active account
 
 ## Areas
 
@@ -63,26 +64,4 @@ sign in with the new one). Same two-line block. Leave present but empty if none.
 After completing recovery, the `returning_reader` signs in with the new password and
 reaches the dashboard.
 **Evidence:** screenshot of dashboard; network(POST /sessions → 303)
-
-## Requirement Coverage Matrix
-
-<!-- Every plan requirement → ≥ 1 assertion. The reverse direction (every assertion
-claimed by exactly one feature) is enforced by `hs-plan contract-coverage` in Phase 3,
-not here. -->
-
-| Plan requirement                | Covered by                 |
-|---------------------------------|----------------------------|
-| R1 — user can sign in           | VAL-AUTH-001               |
-| R2 — invalid creds rejected     | VAL-AUTH-002               |
-| R6 — recovery then sign-in      | VAL-CROSS-001              |
-| R9 — perf budget                | — verified by build gate, not a user-observable assertion |
-
-## Personas / Fixtures Added During Authoring
-
-- Added persona `returning_reader` to `docs/user-tests/_shared/personas.yaml`
-- Added fixture `one-active-user.sql` to `docs/user-tests/_shared/fixtures/seed/`
-
-## Open Questions
-
-1. Should VAL-AUTH-002 also assert the error survives a reload? **Default:** no — out of scope this iteration.
 ```

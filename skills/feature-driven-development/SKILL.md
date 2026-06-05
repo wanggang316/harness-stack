@@ -34,7 +34,7 @@ substitute for spec-reviewers; user-test-validators don't read the source.
 | Location | Holds | Versioned? |
 |---|---|---|
 | `.harness-runtime/plans/<slug>/` | per-plan state: `plan.md`, `validation-contract.md`, `validation-state.json`, `features.json` (+ `handoffs/`, `sealed-milestones.json`) | **No — gitignored** |
-| `docs/` | project Library: conventions + memory (`product-spec.md`, `architecture.md`, `api-spec.md`, `frontend-spec.md`, `design-docs/`, `references/`, `golden-rules.md`, `user-test-patterns.md`, `user-tests/_shared/`) | Yes |
+| `docs/` | project Library: conventions + memory (`product-spec.md`, `architecture.md`, `api-spec.md`, `frontend-spec.md`, `design-docs/`, `references/`, `golden-rules.md`, `user-test-patterns.md`) | Yes |
 
 Requirement and plan documents go stale fast, so they live in the runtime tree, not
 `docs/`. **Code is the source of truth** for what a feature actually does and how it
@@ -82,7 +82,7 @@ Four phases, in order. Read the referenced file when you enter each phase.
 | Phase | Reference | Output |
 |---|---|---|
 | 1. Plan | `references/planning.md` (template: `references/plan-template.md`) | accepted `plan.md` |
-| 2. Contract | invoke `harness-stack:test-spec` (authors the contract) | `validation-contract.md` → `hs-plan init-state` writes `validation-state.json` |
+| 2. Contract | invoke `harness-stack:validation-contract` (authors the contract) | `validation-contract.md` → `hs-plan init-state` writes `validation-state.json` |
 | 3. Features | `references/features.md` | `features.json`, passing `hs-plan contract-coverage` |
 | 4. Execution | `references/execution.md` (+ `references/handoff-handling.md`) | green plan: every assertion `passed`, every milestone sealed, final integration review clean |
 
@@ -96,7 +96,7 @@ and write the accepted proposal to `plan.md`. Get explicit acceptance before Pha
 Full procedure: `references/planning.md`.
 
 ### Phase 2 — Contract
-Invoke `harness-stack:test-spec`, pointed at this plan, to author
+Invoke `harness-stack:validation-contract`, pointed at this plan, to author
 `validation-contract.md` — the testable, user-observable assertions (`VAL-<AREA>-NNN`)
 that define done. It runs the adversarial multi-agent authoring pass and finishes with
 `hs-plan init-state` to seed `validation-state.json` (all assertions `pending`). This

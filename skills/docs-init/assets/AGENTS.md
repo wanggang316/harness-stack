@@ -49,8 +49,7 @@ See [Golden Rules](docs/golden-rules.md) for the complete list with rationale an
 | [docs/architecture.md](docs/architecture.md) | System architecture, domains, layers |
 | [docs/golden-rules.md](docs/golden-rules.md) | Enforced principles and conventions |
 | [docs/design-docs/](docs/design-docs/) | Technical design documents (human-authored) |
-| [docs/user-tests/](docs/user-tests/) | Testing Library: personas + shared fixtures |
-| docs/user-test-patterns.md | Project-wide testing conventions |
+| docs/user-test-patterns.md | Project-wide testing conventions (tooling, cost tiers, personas) |
 | [docs/references/](docs/references/) | External docs, API references |
 | [docs/generated/](docs/generated/) | Auto-generated artifacts |
 | `.harness-runtime/` | Per-plan FDD state (plans, contracts, features) — **gitignored**, not part of docs |

@@ -110,8 +110,8 @@ For each FAIL:
 
 Notes:
   <anything the caller should know that doesn't fit the matrix — e.g.
-   "VAL-AUTH-007 was in the brief but its persona is missing from
-   personas.yaml; ran INCONCLUSIVE.">
+   "VAL-AUTH-007 was in the brief but its persona is not defined in
+   docs/user-test-patterns.md; ran INCONCLUSIVE.">
 ```
 
 The verdict is decided arithmetically: any FAIL → `FAIL`; otherwise any INCONCLUSIVE → `INCONCLUSIVE`; otherwise `PASS`. The caller chooses how to handle each.

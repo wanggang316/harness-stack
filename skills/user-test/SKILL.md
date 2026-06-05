@@ -20,18 +20,17 @@ This skill is the **controller**: it resolves the run target, plans isolation, d
 
 ## When NOT to Use
 
-- The plan has no `validation-contract.md` at `.harness-runtime/plans/<slug>/`. Runtime validation needs concrete assertions (persona + observable behaviour + declared evidence) to probe; without them there is no contract to verify. Author the contract first (`harness-stack:test-spec`).
+- The plan has no `validation-contract.md` at `.harness-runtime/plans/<slug>/`. Runtime validation needs concrete assertions (persona + observable behaviour + declared evidence) to probe; without them there is no contract to verify. Author the contract first (`harness-stack:validation-contract`).
 - The change is non-behavioural (refactor with no user-visible delta). Static review is sufficient.
 - The project has no runnable entry point yet. Bootstrap first; runtime validation needs a live target.
 
 ## Prerequisites
 
-1. **Validation contract** at `.harness-runtime/plans/<slug>/validation-contract.md` — each assertion (`### VAL-<AREA>-NNN: <title>`) carries an observable behaviour description, a persona, and declared Evidence. See `harness-stack:test-spec`.
-2. **Project test conventions** at `docs/user-test-patterns.md` — declares per-platform tooling, ready signals, state-isolation protocol, **surface cost tiers**, artifacts layout, and a knowledge-persistence section. See `skills/test-spec/assets/user-test-patterns.md` for the template.
-3. **Personas registry** at `docs/user-tests/_shared/personas.yaml` — referenced assertions must find their persona here.
-4. **Runnable target** — a command that brings the system up (`pnpm dev`, `cargo run`, `docker compose up`) and a known ready signal (URL responds, log line, port open). Defined in `docs/user-test-patterns.md`.
-5. **Diff range** — `BASE_SHA..HEAD_SHA` covering the work being validated, so the report can be attached to a feature, milestone, or PR.
-6. **Assertion subset** — the `VAL-` ids this run is responsible for (e.g. `{VAL-AUTH-001, VAL-AUTH-002}` when validating one feature's `fulfills`). Use the full set when validating a milestone or a PR end-to-end.
+1. **Validation contract** at `.harness-runtime/plans/<slug>/validation-contract.md` — each assertion (`### VAL-<AREA>-NNN: <title>`) carries an observable behaviour description, a persona, and declared Evidence. See `harness-stack:validation-contract`.
+2. **Project test conventions** at `docs/user-test-patterns.md` — declares per-platform tooling, ready signals, state-isolation protocol, **surface cost tiers**, personas (how each authenticates / what it can access), artifacts layout, and a knowledge-persistence section. See `skills/validation-contract/assets/user-test-patterns.md` for the template.
+3. **Runnable target** — a command that brings the system up (`pnpm dev`, `cargo run`, `docker compose up`) and a known ready signal (URL responds, log line, port open). Defined in `docs/user-test-patterns.md`.
+4. **Diff range** — `BASE_SHA..HEAD_SHA` covering the work being validated, so the report can be attached to a feature, milestone, or PR.
+5. **Assertion subset** — the `VAL-` ids this run is responsible for (e.g. `{VAL-AUTH-001, VAL-AUTH-002}` when validating one feature's `fulfills`). Use the full set when validating a milestone or a PR end-to-end.
 
 ## Process
 
@@ -53,7 +52,7 @@ For each `VAL-` id in the requested subset, load from `.harness-runtime/plans/<s
 
 - The observable behaviour paragraph (what must hold)
 - The declared `Evidence:` (what must be captured on PASS)
-- The persona it names — resolve from `docs/user-tests/_shared/personas.yaml` to get auth, permissions, and fixture paths
+- The persona it names — look up how that persona authenticates and what it can access in the Personas section of `docs/user-test-patterns.md`
 
 The fully resolved assertion bundle is what goes into a validator's brief. The validator does not re-derive any of this from the source.
 
