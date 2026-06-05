@@ -1,6 +1,6 @@
 ---
 name: feature-driven-development
-description: The main flow for building new features. Contract-first orchestration — capture a plan, define testable assertions, decompose into features, then drive a milestone-gated execution loop using fresh-context implementer/reviewer/validator subagents. Use when a change touches multiple files, has multiple acceptance criteria, or spans more than one feature. Subsumes the older spec/planner/exec-plan/team flow.
+description: The main flow for building new features. Contract-first orchestration — capture a plan, define testable assertions, decompose into features, then drive a milestone-gated execution loop using fresh-context implementer/reviewer/validator subagents. Use when a change touches multiple files, has multiple acceptance criteria, or spans more than one feature.
 ---
 
 # Feature-Driven Development (FDD)

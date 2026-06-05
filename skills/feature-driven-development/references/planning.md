@@ -33,9 +33,8 @@ Suggested clarification topics (skip any already answered):
 | Infrastructure — ports? existing services? off-limits resources? | Written verbatim into `plan.md` Infrastructure (worker boundaries) |
 
 **Do not assume.** When unsure, ask. An offhand "oh, it should also…" is a full
-requirement — capture it. This salvages the rigor of the retired `spec` skill:
-reframe vague asks into concrete, testable intent; surface assumptions explicitly;
-separate must-have from nice-to-have.
+requirement — capture it. Reframe vague asks into concrete, testable intent;
+surface assumptions explicitly; separate must-have from nice-to-have.
 
 ## Step 2 — Investigate the codebase
 

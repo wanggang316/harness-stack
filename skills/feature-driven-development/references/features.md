@@ -61,7 +61,7 @@ foundational features before dependents; grouped by milestone; a precondition's
 producer before its consumer. Terminal-status features auto-move to the bottom during
 execution, so active work stays near the top.
 
-## Sizing (salvaged from the retired planner)
+## Sizing
 
 Each feature should be ~one worker session (≈30 min–4 hr of human-equivalent work),
 independently reviewable, touch a small file set, and have a clear acceptance. If a
