@@ -225,7 +225,6 @@ VALIDATION CONTRACT READY FOR REVIEW:
 - Plan: <slug>
 - Areas: <list>
 - Assertions written: <count>  (investigation surfaced <N>, review added <M>)
-- Personas referenced: <list>
 → Approve, or tell me what to change.
 ```
 

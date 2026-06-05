@@ -16,14 +16,6 @@ else. The contract is organized by **area** (the plan's user-visible sub-capabil
 **Status:** Draft | Approved
 **Patterns:** see `docs/user-test-patterns.md` for project-wide testing conventions
 
-## Personas Used
-
-<!-- A short legend of the personas named in the assertions below — one line each.
-No registry file; a persona is just a concrete, reusable identity named inline. -->
-
-- `anonymous_visitor` — a logged-out visitor on the public surface
-- `returning_reader` — a subscriber with an active account
-
 ## Areas
 
 <!-- The plan's user-visible sub-capabilities. Each becomes an `## Area:` section.
