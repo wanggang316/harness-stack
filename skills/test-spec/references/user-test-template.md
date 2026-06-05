@@ -3,8 +3,9 @@
 Use this skeleton when authoring `.harness-runtime/plans/<slug>/validation-contract.md`.
 Every assertion MUST be an H3 heading of the exact form `### VAL-<AREA>-NNN: <title>`
 (AREA uppercase alnum, NNN zero-padded 3 digits) — `hs-plan init-state` parses those
-headings to seed `validation-state.json`. The contract is organized by **area** (the
-plan's user-visible sub-capabilities).
+headings to seed `validation-state.json`. Each assertion is just its heading + one
+observable behaviour paragraph (naming the persona inline) + an `Evidence:` line — nothing
+else. The contract is organized by **area** (the plan's user-visible sub-capabilities).
 
 ---
 
@@ -33,60 +34,35 @@ go in `## Cross-Area Flows`. -->
 
 ## Area: Credential sign-in
 
-### VAL-AUTH-001: Anonymous visitor can sign in with valid credentials
+### VAL-AUTH-001: Returning reader can sign in with valid credentials
 
-**Behaviour:** A `returning_reader` with valid credentials submits the login form and
-lands on the dashboard with an active session.
-
-**Persona:** `returning_reader`
-
-**Preconditions:**
-- DB seed: `docs/user-tests/_shared/fixtures/seed/one-active-user.sql`
-- Auth: no session
-- App started: see ready signal in `docs/user-test-patterns.md`
-
+A `returning_reader` with valid credentials submits the login form and lands on the
+dashboard with an active session.
 **Evidence:** screenshot of the dashboard; network(POST /sessions → 303 → GET /dashboard)
-
-**Traces to:** R1 (user can sign in)
-
-**Artifacts on FAIL:** screenshot.png at first failure; network.har; a repro.sh
 
 ### VAL-AUTH-002: Invalid credentials are rejected without leaking which field was wrong
 
-**Behaviour:** Submitting a wrong password shows a generic "invalid credentials" error
-and stays on the login page; no session is created.
-
-**Persona:** `returning_reader`
-
-**Preconditions:** App started; no session
-
+A `returning_reader` submitting a wrong password sees a generic "invalid credentials"
+error and stays on the login page; no session is created.
 **Evidence:** screenshot of the error; network(POST /sessions → 401)
-
-**Traces to:** R2 (invalid credentials rejected)
-
-**Artifacts on FAIL:** screenshot.png; network.har; repro.sh
 
 ## Area: Password recovery
 
 ### VAL-RECOVER-001: <title>
 
-(repeat the block structure)
+<one observable behaviour paragraph naming the persona>
+**Evidence:** <screenshot / console-errors / network(...) / terminal-output>
 
 ## Cross-Area Flows
 
 <!-- Flows that span sub-capabilities WITHIN this plan (e.g. recover password → then
-sign in with the new one). Same block structure. Leave present but empty if none. -->
+sign in with the new one). Same two-line block. Leave present but empty if none. -->
 
 ### VAL-CROSS-001: New password works on next sign-in
 
-**Behaviour:** After completing recovery, the `returning_reader` signs in with the new
-password and reaches the dashboard.
-
-**Persona:** `returning_reader`
-**Preconditions:** recovery completed in the same session/run
+After completing recovery, the `returning_reader` signs in with the new password and
+reaches the dashboard.
 **Evidence:** screenshot of dashboard; network(POST /sessions → 303)
-**Traces to:** R6
-**Artifacts on FAIL:** screenshot.png; network.har; repro.sh
 
 ## Requirement Coverage Matrix
 

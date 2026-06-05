@@ -51,10 +51,9 @@ If the system refuses to start, the run aborts with `BLOCKED`: report the startu
 
 For each `VAL-` id in the requested subset, load from `.harness-runtime/plans/<slug>/validation-contract.md`:
 
-- The observable behaviour description (what must hold)
-- The persona (resolve from `docs/user-tests/_shared/personas.yaml` to get auth, permissions, fixture paths)
-- The declared Evidence (what must be captured on PASS)
-- Any preconditions/fixtures the assertion names
+- The observable behaviour paragraph (what must hold)
+- The declared `Evidence:` (what must be captured on PASS)
+- The persona it names — resolve from `docs/user-tests/_shared/personas.yaml` to get auth, permissions, and fixture paths
 
 The fully resolved assertion bundle is what goes into a validator's brief. The validator does not re-derive any of this from the source.
 

@@ -15,7 +15,7 @@ When invoked, you will:
 
 The brief gives you:
 
-- the group of assertions to probe (each with persona, observable behaviour, any named preconditions, declared verification method, declared Evidence, artifacts-on-FAIL list),
+- the group of assertions to probe (each a `VAL-` id with an observable behaviour, a persona, and a declared `Evidence:` line — the verification method is implied by the Evidence, e.g. `network(...)`),
 - the base URL / entry coordinates of the running system,
 - the path to the startup log,
 - the diff range that motivated this run (for attribution only),

@@ -190,16 +190,14 @@ Synthesise the returned lists; they are the raw material for Step 4. Do not past
 
 ### Step 4: Write Assertions
 
-Turn the investigation inventory into assertions, grouped under their area. Each assertion is an H3 heading exactly `### VAL-<AREA>-NNN: <title>` (AREA uppercase alnum, NNN zero-padded 3 digits — this exact heading is what `hs-plan init-state` parses), followed by the block in `references/user-test-template.md`. Fields:
+Turn the investigation inventory into assertions, grouped under their area. Each assertion is an H3 heading exactly `### VAL-<AREA>-NNN: <title>` (AREA uppercase alnum, NNN zero-padded 3 digits — this exact heading is what `hs-plan init-state` parses), followed by just two lines (see `references/user-test-template.md`):
 
-- **Behaviour:** one observable, persona-anchored paragraph describing what must hold. No implementation references.
-- **Persona:** name from the registry
-- **Preconditions:** fixtures loaded, DB seed, environment state, auth method (when state matters)
-- **Evidence:** the proof a validator must capture to call this assertion PASS — e.g. `screenshot of dashboard`, `network: POST /sessions → 303`, `DB row orders(user_id=$persona.id)`. Use the patterns-doc vocabulary (screenshot / console-errors / network(...) / terminal-output). On-FAIL artifacts are separate (below).
-- **Traces to:** the plan requirement(s) this assertion proves
-- **Artifacts on FAIL:** what gets captured when the assertion fails (screenshot, network HAR, query result, reproducer)
+- **One observable behaviour paragraph** — persona-anchored, describing what must hold from the user's point of view. Name the persona inline (by registry id). No implementation references.
+- **An `Evidence:` line** — the proof a validator must capture to call this assertion PASS, in the patterns-doc vocabulary: `screenshot` / `console-errors` / `network(POST /sessions → 303)` / `terminal-output`.
 
-Multi-step value (login → add to cart → checkout) is captured as a single assertion describing the whole journey's observable end-state. Put assertions that span sub-capabilities *within this plan* under a `## Cross-Area Flows` section. Keep each assertion to one observable end-state; closely-related end-states → multiple assertions sharing setup.
+That is the whole block. Keep it lean: per-feature preconditions live in `features.json`; the requirement→assertion mapping lives in the coverage matrix; failure artifacts are the validator's standing job — none of those belong inside the assertion.
+
+Multi-step value (login → add to cart → checkout) is one assertion describing the whole journey's observable end-state. Put assertions that span sub-capabilities *within this plan* under a `## Cross-Area Flows` section. Keep each assertion to one observable end-state.
 
 ### Step 5: Adversarial Review (≥ 2 sequential passes)
 
@@ -284,9 +282,8 @@ Once approved, the `VAL-` ids are stable inputs for `features.json` (Phase 3) an
 - A reviewer returned "looks good" with no missing cases — it wasn't adversarial
 - An assertion proves no plan requirement and isn't marked `(guard: ...)` (hallucinated coverage)
 - A case references implementation (function name, file path, internal data-test id naming a code module)
-- A case has no persona, or "any user"
-- A case has no Evidence field, or evidence that can't be captured ("verify manually")
-- A case's preconditions are missing — the runtime validator can't reproduce state
+- An assertion names no concrete persona, or "any user"
+- An assertion has no `Evidence:` line, or evidence that can't be captured ("verify manually")
 - The requirement coverage matrix omits a plan requirement
 - An area was split so finely that each "area" is a single case — over-decomposition
 - Two cases depend on shared mutable state (one must run before another)
@@ -301,8 +298,7 @@ Once approved, the `VAL-` ids are stable inputs for `features.json` (Phase 3) an
 - [ ] Plan decomposed into areas; areas confirmed before investigation
 - [ ] Each area investigated by a subagent (or inline for a trivial single-area plan)
 - [ ] At least two adversarial review passes run; the contract was edited between passes
-- [ ] Every assertion is an `### VAL-<AREA>-NNN: <title>` H3 and follows the template at `references/user-test-template.md`
-- [ ] Every assertion has behaviour, persona, preconditions, Evidence, Traces to, artifacts on FAIL
+- [ ] Every assertion is an `### VAL-<AREA>-NNN: <title>` H3 with one observable behaviour paragraph (persona named inline) + an `Evidence:` line, per `references/user-test-template.md`
 - [ ] Requirement coverage matrix: every plan requirement has ≥ 1 assertion
 - [ ] Selectors and assertions observable-only (no implementation references)
 - [ ] New personas / fixtures added to shared registries
