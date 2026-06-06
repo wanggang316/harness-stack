@@ -62,7 +62,7 @@ change. Authoritative state of the build lives in features.json / validation-sta
 <!-- Append-only, newest at bottom. One line per dispatch:
 `<ISO ts> <feature-id> <role> <outcome> [<commit-sha>]`
 2026-06-05T11:18Z  auth-schema       implementer  DONE        abc123
-2026-06-05T11:25Z  auth-schema       spec-review  pass
+2026-06-05T11:25Z  auth-schema       scrutiny     pass
 2026-06-05T11:31Z  auth-login-endpt  implementer  DONE        def456
 -->
 
