@@ -16,11 +16,11 @@ FDD 把一次构建中易变的状态——plan、完成的定义、工作清单
 controller 编排，下列 subagent 干活：
 
 - `harness-stack:implementer` — 实现单个 feature
-- `harness-stack:scrutiny-validator` — 独立机械地跑 test/lint/type-check/build，报告结构化 pass/fail
-- `harness-stack:code-reviewer` — 检查生产就绪度（含 scope/spec 合规一遍）
+- `harness-stack:code-reviewer` — per-feature 静态评审：生产就绪度（含 scope/spec 合规一遍）
+- `harness-stack:scrutiny-validator` — **milestone 闸**：独立跑硬门禁（test/lint/type-check，只看新增失败）+ 逐 feature scrutiny + 产出治理建议（suggestedGuidanceUpdates）
 - `user-test-validator`（经 `harness-stack:user-test`）— 对照 contract 断言探测运行中的系统
 
-**核心原则：** controller 策划上下文。implementer 不读 plan；scrutiny-validator 独立验证、不轻信 implementer 的自报；code-reviewer 既看质量也看 scope/spec 合规；user-test-validator 不读源码。
+**核心原则：** controller 策划上下文。implementer 不读 plan；code-reviewer 既看质量也看 scope/spec 合规；scrutiny-validator 在 milestone 边界独立跑硬门禁、不轻信 implementer 的自报，并把系统性问题回吐为治理建议；user-test-validator 不读源码。
 
 ## The two locations
 
@@ -78,7 +78,7 @@ controller 编排，下列 subagent 干活：
 把 milestone 拆解进 `features.json`，每个 feature 以 `fulfills` 绑定到它要让其变得可测的断言。让基础性 feature 排在前面。以 `hs-plan contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。完整流程：`references/features.md`。
 
 ### Phase 4 — Execution
-驱动循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → `scrutiny-validator`（test/lint/type-check）→ code-review →（对完成型 feature）`user-test` 探测 → 在 milestone 边界跑 scrutiny + code-review + user-test 并执行 `hs-plan seal-milestone` → 最终集成评审 → `hs-plan gate`。完整流程：`references/execution.md`；handoff 路由：`references/handoff-handling.md`。
+驱动循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → per-feature `code-review` →（对完成型 feature）`user-test` 探测 → 在 milestone 边界跑 `scrutiny-validator`（硬门禁 + scrutiny + 治理建议）+ `user-test` 并执行 `hs-plan seal-milestone` → 最终集成评审（scrutiny + coverage）→ `hs-plan gate`。完整流程：`references/execution.md`；handoff 路由：`references/handoff-handling.md`。
 
 ## Decoupled: design
 
@@ -113,6 +113,7 @@ controller 编排，下列 subagent 干活：
 
 - [ ] `.harness-runtime/plans/<slug>/` 里有 `plan.md`、`validation-contract.md`、`validation-state.json`、`features.json`。
 - [ ] execution 开始前 `hs-plan contract-coverage` 报告 OK。
-- [ ] 每个 feature 都通过了 scrutiny-validator（test/lint/type-check）、code-review，以及（若它 `fulfills` 断言）一次运行时探测。
+- [ ] 每个 feature 都通过了 per-feature code-review，以及（若它 `fulfills` 断言）一次运行时探测。
+- [ ] 每个 milestone 都过了 scrutiny-validator（硬门禁 + scrutiny）与 user-test，并已 seal。
 - [ ] 每个 milestone 都已封存；`hs-plan gate` 报告所有断言 `passed`。
 - [ ] controller 没有写过任何实现代码。

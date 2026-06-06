@@ -53,7 +53,7 @@ When you need expert judgment:
 
 Reused by feature-driven-development's execution loop:
 - `harness-stack:implementer` - Builds one feature, emits a handoff JSON
-- `harness-stack:scrutiny-validator` - Independently runs test/lint/type-check and reports structured pass/fail
+- `harness-stack:scrutiny-validator` - Milestone gate: hard test/lint/type-check gate + per-feature scrutiny review + guidance feedback
 - `harness-stack:user-test-validator` - Probes contract assertions against the running system
 
 ## Golden Rules

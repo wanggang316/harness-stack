@@ -9,12 +9,11 @@ loop:
   hs-plan set-status f in_progress
   dispatch implementer  -> handoff (hs-plan handoff f)
   run handoff decision tree (references/handoff-handling.md)
-  scrutiny-validator  -> run test/lint/typecheck; loop back to implementer until checks pass
-  code-review gate    -> loop back until Approve / Approve-with-fixes (no Critical)
+  code-review gate    -> loop back to implementer until Approve / Approve-with-fixes (no Critical)
   if f.fulfills non-empty: user-test probe over f.fulfills -> loop back on FAIL
   hs-plan set-status f completed
   if milestone's impl features all completed/cancelled and not sealed:
-     run validators (scrutiny + code-review + user-test) -> hs-plan seal-milestone <m>
+     scrutiny-validator (hard gate + per-feature scrutiny + guidance) + user-test -> hs-plan seal-milestone <m>
 final integration review + hs-plan gate
 ```
 
@@ -52,16 +51,13 @@ hs-plan handoff <id>
 ```
 跑 `references/handoff-handling.md` 里的决策树。它会路由 `returnToController` / `failure` / `partial` / `success`，追踪 `discoveredIssues` / `whatWasLeftUndone`，并传播 `criticalContext`。一个 feature 只有在 `success` 经核验后才推进到下面的各道闸。
 
-### 5. Static-checks gate (scrutiny-validator)
-用 `references/scrutiny-brief.md` 发 `Task(subagent_type="scrutiny-validator", …)`——它独立地、机械地跑项目的 test suite / lint / type-check / build（不信任 implementer 的自报）。FAIL → 把失败详情附上，重新派发**同一个** implementer；循环直到全绿。这道确定性闸放在 code review 之前：检查没过就别浪费一次代码评审。
+### 5. Code-review gate
+用 `references/code-reviewer-brief.md` 发 `Task(subagent_type="code-reviewer", …)`，对该 feature 的 diff 做 per-feature 静态评审（质量 + scope/spec 合规）。Approve 或 Approve-with-fixes（无 Critical）→ 继续。存在 Critical / Request changes → 重新派发 implementer；循环。（独立的硬门禁 test/lint/type-check 在 milestone 边界由 `scrutiny-validator` 统一跑——见下。）
 
-### 6. Code-review gate
-用 `references/code-reviewer-brief.md` 发 `Task(subagent_type="code-reviewer", …)`。Approve 或 Approve-with-fixes（无 Critical）→ 继续。存在 Critical / Request changes → 重新派发 implementer；循环。
-
-### 7. Runtime probe (completing features only)
+### 6. Runtime probe (completing features only)
 若 feature 的 `fulfills` 非空，对恰好那些 `VAL-` id 以及该 feature 的 diff 区间调用 `harness-stack:user-test`。validator 探测运行中的系统，**由 controller 回写结果**——按返回的矩阵执行 `hs-plan set-assertion <VAL-id> <status> [evidence]`。任何 FAIL → 带上失败断言的证据重新派发 implementer；循环。基础性 feature（`fulfills: []`）跳过这道闸。
 
-### 8. Complete
+### 7. Complete
 ```bash
 hs-plan set-status <id> completed     # moves it to the bottom
 ```
@@ -69,12 +65,12 @@ hs-plan set-status <id> completed     # moves it to the bottom
 
 ## Milestone validation
 
-当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且该 milestone 尚未封存（`hs-plan is-sealed <m>` → `no`）时，跑那组更重的检查，去抓任何单个 feature 探测未覆盖到的跨 feature 交互：
+当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且该 milestone 尚未封存（`hs-plan is-sealed <m>` → `no`）时，跑里程碑的「静态 + 运行时」一对，去抓任何单个 feature 闸未覆盖到的跨 feature 问题。这两步是 `scrutiny-validator`（静态那一半）和 `user-test`（运行时那一半）：
 
-1. 对整段 **milestone diff** 发 `Task(subagent_type="scrutiny-validator", …)`，跑全套 test/lint/type-check/build。
-2. 对 **milestone diff** 发 `Task(subagent_type="code-reviewer", …)`（集成评审）。
+1. 用 `references/scrutiny-brief.md` 发 `Task(subagent_type="scrutiny-validator", …)`。它做：**硬门禁**（对 milestone diff 跑 test/lint/type-check/build，只看相对 baseline 的新增失败——这是 per-feature 闸做不到的独立机械验证）、逐 feature scrutiny 审查（边界/规范/范围/技术债声明等）、把低风险事实性更新直接写入 `docs/` Library，并产出 `suggestedGuidanceUpdates`。结果落到 `.harness-runtime/plans/<slug>/validation/<milestone>/scrutiny/synthesis.json`。每个 feature 都已过 per-feature code-review，所以这里重在硬门禁、跨 feature 集成、技术债汇总与治理建议，不必重新纠结已逐 feature 解决的发现。
+2. **应用治理反馈：** 读 synthesis 的 `suggestedGuidanceUpdates`——把系统性的约定/上下文修正写进 `AGENTS.md`、`docs/` Library 或 `references/implementer-brief.md`（这是「Fix the environment, not the prompt」的闭环）。`appliedUpdates` 是 validator 已提交的事实性更新，知悉即可。
 3. 对该 milestone 的断言子集跑 `harness-stack:user-test`；用 `hs-plan set-assertion` 回写结果。
-4. 三者皆干净 → `hs-plan seal-milestone <m>`。任何失败 → 在顶部创建修复 feature，重跑。
+4. scrutiny `verdict: passed` 且 user-test 全 PASS → `hs-plan seal-milestone <m>`。任何 `blocker` / 硬门禁失败 / user-test FAIL → 在顶部创建修复 feature，修完对 scrutiny 走重跑模式、对 user-test 重探。
 
 已封存的 milestone 不可变——绝不往里加 feature。新工作进后续的 milestone 或一个 `misc-*` milestone（每个 ≤5 个 feature）。
 
@@ -82,15 +78,14 @@ hs-plan set-status <id> completed     # moves it to the bottom
 
 每个 feature 都做完、最后一个 milestone 已封存之后：
 
-1. 对完整的 `BASE..HEAD` 发 `Task(subagent_type="scrutiny-validator", …)`，确认全套 test/lint/type-check/build 全绿。
-2. 对完整的 `BASE..HEAD` 发 `Task(subagent_type="code-reviewer", …)`——逐 feature 评审看不到跨 feature 交互。
-3. **Coverage gate：** 在各探测记录里，每条 contract 断言至少有一次 PASS。任何从未被探测过的 → 对其余部分跑 `harness-stack:user-test`。
-4. 任何 Critical/Important → 经 implementer 循环修复，重跑评审。
-5. `hs-plan gate` → 必须报告 `GATE PASSED`。然后交给 commit / PR。
+1. 对完整的 `BASE..HEAD` 发 `Task(subagent_type="scrutiny-validator", …)`——硬门禁全套 test/lint/type-check/build 全绿，外加一次跨 milestone 的集成 scrutiny（逐 milestone 评审看不到跨 milestone 交互）。
+2. **Coverage gate：** 在各探测记录里，每条 contract 断言至少有一次 PASS。任何从未被探测过的 → 对其余部分跑 `harness-stack:user-test`。
+3. 任何 `blocker` / 硬门禁失败 → 经 implementer 循环修复，重跑 scrutiny。
+4. `hs-plan gate` → 必须报告 `GATE PASSED`。然后交给 commit / PR。
 
 ## Round budget
 
-**每个 feature 3 轮。** 3 轮 implementer 之后仍 `BLOCKED`、scrutiny-validator 仍 FAIL、或 code-review 仍有 Critical → 停下并上交给人。问题出在 plan、contract、或 feature 范围上；再加轮次只会稀释信号。绝不在相同条件下重新派发一个 `BLOCKED` feature——换上下文、换模型，或拆了它。
+**每个 feature 3 轮。** 3 轮 implementer 之后仍 `BLOCKED`、或 code-review 仍有 Critical → 停下并上交给人。问题出在 plan、contract、或 feature 范围上；再加轮次只会稀释信号。绝不在相同条件下重新派发一个 `BLOCKED` feature——换上下文、换模型，或拆了它。
 
 ## Commit discipline
 
