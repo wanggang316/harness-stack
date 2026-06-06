@@ -1,92 +1,92 @@
 ---
 name: user-test
-description: Runs an application against a subset of a plan's validation-contract assertions and reports PASS/FAIL with evidence per assertion. Plans isolation from surface cost tiers, dispatches one or more fresh-context validators (in parallel for large or expensive surfaces), merges their matrices, writes each result back into validation-state.json via hs-plan, and persists operational findings to the patterns doc. Use after a feature implementation, at milestone boundaries, or before merge when behaviour-level verification is needed beyond static review.
+description: 把应用真跑起来，对一个 plan 的 validation-contract 断言子集逐条探测，按断言给出 PASS/FAIL 与证据。它依据 surface cost tier 规划隔离，派发一个或多个全新上下文的 validator（界面大或昂贵时并行），合并它们的矩阵，通过 hs-plan 把每条结果回写 validation-state.json，并把运行中沉淀的操作性事实写入 patterns 文档。在某个 feature 实现后、里程碑边界、或合并前需要超出静态评审的行为级验证时使用。
 ---
 
-# user-test: Runtime Case Verification
+# user-test：运行时断言验证
 
 ## Overview
 
-Static tools — unit tests, lint, type-check, code review — read the code. They cannot tell you whether the running system actually behaves the way the user-test contract demands. This skill closes that gap: it starts the application, plans how to isolate the cases, runs each requested user-test case against the live system, and reports a coverage matrix with evidence. The cases are run by a fresh subagent that has never read the implementation; PASS / FAIL is decided purely from observable state.
+静态工具——单测、lint、类型检查、code review——读的是代码。它们无法告诉你**运行中的系统**是否真的符合 validation contract 的要求。本技能补上这道缝：拉起应用、规划如何隔离各条断言、对活系统逐条探测、给出带证据的覆盖矩阵。探测由一个从未读过实现的全新 subagent 执行；PASS / FAIL 只依据可观测状态判定。
 
-This skill is the **controller**: it resolves the run target, plans isolation, dispatches validators, and merges their results. The `user-test-validator` subagent is a **stateless prober**: it runs a group of cases and returns a partial matrix. When a run is large or its surface is expensive, the controller dispatches several validators in parallel — one per isolation group — and merges. There is no separate "flow" agent: the same validator is reused, the controller does the orchestration.
+本技能是 **controller**：它解析运行目标、规划隔离、派发 validator、合并结果。`user-test-validator` subagent 是**无状态探针**：跑一组断言，返回一份局部矩阵。当一次运行规模大、或其界面成本昂贵时，controller 并行派发多个 validator——每个隔离组一个——再合并。没有单独的「flow」agent：复用同一个 validator，编排由 controller 负责。
 
 ## When to Use
 
-- A task implementation just finished and you need to confirm the cases it was bound to actually pass against the running system.
-- A milestone has finished and you need cross-task verification before declaring it done.
-- A flat plan is about to merge and you want behaviour-level evidence beyond test-suite output.
-- You are debugging "tests pass but it doesn't actually work" and need to confirm which cases hold at runtime.
+- 某个 feature 刚实现完，需要确认它绑定的断言在运行系统上确实通过。
+- 一个里程碑完成，需要在宣布完成前做跨 feature 的验证。
+- 一个 flat plan 即将合并，你想要测试套件输出之外的行为级证据。
+- 你在排查「测试过了但跑起来不对」，需要确认运行时到底哪些断言成立。
 
 ## When NOT to Use
 
-- The plan has no `validation-contract.md` at `.harness-runtime/plans/<slug>/`. Runtime validation needs concrete assertions (persona + observable behaviour + declared evidence) to probe; without them there is no contract to verify. Author the contract first (`harness-stack:validation-contract`).
-- The change is non-behavioural (refactor with no user-visible delta). Static review is sufficient.
-- The project has no runnable entry point yet. Bootstrap first; runtime validation needs a live target.
+- 该 plan 在 `.harness-runtime/plans/<slug>/` 下没有 `validation-contract.md`。运行时验证需要具体的断言（persona + 可观测行为 + 声明的 Evidence）才能探测；没有它就没有 validation contract 可验。先用 `harness-stack:validation-contract` 写 validation contract。
+- 改动是非行为性的（纯重构、无用户可见变化）。静态评审已足够。
+- 项目还没有可运行入口。先 bootstrap；运行时验证需要一个活目标。
 
 ## Prerequisites
 
-1. **Validation contract** at `.harness-runtime/plans/<slug>/validation-contract.md` — each assertion (`### VAL-<AREA>-NNN: <title>`) carries an observable behaviour description, a persona, and declared Evidence. See `harness-stack:validation-contract`.
-2. **Project test conventions** at `docs/user-test-patterns.md` — declares per-platform tooling, ready signals, state-isolation protocol, **surface cost tiers**, personas (how each authenticates / what it can access), artifacts layout, and a knowledge-persistence section. See `skills/validation-contract/assets/user-test-patterns.md` for the template.
-3. **Runnable target** — a command that brings the system up (`pnpm dev`, `cargo run`, `docker compose up`) and a known ready signal (URL responds, log line, port open). Defined in `docs/user-test-patterns.md`.
-4. **Diff range** — `BASE_SHA..HEAD_SHA` covering the work being validated, so the report can be attached to a feature, milestone, or PR.
-5. **Assertion subset** — the `VAL-` ids this run is responsible for (e.g. `{VAL-AUTH-001, VAL-AUTH-002}` when validating one feature's `fulfills`). Use the full set when validating a milestone or a PR end-to-end.
+1. **Validation contract**：`.harness-runtime/plans/<slug>/validation-contract.md`——每条断言（`### VAL-<AREA>-NNN: <title>`）带一段可观测行为描述、一个 persona、以及声明的 Evidence。见 `harness-stack:validation-contract`。
+2. **项目测试约定**：`docs/user-test-patterns.md`——声明各平台工具链、ready 信号、状态隔离协议、**surface cost tier**、personas（各自如何认证 / 能访问什么）、artifacts 布局、以及一个 knowledge-persistence 小节。模板见 `skills/validation-contract/assets/user-test-patterns.md`。
+3. **可运行目标**——一条把系统拉起来的命令（`pnpm dev`、`cargo run`、`docker compose up`）以及一个已知的 ready 信号（URL 有响应、日志行、端口打开）。定义在 `docs/user-test-patterns.md`。
+4. **Diff 区间**——覆盖被验证工作的 `BASE_SHA..HEAD_SHA`，以便把报告挂到某个 feature、里程碑或 PR。
+5. **断言子集**——本次运行负责的 `VAL-` id（例如验证某个 feature 的 `fulfills` 时为 `{VAL-AUTH-001, VAL-AUTH-002}`）。验证一个里程碑或整个 PR 时用全集。
 
 ## Process
 
-### Step 1: Resolve the run target
+### Step 1：解析运行目标
 
-Read `docs/user-test-patterns.md` for the per-platform tool and ready signal. Cross-check against the project manifest (`package.json`, `Cargo.toml`, `pyproject.toml`, etc.) for the start command and working directory. Pull required environment variables from `.env.example` or the env-init skill's output.
+读 `docs/user-test-patterns.md` 拿到各平台工具与 ready 信号。对照项目清单文件（`package.json`、`Cargo.toml`、`pyproject.toml` 等）确认启动命令与工作目录。从 `.env.example` 或 env-init 技能的产物里取所需环境变量。
 
-If any of these is ambiguous, stop and ask. Guessing the run command is a frequent cause of false FAILs.
+任一项含糊就**停下来问**。猜启动命令是假 FAIL 的常见来源。
 
-### Step 2: Bring the system up
+### Step 2：把系统拉起来
 
-Start the target as a background process from the resolved working directory. Apply the state-isolation protocol from `docs/user-test-patterns.md` (DB reset, storage seed, fixture load) before any case runs. Wait for the ready signal — do **not** start probing before readiness. Capture stdout/stderr to a log file so failures can be attributed.
+在解析出的工作目录里，以后台进程启动目标。在任何探测开始前，先施加 `docs/user-test-patterns.md` 的状态隔离协议（DB reset、storage seed、fixture load）。等到 ready 信号——**不要**在就绪前就开始探测。把 stdout/stderr 抓到日志文件，便于归因失败。
 
-If the system refuses to start, the run aborts with `BLOCKED`: report the startup log and stop. Do not invent probes against a system that never came up.
+若系统拒绝启动，本次运行以 `BLOCKED` 中止：报告启动日志并停止。不要对一个从未起来的系统编造探测。
 
-### Step 3: Resolve the assertion subset
+### Step 3：解析断言子集
 
-For each `VAL-` id in the requested subset, load from `.harness-runtime/plans/<slug>/validation-contract.md`:
+对请求子集里的每个 `VAL-` id，从 `.harness-runtime/plans/<slug>/validation-contract.md` 加载：
 
-- The observable behaviour paragraph (what must hold)
-- The declared `Evidence:` (what must be captured on PASS)
-- The persona it names — look up how that persona authenticates and what it can access in the Personas section of `docs/user-test-patterns.md`
+- 可观测行为段落（必须成立的是什么）
+- 声明的 `Evidence:`（PASS 时必须抓取什么）
+- 它指名的 persona——在 `docs/user-test-patterns.md` 的 Personas 小节里查清该 persona 如何认证、能访问什么
 
-The fully resolved assertion bundle is what goes into a validator's brief. The validator does not re-derive any of this from the source.
+完整解析好的断言包就是进 validator brief 的内容。validator 不从源码里重新推导这些。
 
-### Step 4: Plan isolation
+### Step 4：规划隔离
 
-Read the **surface cost tiers** from `docs/user-test-patterns.md` and classify the cases in this run:
+读 `docs/user-test-patterns.md` 的 **surface cost tier**，给本次运行的各断言分档：
 
-- **cheap** (one curl call, library function, fast CLI invocation): one case per validation step; no grouping needed.
-- **medium** (browser session per group): group cases that can share a session — same area, no state-mutating cross-talk.
-- **expensive** (full env reset per case): minimise resets; sequence reset-requiring cases at the end of a group.
+- **cheap**（一次 curl、库函数调用、快速 CLI 调用）：每条断言一个验证步骤；无需分组。
+- **medium**（每组一个浏览器会话）：把能共享会话的断言归一组——同一 area、互不改写状态。
+- **expensive**（每条断言整环境 reset）：尽量少 reset；把需要 reset 的断言排在一组末尾。
 
-Produce an **isolation plan**: a list of groups, each a set of case IDs that share a surface and don't pollute each other, plus the reset boundary between groups. Decide the dispatch shape from it:
+产出一份**隔离方案**：一组组断言 id，每组共享一种界面、彼此不污染，外加组间的 reset 边界。据此决定派发形态：
 
-- Small subset, or all-cheap surface → **one validator** for the whole subset (the common case).
-- Large subset (more than ~12 cases) on a medium/expensive surface → **one validator per group, dispatched in parallel**.
+- 子集小，或全 cheap 界面 → 整个子集**一个 validator**（最常见）。
+- medium/expensive 界面上的大子集（多于约 12 条）→ **每组一个 validator，并行派发**。
 
-Record the plan; it goes into the run synthesis.
+记录该方案；它会进 run 综合报告。
 
-### Step 5: Dispatch the validator(s)
+### Step 5：派发 validator
 
-Dispatch `user-test-validator` (see `agents/user-test-validator.md`) with a brief containing, **for its group**:
+派发 `user-test-validator`（见 `agents/user-test-validator.md`），brief 里**针对其分组**给出：
 
-- The resolved cases for the group (one bundle per case ID).
-- The base URL or other entry coordinates of the running system.
-- The path to the startup log file.
-- The diff range `BASE_SHA..HEAD_SHA` (for attribution; the validator does **not** read the diff).
-- The artifacts directory the validator must write to (namespace per group when running in parallel).
-- The state-reset boundary it owns, from the isolation plan.
+- 该组解析好的各断言（每个 id 一份）。
+- 运行系统的 base URL 或其它入口坐标。
+- 启动日志文件路径。
+- diff 区间 `BASE_SHA..HEAD_SHA`（仅用于归因；validator **不**读 diff）。
+- validator 必须写入的 artifacts 目录（并行运行时按组命名空间隔离）。
+- 它负责的状态 reset 边界，来自隔离方案。
 
-When the plan calls for parallel dispatch, send all group briefs in one batch so the validators run concurrently. Each validator runs only its assigned group, captures each case's declared Evidence on PASS and its artifacts-on-FAIL on FAIL, and returns a partial matrix. The validator never reads the implementation source; it runs each case exactly as declared, using the platform tool from `docs/user-test-patterns.md`.
+当方案要求并行派发时，把所有分组 brief 一批发出，让各 validator 并发运行。每个 validator 只跑分配给它的那组，PASS 时抓取每条断言声明的 Evidence、FAIL 时抓取 artifacts-on-FAIL，返回一份局部矩阵。validator 绝不读实现源码；它严格按声明探测每条断言，用 `docs/user-test-patterns.md` 指定的平台工具。
 
-### Step 6: Merge the coverage matrices
+### Step 6：合并覆盖矩阵
 
-Collect the partial matrices from all validators and merge into one. Each row carries the declared evidence on PASS, or the failing assertion + reproducer on FAIL:
+收齐所有 validator 的局部矩阵并合一。每行 PASS 时带声明的证据，FAIL 时带失败断言 + reproducer：
 
 ```
 | Assertion ID    | Status | Evidence                                                       |
@@ -96,80 +96,75 @@ Collect the partial matrices from all validators and merge into one. Each row ca
 | VAL-AUTH-003    | FAIL   | expected body {"error":"invalid_credentials"}, got {"error":"unknown"}; repro at .harness-runtime/plans/<slug>/validation/<ts>/g1/VAL-AUTH-003/repro.sh |
 ```
 
-An assertion PASSES only when its observable behaviour holds **and** its declared Evidence was captured. It FAILS as soon as the behaviour does not hold (record how). Every `VAL-` id in the requested subset must appear exactly once — if a parallel validator dropped or duplicated one, re-dispatch that group.
+一条断言 PASS，当且仅当其可观测行为成立**且**声明的 Evidence 已抓取。行为不成立即 FAIL（记录怎么不成立）。请求子集里每个 `VAL-` id 必须恰好出现一次——若某个并行 validator 漏掉或重复了，重新派发那一组。
 
-### Step 7: Tear down
+### Step 7：拆环境
 
-Stop the background process. Apply the patterns doc's retention rule to the run artifacts directory.
+停掉后台进程。对 run artifacts 目录施加 patterns 文档的保留策略。
 
-### Step 8: Write state back, report, and persist findings
+### Step 8：回写状态、报告、沉淀
 
-Write a run **synthesis** to the artifacts directory
-(`.harness-runtime/plans/<slug>/validation/<ts>/synthesis.md`) capturing: the verdict,
-the isolation plan used, per-group results, any setup issues, and a list of operational
-facts discovered.
+把一份 run **综合报告（synthesis）**写到 artifacts 目录
+（`.harness-runtime/plans/<slug>/validation/<ts>/synthesis.md`），记录：结论、所用隔离方案、各组结果、任何 setup 问题，以及发现的操作性事实清单。
 
-**Write each result back into `validation-state.json`** — this is the load-bearing step.
-For every `VAL-` id in the merged matrix, the controller (not the stateless validator)
-runs:
+**把每条结果回写 `validation-state.json`**——这是关键一步。
+对合并矩阵里每个 `VAL-` id，由 controller（而非无状态 validator）执行：
 
 ```bash
 hs-plan set-assertion <VAL-id> <status> "<evidence-pointer>"
 ```
 
-mapping the matrix verdict to the state enum: `PASS → passed`, `FAIL → failed`,
-`INCONCLUSIVE / SKIP / BLOCKED → blocked`. The evidence pointer is the screenshot /
-repro path (or a one-line network/terminal note).
+矩阵结论到 state 枚举的映射：`PASS → passed`、`FAIL → failed`、`INCONCLUSIVE / SKIP / BLOCKED → blocked`。evidence-pointer 是截图 / repro 路径（或一行 network/terminal 备注）。
 
-Then return to the caller:
+然后返回给调用方：
 
-- A one-line verdict: `PASS (N/N)`, `FAIL (k/N)`, `INCONCLUSIVE (m/N)`, or `BLOCKED (system did not start)`.
-- The merged coverage matrix.
-- The artifacts path (the synthesis lives here).
-- For any FAIL, a "What to fix" stub citing the failing assertion and the reproducer path, so the caller can hand it back to an implementer.
+- 一行结论：`PASS (N/N)`、`FAIL (k/N)`、`INCONCLUSIVE (m/N)`、或 `BLOCKED (system did not start)`。
+- 合并后的覆盖矩阵。
+- artifacts 路径（synthesis 在这里）。
+- 对任何 FAIL，给一段「怎么修」存根，指明失败断言与 reproducer 路径，便于调用方交回给 implementer。
 
-**Knowledge persistence.** If setup surfaced a durable operational fact — a wrong ready signal, a missing seed step, a faster path to a ready state, a surface gotcha — append it to the Knowledge Persistence section of `docs/user-test-patterns.md` so the next run is faster. Facts only, no test cases. If a discovery changes a convention (e.g. the real ready signal), fix that section too.
+**Knowledge persistence。** 若 setup 暴露出一条持久的操作性事实——错误的 ready 信号、漏掉的 seed 步骤、更快到达就绪的路径、某个界面的坑——把它追加到 `docs/user-test-patterns.md` 的 Knowledge Persistence 小节，让下次运行更快。只记事实，不记测试断言。若某项发现改变了约定（例如真实的 ready 信号），把那一节也改掉。
 
 ## Coverage Rules
 
-- Every case in the requested subset must appear in the merged matrix exactly once with a definite `PASS`, `FAIL`, or `INCONCLUSIVE`. `SKIP` is only permitted when a prior case in the same group already FAIL'd and the dependent case cannot be probed; record the dependency explicitly.
-- A case PASSES only when every assertion passes **and** its declared Evidence was captured. Evidence-less PASS is not a PASS — it's an unverified claim; mark it `INCONCLUSIVE`.
-- A case that probes successfully but does not use the verification method declared on its assertions is a FAIL, not a PASS. The method is part of the contract.
-- A merged matrix that omits a case ID from the subset, or lists one twice, is invalid — re-dispatch the affected group.
+- 请求子集里每条断言必须在合并矩阵中恰好出现一次，带明确的 `PASS`、`FAIL` 或 `INCONCLUSIVE`。仅当同组中某条在先的断言已 FAIL 且依赖它的断言无法探测时，才允许 `SKIP`；并显式记录该依赖。
+- 一条断言 PASS，当且仅当其行为成立**且**声明的 Evidence 已抓取。无证据的 PASS 不算 PASS——那是未经验证的断言；标 `INCONCLUSIVE`。
+- 一条探测成功、但没用断言上声明的验证方法的断言，是 FAIL 而非 PASS。方法是 validation contract 的一部分。
+- 合并矩阵若漏掉子集里某个 id、或某个出现两次，即为无效——重新派发受影响的组。
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "Tests pass, this is redundant." | Tests assert against code-shaped expectations the author wrote. Runtime validation runs the user-test contract a fresh agent reads. Different invariants, both needed. |
-| "I'll skip it for a small task." | A small task covers few cases and finishes fast; runtime validation is cheaper here, not more expensive. Run it. |
-| "The validator can read the source to figure out what to probe." | No. The whole point is that the validator sees only the resolved case and the running system. Reading the source rebuilds the bias you're trying to escape. |
-| "Just split everything into parallel groups, it's faster." | Parallel dispatch costs setup per group and risks state cross-talk. Split only when the subset is large on a medium/expensive surface; otherwise one validator is simpler and safer. |
-| "It passed, I don't need to capture the evidence." | A PASS without its declared evidence is a claim, not a record. The Evidence field is part of the contract; capture it or mark INCONCLUSIVE. |
-| "If a case fails, I'll just adjust the assertion in the validation contract." | The case is part of the approved contract. Adjusting it to make a run pass hides drift. Fix the system, or escalate the contract — don't quietly soften it. |
-| "The system didn't start, I'll mark all cases FAIL." | A system that doesn't start is a `BLOCKED` run, not a failed case set. Report startup failure separately. |
-| "Per-task validation is too granular; I'll only run at the milestone gate." | Per-task probes catch regressions on the diff just written; milestone probes catch cross-task interactions. Skipping per-task means defects compound until the milestone gate, then everything fails at once. |
+| 「测试过了，这是多余的。」 | 测试断言的是作者写下的、贴着代码形状的期望。运行时验证跑的是一个全新 agent 读到的 validation contract。不同的不变量，两者都要。 |
+| 「小任务我就跳过它。」 | 小任务覆盖断言少、跑得快；运行时验证在这里更便宜，不是更贵。跑它。 |
+| 「validator 可以读源码弄清楚该探测什么。」 | 不行。它的全部意义在于 validator 只看到解析好的断言和运行系统。读源码会把你想摆脱的偏见重新装回去。 |
+| 「全拆成并行组更快。」 | 并行派发每组都有 setup 成本、并有状态串扰风险。仅当子集大、且在 medium/expensive 界面时才拆；否则单个 validator 更简单也更稳。 |
+| 「它过了，我不用抓证据。」 | 没有声明证据的 PASS 是断言，不是记录。Evidence 字段是 validation contract 的一部分；要么抓取，要么标 INCONCLUSIVE。 |
+| 「某条断言失败了，我直接改 validation contract 里的断言。」 | 该断言是已批准 validation contract 的一部分。为了让运行通过去改它，会掩盖漂移。修系统，或把 validation contract 升级讨论——别悄悄放水。 |
+| 「系统没起来，我把所有断言标 FAIL。」 | 起不来的系统是 `BLOCKED` 运行，不是一组失败的断言。把启动失败单独报告。 |
+| 「逐 feature 验证太细，我只在里程碑闸跑。」 | 逐 feature 探测抓的是刚写下那段 diff 的回归；里程碑探测抓的是跨 feature 的交互。跳过逐 feature 会让缺陷一路堆积到里程碑闸，然后一起爆。 |
 
 ## Red Flags
 
-- Validator output includes references to source files, function names, or implementation specifics — it has been contaminated by reading the code. Re-dispatch with a fresh context.
-- Merged matrix has fewer rows than the requested case subset, or a case appears twice.
-- A PASS row carries no evidence, or evidence that doesn't match the case's declared Evidence.
-- A FAIL row has no reproducer.
-- Run artifacts or synthesis not persisted; the caller gains no audit trail.
-- Parallel groups overlap in state (one group's writes change another group's preconditions) — the isolation plan was wrong; re-group.
-- Cases use selectors or assertions forbidden by `docs/user-test-patterns.md` (CSS classes, file paths, implementation-named test ids). Send the validation contract back for revision before validating.
-- State-isolation protocol skipped — cases pollute each other and PASS / FAIL becomes order-dependent.
+- validator 输出里出现源码文件、函数名或实现细节——它已被「读代码」污染。换全新上下文重新派发。
+- 合并矩阵的行数少于请求子集，或某条断言出现两次。
+- 某个 PASS 行没有证据，或证据与该断言声明的 Evidence 不符。
+- 某个 FAIL 行没有 reproducer。
+- run artifacts 或 synthesis 未落盘；调用方拿不到审计痕迹。
+- 并行组在状态上重叠（一组的写入改变了另一组的前置条件）——隔离方案错了；重新分组。
+- 断言用了 `docs/user-test-patterns.md` 禁止的 selector 或断言方式（CSS class、文件路径、以实现命名的 test id）。先把 validation contract 退回修订再验证。
+- 跳过状态隔离协议——断言互相污染，PASS / FAIL 变得依赖执行顺序。
 
 ## Verification
 
-- [ ] `.harness-runtime/plans/<slug>/validation-contract.md` is present and the requested `VAL-` ids resolve cleanly to fully-formed assertions (including declared Evidence).
-- [ ] `docs/user-test-patterns.md` is present and named the tool and surface cost tiers used for this run.
-- [ ] System started cleanly with a captured ready signal.
-- [ ] State-isolation protocol applied before any case ran.
-- [ ] Isolation plan produced; dispatch shape (single vs parallel) matches subset size and surface cost.
-- [ ] Validator subagent(s) ran in fresh context and did not read the implementation source.
-- [ ] Every `VAL-` id in the requested subset appears exactly once in the merged matrix with PASS, FAIL, or INCONCLUSIVE plus evidence.
-- [ ] Every PASS row carries the assertion's declared Evidence; every FAIL row includes a reproducer.
-- [ ] Each result was written back to `validation-state.json` via `hs-plan set-assertion` (PASS→passed, FAIL→failed, INCONCLUSIVE/SKIP/BLOCKED→blocked).
-- [ ] Run synthesis persisted under `.harness-runtime/plans/<slug>/validation/`; operational findings appended to the patterns doc's Knowledge Persistence section.
+- [ ] `.harness-runtime/plans/<slug>/validation-contract.md` 存在，且请求的 `VAL-` id 能干净地解析为完整断言（含声明的 Evidence）。
+- [ ] `docs/user-test-patterns.md` 存在，并指明了本次运行所用的工具与 surface cost tier。
+- [ ] 系统干净启动，并抓到了 ready 信号。
+- [ ] 任何断言运行前已施加状态隔离协议。
+- [ ] 产出了隔离方案；派发形态（单个 vs 并行）与子集规模、界面成本相称。
+- [ ] validator subagent 在全新上下文运行，且未读实现源码。
+- [ ] 请求子集里每个 `VAL-` id 在合并矩阵中恰好出现一次，带 PASS、FAIL 或 INCONCLUSIVE 及证据。
+- [ ] 每个 PASS 行带该断言声明的 Evidence；每个 FAIL 行含 reproducer。
+- [ ] 每条结果已通过 `hs-plan set-assertion` 回写 `validation-state.json`（PASS→passed、FAIL→failed、INCONCLUSIVE/SKIP/BLOCKED→blocked）。
+- [ ] run synthesis 落盘在 `.harness-runtime/plans/<slug>/validation/`；操作性发现已追加到 patterns 文档的 Knowledge Persistence 小节。
