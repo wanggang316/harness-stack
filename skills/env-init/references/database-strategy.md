@@ -2,15 +2,15 @@
 
 ## Overview
 
-When multiple worktrees run simultaneously, they must not share a database. Two strategies are available -- the user chooses based on their project's needs.
+当多个 worktree 同时运行时，它们绝不能共享一个 database。这里提供两种策略——由用户依据项目需要选择。
 
-## Option A: Multi-Database
+## Option A：Multi-Database
 
-Same database server, per-worktree database name.
+同一个 database server，每个 worktree 独立的 database 名。
 
 ### How It Works
 
-Each worktree creates its own database on the shared server:
+每个 worktree 在共享的 server 上创建自己的 database：
 
 ```
 app_main           ← main worktree
@@ -18,7 +18,7 @@ app_env_init       ← feature/env-init worktree
 app_codex          ← feature/codex worktree
 ```
 
-The naming convention: `{app_name}_{worktree_id}`, where worktree_id has hyphens replaced with underscores (database names don't allow hyphens in most engines).
+命名约定为 `{app_name}_{worktree_id}`，其中 worktree_id 把连字符替换为下划线（多数引擎的 database 名不允许连字符）。
 
 ### Setup (env-init)
 
@@ -54,7 +54,7 @@ mysql -P "$DB_PORT" -e "DROP DATABASE IF EXISTS \`$DB_NAME\`;" 2>/dev/null || tr
 
 ### Migration
 
-Each worktree runs migrations independently:
+每个 worktree 独立运行 migration：
 
 ```sh
 # In env-init, after creating the database:
@@ -67,24 +67,24 @@ cd "$ROOT_DIR"
 
 ### Pros and Cons
 
-| Dimension | Assessment |
+| 维度 | 评估 |
 |-----------|-----------|
-| Fidelity | High -- same engine as production |
-| Feature coverage | Full -- JSON operators, CTEs, window functions, etc. |
-| Setup complexity | Medium -- requires running DB server |
-| Cleanup | `dropdb` / `DROP DATABASE` |
-| Migration compatibility | Full -- same as production |
-| Disk usage | ~10MB per empty database |
+| 保真度 | 高——与生产同款引擎 |
+| 特性覆盖 | 完整——JSON 运算符、CTE、窗口函数等 |
+| 搭建复杂度 | 中——需要运行中的 DB server |
+| 清理 | `dropdb` / `DROP DATABASE` |
+| Migration 兼容性 | 完整——与生产一致 |
+| 磁盘占用 | 每个空 database 约 10MB |
 
 ---
 
-## Option B: Embedded Database
+## Option B：Embedded Database
 
-Per-worktree database file, zero external dependencies.
+每个 worktree 一个 database 文件，零外部依赖。
 
 ### How It Works
 
-Each worktree stores its database as a file inside `.worktree-runtime/`:
+每个 worktree 把自己的 database 以文件形式存放在 `.worktree-runtime/` 内：
 
 ```
 .worktree-runtime/
@@ -107,7 +107,7 @@ DATABASE_URL="file:${DB_DIR}/app.db"
 DATABASE_URL="duckdb://${DB_DIR}/app.duckdb"
 ```
 
-No server to start, no port to allocate for the database.
+无需启动 server，也无需为 database 分配 port。
 
 ### Teardown (env-teardown)
 
@@ -117,7 +117,7 @@ rm -rf "$ROOT_DIR/.worktree-runtime/data/"
 
 ### ORM Configuration
 
-Most ORMs support switching database engines via environment variable:
+多数 ORM 支持通过环境变量切换 database 引擎：
 
 **Prisma**:
 ```prisma
@@ -144,40 +144,40 @@ DATABASES = {
 
 ### Pros and Cons
 
-| Dimension | Assessment |
+| 维度 | 评估 |
 |-----------|-----------|
-| Fidelity | Medium -- some SQL dialects differ from production |
-| Feature coverage | Limited -- no JSON operators (SQLite), no advanced types |
-| Setup complexity | Zero -- no server needed |
-| Cleanup | Delete files |
-| Migration compatibility | May need separate migration files for different engines |
-| Disk usage | ~0 until data is inserted |
+| 保真度 | 中——部分 SQL 方言与生产不同 |
+| 特性覆盖 | 受限——无 JSON 运算符（SQLite），无高级类型 |
+| 搭建复杂度 | 零——无需 server |
+| 清理 | 删文件即可 |
+| Migration 兼容性 | 不同引擎可能需要各自的 migration 文件 |
+| 磁盘占用 | 插入数据前约为 0 |
 
 ---
 
 ## Decision Matrix
 
-Answer these questions to choose:
+回答以下问题来做选择：
 
-| Question | If Yes → | If No → |
+| 问题 | 若是 → | 若否 → |
 |----------|---------|---------|
-| Does production use Postgres/MySQL? | Option A | Either |
-| Does the app use DB-specific features (JSONB, arrays, full-text search)? | Option A | Either |
-| Is a running DB server available on this machine? | Either | Option B |
-| Is this a prototype or early-stage project? | Option B | Either |
-| Do tests need DB-engine parity with production? | Option A | Either |
-| Is zero-dependency setup a priority? | Option B | Either |
+| 生产用 Postgres/MySQL 吗？ | Option A | 皆可 |
+| 应用是否用到 DB 专属特性（JSONB、数组、全文检索）？ | Option A | 皆可 |
+| 本机有运行中的 DB server 吗？ | 皆可 | Option B |
+| 这是原型或早期项目吗？ | Option B | 皆可 |
+| 测试是否需要与生产保持 DB 引擎一致？ | Option A | 皆可 |
+| 零依赖搭建是否为优先项？ | Option B | 皆可 |
 
-**Default recommendation**: Option A for projects that use Postgres/MySQL in production. Option B for prototypes and projects without DB-specific requirements.
+**默认推荐**：生产使用 Postgres/MySQL 的项目选 Option A。原型以及没有 DB 专属需求的项目选 Option B。
 
 ## Hybrid Approach
 
-Some teams use both:
-- **Development**: Option B (fast, zero-dependency local dev)
-- **CI / Integration tests**: Option A (production-fidelity)
-- **Production**: External managed database
+有些团队两者并用：
+- **开发**：Option B（快、零依赖的本地开发）
+- **CI / 集成测试**：Option A（贴近生产保真度）
+- **生产**：外部托管 database
 
-This requires the ORM/migration setup to support multiple engines. Record the chosen strategy in `.worktree-runtime/state.json`:
+这要求 ORM/migration 配置支持多引擎。把选定的策略记录到 `.worktree-runtime/state.json`：
 
 ```json
 {

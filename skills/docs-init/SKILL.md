@@ -1,120 +1,116 @@
 ---
 name: docs-init
-description: One-time initialization of the project's documentation structure and base documents. Scaffolds docs/ directory tree, AGENTS.md, CLAUDE.md, README.md, and foundational docs from templates in assets/.
+description: 对项目的文档结构与基础文档做一次性初始化。从 assets/ 的模板生成 docs/ 目录树、AGENTS.md、CLAUDE.md、README.md 以及基础文档。
 ---
 
-# docs-init: Documentation Scaffolding
+# docs-init：文档脚手架
 
 ## Overview
 
-A one-time initialization that scaffolds the standard documentation **Library** layout and base documents from templates in `assets/`, and ensures the project ignores the `.harness-runtime/` tree (where per-plan FDD state lives). After running, the project has the `docs/` Library tree, placeholder templates, and foundational docs (golden-rules) in place. Content belonging to other domains (architecture, design docs, changelog) is created by the skill that owns it; per-plan state (plans, contracts, features) is never in `docs/` — it lives in the gitignored `.harness-runtime/`.
+一次性初始化：从 `assets/` 的模板生成标准文档 **Library** 布局与基础文档，并确保项目忽略 `.harness-runtime/` 这棵树（逐 plan 的 FDD 状态存放于此）。运行后，项目就具备了 `docs/` Library 树、占位模板以及基础文档（golden-rules）。属于其他领域的内容（architecture、design docs、changelog）由各自归属的技能创建；逐 plan 的状态（plan、contract、feature）永远不放在 `docs/` 里——它们存放在被 gitignore 的 `.harness-runtime/`。
 
 ## When to Use
 
-- A project has no `docs/` directory, no AGENTS.md, or only a bare README
-- A project is being bootstrapped for agent-first development
-- The documentation layout is incomplete and needs the standard skeleton
+- 项目没有 `docs/` 目录、没有 AGENTS.md，或者只有一个空壳 README
+- 项目正在为 agent-first 开发做 bootstrap
+- 文档布局不完整，需要补上标准骨架
 
-**Not for re-running.** This skill initializes; it does not re-generate. If the structure already exists, the skill reports what is present and exits without changes. Ongoing maintenance of individual documents happens in the skill that owns each document.
+**不用于重复运行。** 本技能负责初始化，不负责重新生成。若结构已存在，技能会报告当前现状并退出，不做任何改动。各文档后续的日常维护，发生在归属该文档的技能里。
 
 ## Scope
 
-**This skill creates or fills (when missing):**
+**本技能创建或填充（当缺失时）：**
 
 | Target | Source in assets/ |
 |---|---|
 | `AGENTS.md` | `assets/AGENTS.md` |
 | `CLAUDE.md` | symlink → `AGENTS.md` |
-| `README.md` | `assets/README.md` (only if no README exists) |
+| `README.md` | `assets/README.md`（仅当不存在 README 时） |
 | `docs/README.md` | `assets/docs/README.md` |
 | `docs/golden-rules.md` | `assets/docs/golden-rules.md` |
 | `docs/design-docs/{README,_template}.md` | `assets/docs/design-docs/` |
 | `docs/references/README.md` | `assets/docs/references/README.md` |
 | `docs/generated/README.md` | `assets/docs/generated/README.md` |
-| `.gitignore` entry `.harness-runtime/` | appended if missing (see Step 4b) |
+| `.gitignore` 条目 `.harness-runtime/` | 缺失时追加（见 Step 4b） |
 
-**This skill does not create:**
+**本技能不创建：**
 
-- `docs/architecture.md` — architecture content is defined elsewhere
-- `docs/design-docs/<doc>.md` — individual design docs are authored elsewhere
-- `docs/user-test-patterns.md` — bootstrapped by `harness-stack:validation-contract` on first run
-- `.harness-runtime/` content — per-plan state is created by `harness-stack:feature-driven-development` and the `hs-plan` CLI; it is gitignored, not scaffolded
-- `CHANGELOG.md` — changelog is maintained elsewhere
+- `docs/architecture.md` —— architecture 内容在别处定义
+- `docs/design-docs/<doc>.md` —— 单个 design doc 在别处撰写
+- `docs/user-test-patterns.md` —— 由 `harness-stack:validation-contract` 首次运行时 bootstrap
+- `.harness-runtime/` 内容 —— 逐 plan 的状态由 `harness-stack:feature-driven-development` 与 `hs-plan` CLI 创建；它被 gitignore，不在脚手架范围内
+- `CHANGELOG.md` —— changelog 在别处维护
 
 ## Process
 
-### Step 1: Survey the project
+### Step 1：盘点项目
 
-Read the project root and report what already exists. For each target in the scope table, record one of three states: **missing**, **present**, or **present but empty / placeholder**.
+读项目根目录，报告已有哪些内容。对 scope 表里的每个 target，记录三种状态之一：**缺失**、**已存在**、或**已存在但为空 / 仅占位**。
 
-Also capture:
-- Project name (from `package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, or directory name)
-- Build / test / lint / install commands (from the same sources, or by inspecting existing scripts)
-- Whether an existing README or AGENTS.md carries content worth preserving
+同时收集：
+- 项目名称（从 `package.json`、`Cargo.toml`、`pyproject.toml`、`go.mod`，或目录名取得）
+- build / test / lint / install 命令（从同样的来源取得，或检视已有脚本）
+- 已有的 README 或 AGENTS.md 是否带有值得保留的内容
 
-### Step 2: Decide per target
+### Step 2：逐 target 决策
 
-For every target in the scope table, apply this judgment:
+对 scope 表里的每个 target，按此判断：
 
 | Current state | Action |
 |---|---|
-| Missing | Create from `assets/` template, substituting placeholders |
-| Present but empty / placeholder only | Offer to overwrite; wait for confirmation |
-| Present with real content | Leave untouched; report it was preserved |
+| 缺失 | 从 `assets/` 模板创建，替换占位符 |
+| 已存在但为空 / 仅占位 | 提议覆盖；等待确认 |
+| 已存在且有真实内容 | 不动；报告已保留 |
 
-Never overwrite a file with real content. If the user asked to "initialize" a project that already has meaningful docs, report the state and suggest targeted edits instead of a full rewrite.
+绝不覆盖带有真实内容的文件。若用户要求「初始化」一个已经有实质文档的项目，报告现状并建议做有针对性的编辑，而非整体重写。
 
-### Step 3: Substitute placeholders
+### Step 3：替换占位符
 
-Templates in `assets/` use these placeholders:
+`assets/` 里的模板用到这些占位符：
 
 | Placeholder | Source |
 |---|---|
-| `{{PROJECT_NAME}}` | Detected project name |
-| `{{BUILD_COMMAND}}` | Detected build command, or `<build command>` if unknown |
-| `{{TEST_COMMAND}}` | Detected test command, or `<test command>` |
-| `{{LINT_COMMAND}}` | Detected lint command, or `<lint command>` |
-| `{{INSTALL_COMMAND}}` | Detected install command, or `<install command>` |
+| `{{PROJECT_NAME}}` | 检测到的项目名称 |
+| `{{BUILD_COMMAND}}` | 检测到的 build 命令，未知时用 `<build command>` |
+| `{{TEST_COMMAND}}` | 检测到的 test 命令，未知时用 `<test command>` |
+| `{{LINT_COMMAND}}` | 检测到的 lint 命令，未知时用 `<lint command>` |
+| `{{INSTALL_COMMAND}}` | 检测到的 install 命令，未知时用 `<install command>` |
 
-If a command cannot be detected confidently, leave the bracketed placeholder and mention it in the verification report so the user can fill it in.
+若某条命令无法可靠检测，保留方括号占位符，并在验证报告中点明，让用户自行补上。
 
-### Step 4: Write files
+### Step 4：写入文件
 
-Copy each template to its target path and apply the substitutions above. For `CLAUDE.md`, create a symlink pointing to `AGENTS.md`. On platforms or filesystems that do not support symlinks, fall back to a one-line file: `See [AGENTS.md](AGENTS.md).`
+把每个模板拷到目标路径并施加上面的替换。对 `CLAUDE.md`，创建一个指向 `AGENTS.md` 的 symlink。在不支持 symlink 的平台或文件系统上，退化为一行文件：`See [AGENTS.md](AGENTS.md).`
 
-### Step 4b: Ignore the runtime tree
+### Step 4b：忽略 runtime 树
 
-Ensure the project's `.gitignore` contains `.harness-runtime/`. This is where
-feature-driven-development keeps per-plan state (plans, contracts, features, handoffs);
-it must never be committed. Idempotent: if the line is already present, do nothing; if
-`.gitignore` is missing, create it with the entry; otherwise append it under a short
-comment. Do not touch any other `.gitignore` entry.
+确保项目的 `.gitignore` 含有 `.harness-runtime/`。这里是 feature-driven-development 存放逐 plan 状态（plan、contract、feature、handoff）的地方；它绝不能被提交。幂等：若该行已存在，什么都不做；若 `.gitignore` 缺失，创建它并写入该条目；否则在一行简短注释下追加。不要触碰任何其他 `.gitignore` 条目。
 
-### Step 5: Offer suggestions on conflict
+### Step 5：遇冲突时给建议
 
-When something blocks clean initialization, stop and surface the specific situation plus a short list of options. Do not silently choose. Typical cases:
+当某种情况阻碍了干净的初始化，停下来，把具体情形连同一小串可选项一并呈现。不要默默替用户做决定。典型情况：
 
 | Situation | Suggestion |
 |---|---|
-| Existing AGENTS.md over 150 lines | Report the line count; suggest moving detail into `docs/` before replacing |
-| Existing README.md with real content | Do not overwrite; suggest targeted edits the user can approve |
-| `docs/` exists with non-standard layout | List the divergent directories; ask whether to normalize or keep as-is |
-| Project name cannot be detected | List the sources checked; ask the user for the name |
-| Filesystem does not support symlinks | Fall back to CLAUDE.md stub and note the fallback |
-| Architecture / product / design content already partially scattered | Report locations; leave content alone and note which owner-skill should consolidate later |
+| 已有 AGENTS.md 超过 150 行 | 报告行数；建议在替换前把细节移进 `docs/` |
+| 已有 README.md 含真实内容 | 不覆盖；建议用户审定后做有针对性的编辑 |
+| `docs/` 存在但布局非标准 | 列出偏离的目录；询问是规整还是保持原样 |
+| 无法检测项目名称 | 列出已查过的来源；向用户索要名称 |
+| 文件系统不支持 symlink | 退化为 CLAUDE.md 桩文件，并标注此退化 |
+| architecture / product / design 内容已部分散落各处 | 报告位置；内容不动，并标注后续应由哪个归属技能来整合 |
 
-### Step 6: Verify and report
+### Step 6：验证并报告
 
-After writing, print a table covering every target in the scope table with one of: **created**, **preserved**, **skipped (conflict)**, or **needs attention**. Include any placeholders that were left unresolved so the user can fill them in. Confirm that `CLAUDE.md` resolves to `AGENTS.md`.
+写入后，打印一张表，覆盖 scope 表里的每个 target，状态取以下之一：**created**、**preserved**、**skipped (conflict)**、或 **needs attention**。把任何未解决的占位符一并列出，供用户填写。确认 `CLAUDE.md` 能解析到 `AGENTS.md`。
 
 ## Verification
 
-- [ ] `AGENTS.md` exists and is under 150 lines
-- [ ] `CLAUDE.md` resolves to `AGENTS.md` (symlink or stub)
-- [ ] `README.md` exists (either pre-existing or created from template)
-- [ ] `docs/README.md` and `docs/golden-rules.md` exist
-- [ ] `docs/design-docs/` contains `README.md` and `_template.md`
-- [ ] `docs/references/README.md` and `docs/generated/README.md` exist
-- [ ] `.gitignore` contains `.harness-runtime/`
-- [ ] Every placeholder is either substituted or called out in the report
-- [ ] No file with pre-existing real content was overwritten
+- [ ] `AGENTS.md` 存在，且不超过 150 行
+- [ ] `CLAUDE.md` 能解析到 `AGENTS.md`（symlink 或桩文件）
+- [ ] `README.md` 存在（原已存在，或从模板创建）
+- [ ] `docs/README.md` 与 `docs/golden-rules.md` 存在
+- [ ] `docs/design-docs/` 含有 `README.md` 与 `_template.md`
+- [ ] `docs/references/README.md` 与 `docs/generated/README.md` 存在
+- [ ] `.gitignore` 含有 `.harness-runtime/`
+- [ ] 每个占位符要么被替换，要么在报告中点明
+- [ ] 没有任何带原有真实内容的文件被覆盖

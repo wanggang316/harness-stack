@@ -1,27 +1,27 @@
 ---
 name: define-ui-spec
-description: Initializes or modifies project UI design style via DESIGN.md. Use when starting a new project that needs a visual design system, when adopting a pre-built design style (e.g., Linear, Vercel, Stripe), or when customizing UI design tokens from scratch.
+description: 通过 DESIGN.md 初始化或修改项目的 UI 设计风格。在启动需要 visual design system 的新项目、采用预制设计风格（如 Linear、Vercel、Stripe）、或从零定制 UI design token 时使用。
 ---
 
-# define-ui-spec: UI Design System
+# define-ui-spec：UI Design System
 
 ## Overview
 
-Initialize or modify your project's UI design style by creating a `docs/ui-design.md` file. This file follows the [DESIGN.md format](https://stitch.withgoogle.com/docs/design-md/overview/) — a plain-text design system that AI agents read to generate consistent, on-brand UI. Users can adopt a pre-built style from [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) or create a custom design system from a template.
+通过创建一个 `docs/ui-design.md` 文件来初始化或修改项目的 UI 设计风格。该文件遵循 [DESIGN.md format](https://stitch.withgoogle.com/docs/design-md/overview/)——一种 AI agent 读取后用于生成一致、贴合品牌 UI 的纯文本 design system。用户可以从 [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) 采用一套预制风格，也可以基于模板创建自定义 design system。
 
 ## When to Use
 
-**Use when**:
-- Starting a new project that needs a defined UI design style
-- Adopting a known brand's design language (Linear, Vercel, Stripe, etc.)
-- The project has no `docs/ui-design.md` and AI-generated UI looks generic or inconsistent
-- Switching or updating the project's visual design direction
-- You want AI agents to generate on-brand components consistently
+**适用于**：
+- 启动一个需要定义 UI 设计风格的新项目
+- 采用某个已知品牌的设计语言（Linear、Vercel、Stripe 等）
+- 项目没有 `docs/ui-design.md`，AI 生成的 UI 看起来千篇一律或不一致
+- 切换或更新项目的视觉设计方向
+- 你希望 AI agent 始终如一地生成贴合品牌的组件
 
-**Don't use when**:
-- The project already has a `docs/ui-design.md` that's working well (edit it directly)
-- Making one-off CSS tweaks that don't affect the design system
-- Working on backend-only features with no UI
+**不适用于**：
+- 项目已有一份运转良好的 `docs/ui-design.md`（直接编辑它）
+- 做不影响 design system 的一次性 CSS 微调
+- 处理没有 UI 的纯后端 feature
 
 ## Process
 
@@ -33,9 +33,9 @@ Existing   Pre-built    Generate          Test with
 design?    or custom?   ui-design.md      component
 ```
 
-### Step 1: Check Current State
+### Step 1：Check Current State
 
-Check whether a design system already exists:
+检查是否已存在 design system：
 
 ```
 - docs/ui-design.md exists?
@@ -43,68 +43,68 @@ Check whether a design system already exists:
 - Any other design system documentation?
 ```
 
-If a design file exists, ask the user whether they want to **replace** or **modify** it. Do not overwrite without confirmation.
+若已有 design 文件，询问用户是想 **替换** 还是 **修改** 它。未经确认不要覆盖。
 
-### Step 2: Choose a Design Style
+### Step 2：Choose a Design Style
 
-Present two options to the user:
+向用户给出两个选项：
 
-**Option A: Adopt a pre-built style**
+**选项 A：采用预制风格**
 
-List available styles:
+列出可用风格：
 
 ```bash
 npx getdesign@latest list
 ```
 
-This shows 60+ curated design systems inspired by real products (Linear, Vercel, Stripe, Airbnb, etc.). Each entry shows the brand name and a one-line description of its visual style.
+这会列出 60+ 套精选的 design system，灵感来自真实产品（Linear、Vercel、Stripe、Airbnb 等）。每一条显示品牌名及其视觉风格的一行描述。
 
-**Option B: Create a custom design system**
+**选项 B：创建自定义 design system**
 
-Use the template at [references/design-md-template.md](references/design-md-template.md) to create a custom design system from scratch. This is appropriate when:
-- The project has its own unique brand identity
-- No pre-built style matches the desired look
-- The user wants to define every token manually
+使用 [references/design-md-template.md](references/design-md-template.md) 模板从零创建自定义 design system。它适用于：
+- 项目有自己独特的品牌识别
+- 没有任何预制风格匹配期望的观感
+- 用户想手动定义每一个 token
 
-### Step 3: Install or Create
+### Step 3：Install or Create
 
-**For pre-built styles (Option A):**
+**对预制风格（选项 A）：**
 
-Install the chosen style:
+安装选定的风格：
 
 ```bash
 npx getdesign@latest add <brand> --out ./docs/ui-design.md
 ```
 
-Examples:
+示例：
 ```bash
 npx getdesign@latest add linear.app --out ./docs/ui-design.md
 npx getdesign@latest add vercel --out ./docs/ui-design.md
 npx getdesign@latest add stripe --out ./docs/ui-design.md
 ```
 
-After installation, review the file with the user. Customize any tokens that need adjustment for the specific project (e.g., swap the brand accent color while keeping the typography system).
+安装后，与用户一起审阅该文件。针对具体项目，定制任何需要调整的 token（例如换掉品牌 accent color，同时保留 typography system）。
 
-**For custom design (Option B):**
+**对自定义 design（选项 B）：**
 
-1. Read the template: [references/design-md-template.md](references/design-md-template.md)
-2. Interview the user about their design preferences:
-   - Light or dark mode first?
-   - Primary brand color?
-   - Typography preference (sans-serif, serif, monospace)?
-   - Density (spacious, balanced, compact)?
-   - Visual personality (minimal, bold, playful, professional)?
-3. Generate `docs/ui-design.md` filling in all 9 sections based on the user's answers
-4. Present the draft for review
+1. 读模板：[references/design-md-template.md](references/design-md-template.md)
+2. 就用户的设计偏好做访谈：
+   - light mode 还是 dark mode 优先？
+   - 主品牌色是什么？
+   - typography 偏好（sans-serif、serif、monospace）？
+   - 密度（spacious、balanced、compact）？
+   - 视觉个性（minimal、bold、playful、professional）？
+3. 依据用户的回答生成 `docs/ui-design.md`，填满全部 9 个小节
+4. 呈现草稿供评审
 
-### Step 4: Verify
+### Step 4：Verify
 
-After creating `docs/ui-design.md`:
+创建 `docs/ui-design.md` 之后：
 
-1. Confirm the file exists at `docs/ui-design.md`
-2. Verify all 9 sections are present (for custom) or the file is non-empty (for pre-built)
-3. Ask the user to confirm the design direction matches their intent
-4. Optionally: generate a sample component (e.g., a button or card) using the design system to validate it works in practice
+1. 确认文件存在于 `docs/ui-design.md`
+2. 确认全部 9 个小节都在（自定义情形）或文件非空（预制情形）
+3. 请用户确认设计方向与其意图相符
+4. 可选：用该 design system 生成一个示例组件（如按钮或卡片），验证它在实践中行得通
 
 ```
 DESIGN SYSTEM READY:
@@ -116,15 +116,15 @@ DESIGN SYSTEM READY:
 
 ## Relationship to Other Skills
 
-- **harness-stack:define-ui-spec** defines *how it should look* — the visual design language (`docs/ui-design.md`)
-- **harness-stack:design** defines *how to build it technically* — architecture decisions, when needed
-- **harness-stack:feature-driven-development** is the main build flow; its implementers read `docs/ui-design.md` when building UI components
+- **harness-stack:define-ui-spec** 定义 *它该长什么样*——视觉设计语言（`docs/ui-design.md`）
+- **harness-stack:design** 定义 *技术上如何构建*——需要时的 architecture 决策
+- **harness-stack:feature-driven-development** 是主构建流程；其 implementer 在构建 UI 组件时会读 `docs/ui-design.md`
 
-Recommended sequence for new UI features: `harness-stack:define-ui-spec` (once) → `harness-stack:feature-driven-development` for each feature
+新 UI feature 的推荐顺序：`harness-stack:define-ui-spec`（一次性）→ 每个 feature 用 `harness-stack:feature-driven-development`
 
 ## Available Pre-built Styles
 
-Run `npx getdesign@latest list` for the full list. Categories include:
+运行 `npx getdesign@latest list` 查看完整列表。类别包括：
 
 | Category | Examples |
 |---|---|
@@ -140,27 +140,27 @@ Run `npx getdesign@latest list` for the full list. Categories include:
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "We don't need a design system yet" | Without one, every AI-generated component looks different. The first component sets the precedent — make it intentional. |
-| "I'll just describe the style in each prompt" | Repeating "use dark mode with purple accents" in every prompt is error-prone and inconsistent. A DESIGN.md is the single source of truth. |
-| "The pre-built styles won't match our brand" | Start with the closest match and customize. It's faster than building from scratch and you get a well-structured foundation. |
-| "CSS variables are enough" | CSS variables define values. DESIGN.md defines intent, philosophy, and anti-patterns — the context AI needs to make good decisions. |
+| 「我们还不需要 design system。」 | 没有它，每个 AI 生成的组件都长得不一样。第一个组件就立下了先例——把它做得有意为之。 |
+| 「我在每个 prompt 里描述一下风格就好。」 | 在每个 prompt 里重复「用 dark mode 配紫色 accent」既易错又不一致。DESIGN.md 才是唯一事实来源。 |
+| 「预制风格不会匹配我们的品牌。」 | 从最接近的那个开始再定制。这比从零造更快，而且你得到一个结构良好的基底。 |
+| 「CSS 变量就够了。」 | CSS 变量定义取值。DESIGN.md 定义意图、理念与 anti-pattern——是 AI 做出好决策所需的上下文。 |
 
 ## Red Flags
 
-- AI-generated components with inconsistent colors, fonts, or spacing across pages
-- No `docs/ui-design.md` in a project with UI
-- Design file exists but uses vague descriptions ("dark blue", "large text") instead of exact tokens
-- Missing Do's and Don'ts section — agents will make preventable mistakes
-- Missing Agent Prompt Guide — agents can't generate components efficiently
+- AI 生成的组件跨页面颜色、字体或 spacing 不一致
+- 有 UI 的项目里没有 `docs/ui-design.md`
+- design 文件存在，却用模糊描述（「dark blue」「large text」）而非确切 token
+- 缺少 Do's and Don'ts 小节——agent 会犯本可避免的错误
+- 缺少 Agent Prompt Guide——agent 无法高效生成组件
 
 ## Verification
 
-- [ ] `docs/ui-design.md` exists and is non-empty
-- [ ] File follows the 9-section DESIGN.md format (or subset for pre-built)
-- [ ] Color values use exact hex/rgba, not descriptive words
-- [ ] Typography hierarchy defined with specific sizes, weights, and spacing
-- [ ] Do's and Don'ts section included
-- [ ] Agent Prompt Guide section included with example prompts
-- [ ] User has reviewed and confirmed the design direction
+- [ ] `docs/ui-design.md` 存在且非空
+- [ ] 文件遵循 9 小节的 DESIGN.md format（预制情形为其子集）
+- [ ] 颜色值使用确切的 hex/rgba，而非描述性词语
+- [ ] typography 层级已定义，并附具体的 size、weight 与 spacing
+- [ ] 含 Do's and Don'ts 小节
+- [ ] 含 Agent Prompt Guide 小节，并附示例 prompt
+- [ ] 用户已评审并确认设计方向

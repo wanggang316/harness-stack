@@ -2,7 +2,7 @@
 
 ## Overview
 
-The runtime lifecycle ensures every worktree's processes can be started, tracked, stopped, and cleaned up without leaving orphans. The lifecycle is a state machine with four states:
+runtime lifecycle 确保每个 worktree 的进程都能被启动、追踪、停止和清理，而不留下孤儿。该 lifecycle 是一个含四种状态的状态机：
 
 ```
 uninitialized → initialized → started → stopped
@@ -11,7 +11,7 @@ uninitialized → initialized → started → stopped
                         (can restart)
 ```
 
-State is tracked in `.worktree-runtime/state.json`.
+状态被追踪在 `.worktree-runtime/state.json` 中。
 
 ## Directory Structure
 
@@ -44,7 +44,7 @@ State is tracked in `.worktree-runtime/state.json`.
 
 ## scripts/worktree-start.sh
 
-Unified bootstrap entry point for a fresh worktree. Copies gitignored files from the main worktree per `.worktreeinclude`, then delegates to `env-init`. Idempotent -- safe to call manually or from a git hook.
+全新 worktree 的统一引导入口。按 `.worktreeinclude` 从 main worktree 复制被 gitignore 的文件，然后委托给 `env-init`。幂等——手动调用或从 git hook 触发都安全。
 
 ```sh
 #!/bin/sh
@@ -93,7 +93,7 @@ fi
 
 ## .githooks/post-checkout
 
-Thin wrapper that runs `worktree-start.sh` on fresh worktree creation. Git's `post-checkout` fires on both `git checkout <branch>` and `git worktree add`; the sentinel check (`.worktree-runtime/state.json`) keeps it a no-op on subsequent branch switches.
+一个薄封装，在全新 worktree 创建时运行 `worktree-start.sh`。Git 的 `post-checkout` 在 `git checkout <branch>` 和 `git worktree add` 时都会触发；哨兵检查（`.worktree-runtime/state.json`）使其在后续切分支时保持 no-op。
 
 ```sh
 #!/bin/sh
@@ -119,7 +119,7 @@ if [ -x "$ROOT_DIR/scripts/worktree-start.sh" ]; then
 fi
 ```
 
-Activate once per clone (Git stores `core.hooksPath` in local config, which is not versioned):
+每个 clone 激活一次（Git 把 `core.hooksPath` 存在本地配置里，不纳入版本管理）：
 
 ```sh
 git config core.hooksPath .githooks
@@ -129,7 +129,7 @@ git config core.hooksPath .githooks
 
 ## .worktreeinclude
 
-Committed at the repo root. Uses `.gitignore` syntax; only files that match a pattern **and** are gitignored in the main worktree get copied. Keeps secrets and local config reproducible across worktrees without duplicating tracked files.
+提交在 repo 根目录。使用 `.gitignore` 语法；只有在 main worktree 中既匹配某个 pattern **又**被 gitignore 的文件才会被复制。让 secrets 和本地配置在多个 worktree 间可复现，且不重复被追踪的文件。
 
 ```text
 # Local env files (gitignored, but needed per worktree)
@@ -150,9 +150,9 @@ certs/local.pem
 
 ## scripts/env-init
 
-Initializes the environment by injecting per-worktree port values into the project's existing `.env` files. Idempotent -- safe to run multiple times.
+通过把每个 worktree 专属的 port 值注入项目已有的 `.env` 文件来初始化环境。幂等——可多次运行而无副作用。
 
-**Key behavior**: does NOT create a new `.env.template`. It discovers each existing `.env.example` in the project, copies it to `.env` if missing, then overrides port-related variables with worktree-specific values. Unrelated variables (secrets, feature flags) are preserved.
+**关键行为**：不会创建新的 `.env.template`。它发现项目中每个已有的 `.env.example`，在缺失时把它复制成 `.env`，然后用 worktree 专属值覆盖与 port 相关的变量。无关变量（secrets、feature flag）被保留。
 
 ```sh
 #!/bin/sh
@@ -259,13 +259,13 @@ STATEEOF
 printf 'Environment initialized: worktree=%s offset=%d\n' "$WORKTREE_ID" "$PORT_OFFSET"
 ```
 
-The script above is a baseline. For monorepo projects with cross-service URL references (e.g., `API_URL=http://localhost:4000` in the web package pointing to the API package), extend the URL-substitution block to look up peer port mappings. See `port-strategy.md` for the algorithm.
+上面的脚本是一个基线。对于含跨服务 URL 引用的 monorepo 项目（例如 web package 中 `API_URL=http://localhost:4000` 指向 API package），扩展 URL 替换那一段以查找对等服务的 port 映射。算法见 `port-strategy.md`。
 
 ---
 
 ## scripts/env-start
 
-Starts all services with PID tracking and log routing.
+启动所有服务，并带 PID 追踪与日志导向。
 
 ```sh
 #!/bin/sh
@@ -340,7 +340,7 @@ set +a
 
 ## scripts/env-stop
 
-Graceful shutdown with zombie prevention.
+优雅关停，并防止僵尸进程。
 
 ```sh
 #!/bin/sh
@@ -418,7 +418,7 @@ printf 'All services stopped.\n'
 
 ## scripts/env-teardown
 
-Full cleanup -- removes all traces of this worktree's environment.
+完整清理——移除本 worktree 环境的所有痕迹。
 
 ```sh
 #!/bin/sh
@@ -465,7 +465,7 @@ printf 'Environment torn down for worktree: %s\n' "$WORKTREE_ID"
 
 ### Per-Service Logs
 
-Each service writes to its own log file under `.worktree-runtime/logs/`:
+每个服务写入自己在 `.worktree-runtime/logs/` 下的日志文件：
 
 ```
 .worktree-runtime/logs/
@@ -495,7 +495,7 @@ wait
 
 ### Log Rotation
 
-For long-running worktrees, logs can grow large. The teardown script removes them. For active worktrees, consider:
+对于长期运行的 worktree，日志可能变得很大。teardown 脚本会移除它们。对于活跃的 worktree，可考虑：
 
 ```sh
 # Truncate logs without stopping services
@@ -506,14 +506,14 @@ For long-running worktrees, logs can grow large. The teardown script removes the
 
 ## Zombie Prevention Checklist
 
-1. **Start guard**: Before starting, check if a PID file exists and the process is alive. If alive, skip. If dead, clean the stale PID file and proceed.
+1. **启动守卫**：启动前，检查 PID 文件是否存在且进程是否存活。存活则跳过。已死则清理过期 PID 文件再继续。
 
-2. **PID validation**: After writing a PID file, verify the process is actually running (`kill -0 $pid`). If the process exited immediately, report the error.
+2. **PID 校验**：写入 PID 文件后，确认进程确实在运行（`kill -0 $pid`）。若进程立即退出，报告错误。
 
-3. **Stop timeout**: SIGTERM with a configurable timeout (default 10s). Escalate to SIGKILL. Verify with `kill -0` after kill.
+3. **停止超时**：SIGTERM 并带一个可配置的超时（默认 10s）。升级为 SIGKILL。kill 后用 `kill -0` 确认。
 
-4. **Orphan scan**: `env-start` can optionally scan for processes bound to this worktree's ports that don't match recorded PIDs -- these are orphans from a crashed session.
+4. **孤儿扫描**：`env-start` 可选地扫描那些绑定到本 worktree port 却与记录的 PID 不匹配的进程——它们是上次崩溃会话留下的孤儿。
 
-5. **Crash recovery**: If `state.json` says "started" but no PID files have live processes, reset state to "initialized" and allow re-start.
+5. **崩溃恢复**：若 `state.json` 显示为 "started" 但没有任何 PID 文件对应存活进程，把状态重置为 "initialized" 并允许重启。
 
-6. **Process groups**: For services that spawn child processes, use `kill -- -$pid` (process group kill) to ensure children are also terminated. Requires starting with `setsid` or `set -m`.
+6. **进程组**：对于会派生子进程的服务，用 `kill -- -$pid`（进程组 kill）以确保子进程也被终止。需要用 `setsid` 或 `set -m` 启动。

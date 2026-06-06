@@ -1,85 +1,74 @@
 # Handoff decision tree
 
-Input: an implementer returned. Read its handoff:
+输入：一个 implementer 返回了。读它的 handoff：
 
 ```bash
 hs-plan handoff <feature-id>
 ```
 
-Every handoff must reach a terminal action before the loop continues.
+每个 handoff 都必须抵达一个终态动作，循环才能继续。
 
 ## A — `returnToController: true`
 
-The implementer hit something it can't solve and asked for help. Check `criticalContext`
-and the summary:
+implementer 撞上了它解决不了的东西，求助了。查 `criticalContext` 和那段 summary：
 
-| Cause | Action |
+| 原因 | 动作 |
 |---|---|
-| Missing precondition (e.g. schema not deployed) | Create/reorder a precondition feature ahead of it |
-| Plan boundary can't be honored | Return to the user — boundaries are user-confirmed |
-| Spec ambiguous (two readings, can't choose) | Disambiguate `plan.md` / the contract (delegate contract edits); re-confirm with the user if needed; reset feature to `pending` with a clearer description |
-| External service down / credentials expired | **Return to the user** — you can't recover external state |
-| Repo in an unexpected state (dirty tree, wrong branch) | Investigate; don't "clean up" before you understand why |
+| 缺少 precondition（例如 schema 未部署） | 在它前面创建/重排一个 precondition feature |
+| plan 边界无法遵守 | 交还用户——边界是用户确认过的 |
+| spec 含糊（两种读法，无法抉择） | 把 `plan.md` / contract 消歧（contract 编辑委派出去）；必要时与用户再确认；用更清晰的 description 把 feature 复位为 `pending` |
+| 外部服务宕机 / 凭据过期 | **交还用户**——你恢复不了外部状态 |
+| 仓库处于意外状态（脏树、错误分支） | 调查；在弄懂原因之前别去「清理」 |
 
-After fixing the root cause: `hs-plan set-status <id> pending`, then continue. Never mark
-a returned feature `completed`.
+修好根因之后：`hs-plan set-status <id> pending`，然后继续。绝不把一个被退回的 feature 标记为 `completed`。
 
 ## B — `successState: failure`
 
-1. Delegate failure analysis to a read-only subagent: read the handoff (especially
-   `verificationEvidence`, `criticalContext`, `discoveredIssues`), the feature, and
-   `plan.md`; determine root cause; recommend 1-3 fix features (id, description,
-   preconditions, expectedBehavior, verificationSteps, agent, fulfills) and whether the
-   original can stay `pending` with an updated description or be replaced.
-2. Most often: create the fix feature(s) at the **top** of `features.json` and reset the
-   original to `pending`. The fixes run first; the original re-runs after.
+1. 把失败分析委派给一个只读 subagent：读 handoff（尤其是 `verificationEvidence`、`criticalContext`、`discoveredIssues`）、该 feature、以及 `plan.md`；定位根因；推荐 1-3 个修复 feature（id、description、preconditions、expectedBehavior、verificationSteps、agent、fulfills），并判断原 feature 是更新 description 后留作 `pending`、还是被替换。
+2. 最常见：在 `features.json` 的**顶部**创建修复 feature 并把原 feature 复位为 `pending`。修复先跑；原 feature 之后重跑。
 
 ## C — `successState: partial`
 
-Some `expectedBehavior` passed, some didn't.
-- Most often: reset the original to `pending`, updating `description` to state exactly what
-  remains (fold in relevant `criticalContext` for the next worker).
-- If the partial result is usable and the gap is well-bounded: mark `completed` and create a
-  follow-up feature for the gap in the same milestone (right after it).
-- If the gap is large: treat as `failure` (path B).
+一部分 `expectedBehavior` 过了，一部分没过。
+- 最常见：把原 feature 复位为 `pending`，更新 `description` 精确说明还剩什么（把相关 `criticalContext` 折叠进去给下一个 worker）。
+- 若部分结果可用、且缺口界限清楚：标 `completed`，并在同一 milestone 里（紧跟其后）为该缺口创建一个后续 feature。
+- 若缺口很大：当作 `failure`（路径 B）。
 
 ## D — `successState: success`
 
-Don't blindly trust — verify briefly:
-1. Do commits matching `commits[]` exist? (`git log --oneline -5`)
-2. Is the tree clean? If not, the worker forgot to commit — treat as `partial`.
-3. Does `verificationEvidence` cover every `verificationStep` with real results (not "verified" / "looks fine")? Missing verification is tech debt — see D.2.
+别盲信——简短核验：
+1. 与 `commits[]` 匹配的 commit 存在吗？（`git log --oneline -5`）
+2. 树干净吗？若不干净，worker 忘了提交——当作 `partial`。
+3. `verificationEvidence` 是否以真实结果（而非「verified」/「looks fine」）覆盖了每个 `verificationStep`？缺失的验证是技术债——见 D.2。
 
-Then process the lists:
+然后处理这几个清单：
 
-### D.1 — `discoveredIssues` (incidental defects; must be tracked)
+### D.1 — `discoveredIssues`（顺带发现的缺陷；必须被追踪）
 
-| Severity | Default |
+| 严重度 | 默认处理 |
 |---|---|
-| `blocker` | New feature at the **top**; original stays `completed` |
-| `tech-debt` | Follow-up in the same milestone if unsealed, else a `misc-*` milestone (≤5 features) |
-| `nit` | `misc-*` if worth fixing, else dismiss with justification |
+| `blocker` | 在**顶部**新建一个 feature；原 feature 维持 `completed` |
+| `tech-debt` | 若 milestone 未封存则在同一 milestone 里做后续，否则进一个 `misc-*` milestone（≤5 个 feature） |
+| `nit` | 值得修就进 `misc-*`，否则带理由 dismiss |
 
-Skipping is allowed only if (1) already tracked by an existing feature (cite its id) or
-(2) genuinely never needs fixing. "Low priority" / "non-blocking" / "later" are **not**
-valid reasons.
+仅在以下情形允许跳过：(1) 已被某个现有 feature 追踪（引用其 id），或 (2) 确实永远不需要修。「优先级低」/「不阻塞」/「以后再说」**不是**正当理由。
 
-### D.2 — `whatWasLeftUndone` (in-scope work not done; must be tracked)
+### D.2 — `whatWasLeftUndone`（范围内未做完的工作；必须被追踪）
 
-Skipped manual QA / incomplete verification = tech debt.
+跳过的手动 QA / 不完整的验证 = 技术债。
 
-| Belongs to | Action |
+| 归属 | 动作 |
 |---|---|
-| This feature (e.g. its QA was skipped) | Reset to `pending`, update `description` to cover the gap |
-| An existing pending feature | Fold into that feature's `description` (if the merged scope still fits one session) |
-| A new bounded chunk | New feature (top / in-milestone / `misc-*`) |
-| Out of scope (rare) | Dismiss with justification, or escalate |
+| 本 feature（例如它的 QA 被跳过了） | 复位为 `pending`，更新 `description` 覆盖该缺口 |
+| 某个现有的 pending feature | 折叠进那个 feature 的 `description`（若合并后的范围仍能装进一个 session） |
+| 一块新的、界限清楚的工作 | 新建 feature（顶部 / milestone 内 / `misc-*`） |
+| 超出范围（罕见） | 带理由 dismiss，或上交 |
 
-### D.3 — `criticalContext` (facts the next worker/validator needs)
+### D.3 — `criticalContext`（下一个 worker/validator 需要的事实）
 
-- Project/codebase fact (e.g. "migrations must run before app start") → the relevant `docs/` Library file.
-- Feature-specific → update that feature's `description`.
-- Decision/rationale worth keeping → `plan.md` Decision Log.
+- 项目/代码库事实（例如「迁移必须在应用启动前跑」）→ 相关的 `docs/` Library 文件。
+- 特定于某 feature → 更新那个 feature 的 `description`。
+- 值得保留的决策/理由 → `plan.md` 的 Decision Log。
 
 ### D.4 — Terminal
 
@@ -87,15 +76,11 @@ Skipped manual QA / incomplete verification = tech debt.
 hs-plan set-status <feature-id> completed
 ```
 
-Continue the loop.
+继续循环。
 
 ## Dismissals — when and how
 
-Dismissal is a deliberate decision not to act on a handoff item. Use sparingly. A valid
-justification is substantive (≥ a sentence): "Already tracked as feature `<id>`: …" or
-"Will never need fixing: …". Invalid: "low priority", "non-blocking", "later", bare
-"out of scope". Record the decision in `plan.md` Decision Log (the plan dir is the
-working record; git history of `docs/` is the audit trail for durable facts).
+dismiss 是有意决定不对某个 handoff 项采取行动。慎用。一个有效的理由要有实质（≥ 一句话）：「已作为 feature `<id>` 追踪：……」或「永远不需要修：……」。无效的：「优先级低」「不阻塞」「以后再说」、光秃秃的「超出范围」。把这个决定记进 `plan.md` 的 Decision Log（plan 目录是工作记录；`docs/` 的 git 历史是耐久事实的审计痕迹）。
 
 ## Quick reference
 

@@ -1,6 +1,6 @@
 # Accessibility Checklist
 
-Quick reference for WCAG 2.1 AA compliance. Use alongside the `frontend-ui-engineering` skill.
+WCAG 2.1 AA 合规的速查表。配合 `frontend-ui-engineering` 技能使用。
 
 ## Table of Contents
 
@@ -13,44 +13,44 @@ Quick reference for WCAG 2.1 AA compliance. Use alongside the `frontend-ui-engin
 ## Essential Checks
 
 ### Keyboard Navigation
-- [ ] All interactive elements focusable via Tab key
-- [ ] Focus order follows visual/logical order
-- [ ] Focus is visible (outline/ring on focused elements)
-- [ ] Custom widgets have keyboard support (Enter to activate, Escape to close)
-- [ ] No keyboard traps (user can always Tab away from a component)
-- [ ] Skip-to-content link at top of page - visible (at least) on keyboard focus
-- [ ] Modals trap focus while open, return focus on close
+- [ ] 所有交互元素均可通过 Tab 键获得焦点
+- [ ] 焦点顺序遵循视觉/逻辑顺序
+- [ ] 焦点可见（聚焦元素带 outline/ring）
+- [ ] 自定义 widget 支持键盘操作（Enter 激活、Escape 关闭）
+- [ ] 没有键盘陷阱（用户总能用 Tab 离开某个组件）
+- [ ] 页面顶部有 skip-to-content 链接——（至少）在键盘聚焦时可见
+- [ ] 模态框打开时锁住焦点，关闭时归还焦点
 
 ### Screen Readers
-- [ ] All images have `alt` text (or `alt=""` for decorative images)
-- [ ] All form inputs have associated labels (`<label>` or `aria-label`)
-- [ ] Buttons and links have descriptive text (not "Click here")
-- [ ] Icon-only buttons have `aria-label`
-- [ ] Page has one `<h1>` and headings don't skip levels
-- [ ] Dynamic content changes announced (`aria-live` regions)
-- [ ] Tables have `<th>` headers with scope
+- [ ] 所有图片都有 `alt` 文本（装饰性图片用 `alt=""`）
+- [ ] 所有表单输入都有关联的 label（`<label>` 或 `aria-label`）
+- [ ] 按钮和链接有描述性文字（不是「Click here」）
+- [ ] 纯图标按钮带 `aria-label`
+- [ ] 页面有且仅有一个 `<h1>`，标题不跳级
+- [ ] 动态内容变化会被播报（`aria-live` 区域）
+- [ ] 表格有带 scope 的 `<th>` 表头
 
 ### Visual
-- [ ] Text contrast ≥ 4.5:1 (normal text) or ≥ 3:1 (large text, 18px+)
-- [ ] UI components contrast ≥ 3:1 against background
-- [ ] Color is not the only way to convey information
-- [ ] Text resizable to 200% without breaking layout
-- [ ] No content that flashes more than 3 times per second
+- [ ] 文本对比度 ≥ 4.5:1（正文）或 ≥ 3:1（大号文字，18px+）
+- [ ] UI 组件与背景的对比度 ≥ 3:1
+- [ ] 颜色不是传达信息的唯一方式
+- [ ] 文本可放大到 200% 而不破坏布局
+- [ ] 没有每秒闪烁超过 3 次的内容
 
 ### Forms
-- [ ] Every input has a visible label
-- [ ] Required fields indicated (not by color alone)
-- [ ] Error messages specific and associated with the field
-- [ ] Error state visible by more than color (icon, text, border)
-- [ ] Form submission errors summarized and focusable
-- [ ] Known fields use autocomplete (for example `type="email" autocomplete="email"`)
+- [ ] 每个输入都有可见的 label
+- [ ] 必填字段有标示（不只靠颜色）
+- [ ] 错误信息具体，并与对应字段关联
+- [ ] 错误状态不只靠颜色可辨（图标、文字、边框）
+- [ ] 表单提交错误有汇总，且可获得焦点
+- [ ] 已知字段使用 autocomplete（例如 `type="email" autocomplete="email"`）
 
 ### Content
-- [ ] Language declared (`<html lang="en">`)
-- [ ] Page has a descriptive `<title>`
-- [ ] Links distinguish from surrounding text (not by color alone)
-- [ ] Touch targets ≥ 44x44px on mobile
-- [ ] Meaningful empty states (not blank screens)
+- [ ] 已声明语言（`<html lang="en">`）
+- [ ] 页面有描述性的 `<title>`
+- [ ] 链接与周围文字可区分（不只靠颜色）
+- [ ] 移动端触控目标 ≥ 44x44px
+- [ ] 有意义的 empty 状态（不是空白屏）
 
 ## Common HTML Patterns
 
@@ -139,22 +139,22 @@ npx pa11y             # CLI accessibility checker
 
 ## Quick Reference: ARIA Live Regions
 
-| Value | Behavior | Use For |
+| Value | 行为 | 用于 |
 |-------|----------|---------|
-| `aria-live="polite"` | Announced at next pause | Status updates, saved confirmations |
-| `aria-live="assertive"` | Announced immediately | Errors, time-sensitive alerts |
-| `role="status"` | Same as `polite` | Status messages |
-| `role="alert"` | Same as `assertive` | Error messages |
+| `aria-live="polite"` | 在下一个停顿时播报 | 状态更新、保存确认 |
+| `aria-live="assertive"` | 立即播报 | 错误、时效敏感的提醒 |
+| `role="status"` | 同 `polite` | 状态消息 |
+| `role="alert"` | 同 `assertive` | 错误消息 |
 
 ## Common Anti-Patterns
 
-| Anti-Pattern | Problem | Fix |
+| Anti-Pattern | 问题 | 修法 |
 |---|---|---|
-| `div` as button | Not focusable, no keyboard support | Use `<button>` |
-| Missing `alt` text | Images invisible to screen readers | Add descriptive `alt` |
-| Color-only states | Invisible to color-blind users | Add icons, text, or patterns |
-| Autoplaying media | Disorienting, can't be stopped | Add controls, don't autoplay |
-| Custom dropdown with no ARIA | Unusable by keyboard/screen reader | Use native `<select>` or proper ARIA listbox |
-| Removing focus outlines | Users can't see where they are | Style outlines, don't remove them |
-| Empty links/buttons | "Link" announced with no description | Add text or `aria-label` |
-| `tabindex > 0` | Breaks natural tab order | Use `tabindex="0"` or `-1` only |
+| 用 `div` 当按钮 | 无法获得焦点、不支持键盘 | 用 `<button>` |
+| 缺少 `alt` 文本 | 图片对 screen reader 不可见 | 加上描述性的 `alt` |
+| 仅靠颜色的状态 | 对色盲用户不可见 | 加图标、文字或图案 |
+| 自动播放的媒体 | 令人困惑、无法停止 | 加控件，不要自动播放 |
+| 没有 ARIA 的自定义下拉 | 键盘/screen reader 无法使用 | 用原生 `<select>` 或规范的 ARIA listbox |
+| 移除焦点 outline | 用户看不到自己在哪里 | 给 outline 加样式，不要移除它 |
+| 空的链接/按钮 | 播报出「Link」却没有描述 | 加文字或 `aria-label` |
+| `tabindex > 0` | 破坏自然的 tab 顺序 | 只用 `tabindex="0"` 或 `-1` |

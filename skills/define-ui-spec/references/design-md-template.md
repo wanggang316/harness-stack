@@ -1,19 +1,19 @@
 # DESIGN.md Template
 
-Based on the [Stitch DESIGN.md format](https://stitch.withgoogle.com/docs/design-md/format/) by Google Stitch. A plain-text design system document that AI agents read to generate consistent UI.
+基于 Google Stitch 的 [Stitch DESIGN.md format](https://stitch.withgoogle.com/docs/design-md/format/)。一份 AI agent 读取后用于生成一致 UI 的纯文本 design system 文档。
 
 ## What is DESIGN.md?
 
-DESIGN.md is a markdown file placed in your project that defines how your UI should look and feel. AI coding agents read this file to generate consistent, on-brand interfaces. No Figma exports, no JSON schemas — just markdown.
+DESIGN.md 是放在你项目里的一个 markdown 文件，定义你的 UI 该长什么样、有什么感觉。AI 编码 agent 读取它来生成一致、贴合品牌的界面。无需 Figma 导出，无需 JSON schema——就是 markdown。
 
-| File | Who reads it | What it defines |
+| File | 谁读它 | 它定义什么 |
 |------|-------------|-----------------|
-| `AGENTS.md` | Coding agents | How to build the project |
-| `DESIGN.md` | Design agents | How the project should look and feel |
+| `AGENTS.md` | Coding agents | 如何构建项目 |
+| `DESIGN.md` | Design agents | 项目该长什么样、有什么感觉 |
 
 ## Template
 
-The following is a complete DESIGN.md template with all 9 sections. Fill in each section based on your project's design system. Delete sections that don't apply — but most projects need all 9.
+以下是一份完整的 DESIGN.md 模板，含全部 9 个小节。依据你项目的 design system 填好每一节。不适用的小节删掉——但多数项目 9 节都需要。
 
 ---
 
@@ -22,11 +22,11 @@ The following is a complete DESIGN.md template with all 9 sections. Fill in each
 
 ## 1. Visual Theme & Atmosphere
 
-<!-- Describe the overall visual impression in 2-3 paragraphs. Cover:
-     - Primary mood/atmosphere (dark-mode-first? light and airy? bold and energetic?)
-     - Design philosophy (minimalism? brutalism? material design? editorial?)
-     - Information density approach (spacious? dense? balanced?)
-     - Overall color temperature (cool? warm? neutral?)
+<!-- 用 2-3 段描述整体视觉印象。涵盖：
+     - 主要基调/氛围（dark-mode-first？轻盈通透？大胆有活力？）
+     - 设计理念（minimalism？brutalism？material design？editorial？）
+     - 信息密度取向（spacious？dense？balanced？）
+     - 整体色温（cool？warm？neutral？）
 -->
 
 **Key Characteristics:**
@@ -241,23 +241,23 @@ The following is a complete DESIGN.md template with all 9 sections. Fill in each
 
 ## Section Purposes
 
-| # | Section | What it captures | Required? |
+| # | Section | 它捕获什么 | 是否必需？ |
 |---|---------|-----------------|-----------|
-| 1 | Visual Theme & Atmosphere | Mood, density, design philosophy | Yes |
-| 2 | Color Palette & Roles | Semantic name + hex + functional role | Yes |
-| 3 | Typography Rules | Font families, full hierarchy table | Yes |
-| 4 | Component Stylings | Buttons, cards, inputs, navigation with states | Yes |
-| 5 | Layout Principles | Spacing scale, grid, whitespace philosophy | Yes |
-| 6 | Depth & Elevation | Shadow system, surface hierarchy | Recommended |
-| 7 | Do's and Don'ts | Design guardrails and anti-patterns | Yes |
-| 8 | Responsive Behavior | Breakpoints, touch targets, collapsing strategy | Recommended |
-| 9 | Agent Prompt Guide | Quick color reference, ready-to-use prompts | Yes |
+| 1 | Visual Theme & Atmosphere | 基调、密度、设计理念 | 是 |
+| 2 | Color Palette & Roles | 语义名 + hex + 功能性角色 | 是 |
+| 3 | Typography Rules | 字体族、完整的层级表 | 是 |
+| 4 | Component Stylings | 按钮、卡片、输入、导航及其状态 | 是 |
+| 5 | Layout Principles | spacing scale、grid、留白理念 | 是 |
+| 6 | Depth & Elevation | 阴影体系、surface 层级 | 推荐 |
+| 7 | Do's and Don'ts | 设计护栏与 anti-pattern | 是 |
+| 8 | Responsive Behavior | 断点、触控目标、折叠策略 | 推荐 |
+| 9 | Agent Prompt Guide | 颜色速查、即用 prompt | 是 |
 
 ## Writing Principles
 
-1. **Be specific**: Use exact hex values, pixel sizes, and font weights — not "dark blue" or "large text"
-2. **Semantic naming**: Every color has a role name and a functional description, not just a hex value
-3. **Agent-readable**: Write for LLMs — structured tables, clear hierarchies, explicit values
-4. **States matter**: Every interactive component needs hover, active, focus, and disabled states
-5. **Include anti-patterns**: The Don'ts section prevents AI from making common mistakes
-6. **Prompt-ready**: Section 9 gives agents copy-paste-ready prompts for generating components
+1. **要具体**：使用确切的 hex 值、像素尺寸与字重——而非「dark blue」或「large text」
+2. **语义化命名**：每种颜色都有角色名与功能性描述，而不只是一个 hex 值
+3. **agent 可读**：为 LLM 而写——结构化表格、清晰层级、显式取值
+4. **状态很重要**：每个交互组件都需要 hover、active、focus 与 disabled 状态
+5. **纳入 anti-pattern**：Don'ts 小节防止 AI 犯常见错误
+6. **prompt 即用**：第 9 节给 agent 提供可直接复制粘贴、用于生成组件的 prompt

@@ -1,15 +1,15 @@
 # Implementer Brief
 
-You are implementing feature **`{FEATURE_ID}`** in milestone **`{MILESTONE}`**.
+你正在实现 milestone **`{MILESTONE}`** 中的 feature **`{FEATURE_ID}`**。
 
 ## Feature
 
 {DESCRIPTION}
 
-**Expected behavior (each must hold):**
+**Expected behavior（每条都必须成立）：**
 {EXPECTED_BEHAVIOR}
 
-**Verification steps (run each; capture real output):**
+**Verification steps（逐条运行；抓取真实输出）：**
 {VERIFICATION_STEPS}
 
 ## Boundaries (NEVER VIOLATE)
@@ -26,12 +26,11 @@ these boundaries, set returnToController:true rather than crossing them.
 
 {FILE_SCOPE}
 
-You may Read / Write / Edit within this scope. Touching files outside it means
-reporting `BLOCKED` (or `returnToController:true`) rather than expanding silently.
+你可以在此范围内 Read / Write / Edit。碰到范围之外的文件，意味着报告 `BLOCKED`（或 `returnToController:true`），而不是悄悄扩张。
 
 ## Working Directory
 
-`{WORKDIR}` — do not work on `main` / `master` unless this brief says so.
+`{WORKDIR}`——除非本 brief 另有说明，否则不要在 `main` / `master` 上干活。
 
 ## Preconditions (assume satisfied; report if not)
 
@@ -62,11 +61,10 @@ need to read them. If this feature is foundational (fulfills empty), state that.
 
 ## Handoff (mandatory)
 
-When done:
+完成后：
 
-1. Produce the standard implementer report (see `agents/implementer.md` §"Report format":
-   Commands-executed table, atomic-commit block, assertions covered, procedures checklist).
-2. **Also** write a handoff JSON and record it:
+1. 产出标准的 implementer 报告（见 `agents/implementer.md` §"Report format"：已执行命令表、原子 commit 块、已覆盖的断言、procedures 清单）。
+2. **另外**写一份 handoff JSON 并登记它：
 
    ```json
    {
@@ -83,8 +81,5 @@ When done:
    }
    ```
 
-   Write it to a file, then run `hs-plan write-handoff {FEATURE_ID} <path>`. There must be
-   one `verificationEvidence` entry per verification step — if you couldn't run one, say
-   `failure: <reason>`. Set `returnToController:true` only when you hit something you
-   cannot solve (missing precondition, boundary conflict, ambiguous spec).
-3. Return a 2-3 sentence summary to the controller.
+   把它写到一个文件，然后运行 `hs-plan write-handoff {FEATURE_ID} <path>`。每个 verification step 必须对应一条 `verificationEvidence` 条目——若有一条你没能跑，写 `failure: <reason>`。仅当你撞上自己解决不了的东西（缺少 precondition、边界冲突、spec 含糊）时才设 `returnToController:true`。
+3. 向 controller 返回一段 2-3 句的 summary。

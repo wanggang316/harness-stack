@@ -1,12 +1,10 @@
 # Investigation Prompt Template
 
-Hand this to a fresh subagent during Step 3 (Investigate), one per area. Fill the
-`<…>` placeholders. The subagent enumerates user interactions for a single area;
-it does **not** write assertions. Its output is the raw material the author turns
-into assertions in Step 4.
+在 Step 3（Investigate）期间把这份 prompt 交给一个全新 subagent，每个 area 一份。填好
+`<…>` 占位符。该 subagent 为单个 area 枚举用户交互；它 **不** 写 assertion。它的输出是
+作者在 Step 4 里转成 assertion 的原材料。
 
-Read-only access is sufficient — the subagent reads the plan and source, and
-returns a list. Dispatch one subagent per area in parallel.
+只读权限即足够——subagent 读 plan 与源码，返回一份清单。每个 area 并行派发一个 subagent。
 
 ---
 

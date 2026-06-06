@@ -1,14 +1,14 @@
 # Sync Reference (rebase + push)
 
-Operational depth for keeping a feature branch up to date with its upstream and publishing the result. The slash command `/harness-stack:git-sync` is the haiku-driven entry point that follows this flow; this file is the longer-form reference.
+让 feature branch 与其 upstream 保持同步、并把结果发布出去的操作细节。slash command `/harness-stack:git-sync` 是遵循这套流程的 haiku 驱动入口；本文件是更长篇的参考。
 
-This is the **rebase-based** flow — keeps a linear history. Use [pull.md](pull.md) when project policy mandates merge commits, when the branch is shared with others, or when rewriting history would be hostile.
+这是 **rebase 路线**的流程——保持线性 history。当项目策略强制要求 merge commit、分支与他人共享、或重写 history 会造成麻烦时，改用 [pull.md](pull.md)。
 
 ## Pre-Flight
 
-1. **Working tree clean.** If `git status` shows uncommitted changes, stop — commit (see [commit.md](commit.md)) or stash first. Do not auto-stash, do not discard.
-2. **Upstream exists.** If `git rev-parse --abbrev-ref --symbolic-full-name @{u}` errors, the branch has no upstream — set it with `git push -u origin <branch>` before syncing.
-3. **Anything to do?** `git rev-list --left-right --count HEAD...@{u}`. If output is `0\t0`, already in sync — exit.
+1. **工作区干净。** 若 `git status` 显示有未提交改动，停下——先 commit（见 [commit.md](commit.md)）或 stash。不要自动 stash，不要丢弃。
+2. **upstream 存在。** 若 `git rev-parse --abbrev-ref --symbolic-full-name @{u}` 报错，说明分支没有 upstream——同步前先用 `git push -u origin <branch>` 设好。
+3. **有事可做吗？** `git rev-list --left-right --count HEAD...@{u}`。若输出是 `0\t0`，已经同步——退出。
 
 ## Rebase
 
@@ -16,8 +16,8 @@ This is the **rebase-based** flow — keeps a linear history. Use [pull.md](pull
 git pull --rebase
 ```
 
-- Clean success → push.
-- Conflicts → resolve, then `git rebase --continue`.
+- 干净成功 → push。
+- 有 conflict → 解决，然后 `git rebase --continue`。
 
 ### Conflict Resolution
 
@@ -26,30 +26,30 @@ git status                                  # list conflicted files
 git diff --name-only --diff-filter=U        # machine-readable list
 ```
 
-For each conflicted file:
+对每个冲突文件：
 
-1. Open the file. Locate `<<<<<<<` / `=======` / `>>>>>>>` markers.
-2. Read both sides. State the intent: what is each side trying to achieve? Is one a superset of the other? Are they orthogonal?
-3. Edit to the **intended outcome**, not "pick one side". Preserve invariants and user-visible behavior unless the conflict deliberately changes them.
-4. `git add <file>`.
+1. 打开文件。定位 `<<<<<<<` / `=======` / `>>>>>>>` 标记。
+2. 读两侧。陈述意图：每一侧想达成什么？是否一侧是另一侧的超集？它们正交吗？
+3. 改成**期望的结果**，而不是「选一边」。保留不变量和用户可见行为，除非 conflict 有意要改它们。
+4. `git add <file>`。
 
-When intent is unclear from the diff alone, broaden context — recent commit messages on both branches, callers, tests. If still unclear, stop and ask the user with the hunks attached.
+当仅凭 diff 看不清意图时，扩大上下文——两条分支的近期 commit 消息、调用方、测试。若仍不清楚，停下来，附上这些 hunk 向用户发问。
 
-After all conflicts resolved:
+所有 conflict 解决后：
 
 ```bash
 git rebase --continue
 ```
 
-If the rebase spans multiple commits, conflicts may reappear on the next commit — repeat.
+若 rebase 跨多个 commit，下一个 commit 上可能再次出现 conflict——重复处理。
 
-To bail out: `git rebase --abort`.
+要中止：`git rebase --abort`。
 
 ### Anti-Shortcuts
 
-- **Don't** `git rebase --skip` — silently drops a commit.
-- **Don't** delete conflict markers without resolving intent — leaves broken code that compiles.
-- **Don't** `git checkout --ours` / `--theirs` wholesale unless certain one side fully supersedes the other.
+- **不要**用 `git rebase --skip`——会悄悄丢掉一个 commit。
+- **不要**不解决意图就删掉 conflict 标记——会留下能编译却已损坏的代码。
+- **不要**整体 `git checkout --ours` / `--theirs`，除非确定某一侧完全取代另一侧。
 
 ## Push
 
@@ -57,32 +57,32 @@ To bail out: `git rebase --abort`.
 git push
 ```
 
-After a clean rebase, push should fast-forward. If it's rejected as non-fast-forward:
+干净 rebase 之后，push 应当 fast-forward。若它以 non-fast-forward 被拒：
 
-- The upstream moved again while you were rebasing, **or**
-- Another agent is racing on the same branch.
+- 你在 rebase 期间 upstream 又动了，**或**
+- 另一个 agent 正在同一分支上竞争。
 
-**Stop.** Do not auto-`--force` or `--force-with-lease`. Surface the rejection and decide deliberately:
+**停。** 不要自动 `--force` 或 `--force-with-lease`。把 rejection 暴露出来，再审慎决定：
 
-- If the rejection is from your own deliberate rewrite (the remote still has the pre-rebase shape and that's expected), `--force-with-lease` is the right tool.
-- If someone else pushed work, fetch and rebase again first.
+- 若这个 rejection 来自你自己有意的重写（remote 仍是 rebase 前的形态，这在预料之中），`--force-with-lease` 就是对的工具。
+- 若是别人推了工作，先 fetch 再重新 rebase。
 
 ## Sync Failure vs Permission Failure
 
-Not every push rejection is a sync problem. Classify before reacting.
+不是每个 push rejection 都是 sync 问题。先分类再反应。
 
-| Symptom | Cause | Action |
+| 症状 | 原因 | 处理 |
 |---|---|---|
-| `non-fast-forward` | Upstream advanced | Re-rebase. |
-| `403` / `permission denied` / `must allow workflow scope` | Auth / token scope | Surface to user. Do **not** rewrite remote URL or switch protocols. |
-| `protected branch` rules | Branch policy | Surface. Do not bypass. |
-| `Repository not found` | Wrong remote / no access | Surface. |
+| `non-fast-forward` | upstream 向前推进了 | 重新 rebase。 |
+| `403` / `permission denied` / `must allow workflow scope` | 认证 / token scope | 暴露给用户。**不要**改写 remote URL 或切换协议。 |
+| `protected branch` 规则 | 分支策略 | 暴露出来。不要绕过。 |
+| `Repository not found` | remote 错了 / 无访问权限 | 暴露出来。 |
 
-The default for auth / permission / policy failures is **stop and tell the user the exact error**, not "try a workaround". Rewriting `origin` to paper over auth is how broken push setups propagate.
+对认证 / 权限 / 策略类失败，默认是**停下，把确切的错误告诉用户**，而不是「试个变通」。改写 `origin` 来糊弄认证，正是坏掉的 push 配置四处扩散的根源。
 
 ## Verification
 
-- [ ] Working tree clean before sync
-- [ ] No `--skip` used during rebase
-- [ ] No conflict markers remain (`git diff --check`)
-- [ ] Push succeeded without `--force` (or with `--force-with-lease` deliberately)
+- [ ] 同步前工作区干净
+- [ ] rebase 期间没用 `--skip`
+- [ ] 没有残留 conflict 标记（`git diff --check`）
+- [ ] push 成功且没用 `--force`（或是有意用了 `--force-with-lease`）

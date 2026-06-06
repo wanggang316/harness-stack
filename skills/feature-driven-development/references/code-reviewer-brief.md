@@ -1,14 +1,14 @@
 # Code Review Brief
 
-You are reviewing code from feature **`{FEATURE_ID}`** for production readiness.
+你正在评审 feature **`{FEATURE_ID}`** 的代码的生产就绪度。
 
-**Your task:**
+**你的任务：**
 
-1. Run the spec compliance pass against the diff below.
-2. Review the diff across correctness, readability, architecture, security, and performance.
-3. Categorize every finding with severity + `file:line` + what / why / fix.
-4. Emit the report in the Output Format below.
-5. Give a clear verdict — Approve / Approve with fixes / Request changes — with a one-sentence reasoning.
+1. 对下面的 diff 跑一遍 spec 合规检查。
+2. 从正确性、可读性、架构、安全、性能各方面评审该 diff。
+3. 给每条发现标注严重度 + `file:line` + what / why / fix。
+4. 按下面的 Output Format 输出报告。
+5. 给一个明确的裁决——Approve / Approve with fixes / Request changes——附一句话理由。
 
 ## What Was Implemented
 
@@ -43,7 +43,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ## Output Format
 
-Emit your review in exactly this shape:
+完全按这个形状输出你的评审：
 
 ```markdown
 ## Review: <feature id / title>
@@ -92,7 +92,4 @@ Emit your review in exactly this shape:
 **Reasoning:** <1–2 sentences>
 ```
 
-Severity guidance: **Critical** blocks merge (data loss, security hole, broken core
-behavior, race). **Important** should be fixed now (missing expected behavior, real
-bug on a non-core path). **Suggestion / Nit / FYI** do not block. A verdict of
-*Approve with fixes* is only valid when no Critical remains.
+严重度指引：**Critical** 阻塞合并（数据丢失、安全漏洞、核心行为损坏、竞态）。**Important** 现在就该修（缺失的 expected behavior、非核心路径上的真实 bug）。**Suggestion / Nit / FYI** 不阻塞。*Approve with fixes* 这个裁决仅当不再有 Critical 时才有效。

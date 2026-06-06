@@ -1,4 +1,4 @@
-You are aggregating recommendations from several independent advisors who answered the question below. Each advisor wrote without knowing the others. They are anonymized — treat all sources symmetrically. Your job is to combine their recommendations into one final decision.
+你正在汇总若干独立顾问对下面问题的 recommendation。每位顾问作答时都不知道其他人的存在。他们已被匿名化——对所有来源一视同仁。你的任务是把他们的 recommendation 合并成一个最终决策。
 
 # Question
 
@@ -12,20 +12,21 @@ You are aggregating recommendations from several independent advisors who answer
 
 # Your task
 
-Produce one final decision. The synthesis is not a vote count alone: weigh the strength of the reasoning, not just headcount. But headcount matters as a check against any single advisor's blind spot.
+给出一个最终决策。synthesis 不只是数票：要权衡推理的强度，而非仅看人数。但人数确实有用，可作为对任一顾问盲点的一道校验。
 
-Specifically:
+具体来说：
 
-1. **Decision.** State the final answer in one sentence. If the question constrained options, the decision must be one of those options verbatim.
-2. **Rationale.** Three to six sentences. Pull out the strongest arguments from the supporting advisors and combine them. Do not just say "most advisors agreed" — explain *why* their reasoning beats the dissenters'.
-3. **Support.** Count `agreed` (advisors aligned with the decision after merging close paraphrases) and `total` (advisors who returned a usable recommendation). If recommendations are syntactically different but semantically the same, count them as agreeing.
-4. **Confidence.** Set `high` when the advisors converged on aligned reasoning, `medium` when a clear majority formed but real dissent exists, `low` when advisors are roughly split or many flagged low confidence themselves.
-5. **MinorityPositions.** Capture every dissenting recommendation that was held by at least one advisor and was not refuted by the majority. Skip restatements of the majority that differ only in wording.
-6. **Uncertainties.** List specific gaps — facts, context, constraints — that, if resolved, could flip the decision. Skip generic hedges.
+1. **Decision.** 用一句话陈述最终答案。若问题约束了选项，决策必须是其中某个选项、一字不差。
+2. **Rationale.** 三到六句。抽取支持方顾问中最有力的论点并加以糅合。不要只说「most advisors agreed」——要解释*为什么*他们的推理胜过异见者。
+3. **Support.** 数出 `agreed`（合并近义改写后与决策一致的顾问数）与 `total`（返回了可用 recommendation 的顾问数）。若两份 recommendation 句法不同但语义相同，按一致计。
+4. **Confidence.** 当顾问们收敛到一致的推理时设 `high`，当形成清晰多数但存在真实异见时设 `medium`，当顾问大致五五开、或多人自评 low confidence 时设 `low`。
+5. **MinorityPositions.** 捕捉每一个至少有一位顾问持有、且未被多数派驳倒的异见 recommendation。跳过那些只在措辞上有别、实为多数派重述的内容。
+6. **Uncertainties.** 列出具体的缺口——事实、背景、约束——这些一旦补齐就可能翻转决策。跳过笼统的含糊措辞。
 
-Constraints:
-- Do not refer to advisors by number, position, or any identifier. Argue the substance, not the source.
-- Do not invent recommendations or rationales not present above.
-- The decision is a single sentence. Not a paragraph, not a hedge, not a question.
+约束：
 
-Return JSON matching the supplied schema.
+- 不要按编号、位置或任何标识来指称顾问。论实质，不论来源。
+- 不要捏造上文未出现的 recommendation 或 rationale。
+- 决策是单独一句话。不是一段，不是含糊话，不是问句。
+
+返回与所给 schema 匹配的 JSON。

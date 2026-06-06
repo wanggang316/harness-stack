@@ -1,7 +1,6 @@
 # Phase 4 — Execution
 
-The longest phase. You drive a serial loop: one feature at a time through four gates,
-validators at milestone boundaries, then a final integration review and the gate.
+最长的 phase。你驱动一个串行循环：一次一个 feature 过四道闸，在 milestone 边界跑 validator，然后做一次最终集成评审并过 gate。
 
 ```
 loop:
@@ -19,13 +18,9 @@ loop:
 final integration review + hs-plan gate
 ```
 
-**Execution is serial.** One feature at a time. Read-only parallelism inside a phase
-(parallel research, parallel review of independent files) is fine; concurrent
-implementers are not — they stomp on shared state and make inconsistent decisions.
+**执行是串行的。** 一次一个 feature。一个 phase 内部的只读并行（并行研究、并行评审互不相关的文件）没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
 
-**The controller never writes code and never edits the implementation to fix a finding.**
-Every fix loops back to the implementer. The moment the controller edits code, the
-fresh-context invariant is gone.
+**controller 绝不写代码、绝不为修一处发现而去编辑实现。** 每一处修复都回到 implementer。controller 一旦编辑代码，全新上下文不变量就没了。
 
 ## Before the loop (once)
 
@@ -43,117 +38,79 @@ hs-plan next-feature          # -> <id>\t<agent>\t<milestone>  (empty => go to t
 ```
 
 ### 2. Sanity check
-Are the feature's `preconditions` met? (If one says "schema X exists," confirm it does.)
-Is the working tree clean? If a precondition is unmet, create/reorder a foundational
-feature ahead of it, or `hs-plan set-status <id> cancelled` if it's moot.
+feature 的 `preconditions` 满足了吗？（若其中一条说「schema X 存在」，确认它确实存在。）工作树干净吗？若某个 precondition 未满足，在它前面创建/重排一个基础性 feature，或者若它已无意义就 `hs-plan set-status <id> cancelled`。
 
 ### 3. Dispatch the implementer
 ```bash
 hs-plan set-status <id> in_progress
 ```
-Then `Task(subagent_type="implementer", …)` with a brief from
-`references/implementer-brief.md`. Fill in the feature's fields, the **Boundaries** block
-(from `plan.md` Infrastructure), and the file scope. The implementer reads only the
-brief — do **not** inline the plan or contract. The brief instructs the implementer to
-finish by writing a handoff JSON and `hs-plan write-handoff <id> <path>`.
+然后用 `references/implementer-brief.md` 的 brief 发 `Task(subagent_type="implementer", …)`。填入 feature 的各字段、**Boundaries** 块（来自 `plan.md` 的 Infrastructure）、以及文件范围。implementer 只读 brief——**不要**把 plan 或 contract 内联进去。brief 指示 implementer 以写一份 handoff JSON 并执行 `hs-plan write-handoff <id> <path>` 收尾。
 
 ### 4. Handle the handoff
 ```bash
 hs-plan handoff <id>
 ```
-Run the decision tree in `references/handoff-handling.md`. It routes `returnToController`
-/ `failure` / `partial` / `success`, tracks `discoveredIssues` / `whatWasLeftUndone`,
-and propagates `criticalContext`. A feature only advances to the gates below on a
-verified `success`.
+跑 `references/handoff-handling.md` 里的决策树。它会路由 `returnToController` / `failure` / `partial` / `success`，追踪 `discoveredIssues` / `whatWasLeftUndone`，并传播 `criticalContext`。一个 feature 只有在 `success` 经核验后才推进到下面的各道闸。
 
 ### 5. Spec-review gate
-`Task(subagent_type="spec-reviewer", …)` with `references/spec-reviewer-brief.md` (feature
-text + `BASE..HEAD` range). ❌ → re-dispatch the **same implementer** with the findings
-appended; loop until ✅. Spec review before code review, always.
+用 `references/spec-reviewer-brief.md`（feature 文本 + `BASE..HEAD` 区间）发 `Task(subagent_type="spec-reviewer", …)`。❌ → 把发现附上，重新派发**同一个** implementer；循环直到 ✅。永远 spec review 在 code review 之前。
 
 ### 6. Code-review gate
-`Task(subagent_type="code-reviewer", …)` with `references/code-reviewer-brief.md`. Approve
-or Approve-with-fixes (no Critical) → proceed. Critical present / Request changes →
-re-dispatch the implementer; loop.
+用 `references/code-reviewer-brief.md` 发 `Task(subagent_type="code-reviewer", …)`。Approve 或 Approve-with-fixes（无 Critical）→ 继续。存在 Critical / Request changes → 重新派发 implementer；循环。
 
 ### 7. Runtime probe (completing features only)
-If the feature's `fulfills` is non-empty, invoke `harness-stack:user-test` over exactly
-those `VAL-` ids and the feature's diff range. The validator probes the running system
-and **the controller writes results back** with `hs-plan set-assertion <VAL-id> <status>
-[evidence]` per the returned matrix. Any FAIL → re-dispatch the implementer with the
-failing assertion's evidence; loop. Foundational features (`fulfills: []`) skip this gate.
+若 feature 的 `fulfills` 非空，对恰好那些 `VAL-` id 以及该 feature 的 diff 区间调用 `harness-stack:user-test`。validator 探测运行中的系统，**由 controller 回写结果**——按返回的矩阵执行 `hs-plan set-assertion <VAL-id> <status> [evidence]`。任何 FAIL → 带上失败断言的证据重新派发 implementer；循环。基础性 feature（`fulfills: []`）跳过这道闸。
 
 ### 8. Complete
 ```bash
 hs-plan set-status <id> completed     # moves it to the bottom
 ```
-Update `plan.md` Progress (append a handoff-log line). Back to step 1.
+更新 `plan.md` 的 Progress（追加一行 handoff-log）。回到 step 1。
 
 ## Milestone validation
 
-When every implementation feature in a milestone is `completed`/`cancelled` and the
-milestone is not sealed (`hs-plan is-sealed <m>` → `no`), run the heavier pair that
-catches cross-feature interactions no single feature's probe exercised:
+当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且该 milestone 尚未封存（`hs-plan is-sealed <m>` → `no`）时，跑那对更重的检查，去抓任何单个 feature 探测未覆盖到的跨 feature 交互：
 
-1. `Task(subagent_type="code-reviewer", …)` over the **milestone diff** (integration review).
-2. `harness-stack:user-test` over the milestone's assertion subset; write results back with `hs-plan set-assertion`.
-3. Both clean → `hs-plan seal-milestone <m>`. Any failure → create fix features at the top, re-run.
+1. 对 **milestone diff** 发 `Task(subagent_type="code-reviewer", …)`（集成评审）。
+2. 对该 milestone 的断言子集跑 `harness-stack:user-test`；用 `hs-plan set-assertion` 回写结果。
+3. 两者皆干净 → `hs-plan seal-milestone <m>`。任何失败 → 在顶部创建修复 feature，重跑。
 
-Sealed milestones are immutable — never add features to one. New work goes to a later
-milestone or a `misc-*` milestone (≤5 features each).
+已封存的 milestone 不可变——绝不往里加 feature。新工作进后续的 milestone 或一个 `misc-*` milestone（每个 ≤5 个 feature）。
 
 ## Final integration review (once)
 
-After every feature is done and the last milestone is sealed:
+每个 feature 都做完、最后一个 milestone 已封存之后：
 
-1. `Task(subagent_type="code-reviewer", …)` over the full `BASE..HEAD` — per-feature reviews didn't see cross-feature interactions.
-2. **Coverage gate:** every contract assertion has at least one PASS across the probe transcripts. Any never probed → run `harness-stack:user-test` over the remainder.
-3. Any Critical/Important → fix via the implementer loop, re-run the review.
-4. `hs-plan gate` → must report `GATE PASSED`. Then hand off to commit / PR.
+1. 对完整的 `BASE..HEAD` 发 `Task(subagent_type="code-reviewer", …)`——逐 feature 评审看不到跨 feature 交互。
+2. **Coverage gate：** 在各探测记录里，每条 contract 断言至少有一次 PASS。任何从未被探测过的 → 对其余部分跑 `harness-stack:user-test`。
+3. 任何 Critical/Important → 经 implementer 循环修复，重跑评审。
+4. `hs-plan gate` → 必须报告 `GATE PASSED`。然后交给 commit / PR。
 
 ## Round budget
 
-**3 rounds per feature.** Still `BLOCKED`, still ❌ from spec-review, or still Critical
-from code-review after 3 implementer rounds → stop and escalate to the human. The plan,
-the contract, or the feature scope is the problem; more rounds dilute signal. Never
-re-dispatch a `BLOCKED` feature under the same conditions — change context, model, or
-split it.
+**每个 feature 3 轮。** 3 轮 implementer 之后仍 `BLOCKED`、spec-review 仍 ❌、或 code-review 仍有 Critical → 停下并上交给人。问题出在 plan、contract、或 feature 范围上；再加轮次只会稀释信号。绝不在相同条件下重新派发一个 `BLOCKED` feature——换上下文、换模型，或拆了它。
 
 ## Commit discipline
 
-Implementers create their own atomic commit per feature (conventional-commit format).
-The **controller** only commits its own artifact/Library updates (plan.md, contract,
-docs/ Library) — and the plan dir is gitignored, so most controller "commits" are just
-durable docs/ updates. If an implementer returns `success` with an uncommitted dirty
-tree, stop: treat as `partial` and fix the implementer brief.
+implementer 为每个 feature 创建自己的原子 commit（conventional-commit 格式）。**controller** 只 commit 自己的 artifact/Library 更新（plan.md、contract、docs/ Library）——而且 plan 目录已 gitignore，所以 controller 的「commit」大多只是耐久的 docs/ 更新。若一个 implementer 返回 `success` 却留下一棵未提交的脏树，停下：当作 `partial` 处理，并修正 implementer brief。
 
 ## Handling mid-flow user requests
 
-When the user asks for a change mid-flow:
+当用户在流程中途要求一处改动时：
 
-1. **Pause** — don't immediately decompose.
-2. **Clarify + investigate** — `AskUserQuestion` + read-only subagents (+ research if new tech). Iterate to clarity.
-3. **Propose** how you'll accommodate it (new features / changed scope / new milestone). Get acceptance.
-4. **Propagate to shared state before any implementer resumes:** `plan.md` (scope/strategy/boundaries), the `docs/` Library (durable conventions), and — for changed testable behavior — `validation-contract.md`. **Delegate contract edits to a subagent**; don't hand-edit the contract mid-flow. Semantics: new assertion → add + `hs-plan init-state` (seeds it `pending`); removed → delete from contract, re-run `init-state` (drops it from state); modified so prior evidence no longer proves it → its assertion resets to `pending` on re-probe.
-5. **Re-cover** — update `features.json` so every assertion is claimed; `hs-plan contract-coverage` OK.
-6. **Resume** the loop.
+1. **暂停**——不要立刻拆解。
+2. **澄清 + 调查**——`AskUserQuestion` + 只读 subagent（若涉及新技术再加研究）。迭代到清晰为止。
+3. **提出**你打算如何容纳它（新 feature / 改动范围 / 新 milestone）。取得接受。
+4. **在任何 implementer 恢复前传播到共享状态：** `plan.md`（范围/策略/边界）、`docs/` Library（耐久约定），以及——对变化了的可测试行为——`validation-contract.md`。**把 contract 的编辑委派给一个 subagent**；不要在流程中途手改 contract。语义：新断言 → 增加 + `hs-plan init-state`（播种为 `pending`）；移除 → 从 contract 删除、重跑 `init-state`（从 state 里去掉它）；改动到先前证据不再能证明它 → 它的断言在重新探测时复位为 `pending`。
+5. **重新覆盖**——更新 `features.json` 让每条断言都被认领；`hs-plan contract-coverage` OK。
+6. **恢复**循环。
 
-Scope reduction ("we don't need that anymore"): `hs-plan set-status <id> cancelled` (don't
-delete — keep history), remove the assertion from the contract, re-run `init-state`, drop
-orphaned `fulfills`. Assertions have no "cancelled" status; a dropped requirement is removed.
+范围收缩（「我们不再需要那个了」）：`hs-plan set-status <id> cancelled`（不要删除——保留历史），从 contract 移除该断言、重跑 `init-state`、丢掉成孤儿的 `fulfills`。断言没有「cancelled」状态；被丢弃的需求是直接移除的。
 
 ## When to return to the user
 
-Hand control back when: human action is required (approve a purchase, authenticate to a
-third party); a decision needs human judgment (security, major architecture, business
-trade-off); an external dependency is unrecoverable (don't create retry features for
-infra you can't fix); a discovered ambiguity can't be resolved from context; or the work
-far exceeds the agreed scope. State the blocker and what's needed to continue.
+在以下情形交还控制权：需要人来动手（批准一笔购买、向第三方认证）；某个决策需要人来判断（安全、重大架构、商业取舍）；某个外部依赖不可恢复（别为你修不了的基础设施创建重试 feature）；一处发现的含糊从上下文无法解决；或工作远超商定的范围。说明阻塞点以及继续所需的东西。
 
 ## Override semantics
 
-You may override a validator failure with cause, but **never silently** — leave an
-auditable record. To seal a milestone with deferred assertions, move those `VAL-` ids
-out of the sealed milestone's features into a feature in an **unsealed** milestone (keep
-`fulfills` unique; ensure they're `pending` in state so a later probe picks them up), and
-note the deferral in `plan.md` Decision Log.
+你可以带理由覆盖一次 validator 失败，但**绝不能悄悄来**——要留下可审计的记录。要封存一个带延期断言的 milestone，把那些 `VAL-` id 从已封存 milestone 的 feature 里挪到一个**未封存** milestone 的某个 feature 中（保持 `fulfills` 唯一；确保它们在 state 里是 `pending`，好让后续探测拾起它们），并在 `plan.md` 的 Decision Log 里记下这次延期。

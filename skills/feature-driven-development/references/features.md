@@ -1,16 +1,12 @@
 # Phase 3 — Features
 
-Decompose the accepted plan + finalized contract into `features.json`. Each feature is
-one unit of work an implementer completes in a single session, bound by `fulfills` to
-the contract assertions it makes testable.
+把已接受的 plan + 定稿的 contract 拆解进 `features.json`。每个 feature 是一个 implementer 在单个 session 内完成的工作单元，以 `fulfills` 绑定到它要让其变得可测的那些 contract 断言。
 
-**Precondition:** `validation-contract.md` is finalized and `validation-state.json` is
-seeded (`hs-plan init-state`). No features before the contract — `fulfills` has nothing
-to bind to otherwise.
+**前置条件：** `validation-contract.md` 已定稿、`validation-state.json` 已播种（`hs-plan init-state`）。contract 之前不许有 feature——否则 `fulfills` 无从绑定。
 
 ## Feature schema
 
-`features.json` is `{ "features": [ <feature>, … ] }`. Each feature:
+`features.json` 是 `{ "features": [ <feature>, … ] }`。每个 feature：
 
 ```json
 {
@@ -33,57 +29,49 @@ to bind to otherwise.
 }
 ```
 
-| Field | Meaning |
+| 字段 | 含义 |
 |---|---|
-| `id` | kebab-case, unique. Carries semantic meaning. |
-| `description` | What to build — concrete and specific. |
-| `agent` | The subagent that implements it. Default `implementer`. |
-| `milestone` | The vertical slice it belongs to (matches a `plan.md` milestone). |
-| `preconditions` | Must-be-true before dispatch. Documentation; the controller verifies them. |
-| `expectedBehavior` | Verifiable success criteria. |
-| `verificationSteps` | How the implementer proves each behavior. |
-| `fulfills` | Assertion ids this feature **completes** (makes fully testable). |
-| `status` | `pending` initially; managed thereafter only via `hs-plan set-status`. |
+| `id` | kebab-case，唯一。带语义。 |
+| `description` | 要构建什么——具体而明确。 |
+| `agent` | 实现它的 subagent。默认 `implementer`。 |
+| `milestone` | 它所属的垂直切片（与某个 `plan.md` milestone 对应）。 |
+| `preconditions` | 派发前必须为真的事。属说明性质；由 controller 核验。 |
+| `expectedBehavior` | 可验证的成功标准。 |
+| `verificationSteps` | implementer 如何证明每条行为。 |
+| `fulfills` | 本 feature **完成**（使其完全可测）的断言 id。 |
+| `status` | 初始为 `pending`；此后仅经 `hs-plan set-status` 管理。 |
 
 ## `fulfills` semantics
 
-`fulfills` means **"completes,"** not "contributes to." Only the final feature that
-makes an assertion fully testable claims it. Foundational features (schema, types,
-scaffolding) set preconditions for others and carry `fulfills: []`.
+`fulfills` 意为**「完成」**，而非「贡献于」。只有那个让一条断言变得完全可测的最终 feature 才认领它。基础性 feature（schema、类型、脚手架）为别人设置 precondition，自身带 `fulfills: []`。
 
-The invariant: **every contract assertion is claimed by exactly one feature.** No
-orphans, no double-claims.
+不变量：**每条 contract 断言恰好被一个 feature 认领。** 不留孤儿，不重复认领。
 
 ## Ordering
 
-`features.json` array order is execution order (no implicit dependency solver). Arrange:
-foundational features before dependents; grouped by milestone; a precondition's
-producer before its consumer. Terminal-status features auto-move to the bottom during
-execution, so active work stays near the top.
+`features.json` 数组的顺序就是执行顺序（没有隐式的依赖求解器）。这样排：基础性 feature 在依赖它的之前；按 milestone 分组；某个 precondition 的生产者在其消费者之前。终态 feature 在执行期间会自动移到底部，所以进行中的工作总停在顶部附近。
 
 ## Sizing
 
-Each feature should be ~one worker session (≈30 min–4 hr of human-equivalent work),
-independently reviewable, touch a small file set, and have a clear acceptance. If a
-feature needs more than a handful of files or mixes unrelated concerns, split it.
+每个 feature 应约为一个 worker session（人力等效约 30 分钟–4 小时）、可独立评审、触及一小撮文件、并有明确的验收。若一个 feature 需要的文件多于一小撮、或混杂了不相干的关注点，拆了它。
 
 ## Coverage gate
 
-When `features.json` is drafted:
+`features.json` 草拟好后：
 
 ```bash
 hs-plan contract-coverage     # MUST report 'coverage OK'
 ```
 
-Resolve every violation before execution:
-- `ORPHAN <id>` — no feature claims the assertion. Add it to a feature's `fulfills`.
-- `DUPLICATE <id>` — two features claim it. Keep the one that truly completes it.
-- `UNKNOWN-CLAIM <id>` — a `fulfills` entry isn't in the contract. Fix the typo or the contract.
-- `STATE-ONLY` / `CONTRACT-ONLY` — state and contract drifted. Re-run `hs-plan init-state`.
+执行前解决每一处违例：
+- `ORPHAN <id>` — 没有 feature 认领该断言。把它加进某个 feature 的 `fulfills`。
+- `DUPLICATE <id>` — 两个 feature 都认领它。留下真正完成它的那个。
+- `UNKNOWN-CLAIM <id>` — 某个 `fulfills` 条目不在 contract 里。改掉拼写错误，或改 contract。
+- `STATE-ONLY` / `CONTRACT-ONLY` — state 与 contract 漂移了。重跑 `hs-plan init-state`。
 
 ## Verification
 
-- [ ] Every milestone in `plan.md` is represented by features.
-- [ ] Every assertion is claimed by exactly one feature (`hs-plan contract-coverage` OK).
-- [ ] Foundational features precede dependents; ordering reflects preconditions.
-- [ ] No feature is too large for a single worker session.
+- [ ] `plan.md` 里的每个 milestone 都有 feature 代表。
+- [ ] 每条断言恰好被一个 feature 认领（`hs-plan contract-coverage` OK）。
+- [ ] 基础性 feature 排在依赖它的之前；顺序反映 precondition。
+- [ ] 没有 feature 大到一个 worker session 装不下。

@@ -1,21 +1,21 @@
 # Architecture Template: Single-Package Project
 
-Use this template for projects with a single deployable unit and no workspace structure.
+本模板用于只有单一可部署单元、没有 workspace 结构的项目。
 
-Save to `docs/architecture.md`.
+保存到 `docs/architecture.md`。
 
 ```markdown
 # Architecture
 
 ## Overview
 
-<!-- One paragraph: what this system does and what architectural
-     style it follows. Link to docs/product-spec.md for product context. -->
+<!-- 一段话：这个系统做什么、遵循什么架构
+     风格。链接 docs/product-spec.md 提供产品上下文。 -->
 
 ## Domains
 
-<!-- Major areas of the codebase. Each domain has a clear boundary,
-     a single responsibility, and a reason for existing separately. -->
+<!-- 代码库的主要区域。每个 domain 都有清晰的边界、
+     单一的职责，以及单独存在的理由。 -->
 
 | Domain | Purpose | Key Files |
 |---|---|---|
@@ -24,9 +24,9 @@ Save to `docs/architecture.md`.
 
 ## Layers
 
-<!-- Layers within each domain, with strict dependency direction.
-     Show the direction visually — this is the most important
-     part of the architecture. -->
+<!-- 每个 domain 内部的各 layer，依赖方向严格。
+     把方向可视化——这是 architecture 中
+     最重要的部分。 -->
 
 \```
 Types → Config → Repo → Service → Runtime → UI
@@ -43,8 +43,8 @@ Dependencies flow left to right only.
 
 ## Dependency Rules
 
-<!-- Explicit rules about who can import from whom.
-     These rules are the architecture. -->
+<!-- 关于谁能 import 谁的显式规则。
+     这些规则就是 architecture。 -->
 
 - UI → Service → Repo → Types (one direction only)
 - Shared types can be imported by any layer
@@ -53,17 +53,17 @@ Dependencies flow left to right only.
 
 ## Architectural Invariants
 
-<!-- Rules that don't appear in code. Write them down because
-     if someone violates them, the bug won't show up immediately
-     — the system will slowly rot. -->
+<!-- 不出现在代码里的规则。把它们写下来，因为
+     一旦有人违反，bug 不会立刻显现
+     ——系统会慢慢腐烂。 -->
 
-- <!-- e.g. All database access goes through the Repo layer — no direct SQL in services -->
-- <!-- e.g. External API calls must go through adapter modules, never called directly -->
-- <!-- e.g. Environment variables are read only at startup, never at request time -->
+- <!-- 例如：所有数据库访问都经过 Repo layer——service 里不写裸 SQL -->
+- <!-- 例如：外部 API 调用必须经过 adapter 模块，绝不直接调用 -->
+- <!-- 例如：环境变量只在启动时读取，绝不在请求时读取 -->
 
 ## Cross-Cutting Concerns
 
-<!-- Shared concerns that flow through multiple domains -->
+<!-- 贯穿多个 domain 的共享事项 -->
 
 | Concern | Mechanism |
 |---|---|
@@ -73,15 +73,15 @@ Dependencies flow left to right only.
 
 ## Entry Points
 
-<!-- Where does execution start? Key files that wire everything together -->
+<!-- 执行从哪里开始？把一切串起来的关键文件 -->
 
 - `src/index.ts` — Application entry, wires domains together
 - `src/api/` — HTTP route handlers
 
 ## Technology Choices
 
-<!-- Key dependencies with purpose and rationale. Focus on WHY
-     this technology was chosen over alternatives. -->
+<!-- 关键依赖，附 purpose 与理据。聚焦于
+     为什么选这个技术而非备选项。 -->
 
 | Technology | Purpose | Rationale |
 |---|---|---|

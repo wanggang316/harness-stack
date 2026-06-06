@@ -1,6 +1,6 @@
 # Spec Compliance Brief
 
-You are checking whether feature **`{FEATURE_ID}`** was actually delivered as specified.
+你正在检查 feature **`{FEATURE_ID}`** 是否真的按规范交付了。
 
 ## Feature (the spec you check against)
 
@@ -13,7 +13,7 @@ You are checking whether feature **`{FEATURE_ID}`** was actually delivered as sp
 
 {IMPLEMENTER_REPORT}
 
-> This report is a hint about where to look. It is **not** evidence. The diff below is the evidence.
+> 这份报告是关于该往哪看的线索。它**不是**证据。下面的 diff 才是证据。
 
 ## Git Range
 

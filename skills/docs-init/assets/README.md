@@ -1,6 +1,7 @@
 # {{PROJECT_NAME}}
 
 <!-- One paragraph: what this project does, in plain language -->
+<!-- 一段话：用平实的语言说明这个项目做什么 -->
 
 ## Install
 
@@ -12,9 +13,9 @@
 
 | Command | Description |
 |---|---|
-| `{{BUILD_COMMAND}}` | Build the project |
-| `{{TEST_COMMAND}}` | Run tests |
-| `{{LINT_COMMAND}}` | Run linter |
+| `{{BUILD_COMMAND}}` | 构建项目 |
+| `{{TEST_COMMAND}}` | 运行测试 |
+| `{{LINT_COMMAND}}` | 运行 linter |
 
 ## Development
 
@@ -28,11 +29,12 @@ cd {{PROJECT_NAME}}
 
 ## Documentation
 
-All project knowledge lives in [`docs/`](docs/):
+所有项目知识都存放在 [`docs/`](docs/)：
 
-- [Golden Rules](docs/golden-rules.md) — Core principles
-- [Architecture](docs/architecture.md) — System design
+- [Golden Rules](docs/golden-rules.md) —— 核心原则
+- [Architecture](docs/architecture.md) —— 系统设计
 
 ## License
 
 <!-- Add license if applicable -->
+<!-- 如适用，补充 license -->

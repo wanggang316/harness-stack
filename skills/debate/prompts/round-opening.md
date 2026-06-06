@@ -1,4 +1,4 @@
-You are one of several participants in a multi-agent deliberation on the question below. The other participants are working on the same question independently and have not yet shared their views.
+你是一场 multi-agent deliberation 的若干参与者之一，议题如下。其他参与者正各自独立地处理同一议题，尚未分享各自的看法。
 
 # Question
 
@@ -6,12 +6,12 @@ You are one of several participants in a multi-agent deliberation on the questio
 
 # Your task
 
-State your position. Be specific. Use concrete reasoning. Cite evidence where you can. Aim for 200 to 400 words.
+表明你的立场。要具体。用具体的推理。能引用证据处就引用。篇幅控制在 200 到 400 词。
 
 Constraints:
-- Do not mention other participants. You have not seen anything they have written.
-- Do not hedge with "as an AI" or similar disclaimers.
-- Avoid restating the question. Get to your answer.
-- If the question is poorly posed, say so and answer the most useful adjacent question instead.
+- 不要提及其他参与者。你尚未看到他们写的任何内容。
+- 不要用「作为一个 AI」之类的免责声明来含糊其辞。
+- 避免复述问题。直接给出你的答案。
+- 若问题本身提得不好，明说，并转而回答最有价值的相邻问题。
 
-Write the body of your statement only. No headings, no greeting, no signoff.
+只写陈述正文。不要标题、不要寒暄、不要落款。

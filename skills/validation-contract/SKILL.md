@@ -1,55 +1,55 @@
 ---
 name: validation-contract
-description: Authors the validation contract for a plan — the definition of done as a set of testable, user-observable assertions (VAL-<AREA>-NNN) with personas and declared evidence. Phase 2 of feature-driven-development. Built through per-area investigation subagents and adversarial review passes, not solo authoring. Produces .harness-runtime/plans/<slug>/validation-contract.md and seeds validation-state.json via hs-plan init-state. On first use in a project, also bootstraps the project-level conventions at docs/user-test-patterns.md.
+description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 feature-driven-development 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 hs-plan init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
 ---
 
-# validation-contract: Authoring the Validation Contract
+# validation-contract：撰写 Validation Contract
 
 ## Overview
 
-This is **Phase 2 of feature-driven-development**: after the plan defines what to build, this skill writes the definition of done — the **validation contract**, a structured set of testable, user-observable **assertions** that anyone (human or agent) can probe to prove the build works from a user's perspective.
+这是 **feature-driven-development 的 Phase 2**：当 plan 定义了「要构建什么」之后，本技能写出 definition of done——即 **validation contract**，一组结构化、可测试、用户可观测的 **assertion**，任何人（人类或 agent）都能据此探测，从用户视角证明构建确实可用。
 
-The output, `.harness-runtime/plans/<slug>/validation-contract.md`, becomes the source of truth for:
+产出物 `.harness-runtime/plans/<slug>/validation-contract.md` 成为以下内容的事实来源：
 
-- Which user-visible behaviours must hold
-- Which personas must be able to do them
-- The exact observable assertion (`VAL-<AREA>-NNN`) that proves each behaviour
-- The evidence each assertion's probe must capture, and the fixtures and starting state required
+- 哪些用户可见的行为必须成立
+- 哪些 persona 必须能完成这些行为
+- 证明每个行为的那条精确可观测 assertion（`VAL-<AREA>-NNN`）
+- 每条 assertion 的探测必须抓取的 Evidence，以及所需的 fixture 与起始状态
 
-The unit of work is the **plan**. The plan is decomposed into **areas** (its user-visible sub-capabilities); each area holds the assertions for that capability. Each assertion gets a stable id `VAL-<AREA>-NNN` — those ids are what `features.json` binds to (`fulfills`) in Phase 3 and what the runtime validator probes in Phase 4. When the contract changes, the assertion ids stay stable.
+工作单元是 **plan**。plan 被拆解为若干 **area**（其用户可见的子能力）；每个 area 收纳该能力对应的 assertion。每条 assertion 拿到一个稳定 id `VAL-<AREA>-NNN`——这些 id 正是 Phase 3 中 `features.json` 所绑定（`fulfills`）的对象，也是 Phase 4 中 runtime validator 所探测的对象。契约变更时，assertion id 保持稳定。
 
-A contract authored in a single pass has blind spots. This skill instead **investigates each area with a dedicated subagent**, drafts assertions from their findings, then **runs adversarial review passes to hunt for gaps** before handing off. The diligence is the point.
+一遍写成的契约必有盲区。本技能改为 **为每个 area 派发一个专门的 subagent 做 investigation**，据其发现起草 assertion，然后在交接前 **跑若干轮 adversarial review 来猎查缺口**。这份较真正是要点所在。
 
 ## When to Use
 
-- A plan exists and is accepted at `.harness-runtime/plans/<slug>/plan.md` (Phase 1 of FDD)
-- The build has user-observable behaviour (UI, API, CLI output, side effects a user can see)
-- Before features are decomposed — the `VAL-` ids are what `features.json` binds to
+- 已存在一个 plan，且已在 `.harness-runtime/plans/<slug>/plan.md` 被接受（FDD 的 Phase 1）
+- 构建带有用户可观测的行为（UI、API、CLI 输出、用户可见的副作用）
+- 在 feature 被拆解之前——`VAL-` id 正是 `features.json` 所绑定的对象
 
-**When NOT to use:**
+**何时不用：**
 
-- The work has no user-observable surface (pure refactor, internal optimization). Drive unit and integration coverage with test-first development and `docs/references/testing-patterns.md` instead.
-- There is no accepted plan yet. Run FDD Phase 1 first; the contract is authored against the plan.
+- 这项工作没有用户可观测的界面（纯重构、内部优化）。改用 test-first development 与 `docs/references/testing-patterns.md` 来驱动单测与集成测试覆盖。
+- 还没有被接受的 plan。先跑 FDD Phase 1；契约是针对 plan 撰写的。
 
 ## Philosophy
 
-You own the *definition of done*. Every requirement the plan states must reduce to one or more observable, reproducible assertions.
+你负责的是 *definition of done*。plan 声明的每条 requirement 都必须归约为一条或多条可观测、可复现的 assertion。
 
-- **Assertions, not scripts.** An assertion names a user-visible outcome and how to verify it; the runner is decided by the patterns doc, not by you.
-- **Personas anchor truth.** "A user" is ambiguous. A persona is concrete and reusable across cases.
-- **Areas decompose the feature.** A feature is a set of user-visible sub-capabilities. Naming them up front gives investigation and review a spine to fan out across.
-- **Journeys for the multi-step.** When the value only emerges across multiple actions (login → add to cart → checkout), the case captures the whole journey, not just the last assertion.
-- **Observable-only assertions.** No implementation references. If the assertion cannot be probed from outside the running system, it does not belong here.
-- **Evidence is declared, not improvised.** Each assertion names the proof a validator must capture — a screenshot, a network signature, a DB row — so PASS is backed by an artifact, not a claim.
-- **Don't trust the first draft.** A solo-authored contract looks complete and isn't. Investigation surfaces what one mind forgets; adversarial review surfaces what the draft still missed.
-- **Cover the plan exhaustively.** Every requirement in the plan maps to ≥ 1 assertion. A requirement with no assertion is a coverage hole. (The reverse direction — every assertion claimed by exactly one feature — is enforced later by `hs-plan contract-coverage` in Phase 3.)
+- **要 assertion，不要脚本。** 一条 assertion 指明一个用户可见的结果及如何验证它；用什么 runner 由 patterns 文档决定，而不是你。
+- **persona 锚定真相。** 「一个用户」太含糊。persona 是具体的，且可在各 case 间复用。
+- **area 拆解 feature。** 一个 feature 是一组用户可见的子能力。事先把它们命名清楚，就给了 investigation 与 review 一条可以扇出展开的主脊。
+- **多步价值用 journey 承载。** 当价值只在多个动作串起来后才显现（登录 → 加购物车 → 结账），case 捕获的是整条 journey，而不只是最后一条 assertion。
+- **assertion 只谈可观测。** 不引用任何实现。如果一条 assertion 无法从运行系统外部探测，它就不属于这里。
+- **Evidence 是声明的，不是临场凑的。** 每条 assertion 指明 validator 必须抓取的凭证——一张截图、一段 network 签名、一行 DB 记录——这样 PASS 背后是 artifact，而非一句声称。
+- **别信第一稿。** 一人独写的契约看上去完整，实则不然。investigation 暴露一个人会遗忘的东西；adversarial review 暴露这一稿仍然漏掉的东西。
+- **对 plan 做穷尽覆盖。** plan 里的每条 requirement 都映射到 ≥ 1 条 assertion。没有 assertion 的 requirement 就是覆盖漏洞。（反方向——每条 assertion 恰被一个 feature 认领——稍后由 Phase 3 的 `hs-plan contract-coverage` 强制保证。）
 
 ## Prerequisites
 
-1. Accepted plan at `.harness-runtime/plans/<slug>/plan.md` — Phase 1 of FDD
-2. Project test conventions at `docs/user-test-patterns.md` — if missing, Step 0 below bootstraps it
+1. 已被接受的 plan，位于 `.harness-runtime/plans/<slug>/plan.md`——FDD 的 Phase 1
+2. 项目测试约定，位于 `docs/user-test-patterns.md`——若缺失，由下面的 Step 0 来 bootstrap
 
-If the plan is missing, stop. Item 2 is handled by Step 0 on first run.
+若 plan 缺失，停下。第 2 项在首次运行时由 Step 0 处理。
 
 ## Process
 
@@ -64,27 +64,27 @@ INGEST → AREAS → INVESTIGATE → WRITE → REVIEW (≥2) → COVER → APPRO
  +conv  capab.    area        assert.   update doc   matrix
 ```
 
-### Step 0: Bootstrap project conventions (first run only)
+### Step 0：Bootstrap 项目约定（仅首次运行）
 
-Run once per project. Skip when `docs/user-test-patterns.md` already exists and is approved. The bootstrap defines the testing contract that every later run (and the runtime validator) reads.
+每个项目只跑一次。当 `docs/user-test-patterns.md` 已存在并已批准时跳过。这次 bootstrap 定义了后续每次运行（以及 runtime validator）都要读取的测试契约。
 
-You are defining the testing contract, not writing test cases. Five rules guide the doc:
+你在定义测试契约，而不是在写 test case。五条规则指导这份文档：
 
-- **Platform-shaped.** Web, macOS, iOS, Android have different runners and observable surfaces. Pick the right tool per platform; do not pretend one stack covers all.
-- **Observable-only.** Selectors and assertions reference what a user can see or what an external probe can read. CSS classes, file paths, and function names are forbidden — they rot.
-- **State-isolated.** Every case starts from a known seed. No case borrows side effects from another.
-- **Persona-anchored.** A case names a persona; the persona supplies credentials, permissions, data. Without personas, "valid user" turns into ten different definitions.
-- **Reproducible.** Every artifact (screenshot, video, log) lands at a predictable path so a failure can be replayed.
+- **贴合平台。** Web、macOS、iOS、Android 各有不同的 runner 与可观测界面。按平台选对工具；别假装一套技术栈通吃。
+- **只谈可观测。** selector 与 assertion 引用的是用户能看见的、或外部探针能读到的东西。CSS class、文件路径、函数名一律禁止——它们会腐烂。
+- **状态隔离。** 每个 case 都从一个已知 seed 起步。任何 case 都不借用另一个 case 的副作用。
+- **persona 锚定。** 一个 case 指名一个 persona；persona 提供凭证、权限、数据。没有 persona，「合法用户」会演变成十种不同定义。
+- **可复现。** 每个 artifact（截图、视频、日志）都落在一个可预测的路径，好让失败能被重放。
 
 #### 0.1 Discover
 
-Read project manifests to infer scope:
+读项目清单文件，推断范围：
 
-- `package.json` / `Cargo.toml` / `pyproject.toml` / `Podfile` / `build.gradle` etc.
-- Existing test directories (`tests/`, `e2e/`, `cypress/`, `playwright/`, `Tests/`, `androidTest/`, `xcuitest/`)
-- Architecture doc (`docs/architecture.md`) — which surfaces are user-facing?
+- `package.json` / `Cargo.toml` / `pyproject.toml` / `Podfile` / `build.gradle` 等
+- 已有的测试目录（`tests/`、`e2e/`、`cypress/`、`playwright/`、`Tests/`、`androidTest/`、`xcuitest/`）
+- 架构文档（`docs/architecture.md`）——哪些界面是面向用户的？
 
-Surface assumptions before drafting:
+起草前先把假设摆出来：
 
 ```
 ASSUMPTIONS I'M MAKING:
@@ -95,36 +95,36 @@ ASSUMPTIONS I'M MAKING:
 → Correct me now or I'll proceed with these.
 ```
 
-#### 0.2 Pick platforms and tooling
+#### 0.2 选定平台与工具
 
-For each target platform, pick exactly one primary runner and document the fallback:
+对每个目标平台，恰好选定一个主用 runner，并记录其 fallback：
 
-| Platform | Primary tool (LLM-agent friendly) | Fallback |
+| 平台 | 主用工具（对 LLM agent 友好） | Fallback |
 |---|---|---|
-| Web | Chrome DevTools MCP (DOM / network / console / screenshot / a11y tree) | Playwright |
-| macOS app | computer-use API + screenshots; XCUITest for in-app introspection | AppleScript |
-| iOS app | WebDriverAgent / Appium on simulator + computer-use | XCUITest |
-| Android app | UIAutomator / Maestro / Appium | adb + screenshots |
-| HTTP API | curl + JSON parse | recorded fixtures |
-| Background workers | log grep + DB select | metrics endpoint |
+| Web | Chrome DevTools MCP（DOM / network / console / screenshot / a11y tree） | Playwright |
+| macOS app | computer-use API + 截图；应用内自省用 XCUITest | AppleScript |
+| iOS app | 模拟器上的 WebDriverAgent / Appium + computer-use | XCUITest |
+| Android app | UIAutomator / Maestro / Appium | adb + 截图 |
+| HTTP API | curl + JSON 解析 | recorded fixtures |
+| 后台 worker | 日志 grep + DB select | metrics endpoint |
 
-Document **which** tool, **why** chosen, **how** the agent invokes it (exact command or MCP call), and **what** counts as a ready signal before probing.
+记录清楚：选用 **哪个** 工具、**为何** 这样选、agent **如何** 调用它（确切命令或 MCP 调用）、以及探测前 **什么** 算作 ready 信号。
 
-#### 0.3 Write `docs/user-test-patterns.md`
+#### 0.3 撰写 `docs/user-test-patterns.md`
 
-Use the template at `skills/validation-contract/assets/user-test-patterns.md`. Pick the subsections that apply to this project. The doc must answer:
+使用模板 `skills/validation-contract/assets/user-test-patterns.md`。挑出适用于本项目的子小节。这份文档必须回答：
 
-1. **Platforms in scope** — list with one-line justification each.
-2. **Tooling per platform** — primary + fallback, with invocation pattern.
-3. **Case dimensions** — happy path, edge, error, accessibility, performance, i18n, security. Which are mandatory per case, which are optional.
-4. **Selector and assertion rules** — observable-only; one positive + one negative example each.
-5. **State isolation** — every probe starts from a known seed; fixture / DB reset protocol.
-6. **Surface cost tiers** — classify each surface cheap / medium / expensive so the runtime validator can plan isolation and batching.
-7. **Artifacts** — where screenshots / videos / logs from a run are written; retention rules.
-8. **Failure-reproduction expectation** — every FAIL ships with a runnable reproducer; format and location.
-9. **Anti-patterns** — concrete examples of forbidden selectors / hallucinated assertions / state leak / grader gaming.
+1. **范围内的平台**——逐项列出，每项配一行理由。
+2. **各平台的工具**——主用 + fallback，附调用方式。
+3. **Case 维度**——happy path、edge、error、accessibility、performance、i18n、security。哪些每个 case 必须考虑，哪些可选。
+4. **selector 与 assertion 规则**——只谈可观测；各给一个正例 + 一个反例。
+5. **状态隔离**——每次探测都从一个已知 seed 起步；fixture / DB reset 协议。
+6. **surface cost tier**——把每个界面分档为 cheap / medium / expensive，好让 runtime validator 规划隔离与批处理。
+7. **Artifacts**——一次运行的截图 / 视频 / 日志写到哪里；保留规则。
+8. **失败复现期望**——每个 FAIL 都附带一个可运行的 reproducer；格式与位置。
+9. **反模式**——禁用 selector / 臆造 assertion / 状态泄漏 / grader gaming 的具体示例。
 
-#### 0.4 Hand off
+#### 0.4 交接
 
 ```
 USER-TEST PATTERNS READY FOR REVIEW:
@@ -135,17 +135,17 @@ USER-TEST PATTERNS READY FOR REVIEW:
 → Approve, or tell me what to change.
 ```
 
-Once approved, continue with Step 1 below. Subsequent runs in this project skip Step 0 entirely.
+一经批准，继续下面的 Step 1。本项目后续的运行将完全跳过 Step 0。
 
-### Step 1: Ingest
+### Step 1：Ingest
 
-Read in this order:
+按此顺序阅读：
 
-1. `.harness-runtime/plans/<slug>/plan.md` — extract the requirements, milestones, personas referenced, testing surface
-2. `docs/user-test-patterns.md` — confirm which tooling, dimensions, and cost tiers apply
-3. `docs/design-docs/<name>.md` (if a relevant design doc exists) — for surface entry points (URL paths, API endpoints, CLI commands); do **not** import implementation details into assertions
+1. `.harness-runtime/plans/<slug>/plan.md`——抽取 requirement、milestone、引用到的 persona、测试界面
+2. `docs/user-test-patterns.md`——确认适用哪些工具、维度与 cost tier
+3. `docs/design-docs/<name>.md`（若存在相关设计文档）——用于获取界面入口（URL 路径、API endpoint、CLI 命令）；**不要** 把实现细节带进 assertion
 
-State assumptions:
+摆出假设：
 
 ```
 ASSUMPTIONS I'M MAKING:
@@ -155,15 +155,15 @@ ASSUMPTIONS I'M MAKING:
 → Correct me now or I'll proceed with these.
 ```
 
-### Step 2: Map Areas
+### Step 2：Map Areas
 
-Decompose the feature into its user-visible sub-capabilities — the **areas**. An area is a coherent slice of the feature a user perceives as one thing: for a login feature, areas might be *credential sign-in*, *password recovery*, *session persistence*. These become the `## Area:` sections of the document and the spine for investigation and review.
+把 feature 拆解成其用户可见的子能力——也就是 **area**。一个 area 是用户感知为「一件事」的、内聚的一片 feature：对一个登录 feature 而言，area 可能是 *credential sign-in*、*password recovery*、*session persistence*。它们成为文档里的 `## Area:` 小节，也是 investigation 与 review 的主脊。
 
-- **Scale to the plan.** A simple plan is one area — do not split artificially. A rich plan has several. Let the plan's requirements and milestones suggest the seams.
-- **One cross-area slot.** Flows that span sub-capabilities *within this feature* (e.g. "recover password → then sign in with the new one") go in a single `## Cross-Area Journeys` section.
-- **Stop at the feature boundary.** Flows that cross into *other features* are out of scope here — record them as an Open Question pointing to milestone integration verification, and move on.
+- **按 plan 的规模来。** 简单的 plan 就是一个 area——不要人为拆分。丰富的 plan 有好几个。让 plan 的 requirement 与 milestone 来提示切缝。
+- **一个跨 area 的位置。** 跨越 *本 feature 内* 多个子能力的 flow（例如「找回密码 → 然后用新密码登录」）放进单一的 `## Cross-Area Journeys` 小节。
+- **止步于 feature 边界。** 跨入 *其它 feature* 的 flow 不在这里的范围内——把它们记成一条 Open Question，指向 milestone 集成验证，然后继续。
 
-List the areas and confirm them before investigating:
+列出各 area 并在 investigation 前确认它们：
 
 ```
 AREAS FOR <feature>:
@@ -173,52 +173,52 @@ AREAS FOR <feature>:
 → Correct the decomposition or I'll investigate these.
 ```
 
-### Step 3: Investigate (one subagent per area)
+### Step 3：Investigate（每个 area 一个 subagent）
 
-For each area, dispatch a fresh subagent to enumerate every user interaction before any assertion is written. The subagent reads the plan and the relevant source, and returns a bulleted interaction list grouped into **obvious / subtle / error-edge** — it does not write assertions. Use the prompt at `skills/validation-contract/references/investigation-prompt.md`.
+对每个 area，在写任何 assertion 之前，派发一个全新 subagent 去枚举该 area 的所有用户交互。subagent 读 plan 与相关源码，返回一份按 **obvious / subtle / error-edge** 分组的交互清单——它不写 assertion。使用 `skills/validation-contract/references/investigation-prompt.md` 里的 prompt。
 
-- Dispatch areas in parallel; each subagent owns one area.
-- For a single-area feature, one subagent suffices (or investigate inline if the feature is trivial).
-- The value is the **subtle** and **error-edge** bullets — the interactions a first draft silently drops. A friendly enumeration that only lists the happy path has failed its job.
+- 各 area 并行派发；每个 subagent 负责一个 area。
+- 对单 area 的 feature，一个 subagent 足矣（若 feature 极其简单，也可内联做 investigation）。
+- 价值在 **subtle** 与 **error-edge** 那些条目上——也就是第一稿会悄悄漏掉的那些交互。一份只列 happy path 的「友善」枚举，等于没完成本职工作。
 
-Synthesise the returned lists; they are the raw material for Step 4. Do not paste them into the document verbatim — they are interaction inventories, not cases.
+把返回的各份清单综合起来；它们是 Step 4 的原材料。不要把它们逐字粘进文档——它们是交互清单，不是 case。
 
-### Step 4: Write Assertions
+### Step 4：Write Assertions
 
-Turn the investigation inventory into assertions, grouped under their area. Each assertion is an H3 heading exactly `### VAL-<AREA>-NNN: <title>` (AREA uppercase alnum, NNN zero-padded 3 digits — this exact heading is what `hs-plan init-state` parses), followed by just two lines (see `references/user-test-template.md`):
+把 investigation 得到的清单转成 assertion，归到各自的 area 下。每条 assertion 是一个 H3 标题，形式严格为 `### VAL-<AREA>-NNN: <title>`（AREA 为大写字母数字，NNN 为零填充 3 位数字——正是这个标题被 `hs-plan init-state` 解析），其后只跟两行（见 `references/user-test-template.md`）：
 
-- **One observable behaviour paragraph** — persona-anchored, describing what must hold from the user's point of view. Name the persona inline (by registry id). No implementation references.
-- **An `Evidence:` line** — the proof a validator must capture to call this assertion PASS, in the patterns-doc vocabulary: `screenshot` / `console-errors` / `network(POST /sessions → 303)` / `terminal-output`.
+- **一段可观测行为段落**——以 persona 为锚，从用户视角描述必须成立的是什么。在行内指名 persona（按 registry id）。不引用任何实现。
+- **一行 `Evidence:`**——validator 必须抓取、才能判这条 assertion 为 PASS 的凭证，用 patterns 文档的词汇：`screenshot` / `console-errors` / `network(POST /sessions → 303)` / `terminal-output`。
 
-That is the whole block. Keep it lean: per-feature preconditions live in `features.json`; the requirement→assertion mapping lives in the coverage matrix; failure artifacts are the validator's standing job — none of those belong inside the assertion.
+整块就这些。保持精简：逐 feature 的前置条件放在 `features.json`；requirement→assertion 的映射放在覆盖矩阵里；失败 artifact 是 validator 的常态职责——这些都不属于 assertion 内部。
 
-Multi-step value (login → add to cart → checkout) is one assertion describing the whole journey's observable end-state. Put assertions that span sub-capabilities *within this plan* under a `## Cross-Area Flows` section. Keep each assertion to one observable end-state.
+多步价值（登录 → 加购物车 → 结账）是一条 assertion，描述整条 journey 的可观测终态。把跨越 *本 plan 内* 多个子能力的 assertion 放到 `## Cross-Area Flows` 小节下。每条 assertion 只对应一个可观测终态。
 
-### Step 5: Adversarial Review (≥ 2 sequential passes)
+### Step 5：Adversarial Review（≥ 2 轮，顺序进行）
 
-A draft that looks complete almost always has gaps. Run **at least two sequential review passes**; each pass dispatches one adversarial reviewer per area (in parallel within the pass). Use the prompt at `skills/validation-contract/references/adversarial-review-prompt.md`.
+看上去完整的草稿几乎总有缺口。**至少跑两轮顺序 review**；每一轮为每个 area 派发一个 adversarial reviewer（一轮之内并行）。使用 `skills/validation-contract/references/adversarial-review-prompt.md` 里的 prompt。
 
-Each reviewer is told to be skeptical and find what is **missing** — interactions, edge values, error states, accessibility, security boundaries, within-feature cross-area flows — and returns a list of missing cases, not a rubber stamp.
+每个 reviewer 都被要求保持怀疑、去找 **缺了什么**——交互、edge 取值、错误状态、accessibility、security 边界、feature 内跨 area 的 flow——并返回一份缺失 case 清单，而不是盖个橡皮章。
 
-After each pass:
+每一轮之后：
 
-1. Synthesise the reviewers' findings.
-2. **Edit the document** to add the missing cases — don't just record what they said.
-3. Start the next pass on the **updated** document.
+1. 综合各 reviewer 的发现。
+2. **编辑文档** 补上缺失的 case——不要只是记录他们说了什么。
+3. 在 **更新后** 的文档上开始下一轮。
 
-Passes run sequentially so each builds on the previous pass's additions. Two passes is the floor: the first mostly catches surface gaps, the second is where depth shows up. Stop when a pass surfaces nothing material.
+各轮顺序进行，这样每一轮都建立在上一轮的补充之上。两轮是下限：第一轮多半捉到表层缺口，第二轮才见深度。当某一轮再也浮不出实质内容时停下。
 
-Every plan requirement must be covered by at least one assertion — verify this by reading, not by a matrix. An assertion that proves no plan requirement is either hallucinated coverage (delete it) or a plan gap (surface it). If you discover the plan is incomplete or ambiguous, stop and surface it; do **not** invent behaviour the plan doesn't declare.
+plan 的每条 requirement 都必须被至少一条 assertion 覆盖——靠阅读来核验，而不是靠矩阵。一条不证明任何 plan requirement 的 assertion，要么是臆造覆盖（删掉它），要么是 plan 缺口（暴露它）。若你发现 plan 不完整或含糊，停下并暴露它；**不要** 凭空发明 plan 没有声明的行为。
 
-### Step 6: Seed state and hand off
+### Step 6：Seed state 并交接
 
-Seed the state file, then present for human review:
+播种状态文件，然后交付人类评审：
 
 ```bash
 hs-plan init-state          # parses the VAL- headings into validation-state.json (all pending)
 ```
 
-Re-run `hs-plan init-state` after any adversarial pass that added or removed assertion headings; it preserves the status of ids that already exist.
+任何一轮 adversarial review 增删了 assertion 标题之后，重新跑一次 `hs-plan init-state`；它会保留已存在 id 的状态。
 
 ```
 VALIDATION CONTRACT READY FOR REVIEW:
@@ -228,41 +228,41 @@ VALIDATION CONTRACT READY FOR REVIEW:
 → Approve, or tell me what to change.
 ```
 
-Once approved, the `VAL-` ids are stable inputs for `features.json` (Phase 3) and runtime validation (Phase 4).
+一经批准，`VAL-` id 就是 `features.json`（Phase 3）与 runtime validation（Phase 4）的稳定输入。
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "The plan's requirements are already testable; I don't need a contract." | Plan requirements are prose intent. Assertions are runnable: persona + observable behaviour + declared evidence + a stable VAL- id that features bind to. Different artifact, different consumer. |
-| "I'll just write the assertions myself; investigation subagents are overhead." | Solo authoring is exactly the failure this skill exists to prevent. One mind lists the happy path and forgets the subtle interactions. The investigation pass is where they surface. |
-| "One review pass is enough." | The first pass catches surface gaps; the second is where depth happens. Two is the floor, not the ceiling. |
-| "The reviewers agreed it's complete." | If a reviewer rubber-stamped, the prompt wasn't adversarial. Reviewers must be told to hunt for what's missing, or they find nothing. |
-| "One assertion per requirement is enough." | One requirement often covers happy + error + edge; one assertion per branch is the floor, not the ceiling. |
-| "Personas are overhead — 'a logged-in user' is fine." | Across assertions, 'a logged-in user' drifts into ten slightly different meanings. Name a concrete persona inline so every probe means the same thing. |
-| "I noticed a behaviour the plan doesn't cover; I'll add an assertion for it." | Stop. That's scope drift. Surface it; the plan gets updated; then the assertion follows. |
+| 「plan 的 requirement 本就可测，我不需要 contract。」 | plan requirement 是散文式意图。assertion 是可运行的：persona + 可观测行为 + 声明的 Evidence + 一个 feature 所绑定的稳定 VAL- id。不同 artifact，不同消费者。 |
+| 「assertion 我自己写就行，investigation subagent 是额外开销。」 | 一人独写恰恰是本技能要防的失败。一个人列出 happy path，却忘了那些 subtle 交互。investigation 一轮正是让它们浮现的地方。 |
+| 「一轮 review 就够了。」 | 第一轮捉到表层缺口；第二轮才出深度。两轮是下限，不是上限。 |
+| 「reviewer 都同意它完整了。」 | 如果某个 reviewer 盖了橡皮章，那是 prompt 不够 adversarial。必须要求 reviewer 去猎查缺了什么，否则他们什么也找不到。 |
+| 「一条 requirement 配一条 assertion 就够。」 | 一条 requirement 往往覆盖 happy + error + edge；每个分支一条 assertion 是下限，不是上限。 |
+| 「persona 是额外负担——『一个登录用户』就行。」 | 跨多条 assertion，『一个登录用户』会漂移成十种略有差异的含义。在行内指名一个具体 persona，让每次探测都指同一件事。 |
+| 「我注意到一个 plan 没覆盖的行为，我加条 assertion。」 | 停下。那是 scope drift。暴露它；让 plan 被更新；然后 assertion 才跟上。 |
 
 ## Red Flags
 
-- The document was written in one pass with no investigation and no adversarial review
-- A reviewer returned "looks good" with no missing cases — it wasn't adversarial
-- An assertion proves no plan requirement and isn't marked `(guard: ...)` (hallucinated coverage)
-- A case references implementation (function name, file path, internal data-test id naming a code module)
-- An assertion names no concrete persona, or "any user"
-- An assertion has no `Evidence:` line, or evidence that can't be captured ("verify manually")
-- The requirement coverage matrix omits a plan requirement
-- An area was split so finely that each "area" is a single assertion — over-decomposition
-- Selectors use CSS classes, DOM positions, or internal test ids — see `docs/user-test-patterns.md` for the allowed list
+- 文档一遍写成，既无 investigation 也无 adversarial review
+- 某个 reviewer 返回「looks good」且无任何缺失 case——那它不 adversarial
+- 某条 assertion 不证明任何 plan requirement，又未标 `(guard: ...)`（臆造覆盖）
+- 某个 case 引用了实现（函数名、文件路径、指向某代码模块的内部 data-test id）
+- 某条 assertion 没指名具体 persona，或写成「any user」
+- 某条 assertion 没有 `Evidence:` 行，或证据无法抓取（「人工核验」）
+- requirement 覆盖矩阵漏掉了某条 plan requirement
+- 某个 area 被拆得太细，以致每个「area」只有一条 assertion——过度拆解
+- selector 用了 CSS class、DOM 位置或内部 test id——允许清单见 `docs/user-test-patterns.md`
 
 ## Verification
 
-- [ ] Plan accepted at `.harness-runtime/plans/<slug>/plan.md`
-- [ ] If first run in project: `docs/user-test-patterns.md` written and approved per Step 0 (all 9 sections present; selector rules have positive + negative examples; surface cost tiers set; anti-patterns called out)
-- [ ] Plan decomposed into areas; areas confirmed before investigation
-- [ ] Each area investigated by a subagent (or inline for a trivial single-area plan)
-- [ ] At least two adversarial review passes run; the contract was edited between passes
-- [ ] Every assertion is an `### VAL-<AREA>-NNN: <title>` H3 with one observable behaviour paragraph (persona named inline) + an `Evidence:` line, per `references/user-test-template.md`
-- [ ] Every plan requirement is covered by ≥ 1 assertion
-- [ ] Selectors and assertions observable-only (no implementation references)
-- [ ] Human reviewed and approved
-- [ ] Contract saved to `.harness-runtime/plans/<slug>/validation-contract.md` and `hs-plan init-state` run
+- [ ] plan 已在 `.harness-runtime/plans/<slug>/plan.md` 被接受
+- [ ] 若为项目内首次运行：已按 Step 0 撰写并批准 `docs/user-test-patterns.md`（9 个小节齐全；selector 规则含正例 + 反例；surface cost tier 已设定；反模式已点明）
+- [ ] plan 已拆解为 area；area 已在 investigation 前确认
+- [ ] 每个 area 都由一个 subagent 做过 investigation（单 area 的简单 plan 可内联进行）
+- [ ] 至少跑了两轮 adversarial review；两轮之间编辑过 contract
+- [ ] 每条 assertion 都是 `### VAL-<AREA>-NNN: <title>` 形式的 H3，含一段可观测行为段落（行内指名 persona）+ 一行 `Evidence:`，符合 `references/user-test-template.md`
+- [ ] plan 的每条 requirement 都被 ≥ 1 条 assertion 覆盖
+- [ ] selector 与 assertion 只谈可观测（不引用任何实现）
+- [ ] 已经人类评审并批准
+- [ ] contract 已保存到 `.harness-runtime/plans/<slug>/validation-contract.md`，且已跑 `hs-plan init-state`

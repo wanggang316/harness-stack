@@ -1,33 +1,33 @@
 ---
 name: define-api-spec
-description: Defines the API specification at the project level. Use when starting a project with APIs, when api-spec.md is missing or outdated, or when API inconsistencies appear across services. Produces docs/api-spec.md as the authoritative API contract.
+description: 在项目层面定义 API spec。在启动带 API 的项目、api-spec.md 缺失或过时、或跨服务出现 API 不一致时使用。产出 docs/api-spec.md，作为权威的 API contract。
 ---
 
-# define-api-spec: API Specification
+# define-api-spec：API Specification
 
 ## Overview
 
-Define the API contract for the project. `docs/api-spec.md` specifies response shapes, error format, status codes, pagination, authentication, versioning, and validation strategy. An agent or engineer reading this file should know exactly how to write a new endpoint without guessing.
+为项目定义 API contract。`docs/api-spec.md` 规定响应结构、错误格式、状态码、分页、认证、版本管理以及 validation 策略。读这份文件的 agent 或工程师，应当不靠猜就清楚该如何写一个新 endpoint。
 
 ## When to Use
 
-- Starting a project that exposes APIs (REST, GraphQL, RPC)
-- `docs/api-spec.md` is missing in a project with existing endpoints
-- API inconsistencies across services or domains
-- New service needs to expose endpoints that match existing patterns
-- After API redesign or version migration
+- 启动一个对外暴露 API 的项目（REST、GraphQL、RPC）
+- 项目已有 endpoint，但 `docs/api-spec.md` 缺失
+- 跨服务或跨 domain 出现 API 不一致
+- 新服务需要暴露与现有模式一致的 endpoint
+- API 重新设计或版本迁移之后
 
-**When NOT to use:** Projects with no APIs. Internal libraries or CLI tools that don't serve external consumers.
+**When NOT to use：** 没有 API 的项目。不对外部消费方提供服务的内部库或 CLI 工具。
 
 ## Philosophy
 
-You are defining a contract, not writing documentation.
+你在定义一份 contract，而不是写文档。
 
-- **Contract first.** Define the shapes before implementing endpoints. The spec is the source of truth — implementation follows.
-- **One pattern, everywhere.** If some endpoints return `{data, error}` and others return `{result, message}`, that's not a spec — that's chaos. Pick one.
-- **Discover, don't invent.** Read existing endpoints first. Codify what works, fix what's inconsistent.
-- **Show, don't describe.** "Use consistent error format" is useless. Show the exact JSON. Agents copy examples directly.
-- **Design for extension.** New fields are additive and optional. Existing fields don't change type or disappear. Consumers should never break on an update.
+- **Contract first。** 在实现 endpoint 之前先把结构定下来。spec 是事实来源——实现随其后。
+- **一套模式，处处一致。** 如果有些 endpoint 返回 `{data, error}`、另一些返回 `{result, message}`，那不是 spec——那是混乱。选定一种。
+- **去发现，别去发明。** 先读现有 endpoint。把行得通的固化下来，把不一致的修正掉。
+- **展示，别描述。**「使用一致的错误格式」毫无用处。把确切的 JSON 摆出来。agent 会直接照抄示例。
+- **为扩展而设计。** 新字段是增量且可选的。已有字段不改类型、不消失。消费方永远不应在一次更新中崩掉。
 
 ## Process
 
@@ -40,30 +40,30 @@ endpoints      patterns     api-spec    confirms
 and configs    and gaps     .md
 ```
 
-### Phase 1: Discover
+### Phase 1：Discover
 
-**Load context:**
-- Read `docs/architecture.md` — understand domains and service boundaries
-- Read existing `docs/api-spec.md` if it exists — update, don't rewrite
+**加载上下文：**
+- 读 `docs/architecture.md`——理解各 domain 与服务边界
+- 若已有 `docs/api-spec.md` 则读它——做更新，不要重写
 
-**Sample existing endpoints:**
+**采样现有 endpoint：**
 
-Read 5-10 API route handlers across different domains. For each, extract:
+跨不同 domain 读 5-10 个 API route handler。对每个，提取：
 
-1. Response shape (success and error)
-2. Status code usage
-3. Error format and codes
-4. Pagination approach
-5. Authentication mechanism
-6. Validation strategy (where, how)
-7. URL structure and naming
+1. 响应结构（成功与错误）
+2. 状态码的用法
+3. 错误格式与错误码
+4. 分页方式
+5. 认证机制
+6. validation 策略（在哪里、怎么做）
+7. URL 结构与命名
 
-**Identify existing tooling:**
-- OpenAPI/Swagger specs
-- Schema validation libraries (Zod, Joi, Yup, Pydantic, etc.)
-- API documentation generators
+**识别已有工具链：**
+- OpenAPI/Swagger spec
+- schema validation 库（Zod、Joi、Yup、Pydantic 等）
+- API 文档生成器
 
-**Present discovery results:**
+**呈现 discovery 结果：**
 
 ```
 DISCOVERED API PATTERNS:
@@ -95,33 +95,33 @@ INCONSISTENCIES:
 → Which patterns are intentional?
 ```
 
-### Phase 2: Challenge
+### Phase 2：Challenge
 
-**For each discovered pattern:**
-- "Is this the deliberate standard, or just what the first endpoint happened to do?"
-- "Is there an OpenAPI spec or schema that already defines this?"
+**对每一个发现的模式：**
+- 「这是有意为之的标准，还是只是第一个 endpoint 碰巧那么写？」
+- 「是否已有 OpenAPI spec 或 schema 定义了它？」
 
-**For each inconsistency:**
-- "Which variant should become the standard?"
-- "Is the inconsistency a migration in progress?"
+**对每一处不一致：**
+- 「哪个变体应当成为标准？」
+- 「这处不一致是不是一次进行中的迁移？」
 
-**Challenge common issues:**
+**挑战常见问题：**
 
-- Endpoints returning different shapes under different conditions
-- Error format varying by service or endpoint
-- Pagination missing on list endpoints
-- No versioning strategy
-- Validation scattered instead of at boundaries
+- endpoint 在不同条件下返回不同结构
+- 错误格式因服务或 endpoint 而异
+- 列表 endpoint 缺少分页
+- 没有版本管理策略
+- validation 散落各处，而不在边界处
 
-**Surface Hyrum's Law:**
+**点出 Hyrum 定律：**
 
-> Every observable behavior — including undocumented quirks, error message text, timing, and ordering — becomes a de facto contract once consumers depend on it.
+> 任何可观测的行为——包括未记录的怪癖、错误信息文本、时序与顺序——一旦有消费方依赖它，就成了事实上的 contract。
 
-Ask: "Are there undocumented behaviors that consumers already depend on? Those need to be in the spec too."
+问：「有没有消费方已经在依赖、却未被记录的行为？那些也得写进 spec。」
 
-### Phase 3: Define
+### Phase 3：Define
 
-Write `docs/api-spec.md`:
+写 `docs/api-spec.md`：
 
 ```markdown
 # API Specification
@@ -130,12 +130,12 @@ Write `docs/api-spec.md`:
 
 ## Overview
 
-<!-- One paragraph: what APIs this project exposes, to whom,
-     and what protocol (REST, GraphQL, RPC). -->
+<!-- 一段话：本项目对外暴露哪些 API、面向谁、
+     用什么协议（REST、GraphQL、RPC）。 -->
 
 ## Base URL & Versioning
 
-<!-- How versions work. Show the URL structure. -->
+<!-- 版本如何工作。把 URL 结构摆出来。 -->
 
 | Environment | Base URL |
 |---|---|
@@ -146,13 +146,13 @@ Versioning strategy: [URL path / header / query param].
 
 ## Authentication
 
-<!-- How consumers authenticate. Show the exact header or mechanism. -->
+<!-- 消费方如何认证。把确切的 header 或机制摆出来。 -->
 
 \```
 Authorization: Bearer <token>
 \```
 
-<!-- Which endpoints are public vs protected. -->
+<!-- 哪些 endpoint 是公开的、哪些是受保护的。 -->
 
 ## Response Format
 
@@ -192,36 +192,36 @@ Authorization: Bearer <token>
 
 ## Status Codes
 
-| Code | Meaning | When to Use |
+| Code | Meaning | 何时使用 |
 |---|---|---|
-| 200 | OK | Successful read or update |
-| 201 | Created | Successful resource creation |
-| 204 | No Content | Successful delete |
-| 400 | Bad Request | Malformed request syntax |
-| 401 | Unauthorized | Missing or invalid authentication |
-| 403 | Forbidden | Authenticated but not authorized |
-| 404 | Not Found | Resource does not exist |
-| 409 | Conflict | Duplicate resource or version mismatch |
-| 422 | Unprocessable Entity | Validation failed (semantically invalid) |
-| 500 | Internal Server Error | Unexpected server error |
+| 200 | OK | 读取或更新成功 |
+| 201 | Created | 资源创建成功 |
+| 204 | No Content | 删除成功 |
+| 400 | Bad Request | 请求语法不合法 |
+| 401 | Unauthorized | 缺少或无效的认证 |
+| 403 | Forbidden | 已认证但未授权 |
+| 404 | Not Found | 资源不存在 |
+| 409 | Conflict | 资源重复或版本不匹配 |
+| 422 | Unprocessable Entity | validation 失败（语义上不合法） |
+| 500 | Internal Server Error | 意外的服务端错误 |
 
 ## Error Codes
 
-<!-- Application-specific error codes used in error.code field. -->
+<!-- 用于 error.code 字段的、应用特定的错误码。 -->
 
 | Code | HTTP Status | Meaning |
 |---|---|---|
-| VALIDATION_ERROR | 422 | Request failed validation |
-| NOT_FOUND | 404 | Resource does not exist |
-| UNAUTHORIZED | 401 | Authentication required |
-| FORBIDDEN | 403 | Insufficient permissions |
-| CONFLICT | 409 | Resource conflict |
-| INTERNAL_ERROR | 500 | Unexpected server error |
+| VALIDATION_ERROR | 422 | 请求 validation 失败 |
+| NOT_FOUND | 404 | 资源不存在 |
+| UNAUTHORIZED | 401 | 需要认证 |
+| FORBIDDEN | 403 | 权限不足 |
+| CONFLICT | 409 | 资源冲突 |
+| INTERNAL_ERROR | 500 | 意外的服务端错误 |
 
 ## Pagination
 
-<!-- Which strategy: offset-based, cursor-based, or both.
-     Show request and response examples. -->
+<!-- 采用哪种策略：offset-based、cursor-based、还是两者皆有。
+     给出请求与响应示例。 -->
 
 Request:
 \```
@@ -232,7 +232,7 @@ Response: see "Success (list)" format above.
 
 ## Filtering & Sorting
 
-<!-- How list endpoints accept filters and sort parameters. -->
+<!-- 列表 endpoint 如何接收过滤与排序参数。 -->
 
 \```
 GET /api/v1/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
@@ -242,58 +242,58 @@ GET /api/v1/tasks?status=in_progress&assignee=user123&createdAfter=2025-01-01
 
 | Pattern | Convention | Example |
 |---|---|---|
-| Resources | Plural nouns, no verbs | `/api/v1/tasks` |
-| Single resource | Resource + ID | `/api/v1/tasks/:id` |
-| Sub-resources | Nested under parent | `/api/v1/tasks/:id/comments` |
+| Resources | 复数名词，不带动词 | `/api/v1/tasks` |
+| Single resource | 资源 + ID | `/api/v1/tasks/:id` |
+| Sub-resources | 嵌套在父资源之下 | `/api/v1/tasks/:id/comments` |
 | Query params | camelCase | `?sortBy=createdAt&pageSize=20` |
-| Actions (non-CRUD) | POST with verb | `POST /api/v1/tasks/:id/archive` |
+| Actions (non-CRUD) | 带动词的 POST | `POST /api/v1/tasks/:id/archive` |
 
 ## Request Validation
 
-<!-- Where validation happens and what library is used. -->
+<!-- validation 在哪里发生、用什么库。 -->
 
-Validation happens at the handler layer using [Zod/Joi/Pydantic/etc.].
+validation 在 handler 层进行，使用 [Zod/Joi/Pydantic/等]。
 
-- Invalid requests return 422 with error details
-- After validation, internal code trusts the types
-- Third-party API responses are validated before use
+- 不合法的请求返回 422 并附错误详情
+- validation 之后，内部代码信任这些类型
+- 第三方 API 的响应在使用前先经 validation
 
 ## Field Conventions
 
 | Pattern | Convention | Example |
 |---|---|---|
 | Response fields | camelCase | `createdAt`, `userId` |
-| Boolean fields | is/has/can prefix | `isComplete`, `hasAttachments` |
+| Boolean fields | is/has/can 前缀 | `isComplete`, `hasAttachments` |
 | Enum values | UPPER_SNAKE | `IN_PROGRESS`, `COMPLETED` |
 | Timestamps | ISO 8601 | `2025-01-15T10:30:00Z` |
-| IDs | string (UUID or prefixed) | `usr_abc123` |
+| IDs | 字符串（UUID 或带前缀） | `usr_abc123` |
 
 ## Backward Compatibility
 
-- New fields are additive and optional
-- Existing fields do not change type or get removed
-- Deprecate before removing — mark deprecated fields in response
-- Breaking changes require a new API version
+- 新字段是增量且可选的
+- 已有字段不改类型、不被移除
+- 移除前先标弃用——在响应中标记弃用字段
+- 破坏性变更需要一个新的 API 版本
 
 ## API Documentation
 
-<!-- How endpoints are documented for consumers. -->
+<!-- endpoint 如何向消费方记录。 -->
 
-Use OpenAPI (Swagger) as the API documentation standard. Maintain an `openapi.yaml` (or `openapi.json`) as the single source of truth for endpoint definitions.
+以 OpenAPI（Swagger）作为 API 文档标准。维护一个 `openapi.yaml`（或 `openapi.json`）作为 endpoint 定义的唯一事实来源。
 
-- New or changed endpoints must update the OpenAPI spec before merging
-- The OpenAPI spec documents: paths, parameters, request/response schemas, error codes
-- `docs/api-spec.md` defines project-wide patterns (response format, status codes, field conventions); OpenAPI documents individual endpoints
+- 新增或变更的 endpoint 必须在合并前更新 OpenAPI spec
+- OpenAPI spec 记录：路径、参数、请求/响应 schema、错误码
+- `docs/api-spec.md` 定义项目级的模式（响应格式、状态码、字段约定）；OpenAPI 记录单个 endpoint
 ```
 
-**Writing principles:**
+**写作原则：**
 
-- Every pattern has a concrete JSON or URL example. No abstract descriptions.
-- Status code table and error code table are mandatory — these prevent the most common inconsistencies.
-- Sections that don't apply are omitted.
-- If an OpenAPI spec exists, reference it and only document what it doesn't cover.
+- 每一种模式都配一个具体的 JSON 或 URL 示例。不要抽象描述。
+- 状态码表和错误码表是必备的——它们防住了最常见的不一致。
+- 不适用的小节直接省略。
+- 若已有 OpenAPI spec，引用它，并只记录它未覆盖的内容。
 
-### Phase 4: Approve
+### Phase 4：Approve
 
 ```
 API SPEC READY FOR REVIEW:
@@ -311,49 +311,49 @@ API SPEC READY FOR REVIEW:
 
 ## Keeping the Spec Current
 
-- **New endpoints** — verify they follow the spec before merging
-- **New error codes** — add to the error codes table
-- **Breaking changes** — update the spec before implementing
-- **Version migration** — document both old and new behavior during transition
+- **新 endpoint**——合并前确认它遵循 spec
+- **新错误码**——加入错误码表
+- **破坏性变更**——实现之前先更新 spec
+- **版本迁移**——过渡期内同时记录新旧两种行为
 
-The spec describes how the API IS, not how it was or should be.
+spec 描述 API 现在「是」怎样的，而不是它曾经或应该是怎样的。
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "We'll document the API later" | The contract IS the documentation. Define it first — implementation follows. |
-| "We don't need pagination for now" | You will the moment someone has 100+ items. Add it from the start. |
-| "PATCH is complicated, let's just use PUT" | PUT requires the full object every time. PATCH is what clients actually want for partial updates. |
-| "We'll version when we need to" | Breaking changes without versioning break consumers. Design for extension from the start. |
-| "Internal APIs don't need specs" | Internal consumers are still consumers. Specs prevent coupling and enable parallel work. |
-| "The OpenAPI spec covers this" | OpenAPI describes endpoints. It doesn't always capture error handling strategy, pagination patterns, or field conventions. Both can coexist. |
+| 「API 文档以后再补。」 | contract 本身就是文档。先把它定下来——实现随其后。 |
+| 「现在还不需要分页。」 | 一旦有人手里有 100+ 条数据，你就需要了。从一开始就加上。 |
+| 「PATCH 太麻烦，干脆都用 PUT。」 | PUT 每次都要求传完整对象。客户端做局部更新真正想要的是 PATCH。 |
+| 「等需要时再做版本。」 | 没有版本管理的破坏性变更会打挂消费方。从一开始就为扩展而设计。 |
+| 「内部 API 不需要 spec。」 | 内部消费方也是消费方。spec 防止耦合、让并行工作成为可能。 |
+| 「OpenAPI spec 已经覆盖了。」 | OpenAPI 描述 endpoint。它未必能涵盖错误处理策略、分页模式或字段约定。两者可以共存。 |
 
 ## Red Flags
 
-- Endpoints returning different response shapes
-- Error format varying by service or endpoint
-- List endpoints without pagination
-- Verbs in REST URLs (`/api/createTask`, `/api/getUsers`)
-- No versioning strategy
-- Validation scattered throughout internal code instead of at handler boundaries
-- Status codes used inconsistently (e.g., 400 and 422 for the same thing)
-- No spec exists but multiple services expose endpoints
-- No OpenAPI spec maintained for endpoints
+- endpoint 返回不同的响应结构
+- 错误格式因服务或 endpoint 而异
+- 列表 endpoint 没有分页
+- REST URL 里出现动词（`/api/createTask`、`/api/getUsers`）
+- 没有版本管理策略
+- validation 散落在内部代码各处，而不在 handler 边界
+- 状态码使用不一致（例如同一件事既用 400 又用 422）
+- 没有 spec，却有多个服务在暴露 endpoint
+- 没有为 endpoint 维护 OpenAPI spec
 
 ## Verification
 
-- [ ] Existing endpoints sampled — spec reflects actual patterns
-- [ ] Response format defined with JSON examples (success, list, error)
-- [ ] Status code table complete with usage guidance
-- [ ] Error codes enumerated with HTTP status mapping
-- [ ] Pagination strategy defined with request/response examples
-- [ ] Authentication mechanism documented
-- [ ] URL conventions defined with examples
-- [ ] Validation strategy documented (where, what library)
-- [ ] Field conventions defined (casing, booleans, enums, timestamps, IDs)
-- [ ] Backward compatibility rules stated
-- [ ] OpenAPI spec location and update policy defined
-- [ ] Inconsistencies surfaced and resolved with human
-- [ ] Human has reviewed and approved
-- [ ] Saved to `docs/api-spec.md`
+- [ ] 已采样现有 endpoint——spec 反映了实际模式
+- [ ] 响应格式已用 JSON 示例定义（成功、列表、错误）
+- [ ] 状态码表完整，并附使用指引
+- [ ] 错误码已枚举，并映射到 HTTP 状态码
+- [ ] 分页策略已定义，并附请求/响应示例
+- [ ] 认证机制已记录
+- [ ] URL 约定已定义，并附示例
+- [ ] validation 策略已记录（在哪里、用什么库）
+- [ ] 字段约定已定义（大小写、布尔、枚举、时间戳、ID）
+- [ ] 已声明向后兼容规则
+- [ ] OpenAPI spec 的位置与更新策略已定义
+- [ ] 不一致已浮出水面，并与人工一同解决
+- [ ] 人工已评审并批准
+- [ ] 已保存到 `docs/api-spec.md`

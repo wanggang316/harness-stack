@@ -1,38 +1,38 @@
 ---
 name: skill-create
-description: Create new harness-stack skills. Use when adding a new skill to the framework, extending lifecycle coverage, or building custom skills.
+description: 创建新的 harness-stack skill。在向框架新增 skill、扩展 lifecycle 覆盖范围，或构建自定义 skill 时使用。
 ---
 
-# skill-create: Create New Skills
+# skill-create：创建新 skill
 
 ## Overview
 
-Guided workflow for creating new harness-stack skills. Generates SKILL.md with all required sections, creates the corresponding slash command, and validates the result.
+创建新 harness-stack skill 的引导式工作流。生成包含所有必需小节的 SKILL.md，创建对应的 slash command，并校验结果。
 
 ## When to Use
 
-**Use when**:
-- Adding a new skill to harness-stack
-- Creating project-specific custom skills
-- Extending lifecycle coverage to new domains
+**Use when**：
+- 向 harness-stack 新增一个 skill
+- 创建项目专属的自定义 skill
+- 把 lifecycle 覆盖扩展到新领域
 
-**Don't use when**:
-- Modifying an existing skill (edit SKILL.md directly)
-- Need a one-off script (not a reusable skill)
+**Don't use when**：
+- 修改一个已有的 skill（直接编辑 SKILL.md）
+- 只需要一个一次性脚本（不是可复用的 skill）
 
 ## Process
 
 ### Step 1: Gather Information
 
-Ask the user:
-1. **Name**: What should the skill be called? (bare name, no prefix — addressed as `harness-stack:{name}`)
-2. **Phase**: Which lifecycle phase? (define/plan/build/verify/review/ship/meta)
-3. **Purpose**: What does this skill do? (1-2 sentences)
-4. **Trigger**: When should this skill be used?
+向用户询问：
+1. **Name**：这个 skill 该叫什么？（裸名，不带前缀——以 `harness-stack:{name}` 寻址）
+2. **Phase**：属于哪个 lifecycle 阶段？（define/plan/build/verify/review/ship/meta）
+3. **Purpose**：这个 skill 做什么？（1-2 句话）
+4. **Trigger**：什么时候应当使用这个 skill？
 
 ### Step 2: Determine Location
 
-All skills live directly under `skills/`; the directory name is the bare skill name (no prefix). The `harness-stack` plugin namespace makes it addressable as `harness-stack:{name}`:
+所有 skill 都直接放在 `skills/` 下；目录名即裸 skill 名（不带前缀）。`harness-stack` 这个 plugin 命名空间使其可以 `harness-stack:{name}` 的形式寻址：
 
 ```
 skills/{name}/SKILL.md
@@ -40,7 +40,7 @@ skills/{name}/SKILL.md
 
 ### Step 3: Generate SKILL.md
 
-Create `skills/{name}/SKILL.md`:
+创建 `skills/{name}/SKILL.md`：
 
 ```markdown
 ---
@@ -84,7 +84,7 @@ description: {purpose}. Use when {trigger}.
 
 ### Step 4: Create Slash Command
 
-Create `commands/{name}.md`:
+创建 `commands/{name}.md`：
 
 ```markdown
 Load and execute the harness-stack:{name} skill.
@@ -96,40 +96,40 @@ Context: {brief context about when this runs}
 
 ### Step 5: Update AGENTS.md
 
-Add the new skill to the appropriate section in AGENTS.md.
-Verify AGENTS.md stays under 150 lines.
+在 AGENTS.md 的对应小节里加入这个新 skill。
+确认 AGENTS.md 仍保持在 150 行以内。
 
 ### Step 6: Validate
 
-Verify:
-- SKILL.md has all required sections
-- YAML frontmatter is valid
-- Slash command exists
-- AGENTS.md updated and under 150 lines
+检查：
+- SKILL.md 含所有必需小节
+- YAML frontmatter 合法
+- slash command 已存在
+- AGENTS.md 已更新且在 150 行以内
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "I'll just write a quick SKILL.md without all sections" | Incomplete skills get ignored. All sections serve a purpose. |
-| "Common Rationalizations is overkill for this skill" | Every skill has excuses agents use to skip it. Think harder. |
-| "I don't need a slash command" | Commands are how users discover and invoke skills. Always create one. |
-| "I'll update AGENTS.md later" | If it's not in AGENTS.md, it doesn't exist for agents. Update now. |
+| 「我先随手写个不带全部小节的 SKILL.md。」 | 不完整的 skill 会被忽略。每个小节都有其用途。 |
+| 「这个 skill 用不着 Common Rationalizations。」 | 每个 skill 都有 agent 用来跳过它的借口。再想深一点。 |
+| 「我不需要 slash command。」 | command 是用户发现并调用 skill 的途径。永远要创建一个。 |
+| 「AGENTS.md 我以后再更新。」 | 不在 AGENTS.md 里，对 agent 而言它就不存在。现在就更新。 |
 
 ## Red Flags
 
-- SKILL.md missing required sections
-- No Common Rationalizations table
-- Slash command not created
-- AGENTS.md not updated
-- Skill name carries a redundant `hs-`/`harness-stack:` prefix (the directory name must be the bare skill name)
+- SKILL.md 缺少必需小节
+- 没有 Common Rationalizations 表格
+- 没有创建 slash command
+- AGENTS.md 未更新
+- skill 名带了多余的 `hs-`/`harness-stack:` 前缀（目录名必须是裸 skill 名）
 
 ## Verification
 
-- [ ] SKILL.md created with all 6 required sections
-- [ ] YAML frontmatter has name and description
-- [ ] Description starts with action verb and includes "Use when"
-- [ ] Common Rationalizations has 2+ entries
-- [ ] Slash command created in commands/
-- [ ] AGENTS.md updated (and still under 150 lines)
-- [ ] All validations pass
+- [ ] SKILL.md 已创建，含全部 6 个必需小节
+- [ ] YAML frontmatter 含 name 与 description
+- [ ] description 以动词开头并包含「Use when」
+- [ ] Common Rationalizations 至少有 2 条
+- [ ] slash command 已创建在 commands/ 下
+- [ ] AGENTS.md 已更新（且仍在 150 行以内）
+- [ ] 所有校验通过

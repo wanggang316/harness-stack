@@ -1,195 +1,195 @@
 ---
 name: review-receive
-description: Handles code review feedback with technical rigor instead of performative agreement. Use when you (the author) receive review findings from a reviewer, a human, or your own earlier self-review. Use especially when a finding seems unclear or technically questionable.
+description: 以技术上的严谨而非表演式附和来处理 code review 反馈。当你（作者）收到来自 reviewer、人类或你自己早前 self-review 的 review findings 时使用。尤其当某条 finding 看起来含糊或技术上可疑时使用。
 ---
 
 # Receive Code Review
 
 ## Overview
 
-Code review requires technical evaluation, not emotional performance. Verify before implementing. Ask before assuming. Technical correctness over social comfort.
+code review 需要的是技术评估，而非情绪表演。实现前先核实。假定前先发问。技术正确优先于社交舒适。
 
-A reviewer's finding is a claim about the codebase at a point in time. It may be right, partially right, or wrong for this context. Your job is to evaluate each claim, not to perform agreement.
+reviewer 的一条 finding 是对某一时刻 codebase 的一个论断。它可能对、部分对，或在本上下文里是错的。你的工作是评估每一条论断，而不是表演附和。
 
 ## When to Use
 
-- Immediately after a reviewer (human or subagent from `harness-stack:review-request`) returns findings.
-- When a human teammate leaves PR comments.
-- When a tool (linter, security scanner, CI) flags issues you need to triage.
-- When you re-read your own change the next morning and spot problems — apply the same discipline to yourself.
+- reviewer（人类，或来自 `harness-stack:review-request` 的 subagent）返回 findings 之后，立即使用。
+- 人类队友在 PR 上留下 comment 时。
+- 某个工具（linter、安全扫描器、CI）标出你需要分诊的问题时。
+- 第二天早上重读自己的改动、发现问题时——对自己也用同一套纪律。
 
 ## The Response Pattern
 
 ```
-1. READ    — absorb the full report before reacting. No item-by-item responses.
-2. RESTATE — restate each requirement in your own words, or ask.
-3. VERIFY  — check the claim against the current codebase.
-4. DECIDE  — accept, push back with reasoning, or ask for clarification.
-5. APPLY   — implement one item at a time; test after each.
+1. READ    — 先吸收整份报告再反应。不要逐条即时回应。
+2. RESTATE — 用自己的话复述每条要求，或发问。
+3. VERIFY  — 对照当前 codebase 核实该论断。
+4. DECIDE  — 接受、附理由 push back，或请求澄清。
+5. APPLY   — 一次实现一条；每条之后都测试。
 ```
 
-Items are often related. Partial understanding produces wrong partial implementations that the next round has to undo.
+各条目常常相互关联。一知半解会产出错误的局部实现，下一轮还得回头撤掉。
 
 ## No Performative Agreement
 
-Forbidden responses — they add no information and hide the actual technical decision:
+禁用回应——它们不提供任何信息，还掩盖了真正的技术决策：
 
 - "You're absolutely right!"
 - "Great catch!"
 - "Excellent feedback!"
 - "Thanks for catching that!"
-- "Let me implement that now" — before verification.
+- "Let me implement that now"——在核实之前。
 
-Preferred responses — state the fix, or push back:
+首选回应——说清修复，或 push back：
 
 - `Fixed — added null guard at task.ts:42.`
 - `Fixed in tasks.ts:88-95; regression test in tasks.test.ts:120.`
 - `Checked — endpoint unused, removing rather than "implementing properly" (YAGNI).`
 - `Disagree — tests at auth.test.ts:55-72 cover this path; the current guard is intentional. Happy to add a comment.`
 
-Actions speak. A green diff is the signal; gratitude is noise.
+行动会说话。一份绿色的 diff 才是信号；客套是噪音。
 
 ## Verify Before Implementing
 
-Before accepting a finding, check:
+接受一条 finding 之前，检查：
 
-1. Is it technically correct **for this codebase** (not for the reviewer's mental model of a generic codebase)?
-2. Does fixing it break existing functionality or tests?
-3. Is there a reason the current implementation is that way — legacy, compatibility, explicit prior decision?
-4. Does the reviewer have full context, or is this based on a partial read of the diff?
+1. 它**对这个 codebase** 是否技术上正确（而非对 reviewer 脑中那个通用 codebase 的设想）？
+2. 修它会不会破坏现有功能或测试？
+3. 当前实现之所以如此，是否有原因——历史遗留、兼容性、明确的先前决策？
+4. reviewer 是否掌握完整上下文，还是基于对 diff 的片面阅读？
 
-If any check fails, push back with technical reasoning. Cite code (`file:line`), tests, or prior decisions — not opinions.
+任一检查不过，就附技术理由 push back。引用代码（`file:line`）、测试或先前决策——不是观点。
 
 ## When to Push Back
 
-- Suggestion breaks existing functionality.
-- Reviewer lacks full context (didn't see the spec / plan).
-- Violates YAGNI (proposes features the codebase doesn't actually use).
-- Technically incorrect for this stack, platform, or target version.
-- Legacy / compatibility reasons that the reviewer couldn't know.
-- Conflicts with prior architectural decisions.
+- 建议会破坏现有功能。
+- reviewer 缺乏完整上下文（没看到 spec / plan）。
+- 违反 YAGNI（提议 codebase 实际并不使用的 feature）。
+- 对这个技术栈、平台或目标版本而言技术上不正确。
+- reviewer 无从知晓的历史遗留 / 兼容性原因。
+- 与先前的架构决策冲突。
 
 ### How to push back
 
-- Use technical reasoning, not defensiveness.
-- Cite specifics: `file:line`, test names, commit SHAs, design docs.
-- If architectural, escalate to the human — don't adjudicate alone.
-- If you cannot easily verify, say so: `Can't verify without <X>. Investigate, ask, or proceed?`
+- 用技术推理，而非防御姿态。
+- 引用具体处：`file:line`、测试名、commit SHA、design doc。
+- 若涉及架构，升级给人类——别独自裁定。
+- 若你无法轻易核实，就说出来：`Can't verify without <X>. Investigate, ask, or proceed?`
 
 ## YAGNI Check
 
-When a reviewer asks you to "implement properly" something that isn't used:
+当 reviewer 要你把某个未被使用的东西「implement properly」时：
 
 ```bash
 grep -rn "functionName\|/endpoint/path" src/
 ```
 
-- If unused: propose deletion instead of expansion.
-- If used: implement properly.
+- 若未使用：提议删除，而非扩充。
+- 若已使用：好好实现。
 
-Don't add features to satisfy a reviewer when the codebase doesn't need them.
+当 codebase 并不需要时，别为了让 reviewer 满意而加 feature。
 
 ## Handle Unclear Feedback
 
-If any item is unclear:
+若有任何条目不清楚：
 
 > `Understand items 1, 2, 3, 6. Need clarification on 4 and 5 before implementing.`
 
-Stop. Do not implement anything yet. Ask for clarification on the unclear items.
+停下。先什么都别实现。就不清楚的条目请求澄清。
 
 ## Implementation Order
 
-1. Clarify unclear items first.
-2. Blocking issues (breaks build, security, data loss).
-3. Simple fixes (typos, imports, renames).
-4. Complex fixes (refactors, logic changes).
-5. Test each fix individually — no batching without verification.
+1. 先澄清不清楚的条目。
+2. 阻塞性问题（破坏构建、安全、数据丢失）。
+3. 简单修复（typo、imports、重命名）。
+4. 复杂修复（重构、逻辑改动）。
+5. 逐条单独测试每个修复——未验证不批量。
 
 ## If You Pushed Back and Were Wrong
 
-State it factually and move on. No long apology, no defending why you pushed back.
+就事论事地说出来，然后继续。不长篇道歉，不辩解自己当初为何 push back。
 
 > `You were right — checked x.ts:120 and the call does return nullable. Fixing now.`
 
 ## GitHub Thread Replies
 
-When replying to inline PR comments, reply in the comment thread:
+回复 inline PR comment 时，在该 comment 线程里回复：
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/{pr}/comments/{id}/replies -f body='<reply>'
 ```
 
-Not as a top-level PR comment. Threaded replies keep the context local to the finding.
+而非作为顶层 PR comment。线程内回复能把上下文留在该条 finding 旁。
 
 ## Examples
 
-**Performative agreement — anti-pattern**
+**表演式附和——反面案例**
 
 > Reviewer: Remove the legacy LRU cache; it duplicates the new one in `cache.ts`.
 >
 > Author: You're absolutely right! Removing now...
 
-Neither verified the claim nor stated what the diff will look like. Pure noise.
+既没核实论断，也没说清 diff 会长什么样。纯噪音。
 
-**Technical verification — correct**
+**技术核实——正确**
 
 > Reviewer: Remove the legacy LRU cache; it duplicates the new one in `cache.ts`.
 >
 > Author: Checked — `cache.ts:42` is per-request; `legacy-cache.ts:11` is process-wide and used by `worker.ts:88` and `scheduler.ts:24`. Not a duplicate. Want them consolidated, or keep both?
 
-Cites code, names the disagreement, asks a precise question.
+引用代码、点明分歧、提出一个精确的问题。
 
-**YAGNI pushback — correct**
+**YAGNI push back——正确**
 
 > Reviewer: Implement proper metrics — persist to DB, support date filters, add CSV export.
 >
 > Author: Grepped `src/` — nothing calls `/metrics`. Proposing deletion (YAGNI). Reopen if there's usage I missed.
 
-Grep before "implementing properly". Deletion is a valid fix when the code is unused.
+「好好实现」之前先 grep。代码未被使用时，删除就是有效的修复。
 
-**Unclear feedback — correct**
+**含糊反馈——正确**
 
-> Reviewer drops six findings. The author understands 1, 2, 3, 6 but not 4 or 5.
+> reviewer 抛来六条 finding。作者理解 1、2、3、6，但不懂 4 和 5。
 >
 > Author: Understand 1, 2, 3, 6. Need clarification on 4 (which timeout?) and 5 (which call site?) before implementing — they look related.
 
-No partial implementation. Asks for the missing piece and names the ambiguity precisely.
+不做局部实现。索要缺失的那块，并精确点明含糊之处。
 
-**Pushed back, was wrong — correct**
+**push back 了、但错了——正确**
 
-> Earlier round, the author disagreed with a finding.
+> 早前一轮里，作者不同意某条 finding。
 >
 > Author: You were right — checked `tasks.ts:120` and the call does return nullable. Adding the guard.
 
-Stated factually. No apology, no defense, no over-explanation.
+就事论事地说明。不道歉、不辩解、不过度解释。
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "The reviewer is senior / has fresh eyes, they must be right." | Reviewers see the diff, not the full codebase. Verify each claim against current code. |
-| "Saying 'great catch' is polite." | Performative agreement hides whether you understood or verified. A stated fix is the polite form. |
-| "I'll batch all fixes and test once at the end." | Batching without per-item verification lets a broken fix hide behind a green test. One fix, one test. |
-| "I don't fully get item 4, but I'll try something." | Partial understanding produces wrong partial fixes the next round has to undo. Ask first. |
-| "Pushing back feels confrontational." | Technical correctness > social comfort. Cite `file:line` and move on. |
-| "Implementing feels faster than verifying." | Wrong fixes cost more rounds than correct ones. Verification is the short path. |
-| "The reviewer asked me to implement it properly." | If the code is unused, deletion is the correct fix (YAGNI). Don't expand to satisfy a reviewer. |
+| 「reviewer 资深 / 视角新鲜，他们肯定对。」 | reviewer 看到的是 diff，不是完整 codebase。对照当前代码核实每条论断。 |
+| 「说一句『great catch』是礼貌。」 | 表演式附和掩盖了你究竟有没有理解或核实。说清修复才是礼貌的形式。 |
+| 「我把所有修复攒一起，最后测一次。」 | 不逐条验证就批量，会让一个坏掉的修复藏在绿色测试背后。一个修复，一次测试。 |
+| 「第 4 条我没完全懂，但我先试点什么。」 | 一知半解会产出错误的局部修复，下一轮还得回头撤掉。先问。 |
+| 「push back 感觉像对抗。」 | 技术正确 > 社交舒适。引用 `file:line`，然后继续。 |
+| 「实现起来好像比核实快。」 | 错误的修复比正确的多耗几轮。核实才是捷径。 |
+| 「reviewer 要我好好实现它。」 | 若代码未被使用，删除才是正确的修复（YAGNI）。别为了满足 reviewer 而扩充。 |
 
 ## Red Flags
 
-- Replies that start with "You're absolutely right!" (or any gratitude expression).
-- Fixing findings without running tests after each fix.
-- Accepting a YAGNI "implement properly" without checking whether the code is used.
-- Pushing back without citing `file:line` or test evidence.
-- Ignoring Critical / Important findings because "I don't think it matters".
-- Silently implementing only the items you understood and leaving unclear ones.
+- 以 "You're absolutely right!"（或任何感谢语）开头的回复。
+- 修完 finding 不在每次修复后跑测试。
+- 接受一个 YAGNI「好好实现」却不查代码是否被使用。
+- push back 却不引用 `file:line` 或测试证据。
+- 因「我觉得没关系」而忽视 Critical / Important finding。
+- 只默默实现你看懂的条目，把不清楚的撇在一边。
 
 ## Verification
 
-Before declaring the round complete:
+宣告本轮完成之前：
 
-- [ ] Every Critical finding is resolved or explicitly overturned with reasoning.
-- [ ] Every Important finding is resolved or has a tracked deferral.
-- [ ] Each fix is tested individually; no regressions.
-- [ ] Each reply cites `file:line` or test evidence; no "fixed" without a reference.
-- [ ] If you pushed back and lost, the correction is stated factually.
+- [ ] 每条 Critical finding 已解决，或已附理由明确推翻。
+- [ ] 每条 Important finding 已解决，或有可追踪的延后记录。
+- [ ] 每个修复均单独测试过；无回归。
+- [ ] 每条回复都引用了 `file:line` 或测试证据；没有不带引用的「fixed」。
+- [ ] 若你 push back 后败下阵来，更正已就事论事地说明。

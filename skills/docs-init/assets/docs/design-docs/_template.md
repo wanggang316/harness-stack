@@ -6,82 +6,76 @@
 
 ## Context and Scope
 
-<!-- Objective background facts. Rough overview of the landscape: what
-     is being built or changed, and what already exists. Keep succinct —
-     bring readers up to speed without restating what they already know. -->
+<!-- 客观的背景事实。对当前局面做一个粗略概览：正在构建或改动什么，
+     以及已经存在什么。保持精炼——让读者快速进入状态，不要复述他们
+     已经知道的东西。 -->
 
 ## Goals and Non-Goals
 
-<!-- Short bullet-point lists.
-     Goals: what the system must achieve.
-     Non-Goals: things that could reasonably be goals but are
-     intentionally excluded. Not negated goals ("shouldn't crash")
-     but deliberate scope cuts ("ACID compliance is not a goal"). -->
+<!-- 简短的要点列表。
+     Goals：系统必须达成什么。
+     Non-Goals：那些本可以合理地成为 goal、却被有意排除在外的东西。
+     不是被否定的 goal（「不该崩溃」），而是刻意的范围裁剪
+     （「ACID 合规不是目标」）。 -->
 
 ## Design
 
 ### Overview
 
-<!-- High-level summary of the chosen approach. Start here so readers
-     can decide how deep to go. Explain WHY this approach best satisfies
-     the stated goals — this is where trade-offs live. -->
+<!-- 对所选方案的高层概述。从这里开始，让读者能决定要看多深。
+     解释为什么这个方案最能满足上述 goal——trade-off 就在这里展开。 -->
 
 ### System Context Diagram
 
-<!-- How does this system fit in the larger technical landscape?
-     Show the system as a box within its surrounding environment —
-     external systems, users, data flows in and out. This lets readers
-     contextualize the design within what they already know.
+<!-- 这个系统在更大的技术版图里处于什么位置？
+     把系统画成它所处环境中的一个方框——外部系统、用户、流入流出的
+     数据流。这能让读者在自己已知的范围内为该设计建立语境。
 
-     Use ASCII diagrams:
+     使用 ASCII 图：
      ┌─────────┐     ┌─────────┐     ┌──────────┐
      │  Client  │────→│   API   │────→│ Database │
      └─────────┘     └─────────┘     └──────────┘  -->
 
 ### API Design
 
-<!-- Sketch the APIs this system exposes or consumes. Focus on the parts
-     relevant to design trade-offs — do NOT copy-paste formal interface
-     definitions (verbose, unnecessary detail, quickly outdated).
+<!-- 勾勒该系统对外暴露或对内消费的 API。聚焦于与设计 trade-off 相关的
+     部分——不要原样粘贴正式的接口定义（冗长、细节不必要、很快过时）。
 
-     Show: endpoints/methods, key parameters, response shapes,
-     error handling approach. -->
+     展示：endpoints/methods、关键参数、response 形状、
+     错误处理方式。 -->
 
 ### Data Storage
 
-<!-- How and in what form is data stored? Focus on trade-off relevant
-     portions, not complete schema definitions.
+<!-- 数据如何、以何种形式存储？聚焦于与 trade-off 相关的部分，
+     而非完整的 schema 定义。
 
-     Cover: storage technology choice and why, key entities and
-     relationships, access patterns, migration strategy if applicable. -->
+     涵盖：存储技术选型及理由、关键实体与关系、访问模式、
+     如适用的迁移策略。 -->
 
 ### Component Boundaries
 
-<!-- Internal structure: what are the components, what is each
-     responsible for, and what is each NOT responsible for?
+<!-- 内部结构：有哪些组件，每个组件负责什么、又不负责什么？
 
-     Define dependency directions (who can import from whom),
-     communication patterns (APIs, events, shared types),
-     and module boundaries. -->
+     定义依赖方向（谁可以 import 谁）、通信模式（API、事件、
+     共享类型），以及模块边界。 -->
 
 ## Alternatives Considered
 
-<!-- For each alternative: what trade-offs does it make, and how do
-     those trade-offs compare to the chosen design? Be thorough about
-     WHY alternatives were rejected — this is what prevents
-     re-litigating the decision later.
+<!-- 对每个备选方案：它做出了哪些 trade-off，这些 trade-off 与所选设计
+     相比如何？要详尽说明备选方案为何被否决——正是这一点能避免日后
+     反复重提该决策。
 
-     Every rejected alternative needs a concrete reason,
-     not just "it didn't feel right." -->
+     每个被否决的备选方案都需要一个具体理由，
+     而不只是「感觉不对」。 -->
 
 ## Cross-Cutting Concerns
 
-<!-- How does this design address concerns that span the system:
-     security, privacy, observability, error handling, testing strategy,
-     migration path, rollback plan.
-     Only include concerns relevant to this design. -->
+<!-- 这个设计如何应对横跨整个系统的关注点：
+     安全、隐私、可观测性、错误处理、测试策略、
+     迁移路径、回滚方案。
+     只纳入与本设计相关的关注点。 -->
 
 ## Risks
 
-<!-- What could go wrong? Each risk needs a mitigation strategy,
-     not just a worry. -->
+<!-- 哪里可能出错？每个风险都需要一个缓解策略，
+     而不只是一句担忧。 -->

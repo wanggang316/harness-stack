@@ -1,36 +1,36 @@
 ---
 name: define-product
-description: Defines the product at the global level. Use when starting a new product, when the product direction is unclear, or when product-spec.md is missing or outdated. Produces docs/product-spec.md as the single source of truth for what the product is.
+description: 在全局层面定义产品。在启动新产品、产品方向不清晰、或 product-spec.md 缺失或过时时使用。产出 docs/product-spec.md，作为「产品是什么」的唯一事实来源。
 ---
 
-# define-product: Product Definition
+# define-product：产品定义
 
 ## Overview
 
-Define what the product is at the global level. `docs/product-spec.md` is the single most important document in a project — it is the starting point for all design, planning, and implementation. It answers: who does this serve, what problem does it solve, what are its core capabilities, and what is explicitly out of scope.
+在全局层面定义产品是什么。`docs/product-spec.md` 是一个项目里最重要的单一文档——它是所有设计、规划与实现的起点。它回答：这个产品服务谁、解决什么问题、核心能力有哪些、以及哪些明确不在范围内。
 
-This is not a feature spec. Per-feature requirements are captured per-plan by `harness-stack:feature-driven-development` (in `.harness-runtime/plans/<slug>/`), and code is the source of truth for what each feature does. This document defines the product itself — the frame within which all features exist.
+这不是 feature spec。每个 feature 的需求由 `harness-stack:feature-driven-development` 按 plan 维度捕获（落在 `.harness-runtime/plans/<slug>/`），而每个 feature 具体做什么，以代码为事实来源。本文档定义产品本身——所有 feature 存在于其中的框架。
 
 ## When to Use
 
-- Starting a new product or project
-- `docs/product-spec.md` is missing
-- Product direction is unclear or has shifted significantly
-- Team (or agent) doesn't understand what the product fundamentally is
-- Scope has drifted and boundaries need re-establishing
+- 启动一个新产品或新项目
+- `docs/product-spec.md` 缺失
+- 产品方向不清晰，或发生了重大转向
+- 团队（或 agent）不理解产品根本上是什么
+- 范围已经漂移，边界需要重新确立
 
-**When NOT to use:** The product is well-defined and stable. To build a feature, use `/harness-stack:feature-driven-development`. If you need a technical design doc, use `/harness-stack:design`.
+**When NOT to use：** 产品已清晰且稳定。要构建一个 feature，用 `/harness-stack:feature-driven-development`。需要技术设计文档时，用 `/harness-stack:design`。
 
 ## Philosophy
 
-You are not a scribe. You are a thinking partner with an architect's perspective.
+你不是抄写员。你是带着 architect 视角的思考伙伴。
 
-- **Challenge every assumption.** "How it's usually done" is not a reason. Push the human to articulate why.
-- **Start with WHO, not WHAT.** A product that doesn't know its user can't know its boundaries.
-- **The "Not Doing" list is the most valuable part.** Focus is about saying no to good ideas. Make the trade-offs explicit.
-- **Simplicity is the ultimate sophistication.** Push toward the simplest version that still solves the real problem.
-- **Don't be a yes-machine.** If a capability doesn't trace back to a user problem, say so. Honest pushback is more valuable than false agreement.
-- **Start with user value, work backwards to capabilities.** Don't start with "what can we build" — start with "what problem do people have."
+- **挑战每一个假设。**「一般都这么做」不是理由。逼着对方把「为什么」讲清楚。
+- **先问 WHO，再问 WHAT。** 一个不知道自己用户是谁的产品，也无从知道自己的边界。
+- **「不做什么」清单是最有价值的部分。** 聚焦的本质是对好点子说不。把取舍摆到明面上。
+- **简洁是终极的复杂度掌控。** 推向那个仍能解决真问题的最简版本。
+- **别做应声虫。** 如果一项能力追溯不到任何用户问题，就直说。诚实的反对比虚假的附和更有价值。
+- **从用户价值出发，反推能力。** 不要从「我们能造什么」开始——从「人们有什么问题」开始。
 
 ## Process
 
@@ -43,22 +43,22 @@ Ask WHO/WHY     on scope     product-     confirms
                 and gaps     spec.md
 ```
 
-### Phase 1: Understand
+### Phase 1：Understand
 
-Before forming any opinion, deeply understand the problem space.
+在形成任何观点之前，先深入理解问题空间。
 
-**Load context:**
-- Read whatever project documentation and code already exists
-- Understand what has been built (if anything) and what the current state is
-- Identify gaps between what exists and what's been communicated
+**加载上下文：**
+- 读完所有已有的项目文档和代码
+- 弄清已经造出了什么（如果有的话）、当前状态如何
+- 找出「已有的」与「对外宣称的」之间的缺口
 
-**Ask fundamental questions.** Don't proceed until these are answered:
+**提出根本性的问题。** 这些问题没有答案之前，不要往下走：
 
-- **Who is this for?** Not "developers" — which developers, doing what, in what context? What does their day look like without this product?
-- **What problem does it solve?** Frame as pain, not solution. "Users can't X" not "We provide Y."
-- **Why does this need to exist?** What happens if this product doesn't exist? What are people doing today instead?
-- **What does success look like?** Not metrics — outcomes. What changes in the user's world?
-- **Why now?** What has changed that makes this the right time?
+- **这是给谁用的？** 不是「开发者」——是哪类开发者、在做什么、在什么场景下？没有这个产品时，他们的一天是怎样的？
+- **它解决什么问题？** 用「痛点」而非「方案」来表述。是「用户无法 X」而不是「我们提供 Y」。
+- **它为什么需要存在？** 如果这个产品不存在会怎样？人们今天是用什么替代的？
+- **成功是什么样子的？** 不是指标——是结果。用户的世界里有什么改变了？
+- **为什么是现在？** 是什么变化让此刻成为合适的时机？
 
 ```
 QUESTIONS I NEED ANSWERED:
@@ -69,26 +69,26 @@ QUESTIONS I NEED ANSWERED:
 → I need these answers before I can define the product.
 ```
 
-### Phase 2: Challenge
+### Phase 2：Challenge
 
-This is the most critical phase. Do not skip it.
+这是最关键的一个阶段。不要跳过。
 
-**Stress-test the product boundaries:**
+**对产品边界做压力测试：**
 
-- For each proposed capability, ask: **"Does this trace back to a specific user problem?"** If not, it doesn't belong.
-- For each thing excluded, ask: **"Would including this fundamentally change the product's value?"** If yes, reconsider.
-- Look for **hidden assumptions** — things being taken as given that haven't been validated.
-- Look for **scope creep disguised as requirements** — "nice to have" framed as "must have."
-- Look for **missing capabilities** — problems the user has that the product should solve but doesn't mention.
+- 对每一项拟定的能力，问：**「它能追溯到某个具体的用户问题吗？」** 如果不能，它就不该在这里。
+- 对每一项排除掉的东西，问：**「把它加回来会从根本上改变产品价值吗？」** 如果会，就重新考虑。
+- 找出**隐藏的假设**——那些被当成理所当然、却从未被验证的东西。
+- 找出**伪装成需求的范围蔓延**——把「锦上添花」说成「必须有」。
+- 找出**缺失的能力**——用户有、产品本该解决、却没被提及的问题。
 
-**Ask hard questions:**
+**提尖锐的问题：**
 
-- "You listed 8 capabilities. If you could only ship 3, which would they be? Those are your core."
-- "This capability serves a different user than the others. Are you building one product or two?"
-- "What would a user say if this capability was missing? If the answer is 'nothing,' cut it."
-- "How is this different from [existing solution]? If the answer is 'it's the same but ours,' that's not enough."
+- 「你列了 8 项能力。如果只能交付 3 项，会是哪 3 项？那些才是你的核心。」
+- 「这项能力服务的用户和其它几项不一样。你是在做一个产品，还是两个？」
+- 「如果缺了这项能力，用户会说什么？如果答案是『没什么』，砍掉它。」
+- 「它和 [现有方案] 有什么不同？如果答案是『一样，只是换成我们做』，那还不够。」
 
-**Surface assumptions explicitly:**
+**把假设显式摆出来：**
 
 ```
 ASSUMPTIONS I'M CHALLENGING:
@@ -98,9 +98,9 @@ ASSUMPTIONS I'M CHALLENGING:
 → Let's resolve these before writing the product definition.
 ```
 
-### Phase 3: Define
+### Phase 3：Define
 
-Write the product definition. Save to `docs/product-spec.md`:
+写出产品定义。保存到 `docs/product-spec.md`：
 
 ```markdown
 # Product Spec: [Product Name]
@@ -111,17 +111,17 @@ Write the product definition. Save to `docs/product-spec.md`:
 
 ### Problem
 
-<!-- What pain do users face today? 2-3 sentences.
-     Frame as pain, not solution. "Users can't X" not "We provide Y." -->
+<!-- 用户今天面对的痛点是什么？2-3 句话。
+     用「痛点」而非「方案」表述。是「用户无法 X」而不是「我们提供 Y」。 -->
 
 ### Solution
 
-<!-- How does this product solve it? 2-3 sentences.
-     No technical implementation details — describe the experience. -->
+<!-- 这个产品如何解决它？2-3 句话。
+     不要写技术实现细节——描述体验。 -->
 
 ## Target Users
 
-<!-- Be specific — not "developers" but "which developers, doing what." -->
+<!-- 要具体——不是「开发者」，而是「哪类开发者，在做什么」。 -->
 
 | Role | Scenario | Core Need |
 |---|---|---|
@@ -135,9 +135,9 @@ Write the product definition. Save to `docs/product-spec.md`:
 
 ### Capability Dependencies
 
-<!-- Show how capabilities depend on each other.
-     Use ASCII diagram or table. Which are foundational?
-     Which are independent? Which compose together? -->
+<!-- 展示各项能力之间如何相互依赖。
+     用 ASCII 图或表格。哪些是基础性的？
+     哪些是独立的？哪些组合在一起？ -->
 
 \```
 C1 (foundation)
@@ -149,21 +149,21 @@ C1 (foundation)
 ## Product Boundaries
 
 ### In Scope
-<!-- What the product does. Be specific. -->
+<!-- 产品做什么。要具体。 -->
 
 ### Out of Scope
-<!-- What the product explicitly does NOT do, and WHY.
-     Every exclusion needs a reason — "not our user,"
-     "future phase," "solved by existing tools," etc. -->
+<!-- 产品明确「不」做什么，以及为什么。
+     每一项排除都需要一个理由——「不是我们的用户」、
+     「未来阶段」、「已有工具解决」等等。 -->
 
 ### Future Consideration
-<!-- Things that are out of scope NOW but may be revisited.
-     Separate from permanent exclusions. -->
+<!-- 当前不在范围内、但日后可能重新考虑的东西。
+     与永久性的排除项区分开。 -->
 
 ## Key Concepts
 
-<!-- Core domain terminology. Prevents miscommunication
-     between humans, agents, and across documents. -->
+<!-- 核心领域术语。防止人与人、人与 agent、
+     以及跨文档之间的沟通误解。 -->
 
 | Term | Definition | Not to Be Confused With |
 |---|---|---|
@@ -185,22 +185,22 @@ C1 (foundation)
 
 ## Open Questions
 
-<!-- Unresolved questions that need answers. Each should state
-     what decision is blocked by the question. -->
+<!-- 尚未解决、需要答案的问题。每一条都应说明
+     这个问题阻塞了哪个决策。 -->
 ```
 
-**Writing principles:**
+**写作原则：**
 
-- Every capability must trace back to a user problem. If it doesn't, challenge it or cut it.
-- Capability Dependencies show how the product forms a coherent whole, not just a feature list.
-- Out of Scope entries without reasons are useless. Always state why.
-- Future Consideration separates "not now" from "never" — both matter.
-- Key Concepts prevent costly miscommunication across all downstream documents.
-- If the Problem and Solution don't align, something is wrong. Stop and fix it.
+- 每一项能力都必须追溯到某个用户问题。如果追溯不到，就挑战它或砍掉它。
+- Capability Dependencies 展示产品如何构成一个连贯的整体，而不只是一张 feature 清单。
+- 没有理由的 Out of Scope 条目毫无用处。永远写清楚为什么。
+- Future Consideration 把「现在不做」和「永不做」区分开——两者都重要。
+- Key Concepts 防止在所有下游文档中产生代价高昂的沟通误解。
+- 如果 Problem 和 Solution 对不上，说明哪里出了问题。停下来修好它。
 
-### Phase 4: Approve
+### Phase 4：Approve
 
-Present the product definition for human review. This is a critical gate.
+把产品定义呈交人工评审。这是一道关键闸门。
 
 ```
 PRODUCT DEFINITION READY FOR REVIEW:
@@ -216,43 +216,43 @@ PRODUCT DEFINITION READY FOR REVIEW:
 
 ## Relationship to Other Skills
 
-- **harness-stack:define-product** defines the product globally → `docs/product-spec.md`
-- **harness-stack:feature-driven-development** builds individual features → per-plan state in `.harness-runtime/plans/<slug>/`
-- **harness-stack:define-architecture** defines system architecture → `docs/architecture.md`
-- **harness-stack:design** defines technical approach for specific changes → `docs/design-docs/<name>.md`
+- **harness-stack:define-product** 在全局定义产品 → `docs/product-spec.md`
+- **harness-stack:feature-driven-development** 构建单个 feature → 按 plan 维度的状态存于 `.harness-runtime/plans/<slug>/`
+- **harness-stack:define-architecture** 定义系统 architecture → `docs/architecture.md`
+- **harness-stack:design** 为具体改动定义技术方案 → `docs/design-docs/<name>.md`
 
-The product definition is the root. Feature builds, architecture, and design docs all derive from it.
+产品定义是根。Feature 构建、architecture 与 design 文档都从它派生而来。
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "We know what we're building" | Then writing it down takes 15 minutes. If it takes longer, you didn't know. |
-| "The product will evolve, so why define it now" | Evolution without a baseline is drift. Define the current truth, update as it changes. |
-| "Just list the features" | A feature list is not a product definition. Without user problems and scope boundaries, features are disconnected solutions looking for problems. |
-| "We're agile, we don't do big upfront docs" | This isn't a 50-page PRD. It's one page that says who, what, and why. Even agile needs a north star. |
-| "The README already covers this" | READMEs explain how to use the product. Product specs explain why the product exists and what it should become. |
+| 「我们清楚自己在造什么。」 | 那写下来只要 15 分钟。如果花得更久，说明你并不清楚。 |
+| 「产品会不断演进，何必现在定义。」 | 没有基线的演进就是漂移。先把当下的真相定义下来，再随变化更新。 |
+| 「把 feature 列一列就行。」 | 一张 feature 清单不是产品定义。没有用户问题和范围边界，feature 只是一堆找不到问题的散装方案。 |
+| 「我们是敏捷，不做大而全的前期文档。」 | 这不是 50 页的 PRD。它就一页，说清谁、什么、为什么。哪怕敏捷也需要一颗北极星。 |
+| 「README 里已经写过了。」 | README 讲的是怎么用产品。Product spec 讲的是产品为什么存在、应该成为什么。 |
 
 ## Red Flags
 
-- Product definition with no target user, or target user is "everyone"
-- Capabilities that don't trace back to user problems
-- No Out of Scope section, or Out of Scope without reasons
-- Problem Statement and Value Proposition don't align
-- More than 10 core capabilities — you're describing multiple products
-- Defining the product by its technology instead of its users
+- 产品定义里没有目标用户，或目标用户是「所有人」
+- 能力追溯不到用户问题
+- 没有 Out of Scope 小节，或 Out of Scope 没写理由
+- Problem Statement 与 Value Proposition 对不上
+- 核心能力超过 10 项——你描述的是多个产品
+- 用技术而非用户来定义产品
 
 ## Verification
 
-- [ ] Fundamental questions answered (who, what problem, why, why now)
-- [ ] Assumptions surfaced and challenged
-- [ ] Target users are specific with role, scenario, and core need
-- [ ] Every capability traces to a user problem
-- [ ] Capability dependencies mapped
-- [ ] Product boundaries defined (in scope, out of scope with reasons, future consideration)
-- [ ] Key concepts defined to prevent miscommunication
-- [ ] Non-functional requirements have measurable targets
-- [ ] Success metrics defined with measurement approach
-- [ ] Problem and Solution align
-- [ ] Human has reviewed and approved
-- [ ] Saved to `docs/product-spec.md`
+- [ ] 根本性问题已回答（谁、什么问题、为什么、为什么现在）
+- [ ] 假设已浮出水面并被挑战
+- [ ] 目标用户具体到 role、scenario 和 core need
+- [ ] 每一项能力都能追溯到一个用户问题
+- [ ] 能力依赖关系已梳理
+- [ ] 产品边界已定义（in scope、带理由的 out of scope、future consideration）
+- [ ] 已定义 key concepts 以防沟通误解
+- [ ] 非功能性需求有可度量的目标
+- [ ] success metrics 已定义并附度量方式
+- [ ] Problem 和 Solution 对齐
+- [ ] 人工已评审并批准
+- [ ] 已保存到 `docs/product-spec.md`

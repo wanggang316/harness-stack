@@ -1,73 +1,73 @@
 # Golden Rules
 
-These rules are non-negotiable. Some are enforced by repository checks and CI, while others remain process rules that should be encoded mechanically over time.
+这些规则没有商量余地。其中一部分由 repository 检查与 CI 强制执行，另一些目前仍是流程规则，应随时间被机械化地编码进去。
 
-When agents struggle, the fix is almost never "try harder." Ask: "What capability is missing, and how do we make it legible and enforceable?"
+当 agent 受阻时，解法几乎从来不是「再用力一点」。要问的是：「缺了什么能力，我们如何让它变得可读、可强制？」
 
 ---
 
 ## 1. AGENTS.md is a map, not a manual
 
-Keep AGENTS.md under 150 lines. It should be a table of contents pointing to deeper docs in `docs/`. Progressive disclosure: agents start with a small, stable entry point and are taught where to look next.
+把 AGENTS.md 保持在 150 行以内。它应当是一份目录，指向 `docs/` 里更深的文档。渐进式披露：agent 从一个小而稳定的入口开始，再被指引去看下一步该看哪里。
 
 **Enforcement:** Repository review, document structure checks.
 
 ## 2. Validate boundaries, never probe data
 
-Parse and validate data at system edges. Never guess at data shapes. Use typed schemas and validation libraries at boundaries between systems.
+在系统边界处解析并校验数据。绝不臆测数据形状。在系统之间的边界上使用带类型的 schema 和校验库。
 
 **Enforcement:** Code review, type checking.
 
 ## 3. Prefer shared utilities over hand-rolled helpers
 
-Centralizes invariants. Prevents drift. If three places need the same logic, extract it. Don't let agents replicate patterns — give them a single canonical implementation.
+集中不变量，防止漂移。如果三处需要相同的逻辑，就把它抽出来。别让 agent 到处复刻同一套 pattern——给它们一份唯一的规范实现。
 
 **Enforcement:** Code review, periodic sweep agent.
 
 ## 4. Repository knowledge is the system of record
 
-If it's not in the repo, it doesn't exist to the agent. Slack discussions, verbal agreements, and Google Docs are invisible. Every architectural decision, product spec, and convention must be discoverable from the repository.
+不在 repo 里，对 agent 而言就等于不存在。Slack 讨论、口头约定、Google Docs 都是不可见的。每一个架构决策、产品 spec 和约定，都必须能从 repository 中被发现。
 
 **Enforcement:** Cross-link review, repository structure checks.
 
 ## 5. Every complex change runs feature-driven development
 
-For non-trivial work, run `harness-stack:feature-driven-development` before building: capture a plan, define the validation contract, decompose into features, then drive a milestone-gated execution loop. Per-plan state (plan, contract, features) lives in `.harness-runtime/plans/<slug>/` (gitignored); durable conventions live in `docs/`; code is the source of truth for specific implementation.
+对非平凡的工作，构建前先跑 `harness-stack:feature-driven-development`：捕获一个 plan，定义 validation contract，分解为 feature，再驱动一个由 milestone 设闸的执行循环。逐 plan 的状态（plan、contract、feature）存放在 `.harness-runtime/plans/<slug>/`（被 gitignore）；持久的约定存放在 `docs/`；具体实现以代码为准。
 
 **Enforcement:** Process convention; `hs-plan contract-coverage` and `hs-plan gate`.
 
 ## 6. Fix the environment, not the prompt
 
-When an agent fails, treat it as an environment bug. The fix is always one of: missing tool, missing documentation, missing guardrail, or missing feedback loop. Fix it structurally so it never recurs.
+当 agent 失败时，把它当成一个环境 bug。解法总是其中之一：缺工具、缺文档、缺护栏，或缺反馈回路。从结构上修好它，让它不再复发。
 
 **Enforcement:** Culture, retrospectives in the plan's Decision Log / outcomes.
 
 ## 7. Enforce architecture mechanically
 
-Documentation rots. Cultural norms don't scale to agents. Encode architectural invariants as linters and structural tests. Lint error messages should tell the agent exactly how to fix the issue.
+文档会腐化。文化规范无法随 agent 规模化。把架构不变量编码成 linter 与结构性测试。lint 报错信息应当明确告诉 agent 该如何修复问题。
 
 **Enforcement:** Custom linters, structural tests, CI gates.
 
 ## 8. Commit in small, deliberate steps
 
-Agents and humans both reason better over narrow diffs. Break work into paced, reviewable commits that each capture a coherent step. Do not pile many unrelated or weakly related edits into one large commit.
+无论 agent 还是人，在窄 diff 上都推理得更好。把工作拆成有节奏、可审阅的 commit，每个都承载一个连贯的步骤。别把许多互不相关或弱相关的编辑堆进一个大 commit。
 
 **Enforcement:** Code review, commit history review.
 
 ## 9. Corrections are cheap, waiting is expensive
 
-With high agent throughput, fast fix-forward is often cheaper than slow gates. Keep merge gates minimal. Address test flakes with follow-up runs. Don't let process bottleneck throughput.
+在 agent 高吞吐的情况下，快速 fix-forward 往往比慢闸更划算。把 merge gate 保持精简。测试 flake 用后续重跑来处理。别让流程成为吞吐的瓶颈。
 
 **Enforcement:** CI configuration, team norms.
 
 ## 10. Garbage-collect continuously
 
-Agents replicate existing patterns — including bad ones. Run regular cleanup sweeps. Encode golden principles and scan for deviations on a recurring cadence. Small frequent corrections beat large periodic rewrites.
+agent 会复刻已有的 pattern——包括坏的那些。定期做清理扫描。把黄金原则编码下来，并以固定节奏扫描偏离。小而频繁的纠正胜过大而周期性的重写。
 
 **Enforcement:** Sweep agent, scheduled CI jobs.
 
 ## 11. Agent legibility is the primary design goal
 
-Optimize code and documentation for agent readability first. Anything the agent can't access in-context while running effectively doesn't exist. Favor dependencies that can be fully internalized and reasoned about in-repo.
+优先为 agent 的可读性来优化代码与文档。agent 在运行时无法在上下文中访问到的东西，实际上等于不存在。优先选择那些能在 repo 内被完全内化、可被推理的依赖。
 
 **Enforcement:** Code review, architecture docs.

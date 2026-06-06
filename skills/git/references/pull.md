@@ -1,8 +1,8 @@
 # Pull Reference (merge-based update-branch)
 
-Operational depth for merging `origin/main` into the current branch when project policy prefers merge commits over rebases, when the branch is shared with others, or when rewriting history would be hostile.
+把 `origin/main` merge 进当前分支的操作细节，适用于以下场景：项目策略偏好 merge commit 而非 rebase、分支与他人共享、或重写 history 会造成麻烦。
 
-Use [sync.md](sync.md) instead when the project keeps a linear history.
+当项目保持线性 history 时改用 [sync.md](sync.md)。
 
 ## One-Time Setup
 
@@ -11,63 +11,63 @@ git config rerere.enabled true
 git config rerere.autoupdate true
 ```
 
-`rerere` (reuse recorded resolution) remembers how a given conflict was resolved the first time and replays the resolution next time it appears. A free safety net for long-running branches that merge `main` repeatedly.
+`rerere`（reuse recorded resolution）会记住某个 conflict 第一次是怎么解决的，并在它下次出现时重放该解法。对反复 merge `main` 的长命分支来说，这是一张免费的安全网。
 
 ## Conflict Style
 
-Set once globally or per-repo:
+全局或按仓库设一次：
 
 ```bash
 git config merge.conflictstyle zdiff3
 ```
 
-`zdiff3` shows base + ours + theirs in the conflict block, with matching lines trimmed — much easier to read intent than the default 2-way style.
+`zdiff3` 会在 conflict 块里显示 base + ours + theirs，并裁掉匹配的行——比默认的 2-way 风格容易看清意图得多。
 
 ## Workflow
 
-1. Working tree clean (commit or stash first).
-2. Fetch:
+1. 工作区干净（先 commit 或 stash）。
+2. Fetch：
 
    ```bash
    git fetch origin
    ```
 
-3. Sync the **remote feature branch** first — absorbs auto-commits pushed by CI or other agents:
+3. 先同步**远端 feature branch**——吸收 CI 或其它 agent 推上来的自动 commit：
 
    ```bash
    git pull --ff-only origin "$(git branch --show-current)"
    ```
 
-4. Merge `origin/main`:
+4. Merge `origin/main`：
 
    ```bash
    git merge origin/main
    ```
 
-5. Resolve conflicts (see below), then `git add <files>` + `git commit` (or `git merge --continue`).
-6. Verify with project gates (lint, type, test).
+5. 解决 conflict（见下文），然后 `git add <files>` + `git commit`（或 `git merge --continue`）。
+6. 用项目门禁（lint、type、test）验证。
 
 ## Reading Conflicts
 
-When a hunk is unclear, drop to file-level intent diffs:
+当某个 hunk 看不清时，降到文件级的意图 diff：
 
 ```bash
 git diff :1:path/to/file :2:path/to/file   # base vs ours
 git diff :1:path/to/file :3:path/to/file   # base vs theirs
 ```
 
-`:1` = merge base, `:2` = ours (current branch), `:3` = theirs (incoming). This shows each side's intent isolated, instead of the smashed-together hunk view.
+`:1` = merge base，`:2` = ours（当前分支），`:3` = theirs（incoming）。这能把每一侧的意图单独呈现，而不是揉在一起的 hunk 视图。
 
 ### Resolution Order
 
-1. **State intent on both sides** — bug fix, refactor, rename, behavior change.
-2. **Decide the final behavior first** — what should the code do?
-3. **Then craft the resolution** to match that decision.
-4. Prefer preserving invariants, API contracts, and user-visible behavior unless the conflict clearly indicates a deliberate change.
+1. **陈述两侧意图**——bug fix、refactor、rename、行为变更。
+2. **先定下最终行为**——这段代码应该做什么？
+3. **再据此打磨解法**以匹配那个决定。
+4. 优先保留不变量、API contract、以及用户可见行为，除非 conflict 明确表示这是一次有意的改动。
 
 ### Generated Files
 
-Resolve **source files first**, then regenerate. Don't merge generated artifacts by hand:
+**先解源文件**，再重新生成。别手动 merge 生成产物：
 
 ```bash
 # 1. Resolve handwritten source conflicts; commit them.
@@ -77,30 +77,30 @@ Resolve **source files first**, then regenerate. Don't merge generated artifacts
 
 ### Import Conflicts
 
-When both branches added imports and intent is unclear:
+当两条分支都加了 import 且意图不清时：
 
-1. Accept both sides temporarily (keep all candidate imports).
-2. Finish the merge.
-3. Run lint / type check — unused or duplicate imports surface cleanly there.
+1. 暂时两侧都接受（保留所有候选 import）。
+2. 完成 merge。
+3. 跑 lint / type check——未使用或重复的 import 会在那里干净地浮现。
 
 ### When Both Sides Are Wrong
 
-The conflict marker is not a multiple-choice question. Sometimes the correct resolution is a third option neither side wrote. That's normal.
+conflict 标记不是一道单选题。有时正确的解法是两侧都没写出来的第三种。这很正常。
 
 ## When to Ask the User
 
-Default: make a best-effort decision, document the rationale in the merge commit body, proceed.
+默认：做出尽力而为的决定，在 merge commit 的 body 里记录理由，继续推进。
 
-Ask only when:
+仅在以下情况发问：
 
-- Correctness depends on product intent not inferable from code, tests, or docs.
-- The conflict crosses a user-visible API, contract, or migration where a wrong choice breaks external consumers.
-- Two mutually exclusive designs with equivalent technical merit and no local signal.
-- The merge introduces data loss, schema changes, or irreversible side effects without an obvious safe default.
+- 正确性取决于无法从代码、测试或文档推断出的产品意图。
+- conflict 跨越用户可见的 API、contract 或迁移，选错会破坏外部消费方。
+- 两套互斥的设计技术价值相当，且没有本地信号可判。
+- merge 引入数据丢失、schema 变更或不可逆的副作用，且没有明显的安全默认值。
 
 ## Verification
 
-- [ ] No conflict markers remain (`git diff --check`)
-- [ ] Generated files were regenerated, not hand-merged
-- [ ] Lint / type / test pass after merge
-- [ ] Merge commit body notes any non-obvious resolution decisions
+- [ ] 没有残留 conflict 标记（`git diff --check`）
+- [ ] 生成文件是重新生成的，不是手动 merge 的
+- [ ] merge 后 lint / type / test 通过
+- [ ] merge commit 的 body 记下了任何不显然的解法决定

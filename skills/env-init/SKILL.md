@@ -1,42 +1,42 @@
 ---
 name: env-init
-description: Initialize per-worktree isolated runtime environments for parallel development. Use when creating a new worktree, when dev servers conflict on ports or databases, or when setting up a project for multi-worktree parallel development.
+description: 为并行开发初始化每个 worktree 独立隔离的 runtime 环境。在创建新 worktree、dev server 因 port 或 database 冲突、或首次为某个项目搭建多 worktree 并行开发时使用。
 ---
 
-# env-init: Worktree Isolated Environment
+# env-init：Worktree 隔离环境
 
 ## Overview
 
-Generates isolated runtime environments for each git worktree, enabling multiple worktrees to run simultaneously without port, database, or process conflicts.
+为每个 git worktree 生成独立隔离的 runtime 环境，让多个 worktree 可以同时运行而不会发生 port、database 或进程冲突。
 
-**Non-invasive by design**: Works with the project's existing `.env` / `.env.example` files. Detects port variables, injects per-worktree values -- does not impose a new config schema.
+**设计上非侵入式**：直接复用项目已有的 `.env` / `.env.example` 文件。检测 port 变量、注入每个 worktree 专属的值——不会强加一套新的配置 schema。
 
-Inspired by OpenAI's **per-worktree booting** pattern: each worktree owns its application instances, logs, and state; everything is torn down cleanly when the worktree is removed.
+灵感来自 OpenAI 的 **per-worktree booting** 模式：每个 worktree 拥有自己的应用实例、日志和状态；当 worktree 被移除时，这一切都会被干净地拆除。
 
 ## When to Use
 
-**Use when**:
-- Creating a new worktree that needs to run dev servers
-- Port conflicts occur between parallel worktrees
-- Setting up a project for multi-worktree development for the first time
+**适用于**：
+- 创建一个需要运行 dev server 的新 worktree
+- 并行的多个 worktree 之间发生 port 冲突
+- 首次为某个项目搭建多 worktree 开发
 
-**Don't use when**:
-- Single-worktree projects that never run in parallel
-- Pure library projects with no runtime services
-- CI environments (inherently isolated per job)
+**不适用于**：
+- 从不并行运行的单 worktree 项目
+- 没有 runtime 服务的纯 library 项目
+- CI 环境（每个 job 天然隔离）
 
 ## Guiding Principles
 
-1. **Respect the project's existing config** -- use `.env` / `.env.example` where present; do not introduce new schemas
-2. **Monorepo awareness** -- each package may have its own `.env.example`; handle them independently but with shared port offset
-3. **Source-code changes are user decisions** -- if ports are hardcoded, suggest refactoring; do not force it
-4. **Minimal footprint** -- add only `scripts/env-*` and `.worktree-runtime/`; everything else reuses existing conventions
+1. **尊重项目已有配置**——有 `.env` / `.env.example` 就直接复用；不引入新的 schema
+2. **Monorepo 意识**——每个 package 可能有自己的 `.env.example`；各自独立处理，但共享同一个 port offset
+3. **改动源码是用户的决定**——若 port 被硬编码，建议重构；不强行替用户改
+4. **足迹最小**——只新增 `scripts/env-*` 和 `.worktree-runtime/`；其余一律复用既有约定
 
 ## Process
 
-### Step 1: Discover Existing Env Files
+### Step 1：发现已有的 Env 文件
 
-Find all env-related files in the project:
+找出项目中所有与 env 相关的文件：
 
 ```bash
 # Root level
@@ -47,96 +47,96 @@ find . -name ".env.example" -not -path "./node_modules/*" -not -path "./.git/*"
 find . -name ".env" -not -path "./node_modules/*" -not -path "./.git/*"
 ```
 
-Build an inventory of env files to be managed:
+建立一份待管理的 env 文件清单：
 
-| Path | Type | Notes |
+| Path | 类型 | 说明 |
 |------|------|-------|
-| `./.env.example` | Committed template | Source of truth at root |
-| `./apps/web/.env.example` | Package template | Next.js app |
-| `./apps/api/.env.example` | Package template | API server |
+| `./.env.example` | 已提交的模板 | 根目录的 source of truth |
+| `./apps/web/.env.example` | Package 模板 | Next.js app |
+| `./apps/api/.env.example` | Package 模板 | API server |
 
-### Step 2: Analyze Port Variables
+### Step 2：分析 Port 变量
 
-For each env file, identify port-related variables:
+对每个 env 文件，识别与 port 相关的变量：
 
 ```bash
 grep -E '^(PORT|[A-Z_]+_PORT|[A-Z_]+PORT)=' .env.example
 ```
 
-Categorize each variable:
+对每个变量分类：
 
-| Category | Example | Action |
+| 类别 | 示例 | 处理方式 |
 |----------|---------|--------|
-| **Already parameterized** | `PORT=${PORT:-3000}` in env, `process.env.PORT` in code | Inject value, no refactor |
-| **Fixed default in env** | `PORT=3000` in env, `process.env.PORT` in code | Override in generated `.env` |
-| **Hardcoded in source** | `3000` appears in source; not in env | Surface to user, suggest refactor |
+| **已参数化** | env 中为 `PORT=${PORT:-3000}`，代码中为 `process.env.PORT` | 注入值，无需重构 |
+| **env 中为固定默认值** | env 中为 `PORT=3000`，代码中为 `process.env.PORT` | 在生成的 `.env` 中覆盖 |
+| **源码中硬编码** | `3000` 出现在源码里；不在 env 中 | 抛给用户，建议重构 |
 
-**Also check for port-bearing URLs**:
+**同时检查携带 port 的 URL**：
 - `DATABASE_URL=postgresql://localhost:5432/...`
 - `REDIS_URL=redis://localhost:6379`
 - `API_URL=http://localhost:4000`
 
-These need port substitution too.
+这些也需要做 port 替换。
 
-### Step 3: Surface Hardcoded Ports (if any)
+### Step 3：抛出硬编码的 Port（若有）
 
-If Step 2 found hardcoded ports in source code, **STOP and ask the user**:
+若 Step 2 在源码中发现硬编码的 port，**停下来询问用户**：
 
-> The following ports are hardcoded in source code and cannot be isolated without refactoring:
+> 以下 port 在源码中被硬编码，不重构就无法隔离：
 >
-> - `apps/web/next.config.js:23` -- hardcoded port `3000`
-> - `apps/api/src/server.ts:15` -- hardcoded port `4000`
+> - `apps/web/next.config.js:23` -- 硬编码 port `3000`
+> - `apps/api/src/server.ts:15` -- 硬编码 port `4000`
 >
-> **Option A**: Refactor to read from env var (`process.env.PORT`). Recommended -- enables worktree isolation.
+> **Option A**：重构为从 env 变量读取（`process.env.PORT`）。推荐——可启用 worktree 隔离。
 >
-> **Option B**: Skip these services in env-init. Only worktree-isolate the services with env-driven ports.
+> **Option B**：在 env-init 中跳过这些服务。只对 port 由 env 驱动的服务做 worktree 隔离。
 >
-> **Option C**: Cancel -- I'll refactor manually first.
+> **Option C**：取消——我先手动重构。
 >
-> Which option?
+> 选哪个？
 
-Record the decision; do not silently refactor production code.
+记录这个决定；不要悄悄改动生产代码。
 
-### Step 4: User Decision -- Database Strategy
+### Step 4：用户决策——Database 策略
 
-Present database isolation options and let the user choose. Read `references/database-strategy.md` for full comparison.
+呈现 database 隔离选项让用户选择。完整对比见 `references/database-strategy.md`。
 
-> **Database isolation strategy for this project:**
+> **本项目的 database 隔离策略：**
 >
-> **Option A: Multi-database** -- Same DB server, per-worktree database name.
-> **Option B: Embedded database** -- Per-worktree SQLite/DuckDB file.
+> **Option A：Multi-database** -- 同一个 DB server，每个 worktree 独立的 database 名。
+> **Option B：Embedded database** -- 每个 worktree 一个 SQLite/DuckDB 文件。
 >
-> Which fits this project?
+> 本项目更适合哪一种？
 
-Record the choice in `.worktree-runtime/state.json`.
+把选择记录到 `.worktree-runtime/state.json`。
 
-### Step 5: Generate Runtime Scripts
+### Step 5：生成 Runtime 脚本
 
-Create five scripts under `scripts/`:
+在 `scripts/` 下创建五个脚本：
 
-| Script | Responsibility |
+| Script | 职责 |
 |--------|----------------|
-| `scripts/worktree-start.sh` | **Entry point for new worktrees**. Copies gitignored files from the main worktree per `.worktreeinclude`, then invokes `env-init`. Idempotent -- safe to call manually or from a git hook. |
-| `scripts/env-init` | Derive worktree ID, compute port offset, **write computed ports into existing `.env` files** (copying from `.env.example` if `.env` is missing), create/provision database |
-| `scripts/env-start` | Start all services, record PIDs in `.worktree-runtime/pids/`, route logs to `.worktree-runtime/logs/` |
-| `scripts/env-stop` | SIGTERM -> wait -> SIGKILL, verify exit, clean PID files |
-| `scripts/env-teardown` | `env-stop` + drop database + remove containers + clean `.worktree-runtime/` |
+| `scripts/worktree-start.sh` | **新 worktree 的入口**。按 `.worktreeinclude` 从 main worktree 复制被 gitignore 的文件，再调用 `env-init`。幂等——手动调用或从 git hook 触发都安全。 |
+| `scripts/env-init` | 推导 worktree ID、计算 port offset、**把算好的 port 写入已有的 `.env` 文件**（若 `.env` 缺失则从 `.env.example` 复制），创建 / provision database |
+| `scripts/env-start` | 启动所有服务，把 PID 记录到 `.worktree-runtime/pids/`，把日志导向 `.worktree-runtime/logs/` |
+| `scripts/env-stop` | SIGTERM -> 等待 -> SIGKILL，确认退出，清理 PID 文件 |
+| `scripts/env-teardown` | `env-stop` + drop database + 移除容器 + 清理 `.worktree-runtime/` |
 
-**Key behavior of `env-init`**: it does NOT replace `.env.example`. It copies the existing `.env.example` to `.env` (if `.env` is missing), then overwrites only the port-related variables and database URL with worktree-specific values. If `.env` already exists, it patches in place, preserving unrelated variables (especially secrets).
+**`env-init` 的关键行为**：它不会替换 `.env.example`。它把已有的 `.env.example` 复制成 `.env`（在 `.env` 缺失时），然后只覆盖与 port 相关的变量和 database URL 为 worktree 专属值。若 `.env` 已存在，则就地 patch，保留无关变量（尤其是 secrets）。
 
-**Key behavior of `worktree-start.sh`**: it locates the main worktree via `git worktree list --porcelain`, reads `.worktreeinclude`, and copies matching gitignored files (e.g. `.env.local`, certificates) into the current worktree without overwriting existing files. It then delegates to `env-init`. This is the single entry point for bootstrapping a fresh worktree.
+**`worktree-start.sh` 的关键行为**：它通过 `git worktree list --porcelain` 定位 main worktree，读取 `.worktreeinclude`，把匹配且被 gitignore 的文件（如 `.env.local`、证书）复制进当前 worktree，且不覆盖已存在的文件。随后委托给 `env-init`。这是引导一个全新 worktree 的唯一入口。
 
-All scripts are POSIX sh. Make them executable (`chmod +x`).
+所有脚本均为 POSIX sh。给它们加可执行权限（`chmod +x`）。
 
-Read `references/runtime-lifecycle.md` for script templates and the port injection algorithm.
+脚本模板与 port 注入算法见 `references/runtime-lifecycle.md`。
 
-### Step 6: Generate `.worktreeinclude` and Git Hook
+### Step 6：生成 `.worktreeinclude` 与 Git Hook
 
-Set up two files that let fresh worktrees bootstrap automatically.
+配置两个文件，让全新的 worktree 能自动引导。
 
-**`.worktreeinclude`** (repo root, committed): lists gitignored files that must be copied into new worktrees. Uses `.gitignore` syntax. Only files that match a pattern **and** are gitignored get copied, so tracked files are never duplicated.
+**`.worktreeinclude`**（repo 根目录，已提交）：列出必须复制进新 worktree 的、被 gitignore 的文件。使用 `.gitignore` 语法。只有既匹配某个 pattern **又**被 gitignore 的文件才会被复制，因此被追踪的文件永远不会重复。
 
-Seed it from the project's existing `.gitignore` entries that typically carry local config (`.env`, `.env.local`, credentials, certificates). Present the generated list to the user for review.
+从项目已有 `.gitignore` 中通常承载本地配置的条目（`.env`、`.env.local`、凭据、证书）来初始化它。把生成的清单呈现给用户审阅。
 
 ```text .worktreeinclude
 .env
@@ -144,21 +144,21 @@ Seed it from the project's existing `.gitignore` entries that typically carry lo
 config/secrets.json
 ```
 
-**`.githooks/post-checkout`** (repo root, committed, executable): thin wrapper that invokes `scripts/worktree-start.sh` on fresh worktree creation. Git's `post-checkout` hook fires on both `git checkout <branch>` and `git worktree add`; the wrapper uses `.worktree-runtime/state.json` as a sentinel so it only runs on a fresh worktree and is a no-op on subsequent branch switches.
+**`.githooks/post-checkout`**（repo 根目录，已提交，可执行）：一个薄封装，在全新 worktree 创建时调用 `scripts/worktree-start.sh`。Git 的 `post-checkout` hook 在 `git checkout <branch>` 和 `git worktree add` 时都会触发；封装用 `.worktree-runtime/state.json` 作为哨兵，因此它只在全新 worktree 上运行，后续切分支时则为 no-op。
 
-**Tell the user** to run this once per clone to activate the hook (Git stores `core.hooksPath` in local config, which is not versioned):
+**告知用户**每个 clone 运行一次以激活该 hook（Git 把 `core.hooksPath` 存在本地配置里，不纳入版本管理）：
 
 ```bash
 git config core.hooksPath .githooks
 ```
 
-If the user's worktree creation tool bypasses git hooks, they can still invoke `./scripts/worktree-start.sh` manually after creating the worktree.
+若用户创建 worktree 的工具绕过了 git hook，他们仍可在创建 worktree 后手动调用 `./scripts/worktree-start.sh`。
 
-Read `references/runtime-lifecycle.md` for the hook and `worktree-start.sh` templates.
+hook 与 `worktree-start.sh` 的模板见 `references/runtime-lifecycle.md`。
 
-### Step 7: Create Runtime Directory
+### Step 7：创建 Runtime 目录
 
-Set up `.worktree-runtime/` (gitignored) for runtime state:
+为 runtime 状态搭建 `.worktree-runtime/`（已 gitignore）：
 
 ```
 .worktree-runtime/
@@ -170,7 +170,7 @@ Set up `.worktree-runtime/` (gitignored) for runtime state:
   data/                # (Optional) embedded DB files
 ```
 
-Append to `.gitignore` if not already present:
+若 `.gitignore` 中尚无以下条目，则追加：
 ```
 .worktree-runtime/
 .env
@@ -178,7 +178,7 @@ Append to `.gitignore` if not already present:
 .env.*.local
 ```
 
-### Step 8: Verify
+### Step 8：验证
 
 ```bash
 # Activate the hook once (if not already done)
@@ -203,36 +203,36 @@ ls .worktree-runtime/pids/   # Should be empty after stop
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "I'll just change the port manually when there's a conflict" | You'll forget. The next agent won't know your ports. Automate it once. |
-| "We only ever run one worktree at a time" | Until you don't. env-init costs 5 minutes; debugging a port conflict costs 30. |
-| "Docker already isolates everything" | Docker isolates containers, not host-mapped ports. Two compose stacks with `ports: 3000:3000` still conflict on the host. |
-| "I'll share the database across worktrees" | Until branch A's migration drops a column that branch B depends on. Per-worktree databases are cheap insurance. |
-| "Tracking PIDs is overkill" | Without PIDs you can't stop cleanly. Orphaned dev servers eat memory and hold ports. |
-| "Let's just add .env.template to replace .env.example" | Don't. The project already has conventions. Work with them. |
+| “冲突的时候我手动改一下 port 就好” | 你会忘。下一个 agent 不知道你的 port。一次性把它自动化。 |
+| “我们一次只跑一个 worktree” | 直到某天不是。env-init 花 5 分钟；debug 一次 port 冲突花 30 分钟。 |
+| “Docker 已经隔离了一切” | Docker 隔离的是容器，不是映射到 host 的 port。两个 `ports: 3000:3000` 的 compose stack 在 host 上仍会冲突。 |
+| “我把 database 在多个 worktree 间共享” | 直到分支 A 的 migration 删掉了分支 B 依赖的某列。每个 worktree 独立 database 是廉价的保险。 |
+| “追踪 PID 是过度设计” | 没有 PID 你就无法干净地停止。孤儿 dev server 吃内存、占 port。 |
+| “干脆加个 .env.template 来替换 .env.example” | 别。项目已有约定。顺着它来。 |
 
 ## Red Flags
 
-- Hardcoded port numbers in source code (not reading from env)
-- `.env` committed to git
-- Dev servers started without PID tracking
-- No `env-stop` script -- services only killed by closing terminal
-- Database URL without worktree-specific database name
-- Logs written to shared locations instead of `.worktree-runtime/logs/`
-- Introducing a new env schema when the project already has `.env.example`
+- 源码中硬编码 port 数字（而非从 env 读取）
+- `.env` 被提交进 git
+- dev server 启动时没有 PID 追踪
+- 没有 `env-stop` 脚本——服务只能靠关终端来杀
+- Database URL 中没有 worktree 专属的 database 名
+- 日志写到共享位置，而非 `.worktree-runtime/logs/`
+- 项目已有 `.env.example` 却还引入一套新的 env schema
 
 ## Verification
 
-- [ ] All existing `.env.example` files are preserved (not replaced)
-- [ ] `.env` files contain computed worktree-specific port values
-- [ ] `.env` and `.worktree-runtime/` are in `.gitignore`
-- [ ] `scripts/worktree-start.sh`, `env-init`, `env-start`, `env-stop`, `env-teardown` exist and are executable
-- [ ] `.worktreeinclude` exists at repo root and lists gitignored files to propagate
-- [ ] `.githooks/post-checkout` exists, is executable, and delegates to `scripts/worktree-start.sh`
-- [ ] User was told to run `git config core.hooksPath .githooks` once per clone
-- [ ] `.worktree-runtime/` contains ports.json and state.json
-- [ ] All services start on unique ports (no conflicts with sibling worktrees)
-- [ ] `env-stop` leaves no orphaned processes
-- [ ] User was asked about hardcoded ports (if any were found)
-- [ ] User chose database strategy explicitly
+- [ ] 所有已有的 `.env.example` 文件都被保留（未被替换）
+- [ ] `.env` 文件包含算好的 worktree 专属 port 值
+- [ ] `.env` 与 `.worktree-runtime/` 已在 `.gitignore` 中
+- [ ] `scripts/worktree-start.sh`、`env-init`、`env-start`、`env-stop`、`env-teardown` 均存在且可执行
+- [ ] `.worktreeinclude` 存在于 repo 根目录，并列出要传播的、被 gitignore 的文件
+- [ ] `.githooks/post-checkout` 存在、可执行，并委托给 `scripts/worktree-start.sh`
+- [ ] 已告知用户每个 clone 运行一次 `git config core.hooksPath .githooks`
+- [ ] `.worktree-runtime/` 含有 ports.json 与 state.json
+- [ ] 所有服务都在唯一的 port 上启动（与同级 worktree 无冲突）
+- [ ] `env-stop` 不留任何孤儿进程
+- [ ] 已就硬编码的 port 询问用户（若发现任何）
+- [ ] 用户已明确选择 database 策略

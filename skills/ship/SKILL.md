@@ -1,82 +1,82 @@
 ---
 name: ship
-description: Prepares production launches. Use when preparing to deploy to production. Use when you need a pre-launch checklist, when setting up monitoring, when planning a staged rollout, or when you need a rollback strategy.
+description: 为生产上线做准备。在准备部署到生产环境时使用。在你需要一份上线前清单、配置监控、规划分阶段灰度发布，或需要一套回滚策略时使用。
 ---
 
-# Shipping and Launch
+# ship：发布与上线
 
 ## Overview
 
-Ship with confidence. The goal is not just to deploy — it's to deploy safely, with monitoring in place, a rollback plan ready, and a clear understanding of what success looks like. Every launch should be reversible, observable, and incremental.
+带着信心发布。目标不只是部署——而是安全地部署：监控就位、回滚方案备好、对「成功是什么样」有清晰的认识。每一次上线都应当可回退、可观测、可增量推进。
 
 ## When to Use
 
-- Deploying a feature to production for the first time
-- Releasing a significant change to users
-- Migrating data or infrastructure
-- Opening a beta or early access program
-- Any deployment that carries risk (all of them)
+- 首次把一个 feature 部署到生产
+- 向用户发布一项重大改动
+- 迁移数据或基础设施
+- 开放 beta 或抢先体验计划
+- 任何带风险的部署（也就是所有部署）
 
 ## The Pre-Launch Checklist
 
 ### Code Quality
 
-- [ ] All tests pass (unit, integration, e2e)
-- [ ] Build succeeds with no warnings
-- [ ] Lint and type checking pass
-- [ ] Code reviewed and approved
-- [ ] No TODO comments that should be resolved before launch
-- [ ] No `console.log` debugging statements in production code
-- [ ] Error handling covers expected failure modes
+- [ ] 所有测试通过（unit、integration、e2e）
+- [ ] 构建成功且无 warning
+- [ ] lint 与类型检查通过
+- [ ] 代码已 review 并获批
+- [ ] 没有应在上线前解决的 TODO 注释
+- [ ] 生产代码中没有 `console.log` 调试语句
+- [ ] 错误处理覆盖了预期的失败模式
 
 ### Security
 
-- [ ] No secrets in code or version control
-- [ ] `npm audit` shows no critical or high vulnerabilities
-- [ ] Input validation on all user-facing endpoints
-- [ ] Authentication and authorization checks in place
-- [ ] Security headers configured (CSP, HSTS, etc.)
-- [ ] Rate limiting on authentication endpoints
-- [ ] CORS configured to specific origins (not wildcard)
+- [ ] 代码或版本控制中没有 secret
+- [ ] `npm audit` 没有报出 critical 或 high 漏洞
+- [ ] 所有面向用户的端点都有 input validation
+- [ ] 认证与授权检查就位
+- [ ] security headers 已配置（CSP、HSTS 等）
+- [ ] 认证端点上有限流
+- [ ] CORS 配置为指定源（非通配符）
 
 ### Performance
 
-- [ ] Core Web Vitals within "Good" thresholds
-- [ ] No N+1 queries in critical paths
-- [ ] Images optimized (compression, responsive sizes, lazy loading)
-- [ ] Bundle size within budget
-- [ ] Database queries have appropriate indexes
-- [ ] Caching configured for static assets and repeated queries
+- [ ] Core Web Vitals 落在「Good」阈值内
+- [ ] 关键路径上没有 N+1 查询
+- [ ] 图片已优化（压缩、响应式尺寸、懒加载）
+- [ ] bundle 体积在预算内
+- [ ] 数据库查询有恰当的索引
+- [ ] 静态资源与重复查询配置了缓存
 
 ### Accessibility
 
-- [ ] Keyboard navigation works for all interactive elements
-- [ ] Screen reader can convey page content and structure
-- [ ] Color contrast meets WCAG 2.1 AA (4.5:1 for text)
-- [ ] Focus management correct for modals and dynamic content
-- [ ] Error messages are descriptive and associated with form fields
-- [ ] No accessibility warnings in axe-core or Lighthouse
+- [ ] 所有可交互元素支持键盘导航
+- [ ] 屏幕阅读器能传达页面内容与结构
+- [ ] 色彩对比度满足 WCAG 2.1 AA（文本 4.5:1）
+- [ ] 弹窗与动态内容的焦点管理正确
+- [ ] 错误信息具有描述性，并与对应表单字段关联
+- [ ] axe-core 或 Lighthouse 没有可访问性 warning
 
 ### Infrastructure
 
-- [ ] Environment variables set in production
-- [ ] Database migrations applied (or ready to apply)
-- [ ] DNS and SSL configured
-- [ ] CDN configured for static assets
-- [ ] Logging and error reporting configured
-- [ ] Health check endpoint exists and responds
+- [ ] 生产环境已设置环境变量
+- [ ] 数据库 migration 已应用（或已就绪可应用）
+- [ ] DNS 与 SSL 已配置
+- [ ] 静态资源已配置 CDN
+- [ ] 日志与错误上报已配置
+- [ ] health check 端点存在并能响应
 
 ### Documentation
 
-- [ ] README updated with any new setup requirements
-- [ ] API documentation current
-- [ ] Design docs written for significant decisions
-- [ ] Changelog updated
-- [ ] User-facing documentation updated (if applicable)
+- [ ] README 已更新任何新的安装/配置要求
+- [ ] API 文档为最新
+- [ ] 重大决策已写 design docs
+- [ ] changelog 已更新
+- [ ] 面向用户的文档已更新（如适用）
 
 ## Feature Flag Strategy
 
-Ship behind feature flags to decouple deployment from release:
+在 feature flag 后面发布，把部署与发布解耦：
 
 ```typescript
 // Feature flag check
@@ -91,7 +91,7 @@ if (flags.taskSharing) {
 return null;
 ```
 
-**Feature flag lifecycle:**
+**feature flag 的 lifecycle：**
 
 ```
 1. DEPLOY with flag OFF     → Code is in production but inactive
@@ -101,11 +101,11 @@ return null;
 5. CLEAN UP                 → Remove flag and dead code path after full rollout
 ```
 
-**Rules:**
-- Every feature flag has an owner and an expiration date
-- Clean up flags within 2 weeks of full rollout
-- Don't nest feature flags (creates exponential combinations)
-- Test both flag states (on and off) in CI
+**规则：**
+- 每个 feature flag 都有一个 owner 和一个过期日期
+- 全量发布后 2 周内清理掉 flag
+- 不要嵌套 feature flag（会产生指数级的组合）
+- 在 CI 中测试 flag 的两种状态（开和关）
 
 ## Staged Rollout
 
@@ -141,23 +141,23 @@ return null;
 
 ### Rollout Decision Thresholds
 
-Use these thresholds to decide whether to advance, hold, or roll back at each stage:
+用这些阈值决定在每个阶段是推进、暂停还是回滚：
 
-| Metric | Advance (green) | Hold and investigate (yellow) | Roll back (red) |
+| 指标 | 推进（绿） | 暂停并排查（黄） | 回滚（红） |
 |--------|-----------------|-------------------------------|-----------------|
-| Error rate | Within 10% of baseline | 10-100% above baseline | >2x baseline |
-| P95 latency | Within 20% of baseline | 20-50% above baseline | >50% above baseline |
-| Client JS errors | No new error types | New errors at <0.1% of sessions | New errors at >0.1% of sessions |
-| Business metrics | Neutral or positive | Decline <5% (may be noise) | Decline >5% |
+| Error rate | 与 baseline 相差 10% 以内 | 比 baseline 高 10-100% | 超过 baseline 的 2 倍 |
+| P95 latency | 与 baseline 相差 20% 以内 | 比 baseline 高 20-50% | 比 baseline 高 50% 以上 |
+| Client JS errors | 没有新增错误类型 | 新错误出现在 <0.1% 的会话中 | 新错误出现在 >0.1% 的会话中 |
+| Business metrics | 持平或正向 | 下滑 <5%（可能是噪声） | 下滑 >5% |
 
 ### When to Roll Back
 
-Roll back immediately if:
-- Error rate increases by more than 2x baseline
-- P95 latency increases by more than 50%
-- User-reported issues spike
-- Data integrity issues detected
-- Security vulnerability discovered
+出现以下情况立即回滚：
+- error rate 涨幅超过 baseline 的 2 倍
+- P95 latency 涨幅超过 50%
+- 用户上报的问题激增
+- 检测到数据完整性问题
+- 发现安全漏洞
 
 ## Monitoring and Observability
 
@@ -185,7 +185,7 @@ Client metrics:
 └── Page load time
 ```
 
-### Error Reporting
+### 错误上报
 
 ```typescript
 // Set up error boundary with reporting
@@ -224,7 +224,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 ### Post-Launch Verification
 
-In the first hour after launch:
+上线后第一个小时内：
 
 ```
 1. Check health endpoint returns 200
@@ -237,7 +237,7 @@ In the first hour after launch:
 
 ## Rollback Strategy
 
-Every deployment needs a rollback plan before it happens:
+每一次部署都需要在它发生之前先有回滚方案：
 
 ```markdown
 ## Rollback Plan for [Feature/Release]
@@ -265,45 +265,45 @@ Every deployment needs a rollback plan before it happens:
 ```
 ## See Also
 
-- For security pre-launch checks, see `references/security-checklist.md`
-- For performance pre-launch checklist, see `references/performance-checklist.md`
-- For accessibility verification before launch, see `references/accessibility-checklist.md`
+- 安全方面的上线前检查，见 `references/security-checklist.md`
+- 性能方面的上线前清单，见 `references/performance-checklist.md`
+- 上线前的可访问性验证，见 `references/accessibility-checklist.md`
 
 ## Common Rationalizations
 
-| Rationalization | Reality |
+| 借口 | 现实 |
 |---|---|
-| "It works in staging, it'll work in production" | Production has different data, traffic patterns, and edge cases. Monitor after deploy. |
-| "We don't need feature flags for this" | Every feature benefits from a kill switch. Even "simple" changes can break things. |
-| "Monitoring is overhead" | Not having monitoring means you discover problems from user complaints instead of dashboards. |
-| "We'll add monitoring later" | Add it before launch. You can't debug what you can't see. |
-| "Rolling back is admitting failure" | Rolling back is responsible engineering. Shipping a broken feature is the failure. |
+| 「staging 上能跑，生产上也能跑。」 | 生产的数据、流量模式和边界情况都不同。部署后要做监控。 |
+| 「这个不需要 feature flag。」 | 每个 feature 都受益于一个 kill switch。哪怕「简单」改动也会出问题。 |
+| 「监控是额外负担。」 | 没有监控意味着你是从用户投诉里发现问题，而不是从仪表盘。 |
+| 「监控我们以后再加。」 | 上线前就加。看不见的东西没法调试。 |
+| 「回滚等于承认失败。」 | 回滚是负责任的工程实践。把坏掉的 feature 发出去才是失败。 |
 
 ## Red Flags
 
-- Deploying without a rollback plan
-- No monitoring or error reporting in production
-- Big-bang releases (everything at once, no staging)
-- Feature flags with no expiration or owner
-- No one monitoring the deploy for the first hour
-- Production environment configuration done by memory, not code
-- "It's Friday afternoon, let's ship it"
+- 没有回滚方案就部署
+- 生产环境没有监控或错误上报
+- 大爆炸式发布（一次性全上，没有 staging）
+- feature flag 没有过期日期或 owner
+- 上线后第一个小时没人盯着
+- 生产环境配置靠记忆，而不是靠代码
+- 「现在是周五下午，发了吧」
 
 ## Verification
 
-Before deploying:
+部署前：
 
-- [ ] Pre-launch checklist completed (all sections green)
-- [ ] Feature flag configured (if applicable)
-- [ ] Rollback plan documented
-- [ ] Monitoring dashboards set up
-- [ ] Team notified of deployment
+- [ ] 上线前清单已完成（所有小节都为绿）
+- [ ] feature flag 已配置（如适用）
+- [ ] 回滚方案已记录
+- [ ] 监控仪表盘已搭好
+- [ ] 已通知团队即将部署
 
-After deploying:
+部署后：
 
-- [ ] Health check returns 200
-- [ ] Error rate is normal
-- [ ] Latency is normal
-- [ ] Critical user flow works
-- [ ] Logs are flowing
-- [ ] Rollback tested or verified ready
+- [ ] health check 返回 200
+- [ ] error rate 正常
+- [ ] latency 正常
+- [ ] 关键用户流程可用
+- [ ] 日志正常流转
+- [ ] 回滚已测试或已确认就绪

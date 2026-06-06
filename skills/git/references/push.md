@@ -1,6 +1,6 @@
 # Push Reference
 
-Lower-level push semantics. The high-level "push + open PR" flow lives in [harness-stack:pr](../../pr/SKILL.md); this file covers `git push` itself — force variants, rejection classification, auth-vs-sync distinction.
+更底层的 push 语义。高层的「push + open PR」流程在 [harness-stack:pr](../../pr/SKILL.md)；本文件讲 `git push` 本身——force 的几种变体、rejection 的分类、auth 与 sync 的区分。
 
 ## Initial Push
 
@@ -8,7 +8,7 @@ Lower-level push semantics. The high-level "push + open PR" flow lives in [harne
 git push -u origin HEAD
 ```
 
-`-u` sets the upstream so future `git push` / `git pull` know where to go. Do this once per branch.
+`-u` 设定 upstream，好让之后的 `git push` / `git pull` 知道去哪。每个分支做一次。
 
 ## Subsequent Pushes
 
@@ -16,43 +16,43 @@ git push -u origin HEAD
 git push
 ```
 
-If rejected, classify before reacting.
+若被拒，先分类再反应。
 
-| Symptom | Cause | Action |
+| 症状 | 原因 | 处理 |
 |---|---|---|
-| `non-fast-forward` | Upstream advanced normally | Sync first ([sync.md](sync.md) or [pull.md](pull.md)). Then push. |
-| `non-fast-forward` after a deliberate rebase | History was rewritten | `git push --force-with-lease` |
-| `403` / `permission denied` | Token scope / auth | Surface error. Do **not** rewrite remote URL or switch protocols. |
-| `protected branch` | Repo policy | Surface. Do not bypass. |
-| `Repository not found` | Wrong remote / no access | Surface. |
+| `non-fast-forward` | upstream 正常向前推进了 | 先同步（[sync.md](sync.md) 或 [pull.md](pull.md)），然后再 push。 |
+| 有意 rebase 之后的 `non-fast-forward` | history 被重写了 | `git push --force-with-lease` |
+| `403` / `permission denied` | token scope / 认证 | 把错误暴露出来。**不要**改写 remote URL 或切换协议。 |
+| `protected branch` | 仓库策略 | 暴露出来。不要绕过。 |
+| `Repository not found` | remote 错了 / 无访问权限 | 暴露出来。 |
 
 ## Force-Push Discipline
 
-- **Never** plain `git push --force`. It overwrites teammates' commits unconditionally.
-- **`--force-with-lease`** is the only acceptable force variant. It refuses to push if the remote moved since the last fetch — protecting against the "force-pushed over a teammate" footgun.
-- Use force only when history was **deliberately rewritten** (after a rebase, after `git commit --amend`). Not as a generic "make it go through" tool.
-- Don't force-push to shared branches (`main`, `develop`, release branches) without explicit authorization.
+- **绝不**用裸 `git push --force`。它会无条件覆盖队友的 commit。
+- **`--force-with-lease`** 是唯一可接受的 force 变体。若 remote 在上次 fetch 之后动过，它会拒绝 push——防住「force-push 盖掉队友」这个走火点。
+- 只有在 history 被**有意重写**时（rebase 之后、`git commit --amend` 之后）才用 force。不是当作通用的「让它过去」工具。
+- 未经明确授权，不要向共享分支（`main`、`develop`、release branch）force-push。
 
 ## Auth vs Sync — Don't Confuse Them
 
-A `permission denied` is **not** a sync problem. The common AI shortcut is:
+`permission denied` **不是** sync 问题。AI 常见的偷懒路径是：
 
-> Push failed → maybe I should change the remote to use a different protocol → maybe I should clone with a token in the URL ...
+> Push 失败 → 也许我该把 remote 改成另一个协议 → 也许我该用带 token 的 URL 重新 clone ……
 
-Stop. Auth errors mean credentials, token scope, or repo policy are wrong. Surface the exact error. Rewriting `origin` to paper over auth is how secrets end up in `.git/config` and how broken push setups propagate.
+打住。认证错误意味着凭证、token scope 或仓库策略不对。把确切的错误暴露出来。改写 `origin` 来糊弄认证，正是密钥最终落进 `.git/config`、以及坏掉的 push 配置四处扩散的根源。
 
 ## When the Remote Branch Already Advanced
 
-If `git fetch` shows the remote feature branch moved (CI auto-commit, another agent), and local has new commits too:
+若 `git fetch` 显示远端 feature branch 动过了（CI 自动 commit、另一个 agent），而本地也有新 commit：
 
-1. **First**: pull the remote feature branch into local (fast-forward or merge — see [pull.md](pull.md) step 3).
-2. **Then**: rebase or merge `origin/main` if needed.
-3. **Finally**: push.
+1. **首先**：把远端 feature branch 拉进本地（fast-forward 或 merge——见 [pull.md](pull.md) 第 3 步）。
+2. **然后**：必要时 rebase 或 merge `origin/main`。
+3. **最后**：push。
 
-Pushing without absorbing the remote feature branch first will reject as non-fast-forward — and a `--force-with-lease` past that erases the CI auto-commit (or the other agent's work).
+不先吸收远端 feature branch 就 push，会以 non-fast-forward 被拒——而越过它强行 `--force-with-lease` 会抹掉那条 CI 自动 commit（或另一个 agent 的工作）。
 
 ## Verification
 
-- [ ] Push succeeded without plain `--force`
-- [ ] No remote URL rewriting was used to work around auth
-- [ ] If `--force-with-lease` was used, history rewrite was deliberate
+- [ ] push 成功，且没用裸 `--force`
+- [ ] 没有为绕开认证而改写 remote URL
+- [ ] 若用了 `--force-with-lease`，那次 history 重写是有意为之

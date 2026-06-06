@@ -1,12 +1,11 @@
 # Adversarial Review Prompt Template
 
-Hand this to a fresh subagent during Step 5 (Adversarial Review), one per area
-per pass. Fill the `<…>` placeholders. The reviewer hunts for **missing**
-assertions in the draft contract; it does **not** edit it or rubber-stamp it.
+在 Step 5（Adversarial Review）期间把这份 prompt 交给一个全新 subagent，每轮每个 area
+一份。填好 `<…>` 占位符。reviewer 在草稿契约里猎查 **缺失的** assertion；它 **不** 编辑
+契约，也 **不** 盖橡皮章。
 
-Run ≥ 2 sequential passes. Within a pass, dispatch one reviewer per area in
-parallel. Between passes, the author edits the document to add what reviewers
-found, then the next pass reads the updated draft.
+跑 ≥ 2 轮，顺序进行。一轮之内，为每个 area 并行派发一个 reviewer。两轮之间，作者编辑文档、
+补上 reviewer 找到的内容，然后下一轮读取更新后的草稿。
 
 ---
 

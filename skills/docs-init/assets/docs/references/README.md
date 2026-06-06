@@ -1,11 +1,11 @@
 # References
 
-External documentation, API references, and integration notes.
+外部文档、API references 以及集成说明。
 
-Store LLM-friendly versions of external docs here so agents can reference them without web access. Prefer plain text or markdown formats.
+把外部文档的 LLM 友好版本存放在这里，让 agent 无需联网即可引用。优先使用纯文本或 markdown 格式。
 
 ## Conventions
 
-- Name files descriptively: `<tool>-llms.txt` or `<service>-reference.md`
-- Include the source URL and date fetched at the top of each file
-- Update periodically as external APIs evolve
+- 文件名要有描述性：`<tool>-llms.txt` 或 `<service>-reference.md`
+- 在每个文件顶部写明来源 URL 与抓取日期
+- 随外部 API 演进定期更新

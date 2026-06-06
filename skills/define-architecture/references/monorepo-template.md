@@ -1,27 +1,27 @@
 # Architecture Template: Monorepo Project
 
-Use this template for projects with multiple packages/apps in a single repository.
+本模板用于在单个仓库中包含多个 package/app 的项目。
 
-Root ARCHITECTURE.md covers **workspace-level** concerns only — dependency direction, invariants, cross-cutting patterns. Per-package internals (domains, layers, entry points) belong in `docs/design-docs/`.
+根 ARCHITECTURE.md 只覆盖 **workspace 层级** 的事项——依赖方向、invariants、cross-cutting 模式。每个 package 的内部细节（domain、layer、entry point）归 `docs/design-docs/`。
 
-Inspired by [matklad's ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html): keep it short so it survives.
+灵感来自 [matklad 的 ARCHITECTURE.md](https://matklad.github.io/2021/02/06/ARCHITECTURE.md.html)：保持简短，它才活得下去。
 
-Save to `docs/architecture.md`.
+保存到 `docs/architecture.md`。
 
 ```markdown
 # Architecture
 
 ## Overview
 
-<!-- One paragraph: what this system does, architectural style,
-     and why it's organized as a monorepo.
-     Link to docs/product-spec.md for product context. -->
+<!-- 一段话：这个系统做什么、架构风格是什么、
+     以及为什么组织成 monorepo。
+     链接 docs/product-spec.md 提供产品上下文。 -->
 
 ## Codemap
 
-<!-- The heart of the document. Every package in one line.
-     After reading this section, a contributor should know
-     where to look for any piece of functionality. -->
+<!-- 文档的核心。每个 package 一行。
+     读完这一节，贡献者应当知道
+     去哪里找任何一块功能。 -->
 
 ### Apps
 
@@ -41,8 +41,8 @@ Save to `docs/architecture.md`.
 
 ## Dependency Direction
 
-<!-- The most important section. Who can import from whom
-     defines the architecture. Visualize it. -->
+<!-- 最重要的一节。谁能 import 谁
+     定义了 architecture。把它可视化。 -->
 
 \```
 packages/shared-types
@@ -62,41 +62,41 @@ packages/config
 - Package exports are contracts — breaking changes require updating all consumers first
 
 **Enforcement:**
-- <!-- How these rules are actually enforced:
-     ESLint boundaries plugin, TypeScript path restrictions,
-     CI checks, CODEOWNERS, etc. -->
+- <!-- 这些规则实际如何被强制执行：
+     ESLint boundaries 插件、TypeScript 路径限制、
+     CI 检查、CODEOWNERS 等等。 -->
 
 ## Architectural Invariants
 
-<!-- Rules that don't appear in code. Write them down because
-     if someone violates them, the bug won't show up immediately
-     — the system will slowly rot. -->
+<!-- 不出现在代码里的规则。把它们写下来，因为
+     一旦有人违反，bug 不会立刻显现
+     ——系统会慢慢腐烂。 -->
 
-- <!-- e.g. All apps share a single database instance -->
-- <!-- e.g. Packages must not have runtime side effects at import time -->
-- <!-- e.g. All HTTP endpoints must pass through auth middleware -->
-- <!-- e.g. Shared types are the only cross-package contract — no shared runtime code -->
+- <!-- 例如：所有 app 共享同一个数据库实例 -->
+- <!-- 例如：package 在 import 时不得有运行时副作用 -->
+- <!-- 例如：所有 HTTP endpoint 必须经过 auth middleware -->
+- <!-- 例如：共享 type 是唯一的跨 package contract——没有共享的运行时代码 -->
 
 ## Cross-Cutting Concerns
 
 | Concern | Mechanism |
 |---|---|
-| Authentication | <!-- how it's shared across packages --> |
-| Logging | <!-- where the logger lives, how it's configured --> |
-| Error handling | <!-- shared error types, reporting --> |
-| Configuration | <!-- per-package .env, shared config package --> |
+| Authentication | <!-- 它如何跨 package 共享 --> |
+| Logging | <!-- logger 在哪里、如何配置 --> |
+| Error handling | <!-- 共享的错误 type、上报 --> |
+| Configuration | <!-- 每个 package 的 .env、共享 config package --> |
 
 ## Technology Choices
 
-<!-- Key dependencies with purpose and rationale.
-     Scope distinguishes workspace-wide choices from per-app choices.
-     Focus on WHY — "we chose X" without "because Y" is useless. -->
+<!-- 关键依赖，附 purpose 与理据。
+     Scope 区分 workspace 级选型与单个 app 级选型。
+     聚焦于 WHY——「我们选了 X」却没有「因为 Y」毫无用处。 -->
 
 | Technology | Scope | Purpose | Rationale |
 |---|---|---|---|
 | TypeScript | all | Language | Type safety, ecosystem, agent-friendly |
 | Turborepo | workspace | Build orchestration | Incremental builds, task caching |
 | pnpm | workspace | Package manager | Workspace support, disk efficiency |
-| Next.js | apps/web | Web framework | <!-- why this app uses Next.js --> |
-| Fastify | apps/api | API framework | <!-- why this app uses Fastify --> |
+| Next.js | apps/web | Web framework | <!-- 这个 app 为什么用 Next.js --> |
+| Fastify | apps/api | API framework | <!-- 这个 app 为什么用 Fastify --> |
 ```

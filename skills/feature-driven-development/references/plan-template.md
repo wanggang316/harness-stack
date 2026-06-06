@@ -1,9 +1,6 @@
-# plan.md Template
+# plan.md 模板
 
-Write to `.harness-runtime/plans/<slug>/plan.md`. This is a **living document**: the
-Progress, Decision Log, and Surprises sections are kept current as work proceeds (the
-controller updates them at every state change so a fresh reader can pick up in seconds).
-The plan dir is gitignored — this is working state, not a committed artifact.
+写到 `.harness-runtime/plans/<slug>/plan.md`。这是一份**活文档**：随工作推进，Progress、Decision Log、Surprises 各小节都保持最新（controller 在每次状态变化时更新它们，好让一个全新读者几秒钟就能接上）。plan 目录已 gitignore——这是工作状态，不是提交进库的 artifact。
 
 ---
 
@@ -11,39 +8,39 @@ The plan dir is gitignored — this is working state, not a committed artifact.
 
 **Slug:** <plan-slug>
 **State:** Planning | Contracting | Executing | Blocked | Done
-**Goal:** 2-4 sentences — what this build delivers and why it matters to a user.
+**Goal:** 2-4 句——这次构建交付什么、为何对用户重要。
 
 ## Expected functionality
 
 ### Milestone: <name>
-- <feature shape> — one line
+- <feature shape> — 一句话
 - …
 
 ### Milestone: <name>
 - …
 
 ## Environment setup
-- Dependencies / version constraints
-- Required services and how they start
-- Required env vars
+- 依赖 / 版本约束
+- 所需服务及其如何启动
+- 所需环境变量
 
 ## Infrastructure (worker boundaries — authoritative)
 - **Port range:** <range for new services>
 - **Services to USE (already running):** <list>
-- **Off-limits services / paths:** <list>  ← workers must NEVER touch these
+- **Off-limits services / paths:** <list>  ← worker 绝不可碰这些
 - **Concurrency:** <default: one feature at a time>
 - **Other boundaries:** <free-form>
 
 ## Testing strategy
-- Test command: `<cmd>` (verified working at planning time)
+- Test command: `<cmd>`（规划时已确认可跑）
 - User-test surface: <dev server + browser MCP / curl / CLI / fixtures>
-- Surface cost tier: cheap | medium | expensive (see docs/user-test-patterns.md)
+- Surface cost tier: cheap | medium | expensive（见 docs/user-test-patterns.md）
 
 ## Non-functional requirements
 - Performance / Security / Accessibility / Other: …
 
 ## Open questions
-- Anything unresolved. Keep short — most should be resolved before acceptance.
+- 任何未决之事。保持简短——大多数应在接受前解决。
 
 ## Captured requirements
 <!-- Replay every requirement the user stated, including offhand ones, so the user can

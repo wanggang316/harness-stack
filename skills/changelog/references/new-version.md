@@ -1,37 +1,37 @@
-# Cut a New Version
+# 切一个新版本
 
-Move `[Unreleased]` content into a dated version header. This reference only edits `CHANGELOG.md`. Tagging, pushing, and releasing belong to the ship pipeline — not this skill.
+把 `[Unreleased]` 的内容移到一个带日期的版本标题下。本参考只编辑 `CHANGELOG.md`。打 tag、推送与发布属于 ship 流水线——不归本技能管。
 
-## Inputs
+## 输入
 
-- Current `CHANGELOG.md` with non-empty `[Unreleased]` content.
-- The latest released version (from the previous version header or `git tag --sort=-v:refname | head -n 1`).
-- The release date (today, `YYYY-MM-DD`, UTC by default).
+- 当前 `CHANGELOG.md`，且 `[Unreleased]` 内容非空。
+- 最新已发布版本（取自上一个版本标题，或 `git tag --sort=-v:refname | head -n 1`）。
+- 发布日期（今天，`YYYY-MM-DD`，默认 UTC）。
 
-If `[Unreleased]` is empty, stop and tell the user — there is nothing to release.
+若 `[Unreleased]` 为空，停下并告知用户——没有可发布的内容。
 
-## Decide the version bump (SemVer)
+## 确定版本跳级（SemVer）
 
-Inspect the `[Unreleased]` sections and apply, in order:
+检视各 `[Unreleased]` 小节，按顺序应用：
 
-| Trigger in [Unreleased] | Bump |
+| [Unreleased] 中的触发条件 | 跳级 |
 |---|---|
-| Any entry marked `**BREAKING:**`, any `Removed` of a public surface, any incompatible change to a public API | **MAJOR** (`X.0.0`) |
-| Otherwise, any `Added` entry, or a new option / endpoint / flag under `Changed` | **MINOR** (`x.Y.0`) |
-| Only `Fixed`, `Security`, `Deprecated`, or non-functional `Changed` entries | **PATCH** (`x.y.Z`) |
+| 任何标了 `**BREAKING:**` 的条目、任何对公共界面的 `Removed`、任何对公共 API 的不兼容变更 | **MAJOR**（`X.0.0`） |
+| 否则，任何 `Added` 条目，或 `Changed` 下的新选项 / 端点 / flag | **MINOR**（`x.Y.0`） |
+| 仅有 `Fixed`、`Security`、`Deprecated`、或非功能性的 `Changed` 条目 | **PATCH**（`x.y.Z`） |
 
-Pre-1.0 (`0.y.z`) rules:
-- `0.y.0` → `0.(y+1).0` for new features **and** breaking changes (no MAJOR exists yet).
-- `0.y.z` → `0.y.(z+1)` for fixes only.
-- Recommend `1.0.0` to the user when the API is being committed to.
+1.0 之前（`0.y.z`）的规则：
+- `0.y.0` → `0.(y+1).0`：新特性**和**破坏性变更都走这条（尚不存在 MAJOR）。
+- `0.y.z` → `0.y.(z+1)`：仅修复。
+- 当要为 API 背书时，向用户建议 `1.0.0`。
 
-If the inferred bump conflicts with the user's stated version, surface the conflict before writing.
+若推断出的跳级与用户给定的版本冲突，写入前先把冲突摆出来。
 
-## Transform the file
+## 改写文件
 
-1. **Rename the header.** `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`.
-2. **Prune empty sections** from the released version. Keep only the categories that have entries.
-3. **Re-seed `[Unreleased]`** at the top, above the new version, with all six empty subsections:
+1. **重命名标题。** `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD`。
+2. **从已发布版本中剪除空小节。** 只保留有条目的类别。
+3. **在顶部、新版本之上重新播种 `[Unreleased]`**，带全部六个空子小节：
 
    ```markdown
    ## [Unreleased]
@@ -49,43 +49,43 @@ If the inferred bump conflicts with the user's stated version, surface the confl
    ### Security
    ```
 
-4. **Order the version block.** Within the released version, keep the canonical section order (Added → Changed → Deprecated → Removed → Fixed → Security). Inside each section, newest first; entries already prefixed `**BREAKING:**` float to the top.
-5. **Update bottom-of-file links.** Two edits, both required for linkable versions (KaC principle 4):
-   - `[Unreleased]: …/compare/vX.Y.Z...HEAD` (was `…/compare/v<prev>...HEAD`)
-   - Insert `[X.Y.Z]: …/compare/v<prev>...vX.Y.Z` above the previous version's link
+4. **排好版本块的顺序。** 在已发布版本内，保持规范的小节顺序（Added → Changed → Deprecated → Removed → Fixed → Security）。每个小节内最新在前；已前缀 `**BREAKING:**` 的条目浮到顶部。
+5. **更新文件底部的链接。** 两处编辑，可链接版本（KaC 原则 4）都需要：
+   - `[Unreleased]: …/compare/vX.Y.Z...HEAD`（原为 `…/compare/v<prev>...HEAD`）
+   - 在上一个版本的链接之上插入 `[X.Y.Z]: …/compare/v<prev>...vX.Y.Z`
 
-   For the very first release, use `…/releases/tag/vX.Y.Z` instead of a compare URL.
+   对最最开始的首次发布，用 `…/releases/tag/vX.Y.Z` 代替 compare URL。
 
-## Yanked releases
+## 撤回（yanked）的发布
 
-If a published version has to be withdrawn (broken, compromised, accidentally released), mark it instead of deleting:
+若某个已发布版本必须撤回（损坏、被污染、误发），用标记而非删除：
 
 ```markdown
 ## [1.4.2] - 2026-05-12 [YANKED]
 ```
 
-Keep the original content beneath the header so consumers can understand why downstream pins fail. Add a Fixed/Security entry in the next version explaining the yank.
+在标题下保留原内容，让使用者能理解为何下游的版本钉死会失败。在下一个版本里加一条 Fixed/Security 条目，说明这次撤回。
 
-## Validation before writing
+## 写入前的校验
 
-- [ ] Version number conforms to SemVer (or the project's stated scheme).
-- [ ] Date is `YYYY-MM-DD`, today's date in the project's release timezone.
-- [ ] New version header is directly below the fresh `[Unreleased]`, above the previous version.
-- [ ] No empty sections remain in the released version block.
-- [ ] All entries are user-facing — no SHAs, file paths, or raw commit subjects.
-- [ ] Breaking changes carry `**BREAKING:**` and the version bump reflects them.
-- [ ] Anything in `Removed` was either previously in `Deprecated` or has a clear rationale called out.
-- [ ] Bottom-of-file links updated: `[Unreleased]` now points at the new tag; new `[X.Y.Z]` link inserted.
-- [ ] No duplicate version headers; versions remain in descending order.
+- [ ] 版本号符合 SemVer（或项目声明的方案）。
+- [ ] 日期为 `YYYY-MM-DD`，是项目发布时区里的今天。
+- [ ] 新版本标题紧贴在全新的 `[Unreleased]` 之下、上一个版本之上。
+- [ ] 已发布版本块里不留空小节。
+- [ ] 所有条目都面向用户——没有 SHA、文件路径或原始提交主题。
+- [ ] 破坏性变更带 `**BREAKING:**`，且版本跳级与之相符。
+- [ ] `Removed` 里的每一项要么先前在 `Deprecated` 出现过，要么有清楚交代的理由。
+- [ ] 文件底部链接已更新：`[Unreleased]` 现在指向新 tag；新的 `[X.Y.Z]` 链接已插入。
+- [ ] 没有重复的版本标题；各版本仍按降序排列。
 
-Present the diff for confirmation. **Do not write until the user confirms.**
+把 diff 呈出以供确认。**在用户确认前不要写入。**
 
-## Out of scope
+## 不在范围内
 
-This reference does not:
-- Create or push git tags.
-- Open a PR or trigger CI.
-- Publish to a registry (npm, PyPI, crates.io, etc.).
-- Update version strings in `package.json`, `pyproject.toml`, `Cargo.toml`, or similar manifests.
+本参考不做：
+- 创建或推送 git tag。
+- 开 PR 或触发 CI。
+- 发布到 registry（npm、PyPI、crates.io 等）。
+- 更新 `package.json`、`pyproject.toml`、`Cargo.toml` 或类似清单里的版本字符串。
 
-Those belong to `harness-stack:pr` and `harness-stack:ship`. Hand off after `CHANGELOG.md` is committed.
+这些归 `harness-stack:pr` 与 `harness-stack:ship`。在 `CHANGELOG.md` 提交后再交接。

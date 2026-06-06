@@ -1,14 +1,14 @@
 # Code Review Brief
 
-You are reviewing code changes for production readiness.
+你正在审查代码改动是否达到生产就绪。
 
-**Your task:**
+**你的任务：**
 
-1. Run the spec compliance pass against the diff below.
-2. Review the diff across correctness, readability, architecture, security, and performance.
-3. Categorize every finding with severity + `file:line` + what / why / fix.
-4. Emit the report in the Output Format below.
-5. Give a clear verdict — Approve / Approve with fixes / Request changes — with a one-sentence reasoning.
+1. 对下面的 diff 跑一遍 spec 合规检查。
+2. 从 correctness、readability、architecture、security、performance 各维度审查 diff。
+3. 给每条 finding 标注 severity + `file:line` + what / why / fix。
+4. 按下面的 Output Format 发出报告。
+5. 给出明确的 verdict——Approve / Approve with fixes / Request changes——并附一句理由。
 
 ## What Was Implemented
 
@@ -40,7 +40,7 @@ git diff {BASE_SHA}..{HEAD_SHA}
 
 ## Output Format
 
-Emit your review in exactly this shape:
+严格按这个形态发出你的 review：
 
 ```markdown
 ## Review: <title / PR link>

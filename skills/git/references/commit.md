@@ -1,6 +1,6 @@
 # Commit Reference
 
-Operational depth for creating one well-formed commit. The slash command `/harness-stack:commit` is the haiku-driven entry point that follows these rules; this file is the longer-form reference.
+创建一个规范 commit 的操作细节。slash command `/harness-stack:commit` 是遵循这些规则的 haiku 驱动入口；本文件是更长篇的参考。
 
 ## Conventional Format
 
@@ -10,21 +10,21 @@ Operational depth for creating one well-formed commit. The slash command `/harne
 <optional body — explain why, not what>
 ```
 
-**Types:** `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `chore`.
+**Types：** `feat`、`fix`、`refactor`、`perf`、`test`、`docs`、`style`、`chore`。
 
-**Subject:**
+**Subject：**
 
-- ≤ 72 characters
-- Imperative mood (`Add validation`, not `Added` / `Adding`)
-- No trailing period
-- Standalone — should make sense in `git log --oneline` without the body
+- ≤ 72 个字符
+- 祈使语气（`Add validation`，不是 `Added` / `Adding`）
+- 结尾不加句号
+- 自洽——在 `git log --oneline` 里不看 body 也能讲得通
 
-**Body (when intent isn't obvious from the diff):**
+**Body（当意图无法从 diff 一眼看出时）：**
 
-- Wrap at 72 characters
-- State the why, decisions, trade-offs
-- Link bug numbers, benchmark results, design docs where relevant
-- Acknowledge known shortcomings
+- 在 72 字符处换行
+- 说清为什么、做了哪些决定、有哪些取舍
+- 在相关处链接 bug 编号、benchmark 结果、design doc
+- 承认已知的不足
 
 ## Examples
 
@@ -42,18 +42,18 @@ update auth.ts
 
 ## Anti-Patterns
 
-| Don't | Why |
+| 别这样 | 为什么 |
 |---|---|
-| `fix bug`, `update X`, `misc` | Doesn't survive outside the moment it was written. |
-| `Phase 1`, `WIP`, `Slice 2` | Planning references rot; describe the change itself. See below. |
-| `Moving code from A to B` | The diff already shows the move; explain why it moved. |
-| `Add convenience functions` | Vague — name the convenience. |
+| `fix bug`、`update X`、`misc` | 离开写下它的那一刻就活不下去。 |
+| `Phase 1`、`WIP`、`Slice 2` | planning 引用会腐烂；描述改动本身。见下文。 |
+| `Moving code from A to B` | diff 已经显示了这次搬移；解释为什么搬。 |
+| `Add convenience functions` | 含糊——把这个「便利」具体说出来。 |
 
 ## Don't Reference Ephemeral Planning Artifacts
 
-Planning numbers — `Phase 1`, `Slice 2`, `Q3-Q5`, `D-12`, `Task #007`, "per the plan", "see design doc above" — are scoped to one conversation or one in-flight planning document (plan slugs live in gitignored runtime state). They mean nothing to someone reading `git log` next quarter, and the artifacts they reference may have been renamed, moved, or never merged.
+planning 编号——`Phase 1`、`Slice 2`、`Q3-Q5`、`D-12`、`Task #007`、「per the plan」、「见上面的 design doc」——只在一次对话或一份进行中的 planning 文档范围内有意义（plan slug 存在 gitignore 掉的运行时状态里）。对下个季度读 `git log` 的人来说它们什么都不是，而且它们指向的产物可能已被改名、搬走、或根本没合进来。
 
-Describe what the commit *does* in terms that stand alone:
+用自洽的措辞描述这次 commit *做了什么*：
 
 ```
 # Bad
@@ -67,18 +67,18 @@ fix: reject empty task titles before persisting
 chore: remove unused legacy session helpers
 ```
 
-Applies to both subject and body. If a tracking ID is durable and useful (a bug tracker ticket that will outlive the branch, an RFC number kept in-tree), it's fine to mention — but never as the entire description.
+subject 和 body 都适用。如果某个追踪 ID 是持久且有用的（一个会比分支活得久的 bug tracker 工单、一个留在仓库里的 RFC 编号），提一下没问题——但绝不能拿它当整条描述。
 
 ## Describe the Change, Not the Discussion
 
-The body explains the **delivered change**, not the discussion that produced it. Skip:
+body 解释的是**交付的改动**，不是产生它的那场讨论。略去：
 
-- Alternatives that were considered and rejected ("we also looked at X, but…")
-- Option comparisons ("Approach A vs Approach B")
-- Conversational reasoning that belongs in a design doc or PR description
-- Recaps of who proposed what, or what an earlier draft did
+- 考虑过又被否掉的备选方案（「我们也看过 X，但是……」）
+- 选项对比（「方案 A vs 方案 B」）
+- 该放进 design doc 或 PR 描述里的对话式推理
+- 谁提了什么、早先草稿做过什么的复盘
 
-Keep what helps a future reader understand the diff: what the change does, why it does it *that* way, any constraint or invariant not visible in the code. If a longer rationale exists, it belongs in the PR description (which links to the commit), not in the commit message.
+留下能帮未来读者读懂 diff 的内容：改动做了什么、为什么*这样*做、任何在代码里看不出来的约束或不变量。若存在更长的理由，它属于 PR 描述（PR 会链接到 commit），不属于 commit 消息。
 
 ```
 # Bad
@@ -95,24 +95,24 @@ Matches the validation pattern used by auth.ts, keeping schema
 definitions in one place.
 ```
 
-The "Good" example still gives a reason — that's not the same as recapping the discussion. State the rationale; don't narrate the deliberation.
+「Good」示例仍然给了一个理由——这跟复盘讨论不是一回事。陈述理由，别叙述那场推敲。
 
 ## No Attribution Lines
 
-Never append `Co-Authored-By:` trailers, `Generated with ...` banners, or any model/tool identifier. Authorship is in git's `Author` / `Committer` fields; the body describes the change, not the tool. Strip such lines if tooling injects them.
+绝不追加 `Co-Authored-By:` trailer、`Generated with ...` 横幅、或任何模型 / 工具标识。作者归属在 git 的 `Author` / `Committer` 字段里；body 描述的是改动，不是工具。若工具注入了这类行，把它们删掉。
 
 ## Atomic — Splitting Strategies
 
-If the working diff mixes unrelated concerns, split before committing.
+若工作区 diff 混入了不相关的关注点，提交前先拆。
 
-| Strategy | How | When |
+| 策略 | 怎么做 | 何时用 |
 |---|---|---|
-| **Stack** | Submit a small change, base the next on it | Sequential dependencies |
-| **By file group** | Separate commits for groups needing different reviewers | Cross-cutting concerns |
-| **Horizontal** | Shared code / stubs first, consumers after | Layered architecture |
-| **Vertical** | Smaller full-stack slices of the feature | Feature work |
+| **Stack** | 提交一个小改动，下一个基于它 | 顺序依赖 |
+| **By file group** | 给需要不同审阅者的分组分别提交 | 横切关注点 |
+| **Horizontal** | 共享代码 / stub 先行，消费方在后 | 分层架构 |
+| **Vertical** | 把 feature 切成更小的全栈切片 | feature 工作 |
 
-Practical split:
+实际拆分：
 
 ```bash
 git restore --staged .
@@ -125,14 +125,14 @@ git commit -m "feat: validate task creation input"
 
 ## Size Thresholds
 
-| Diff size | Action |
+| Diff 规模 | 处理 |
 |---|---|
-| ≤ ~100 lines | Good. Reviewable in one sitting. |
-| ~100–300 lines | Acceptable for one logical change with tests. |
-| ~300–800 lines | Justify in the body; split if it spans concerns. |
-| > ~1000 lines | Too large. Split. |
+| ≤ ~100 行 | 好。一坐下就能审完。 |
+| ~100–300 行 | 单个带测试的逻辑改动可以接受。 |
+| ~300–800 行 | 在 body 里给出理由；若跨越多个关注点就拆。 |
+| > ~1000 行 | 太大了。拆开。 |
 
-Exceptions: complete deletions, automated codemods, lockfile updates — where the reviewer verifies intent rather than every line. Call these out explicitly.
+例外：完整删除、自动化 codemod、lockfile 更新——这些情况下审阅者核对的是意图，不是逐行。把这些情况明确点出来。
 
 ## Pre-Commit Hygiene
 
@@ -149,23 +149,23 @@ npm run lint
 npm test
 ```
 
-Automate via `husky` + `lint-staged` where the project supports it.
+在项目支持的地方用 `husky` + `lint-staged` 自动化。
 
 ## Stray File Sanity Check
 
-After `git add`, before committing, scan newly tracked files for accidents:
+`git add` 之后、commit 之前，扫一遍新纳入跟踪的文件，查意外混入：
 
-- Build artifacts (`dist/`, `.next/`, `build/`)
-- Logs (`*.log`, `npm-debug.log`)
-- Editor crud (`.DS_Store`, `*.swp`, `Thumbs.db`)
-- Env files (`.env`, `.env.local`)
-- Large binaries the repo doesn't normally track
+- 构建产物（`dist/`、`.next/`、`build/`）
+- 日志（`*.log`、`npm-debug.log`）
+- 编辑器残留（`.DS_Store`、`*.swp`、`Thumbs.db`）
+- 环境文件（`.env`、`.env.local`）
+- 仓库平时不跟踪的大二进制文件
 
-If something looks accidental, `git restore --staged <path>` and (where appropriate) add the pattern to `.gitignore`.
+若某个看起来是意外混入，`git restore --staged <path>`，并在合适处把该模式加进 `.gitignore`。
 
 ## Message Formatting
 
-For non-trivial bodies, write the message via here-doc and commit with `-F`, not `-m` with literal `\n`:
+对内容不简单的 body，用 here-doc 写消息并以 `-F` 提交，而不是用带字面 `\n` 的 `-m`：
 
 ```bash
 git commit -F - <<'EOF'
@@ -175,21 +175,21 @@ Prevents invalid email formats from reaching the database.
 EOF
 ```
 
-`git commit -m "...\n..."` produces a single-line message in many shells. Avoid it.
+`git commit -m "...\n..."` 在许多 shell 里会产出一条单行消息。别用它。
 
 ## Failure Handling
 
-- Pre-commit hook failed → fix the underlying issue and create a **new** commit. Never `--amend` to hide a hook failure.
-- Don't `--no-verify` to bypass hooks unless the user explicitly asks.
-- Sensitive file already committed → don't `--force` it away. Stop and ask; secret rotation may be needed regardless.
+- pre-commit hook 失败 → 修掉底层问题，再创建一个**新的** commit。绝不用 `--amend` 来掩盖 hook 失败。
+- 别用 `--no-verify` 绕过 hook，除非用户明确要求。
+- 敏感文件已经被提交 → 别用 `--force` 把它抹掉。停下来问；无论如何可能都需要轮换密钥。
 
 ## Verification
 
-- [ ] One logical change
-- [ ] Conventional type, imperative subject, ≤ 72 chars
-- [ ] Body explains why (when non-trivial)
-- [ ] No planning / task / milestone numbers in subject or body
-- [ ] Body describes the change, not the discussion that produced it
-- [ ] No secrets in staged diff
-- [ ] No attribution trailers
-- [ ] No stray artifacts staged
+- [ ] 单个逻辑改动
+- [ ] conventional type、祈使 subject、≤ 72 字符
+- [ ] body 解释了为什么（当内容不简单时）
+- [ ] subject 和 body 里都没有 planning / task / milestone 编号
+- [ ] body 描述的是改动，不是产生它的讨论
+- [ ] staged diff 里没有密钥
+- [ ] 没有署名 trailer
+- [ ] 没有误入的产物被 stage

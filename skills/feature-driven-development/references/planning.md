@@ -1,12 +1,10 @@
 # Phase 1 — Planning
 
-The most important phase. Quality here is amplified by every later phase; rushed
-planning causes omissions, rework, and failed builds. Do not enter Phase 2 until the
-user has explicitly accepted the plan.
+最重要的 phase。这里的质量会被后续每个 phase 放大；规划赶工会导致遗漏、返工和构建失败。在用户显式接受 plan 之前，不要进入 Phase 2。
 
 ## Step 0 — Init
 
-Pick a short kebab-case slug (`checkout-flow`, `auth-migration`) and:
+挑一个简短的 kebab-case slug（`checkout-flow`、`auth-migration`），然后：
 
 ```bash
 hs-plan init <slug>     # creates .harness-runtime/plans/<slug>/ + makes it active
@@ -15,101 +13,68 @@ hs-plan active          # verify
 
 ## Step 1 — Understand requirements with the user
 
-Goal: surface what the user actually wants (not your assumptions), catch implicit /
-offhand requirements, and map infrastructure boundaries.
+目标：把用户真正想要的东西（而非你的假设）浮出水面，抓住隐含 / 顺口提及的需求，并梳理出基础设施边界。
 
-1. **Restate the goal** in one paragraph, ending with "*tell me where this is wrong.*" Wait for correction.
-2. Identify the **user-facing surfaces** (CLI, HTTP API, UI pages, background jobs, library). Confirm with the user.
-3. Ask clarifying questions. Use `AskUserQuestion` to group 2-4 related decisions; don't mix unrelated ones.
+1. 用一段话**复述目标**，结尾加上「*告诉我哪里说错了。*」等待纠正。
+2. 识别面向用户的各个**界面**（CLI、HTTP API、UI 页面、后台任务、库）。与用户确认。
+3. 提澄清问题。用 `AskUserQuestion` 把 2-4 个相关决策归为一组；别把不相关的混在一起。
 
-Suggested clarification topics (skip any already answered):
+建议的澄清话题（已答过的跳过）：
 
-| Topic | Why it matters downstream |
+| 话题 | 为何对下游重要 |
 |---|---|
-| Scope boundaries — "is X in scope?" | Prevents feature creep in Phase 3 |
-| Non-functional needs: performance, security, accessibility | Become cross-area assertions in the contract |
-| Tech preferences / constraints | Shape implementer briefs |
-| Testing surface — real browser? curl? CLI? | Shapes the contract's evidence + the user-test probe |
-| Infrastructure — ports? existing services? off-limits resources? | Written verbatim into `plan.md` Infrastructure (worker boundaries) |
+| 范围边界——「X 在范围内吗？」 | 防止 Phase 3 出现特性蔓延 |
+| 非功能性需求：性能、安全、可访问性 | 在 contract 里成为跨 area 的断言 |
+| 技术偏好 / 约束 | 塑造 implementer brief |
+| 测试界面——真实浏览器？curl？CLI？ | 塑造 contract 的 evidence + user-test 探测 |
+| 基础设施——端口？已有服务？禁区资源？ | 原样写入 `plan.md` 的 Infrastructure（worker 边界） |
 
-**Do not assume.** When unsure, ask. An offhand "oh, it should also…" is a full
-requirement — capture it. Reframe vague asks into concrete, testable intent;
-surface assumptions explicitly; separate must-have from nice-to-have.
+**不要假设。** 拿不准就问。一句顺口的「哦，它还应该……」就是一条完整需求——把它捕获下来。把含糊的请求重述为具体、可测试的意图；把假设显式摆出来；把 must-have 和 nice-to-have 分开。
 
 ## Step 2 — Investigate the codebase
 
-Delegate to read-only subagents (`harness-stack:architect` or a plain Explore agent);
-run independent investigations in parallel. **You** read only structure: README,
-AGENTS.md, manifests (`package.json` / `Cargo.toml` / `pyproject.toml`), the top-level
-tree, and top-level build/test entry points. Subagents read: existing module structure
-in the affected area, how sibling features are wired, the test framework and how to run
-a single test, whether the target surface already exists, and which dev/db/queue
-services run on which ports.
+委派给只读 subagent（`harness-stack:architect` 或一个普通的 Explore agent）；让互不相关的调查并行跑。**你**只读结构：README、AGENTS.md、清单文件（`package.json` / `Cargo.toml` / `pyproject.toml`）、顶层目录树、以及顶层的 build/test 入口。subagent 读：受影响 area 里现有的模块结构、同级 feature 是怎么接线的、测试框架和如何跑单个测试、目标界面是否已存在、以及哪些 dev/db/queue 服务跑在哪些端口上。
 
-Each investigation prompt states its **goal** (what decision it informs), **scope**
-(which paths), and **expected output** (a paragraph + short list with `path:line`, not
-a code dump). If you must run the project to learn how, **confirm how to run it** —
-build/test commands, dev server, db config, required services, env vars.
+每条调查 prompt 都要说明它的 **goal**（它支撑什么决策）、**scope**（哪些路径）、以及 **expected output**（一段话 + 一份带 `path:line` 的简短清单，而非一坨代码）。如果你必须跑项目才能学会怎么跑，**先确认怎么跑**——build/test 命令、dev server、db 配置、所需服务、环境变量。
 
 ## Step 3 — Online research (only if needed)
 
-If the build leans on a small/new ecosystem or an SDK-heavy integration where exact
-API surface matters, dispatch a research subagent (with WebSearch/WebFetch). Distil
-durable findings into the `docs/` Library, not the plan.
+如果构建依赖一个小众/新生的生态、或一个 SDK 重度集成且精确 API 界面很关键，派一个研究 subagent（带 WebSearch/WebFetch）。把耐久的发现提炼进 `docs/` Library，而非 plan。
 
 ## Step 4 — Identify and confirm milestones
 
-A **milestone** is a vertical slice that leaves the product in a testable, coherent
-state. Each milestone boundary triggers full validation (review + user-test).
+一个 **milestone** 是一个垂直切片，它让产品停在一个可测试、自洽的状态。每个 milestone 边界都会触发完整验证（review + user-test）。
 
-- Small build: **1 milestone** (validators run once at the end).
-- Medium: **2-3 milestones**, organized by surface or "layers then integration."
-- Large: **3-5 milestones**. More than 5 usually means the work should be split.
+- 小型构建：**1 个 milestone**（validator 在最后跑一次）。
+- 中型：**2-3 个 milestone**，按界面或「先分层再集成」组织。
+- 大型：**3-5 个 milestone**。超过 5 个通常意味着这份工作该拆了。
 
-Present each milestone as a name + one-line "after this, the product can do X." Get
-explicit agreement before continuing.
+把每个 milestone 表述为「名字 + 一句『这之后，产品就能做 X』」。继续之前取得显式同意。
 
 ## Step 5 — Infrastructure and boundaries
 
-Confirm and record what workers may and may not touch: port range for new services;
-external services they may use (e.g. existing postgres on `:5432`); off-limits services
-and paths; concurrency rules (default: one feature at a time). These go verbatim into
-the `plan.md` **Infrastructure** section and are echoed into the implementer brief's
-Boundaries block — there is no per-plan AGENTS.md, so `plan.md` is authoritative for
-boundaries.
+确认并记录 worker 可碰与不可碰的东西：新服务的端口范围；它们可用的外部服务（例如跑在 `:5432` 上的现有 postgres）；禁区服务和路径；并发规则（默认：一次一个 feature）。这些原样写入 `plan.md` 的 **Infrastructure** 小节，并回显进 implementer brief 的 Boundaries 块——不存在逐 plan 的 AGENTS.md，所以边界以 `plan.md` 为准。
 
 ## Step 6 — Testing strategy
 
-Confirm: the **test command** (verify it works *now* — dispatch a subagent to run it
-once); the **user-test surface** (how the validator exercises the product end-to-end —
-dev server + browser MCP, curl against the API, CLI binary, library fixtures); and the
-**surface cost tier** per surface (cheap / medium / expensive), which the user-test
-probe uses to choose an isolation strategy. These conventions live in
-`docs/user-test-patterns.md` (Library); reference it rather than re-deriving.
+确认：**测试命令**（确认它*现在*能跑——派一个 subagent 跑一次）；**user-test 界面**（validator 如何端到端地驱动产品——dev server + browser MCP、对 API 打 curl、CLI 二进制、库 fixture）；以及每个界面的 **surface cost tier**（cheap / medium / expensive），user-test 探测据此选择隔离策略。这些约定活在 `docs/user-test-patterns.md`（Library）里；引用它，别重新推导。
 
 ## Step 7 — Draft features (shape only)
 
-List candidate features per milestone — enough to confirm scope with the user. Each
-should be ~one worker session of work, independently reviewable, and concrete (a
-specific endpoint/table/component/function), with foundational features before
-dependents. Defer preconditions/`verificationSteps` to Phase 3.
+按 milestone 列出候选 feature——足够与用户确认范围即可。每个应约为一个 worker session 的工作量、可独立评审、且具体（一个特定的 endpoint/table/component/function），基础性 feature 排在依赖它的 feature 前面。把 precondition/`verificationSteps` 推迟到 Phase 3。
 
 ## Step 8 — Write the plan
 
-Write the accepted proposal to `.harness-runtime/plans/<slug>/plan.md` using
-`references/plan-template.md`. Echo every captured requirement in the **Captured
-requirements** section before presenting.
+用 `references/plan-template.md` 把已接受的方案写到 `.harness-runtime/plans/<slug>/plan.md`。在呈现之前，把每一条已捕获的需求在 **Captured requirements** 小节里复述一遍。
 
 ## Step 9 — Acceptance gate
 
-Present the plan and ask: *"Accept this plan? Propose changes and I'll revise."* On
-acceptance, the `plan.md` stands as the agreed proposal; tell the user you're moving to
-Phase 2 (contract) and will return for review when artifacts are ready.
+呈现 plan 并问：*「接受这份 plan 吗？提出修改我就改。」* 一旦接受，`plan.md` 就作为商定的方案确立下来；告诉用户你要进 Phase 2（contract），artifacts 就绪后会回来评审。
 
 ## Anti-patterns
 
-- ❌ Investigating the codebase before Step 1 (you don't know what to look for yet).
-- ❌ Investigating it yourself instead of via subagents (pollutes your context).
-- ❌ Decomposing features (Step 7) before milestones are confirmed (Step 4).
-- ❌ Writing `features.json` here — that's Phase 3, after the contract.
-- ❌ Skipping the requirement replay (near-certain to drop a requirement).
+- ❌ 在 Step 1 之前就调查代码库（你还不知道要找什么）。
+- ❌ 自己调查而不经 subagent（污染你的上下文）。
+- ❌ 在 milestone 确认（Step 4）之前就拆解 feature（Step 7）。
+- ❌ 在这里写 `features.json`——那是 Phase 3 的事，在 contract 之后。
+- ❌ 跳过需求复述（几乎必然会漏掉一条需求）。
