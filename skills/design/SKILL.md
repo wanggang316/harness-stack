@@ -179,7 +179,6 @@ DESIGN DOC 待评审：
 
 - **harness-stack:design** 是**独立且可选**的——它不是主 build 流程中的一步。当一个解法含糊到值得在动工前论证并记录技术路线时（非平凡的重构、迁移或架构决策），才取用它。
 - 它的产物 `docs/design-docs/<name>.md` 是受版本管理的 Library：「系统当初为何如此设计」的 source of truth。
-- **`design`（本技能，写文档）vs `architect`（agent，给判断）：** 当你想把一项技术决策**记成文档**留痕时，用 `design`；当你只需要在流程中途要一个**专家意见**（返回判断、不落文档）时，派发 `harness-stack:architect` 子代理。`design` 在论证路线时可以反过来派 `architect` 来辅助。
 - **harness-stack:feature-driven-development** 是构建 feature 的主流程。它会读取相关的 design doc（如果有），但从不要求或调用 `design`。
 
 ## Common Rationalizations

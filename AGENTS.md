@@ -48,7 +48,7 @@ Agent-first development framework implementing the harness methodology.
 ### Specialized Agents
 
 When you need expert judgment:
-- `harness-stack:architect` - System design, technical decisions
+- `harness-stack:investigator` - Read-only codebase investigation & online research
 - `harness-stack:code-reviewer` - PR review, quality checks
 
 Reused by feature-driven-development's execution loop:

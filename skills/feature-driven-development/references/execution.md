@@ -97,7 +97,7 @@ implementer 为每个 feature 创建自己的原子 commit（conventional-commit
 当用户在流程中途要求一处改动时：
 
 1. **暂停**——不要立刻拆解。
-2. **澄清 + 调查**——`AskUserQuestion` + 只读 subagent（若涉及新技术再加研究）。迭代到清晰为止。
+2. **澄清 + 调查**——`AskUserQuestion` + 只读 `investigator`（若涉及新技术再加在线调研）。迭代到清晰为止。
 3. **提出**你打算如何容纳它（新 feature / 改动范围 / 新 milestone）。取得接受。
 4. **在任何 implementer 恢复前传播到共享状态：** `plan.md`（范围/策略/边界）、`docs/` Library（耐久约定），以及——对变化了的可测试行为——`validation-contract.md`。**把 contract 的编辑委派给一个 subagent**；不要在流程中途手改 contract。语义：新断言 → 增加 + `hs-plan init-state`（播种为 `pending`）；移除 → 从 contract 删除、重跑 `init-state`（从 state 里去掉它）；改动到先前证据不再能证明它 → 它的断言在重新探测时复位为 `pending`。
 5. **重新覆盖**——更新 `features.json` 让每条断言都被认领；`hs-plan contract-coverage` OK。

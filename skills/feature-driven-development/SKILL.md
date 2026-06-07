@@ -15,6 +15,7 @@ FDD 把一次构建中易变的状态——plan、完成的定义、工作清单
 
 controller 编排，下列 subagent 干活：
 
+- `harness-stack:investigator` — 只读调查 / 在线调研：规划阶段查代码库、流程中途分析范围变更、feature 失败根因分析
 - `harness-stack:implementer` — 实现单个 feature
 - `harness-stack:code-reviewer` — per-feature 静态评审：生产就绪度（含 scope/spec 合规一遍）
 - `harness-stack:scrutiny-validator` — **milestone 闸**：独立跑硬门禁（test/lint/type-check，只看新增失败）+ 逐 feature scrutiny + 产出治理建议（suggestedGuidanceUpdates）
@@ -48,7 +49,7 @@ controller 编排，下列 subagent 干活：
 
 你是架构师。**你绝不写实现代码，也绝不自己跑构建。**
 
-当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `references/execution.md` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 subagent 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
+当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `references/execution.md` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 `investigator` 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
 
 你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `hs-plan` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清（Phase 1 密集，之后轻量）。
 
@@ -70,7 +71,7 @@ controller 编排，下列 subagent 干活：
 琐碎工作跳过整个生命周期。但**不要**跳过 Phase 1——规划质量会被后续每个 phase 放大。
 
 ### Phase 1 — Plan
-初始化 plan 目录（`hs-plan init <slug>`），与用户一起弄懂需求，经只读 subagent 调查代码库，商定 milestone（垂直切片），把已接受的方案写进 `plan.md`。进 Phase 2 前取得显式接受。完整流程：`references/planning.md`。
+初始化 plan 目录（`hs-plan init <slug>`），与用户一起弄懂需求，经只读 `investigator` 调查代码库，商定 milestone（垂直切片），把已接受的方案写进 `plan.md`。进 Phase 2 前取得显式接受。完整流程：`references/planning.md`。
 
 ### Phase 2 — Contract
 调用 `harness-stack:validation-contract`、指向本 plan，来撰写 `validation-contract.md`——定义「完成」的那些可测试、用户可观测的断言（`VAL-<AREA>-NNN`）。它会跑对抗式的多 agent 撰写过程，并以 `hs-plan init-state` 收尾，给 `validation-state.json` 播种（所有断言为 `pending`）。这是契约优先的 TDD 闸：**contract 不存在就不许有 `features.json`。**

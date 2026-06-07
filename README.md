@@ -42,7 +42,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 ### Subagents (Expert judgment)
 | Agent | Expertise |
 |-------|-----------|
-| `harness-stack:architect` | System design, technical decisions |
+| `harness-stack:investigator` | Read-only codebase investigation & online research |
 | `harness-stack:code-reviewer` | PR review, quality checks |
 
 ## Naming Convention

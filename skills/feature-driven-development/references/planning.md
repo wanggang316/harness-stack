@@ -33,13 +33,13 @@ hs-plan active          # verify
 
 ## Step 2 — Investigate the codebase
 
-委派给只读 subagent（`harness-stack:architect` 或一个普通的 Explore agent）；让互不相关的调查并行跑。**你**只读结构：README、AGENTS.md、清单文件（`package.json` / `Cargo.toml` / `pyproject.toml`）、顶层目录树、以及顶层的 build/test 入口。subagent 读：受影响 area 里现有的模块结构、同级 feature 是怎么接线的、测试框架和如何跑单个测试、目标界面是否已存在、以及哪些 dev/db/queue 服务跑在哪些端口上。
+委派给只读的 `harness-stack:investigator` 子代理；让互不相关的调查并行跑。**你**只读结构：README、AGENTS.md、清单文件（`package.json` / `Cargo.toml` / `pyproject.toml`）、顶层目录树、以及顶层的 build/test 入口。investigator 读：受影响 area 里现有的模块结构、同级 feature 是怎么接线的、测试框架和如何跑单个测试、目标界面是否已存在、以及哪些 dev/db/queue 服务跑在哪些端口上。
 
 每条调查 prompt 都要说明它的 **goal**（它支撑什么决策）、**scope**（哪些路径）、以及 **expected output**（一段话 + 一份带 `path:line` 的简短清单，而非一坨代码）。如果你必须跑项目才能学会怎么跑，**先确认怎么跑**——build/test 命令、dev server、db 配置、所需服务、环境变量。
 
 ## Step 3 — Online research (only if needed)
 
-如果构建依赖一个小众/新生的生态、或一个 SDK 重度集成且精确 API 界面很关键，派一个研究 subagent（带 WebSearch/WebFetch）。把耐久的发现提炼进 `docs/` Library，而非 plan。
+如果构建依赖一个小众/新生的生态、或一个 SDK 重度集成且精确 API 界面很关键，派 `harness-stack:investigator`（它带 WebSearch/WebFetch）做在线调研。把耐久的发现提炼进 `docs/` Library，而非 plan。
 
 ## Step 4 — Identify and confirm milestones
 

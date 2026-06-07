@@ -32,7 +32,7 @@ harness-stack 文档中心。
 | Ship | harness-stack:ship | [SKILL.md](../skills/ship/SKILL.md) |
 
 ### Subagents
-- [harness-stack:architect](../agents/architect.md) — 系统设计
+- [harness-stack:investigator](../agents/investigator.md) — 只读调查 / 在线调研
 - [harness-stack:code-reviewer](../agents/code-reviewer.md) — 代码审查
 
 ## References

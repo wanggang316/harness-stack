@@ -24,7 +24,7 @@ implementer 撞上了它解决不了的东西，求助了。查 `criticalContext
 
 ## B — `successState: failure`
 
-1. 把失败分析委派给一个只读 subagent：读 handoff（尤其是 `verificationEvidence`、`criticalContext`、`discoveredIssues`）、该 feature、以及 `plan.md`；定位根因；推荐 1-3 个修复 feature（id、description、preconditions、expectedBehavior、verificationSteps、agent、fulfills），并判断原 feature 是更新 description 后留作 `pending`、还是被替换。
+1. 把失败分析委派给只读的 `harness-stack:investigator`：读 handoff（尤其是 `verificationEvidence`、`criticalContext`、`discoveredIssues`）、该 feature、以及 `plan.md`；定位根因；推荐 1-3 个修复 feature（id、description、preconditions、expectedBehavior、verificationSteps、agent、fulfills），并判断原 feature 是更新 description 后留作 `pending`、还是被替换。
 2. 最常见：在 `features.json` 的**顶部**创建修复 feature 并把原 feature 复位为 `pending`。修复先跑；原 feature 之后重跑。
 
 ## C — `successState: partial`
