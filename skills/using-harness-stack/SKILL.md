@@ -19,7 +19,7 @@ harness-stack 是一个 agent-first 的开发框架。人类给出方向；agent
 | **Verify** | 有东西坏了或未经验证 | `harness-stack:debug`（root cause）、`harness-stack:user-test`（对照 contract 断言探测运行中的系统；写入 `validation-state.json`） |
 | **Review** | 改动已就绪、可供审视 | `harness-stack:review-request`（派发）、`harness-stack:review-receive`（处理发现）、`harness-stack:security`（安全审计） |
 | **Deliberate** | 问题有争议或高风险 | `harness-stack:debate`（多轮）、`harness-stack:decide`（一次性并行） |
-| **Ship** | 代码已获批 | `harness-stack:commit` → `harness-stack:pr` → `harness-stack:changelog` → `harness-stack:land` → `harness-stack:ship` |
+| **Ship** | 代码已获批 | `harness-stack:commit` → `harness-stack:pr`（开 PR 并推进到合并）→ `harness-stack:changelog` → `harness-stack:ship` |
 | **Meta** | 管理框架本身 | `harness-stack:docs-init`、`harness-stack:env-init`、`harness-stack:skill-create` |
 
 Trivial 的工作（一行修复、错别字、显而易见的重命名）跳过 lifecycle。请用判断力：这些 skill 的存在是为了防止跳过它们所带来的失败模式，而不是走形式。

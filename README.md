@@ -41,6 +41,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 | Review | `/harness-stack:review-receive` | Handle reviewer feedback with rigor |
 | Review | `/harness-stack:security` | Security audit |
 | Ship | `/harness-stack:git` | Git workflow and versioning |
+| Ship | `/harness-stack:pr` | Open a PR and drive it to a clean merge |
 | Ship | `/harness-stack:ship` | Shipping and launch |
 
 ### Subagents (Expert judgment)

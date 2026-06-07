@@ -46,7 +46,7 @@ Agent-first development framework implementing the harness methodology.
 **Ship** → Deploy and release
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
-- `/harness-stack:land` - Drive an open PR to a clean merge
+- `/harness-stack:pr` - Open a PR and drive it to a clean merge
 - `/harness-stack:ship` - Shipping and launch
 
 ### Specialized Agents
@@ -74,7 +74,7 @@ Reused by fdd's execution loop:
 
 1. Build a feature: `/harness-stack:fdd <goal>` for any non-trivial change — it drives plan → contract → features → execution.
 2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
-3. Ship: `/harness-stack:commit` → `/harness-stack:pr` → `/harness-stack:land` → `/harness-stack:ship`.
+3. Ship: `/harness-stack:commit` → `/harness-stack:pr` (opens and lands) → `/harness-stack:ship`.
 
 ## Packages
 

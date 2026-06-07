@@ -31,7 +31,7 @@ harness-stack 文档中心。
 | Review | harness-stack:security | [SKILL.md](../skills/security/SKILL.md) |
 | Ship | harness-stack:changelog | [SKILL.md](../skills/changelog/SKILL.md) |
 | Ship | harness-stack:git | [SKILL.md](../skills/git/SKILL.md) |
-| Ship | harness-stack:land | [SKILL.md](../skills/land/SKILL.md) |
+| Ship | harness-stack:pr | [SKILL.md](../skills/pr/SKILL.md) |
 | Ship | harness-stack:ship | [SKILL.md](../skills/ship/SKILL.md) |
 
 ### Subagents
