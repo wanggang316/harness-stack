@@ -1,11 +1,11 @@
 ---
 name: fdd-execution
-description: FDD 的 Phase 4——执行循环。串行驱动 feature 构建：next-feature → 派 implementer → handoff 决策树 → per-feature code-review → 运行时探测 → complete；在 milestone 边界与收尾把 gate 交给 harness-stack:fdd-validate。由 harness-stack:fdd 在 features.json 通过 coverage 后调用。
+description: FDD 的 Phase 4——执行循环。串行驱动 feature 构建：next-feature → 派 implementer → handoff 决策树 → complete；每个 feature 构建完调 harness-stack:fdd-validate（feature scope）跑验证流水线，里程碑收口调 fdd-validate（milestone scope）、循环跑空调 fdd-validate（final scope）。由 harness-stack:fdd 在 features.json 通过 coverage 后调用。
 ---
 
 # fdd-execution：FDD 执行循环
 
-最长的 phase。你驱动一个串行循环：一次一个 feature 过它的 per-feature 闸，在 milestone 边界与全部做完时把更重的 gate 交给 `harness-stack:fdd-validate`。
+最长的 phase。你驱动一个**串行构建循环**：一次一个 feature，构建完就把它交给 `harness-stack:fdd-validate` 的验证流水线（静态验证 → 代码审查 → user-test）；在里程碑边界与循环跑空时，按更大的 scope 再调 fdd-validate。
 
 ```
 loop:
@@ -14,18 +14,17 @@ loop:
   hs-plan set-status f in_progress
   dispatch implementer  -> handoff (hs-plan handoff f)
   run handoff decision tree (references/handoff-handling.md)
-  code-review gate    -> loop back to implementer until Approve / Approve-with-fixes (no Critical)
-  if f.fulfills non-empty: user-test probe over f.fulfills -> loop back on FAIL
+  harness-stack:fdd-validate(scope=feature, f)   # 静态→审查→user-test；任一级失败回 implementer
   hs-plan set-status f completed
   if milestone's impl features all completed/cancelled and not sealed:
-     -> harness-stack:fdd-validate (milestone gate) -> hs-plan seal-milestone <m>
+     harness-stack:fdd-validate(scope=milestone)  -> hs-plan seal-milestone <m>
 when loop empty:
-  -> harness-stack:fdd-validate (final integration) -> hs-plan gate
+  harness-stack:fdd-validate(scope=final)         -> hs-plan gate
 ```
 
-**执行是串行的。** 一次一个 feature。一个 phase 内部的只读并行（并行研究、并行评审互不相关的文件）没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
+**执行是串行的。** 一次一个 feature。一个 phase 内部的只读并行没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
 
-**controller 绝不写代码、绝不为修一处发现而去编辑实现。** 每一处修复都回到 implementer。controller 一旦编辑代码，全新上下文不变量就没了。
+**controller 绝不写代码、绝不为修一处发现而去编辑实现。** 每一处修复都回到 implementer。controller 一旦编辑代码，全新上下文不变量就没了。验证本身不在本技能里做——它全部委派给 `harness-stack:fdd-validate`；本技能只负责构建并在对的粒度调它。
 
 ## Before the loop (once)
 
@@ -55,15 +54,12 @@ hs-plan set-status <id> in_progress
 ```bash
 hs-plan handoff <id>
 ```
-跑 `references/handoff-handling.md` 里的决策树。它会路由 `returnToController` / `failure` / `partial` / `success`，追踪 `discoveredIssues` / `whatWasLeftUndone`，并传播 `criticalContext`。一个 feature 只有在 `success` 经核验后才推进到下面的各道闸。
+跑 `references/handoff-handling.md` 里的决策树。它会路由 `returnToController` / `failure` / `partial` / `success`，追踪 `discoveredIssues` / `whatWasLeftUndone`，并传播 `criticalContext`。一个 feature 只有在 `success` 经核验后才推进到验证。
 
-### 5. Code-review gate
-用 `references/code-reviewer-brief.md` 发 `Task(subagent_type="code-reviewer", …)`，对该 feature 的 diff 做 per-feature 静态评审（质量 + scope/spec 合规）。Approve 或 Approve-with-fixes（无 Critical）→ 继续。存在 Critical / Request changes → 重新派发 implementer；循环。（独立的硬门禁 test/lint/type-check 在 milestone 边界由 `fdd-validate` 的 scrutiny-validator 统一跑。）
+### 5. Validate（feature scope）
+调用 `harness-stack:fdd-validate`，scope = feature，对象是该 feature 的 diff 区间与它的 `fulfills`。它按 **静态验证 → 代码审查 → user-test** 三级跑：硬门禁（test/lint/type-check）→ code-review（质量 + scope/spec）→ 运行时探测（基础性 feature `fulfills` 为空时跳过这一级）。任一级失败 → 带证据**重新派发 implementer**；循环（每 feature 的轮次预算见下）。三级全过才继续。
 
-### 6. Runtime probe (completing features only)
-若 feature 的 `fulfills` 非空，对恰好那些 `VAL-` id 以及该 feature 的 diff 区间调用 `harness-stack:user-test`。validator 探测运行中的系统，**由 controller 回写结果**——按返回的矩阵执行 `hs-plan set-assertion <VAL-id> <status> [evidence]`。任何 FAIL → 带上失败断言的证据重新派发 implementer；循环。基础性 feature（`fulfills: []`）跳过这道闸。
-
-### 7. Complete
+### 6. Complete
 ```bash
 hs-plan set-status <id> completed     # moves it to the bottom
 ```
@@ -71,11 +67,11 @@ hs-plan set-status <id> completed     # moves it to the bottom
 
 ## Milestone & final gates
 
-当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且尚未封存（`hs-plan is-sealed <m>` → `no`）时，把它交给 **`harness-stack:fdd-validate`**（scrutiny-validator 硬门禁 + scrutiny、条件 security-auditor、user-test、应用治理反馈、seal）。当循环跑空、所有 milestone 已封存时，再交给 `fdd-validate` 做最终集成评审与 `hs-plan gate`。完整流程见该技能。
+当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且尚未封存（`hs-plan is-sealed <m>` → `no`）时，调用 **`harness-stack:fdd-validate`，scope = milestone**——它对里程碑累计 diff 再跑一遍流水线（stage 1 加跨 feature scrutiny + 治理反馈、触敏感面时并行 security-auditor，stage 3 重探里程碑断言子集），全过后应用治理反馈并 `hs-plan seal-milestone`。当循环跑空、所有 milestone 已封存时，调用 **`harness-stack:fdd-validate`，scope = final**——跨 milestone scrutiny + coverage gate + `hs-plan gate`。完整流程见该技能。
 
 ## Round budget
 
-**每个 feature 3 轮。** 3 轮 implementer 之后仍 `BLOCKED`、或 code-review 仍有 Critical → 停下并上交给人。问题出在 plan、contract、或 feature 范围上；再加轮次只会稀释信号。绝不在相同条件下重新派发一个 `BLOCKED` feature——换上下文、换模型，或拆了它。
+**每个 feature 3 轮。** 3 轮 implementer 之后 fdd-validate 仍不过、或仍 `BLOCKED` → 停下并上交给人。问题出在 plan、contract、或 feature 范围上；再加轮次只会稀释信号。绝不在相同条件下重新派发一个 `BLOCKED` feature——换上下文、换模型，或拆了它。
 
 ## Commit discipline
 

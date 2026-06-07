@@ -32,7 +32,7 @@ Agent-first development framework implementing the harness methodology.
 
 **Verify** → Debug and test
 - `/harness-stack:debug` - Debugging and error recovery
-- `/harness-stack:user-test` - Probe a running system against a plan's validation-contract assertions; writes results to validation-state.json
+- `/harness-stack:fdd-validate` - Validation pipeline (static → review → user-test); probes contract assertions against the running system and writes results to validation-state.json
 
 **Review** → Ensure quality
 - `/harness-stack:review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
@@ -55,10 +55,10 @@ When you need expert judgment:
 - `harness-stack:investigator` - Read-only codebase investigation & online research
 - `harness-stack:code-reviewer` - PR review, quality checks
 
-Reused by fdd's execution loop:
-- `harness-stack:implementer` - Builds one feature, emits a handoff JSON
-- `harness-stack:scrutiny-validator` - Milestone gate: hard test/lint/type-check gate + per-feature scrutiny review + guidance feedback
-- `harness-stack:user-test-validator` - Probes contract assertions against the running system
+Reused by the fdd flow:
+- `harness-stack:implementer` - Builds one feature, emits a handoff JSON (dispatched by fdd-execution)
+- `harness-stack:scrutiny-validator` - fdd-validate stage 1 (static validation): hard test/lint/type-check gate + scrutiny; governance feedback at milestone/final scope
+- `harness-stack:user-test-validator` - fdd-validate stage 3 (user-test): probes contract assertions against the running system
 
 ## Golden Rules
 

@@ -25,7 +25,7 @@ harness-stack 文档中心。
 | Build（step 3）| harness-stack:fdd-validate | [SKILL.md](../skills/fdd-validate/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/tdd/SKILL.md) |
 | Verify | harness-stack:debug | [SKILL.md](../skills/debug/SKILL.md) |
-| Verify | harness-stack:user-test | [SKILL.md](../skills/user-test/SKILL.md) |
+| Verify | harness-stack:fdd-validate | [SKILL.md](../skills/fdd-validate/SKILL.md) |
 | Review | harness-stack:review-request | [SKILL.md](../skills/review-request/SKILL.md) |
 | Review | harness-stack:review-receive | [SKILL.md](../skills/review-receive/SKILL.md) |
 | Review | harness-stack:security | [SKILL.md](../skills/security/SKILL.md) |

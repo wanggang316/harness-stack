@@ -1,28 +1,14 @@
----
-name: user-test
-description: 把应用真跑起来，对一个 plan 的 validation-contract 断言子集逐条探测，按断言给出 PASS/FAIL 与证据。它依据 surface cost tier 规划隔离，派发一个或多个全新上下文的 validator（界面大或昂贵时并行），合并它们的矩阵，通过 hs-plan 把每条结果回写 validation-state.json，并把运行中沉淀的操作性事实写入 patterns 文档。在某个 feature 实现后、里程碑边界、或合并前需要超出静态评审的行为级验证时使用。
----
+# Stage 3 — user-test：运行时断言验证
 
-# user-test：运行时断言验证
+> `fdd-validate` 流水线第 3 级的执行细则——在静态验证（stage 1）与代码审查（stage 2）之后，从用户视角确认运行中的系统真的符合 validation contract。由 fdd-validate 在 feature / milestone / final 各 scope 调用，断言子集与 diff 区间由调用方按 scope 给定（feature scope = 该 feature 的 `fulfills`；milestone scope = 该里程碑断言子集；final scope = 全集 coverage）。
 
 ## Overview
 
-静态工具——单测、lint、类型检查、code review——读的是代码。它们无法告诉你**运行中的系统**是否真的符合 validation contract 的要求。本技能补上这道缝：拉起应用、规划如何隔离各条断言、对活系统逐条探测、给出带证据的覆盖矩阵。探测由一个从未读过实现的全新 subagent 执行；PASS / FAIL 只依据可观测状态判定。
+静态工具——单测、lint、类型检查、code review——读的是代码。它们无法告诉你**运行中的系统**是否真的符合 validation contract 的要求。本 stage 补上这道缝：拉起应用、规划如何隔离各条断言、对活系统逐条探测、给出带证据的覆盖矩阵。探测由一个从未读过实现的全新 subagent 执行；PASS / FAIL 只依据可观测状态判定。
 
-本技能是 **controller**：它解析运行目标、规划隔离、派发 validator、合并结果。`user-test-validator` subagent 是**无状态探针**：跑一组断言，返回一份局部矩阵。当一次运行规模大、或其界面成本昂贵时，controller 并行派发多个 validator——每个隔离组一个——再合并。没有单独的「flow」agent：复用同一个 validator，编排由 controller 负责。
+在本 stage，**fdd-validate 担任 controller**：它解析运行目标、规划隔离、派发 validator、合并结果。`user-test-validator` subagent 是**无状态探针**：跑一组断言，返回一份局部矩阵。当一次运行规模大、或其界面成本昂贵时，controller 并行派发多个 validator——每个隔离组一个——再合并。没有单独的「flow」agent：复用同一个 validator，编排由 controller 负责。
 
-## When to Use
-
-- 某个 feature 刚实现完，需要确认它绑定的断言在运行系统上确实通过。
-- 一个里程碑完成，需要在宣布完成前做跨 feature 的验证。
-- 一个 flat plan 即将合并，你想要测试套件输出之外的行为级证据。
-- 你在排查「测试过了但跑起来不对」，需要确认运行时到底哪些断言成立。
-
-## When NOT to Use
-
-- 该 plan 在 `.harness-runtime/plans/<slug>/` 下没有 `validation-contract.md`。运行时验证需要具体的断言（persona + 可观测行为 + 声明的 Evidence）才能探测；没有它就没有 validation contract 可验。先用 `harness-stack:fdd-validation-contract` 写 validation contract。
-- 改动是非行为性的（纯重构、无用户可见变化）。静态评审已足够。
-- 项目还没有可运行入口。先 bootstrap；运行时验证需要一个活目标。
+基础性 feature（`fulfills` 为空）在 feature scope 下没有断言可探，跳过本 stage。改动若是非行为性的（纯重构、无用户可见变化），stage 1/2 已足够；本 stage 无断言时为 no-op。
 
 ## Prerequisites
 

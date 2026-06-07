@@ -36,7 +36,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 | Build | `/harness-stack:fdd-validate` | Step 3: milestone & final gates (scrutiny / security / user-test) |
 | Build | `/harness-stack:tdd` | Test-driven development |
 | Verify | `/harness-stack:debug` | Debugging and error recovery |
-| Verify | `/harness-stack:user-test` | Probe running system against contract assertions |
+| Verify | `/harness-stack:fdd-validate` | Validation pipeline: static → review → user-test against the running system |
 | Review | `/harness-stack:review-request` | Dispatch fresh-context reviewers (code / security / tests) |
 | Review | `/harness-stack:review-receive` | Handle reviewer feedback with rigor |
 | Review | `/harness-stack:security` | Security audit |
