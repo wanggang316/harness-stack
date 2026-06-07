@@ -1,6 +1,6 @@
 # User-Test Patterns
 
-> 运行时用户级验证的项目级约定。在 `/harness-stack:validation-contract` 首次运行（Step 0: Bootstrap）时撰写。在撰写或探测某个 plan 的 validation contract 之前先读这份；契约 assertion 存放于 `.harness-runtime/plans/<slug>/validation-contract.md`。
+> 运行时用户级验证的项目级约定。在 `/harness-stack:fdd-validation-contract` 首次运行（Step 0: Bootstrap）时撰写。在撰写或探测某个 plan 的 validation contract 之前先读这份；契约 assertion 存放于 `.harness-runtime/plans/<slug>/validation-contract.md`。
 
 ## Status
 

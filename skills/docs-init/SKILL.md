@@ -37,7 +37,7 @@ description: 对项目的文档结构与基础文档做一次性初始化。从 
 
 - `docs/architecture.md` —— architecture 内容在别处定义
 - `docs/design-docs/<doc>.md` —— 单个 design doc 在别处撰写
-- `docs/user-test-patterns.md` —— 由 `harness-stack:validation-contract` 首次运行时 bootstrap
+- `docs/user-test-patterns.md` —— 由 `harness-stack:fdd-validation-contract` 首次运行时 bootstrap
 - `.harness-runtime/` 内容 —— 逐 plan 的状态由 `harness-stack:fdd` 与 `hs-plan` CLI 创建；它被 gitignore，不在脚手架范围内
 - `CHANGELOG.md` —— changelog 在别处维护
 

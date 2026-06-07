@@ -19,10 +19,10 @@ harness-stack 文档中心。
 | Define | harness-stack:define-architecture | [SKILL.md](../skills/define-architecture/SKILL.md) |
 | Design（可选）| harness-stack:design | [SKILL.md](../skills/design/SKILL.md) |
 | Build（主流程·编排器）| harness-stack:fdd | [SKILL.md](../skills/fdd/SKILL.md) |
-| Build（Phase 1+3）| harness-stack:fdd-planning | [SKILL.md](../skills/fdd-planning/SKILL.md) |
-| Build（Phase 2）| harness-stack:validation-contract | [SKILL.md](../skills/validation-contract/SKILL.md) |
-| Build（Phase 4）| harness-stack:fdd-execution | [SKILL.md](../skills/fdd-execution/SKILL.md) |
-| Build（gate）| harness-stack:fdd-validate | [SKILL.md](../skills/fdd-validate/SKILL.md) |
+| Build（step 1）| harness-stack:fdd-planning | [SKILL.md](../skills/fdd-planning/SKILL.md) |
+| Build（step 1·contract）| harness-stack:fdd-validation-contract | [SKILL.md](../skills/fdd-validation-contract/SKILL.md) |
+| Build（step 2）| harness-stack:fdd-execution | [SKILL.md](../skills/fdd-execution/SKILL.md) |
+| Build（step 3）| harness-stack:fdd-validate | [SKILL.md](../skills/fdd-validate/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/tdd/SKILL.md) |
 | Verify | harness-stack:debug | [SKILL.md](../skills/debug/SKILL.md) |
 | Verify | harness-stack:user-test | [SKILL.md](../skills/user-test/SKILL.md) |

@@ -15,7 +15,7 @@ harness-stack 是一个 agent-first 的开发框架。人类给出方向；agent
 |---|---|---|
 | **Define** | what/why 尚不清晰 | `harness-stack:define-product`、`harness-stack:define-architecture`、`harness-stack:define-api-spec`、`harness-stack:define-frontend-spec`、`harness-stack:define-ui-spec`（一次性、项目级） |
 | **Design**（可选） | 方案含糊；技术路线应当先论证 | `harness-stack:design` —— 一份独立的技术文档 → `docs/design-docs/`。不是 main flow 的一步；FDD 在其存在时会读它。 |
-| **Build**（main flow） | 任何 non-trivial 改动 | `harness-stack:fdd` —— 编排器，你只直接调它。它把四个 phase 分发给 `harness-stack:fdd-planning`（plan + features）、`harness-stack:validation-contract`（contract）、`harness-stack:fdd-execution`（执行循环）、`harness-stack:fdd-validate`（milestone/最终 gate）。implementer 的任务内用 `harness-stack:tdd`（test-first）。 |
+| **Build**（main flow） | 任何 non-trivial 改动 | `harness-stack:fdd` —— 编排器，你只直接调它。它把主流程分成三步：`harness-stack:fdd-planning`（plan + contract + features，其中 contract 段交给 `harness-stack:fdd-validation-contract`）、`harness-stack:fdd-execution`（执行循环）、`harness-stack:fdd-validate`（milestone / 最终 gate）。implementer 的任务内用 `harness-stack:tdd`（test-first）。 |
 | **Verify** | 有东西坏了或未经验证 | `harness-stack:debug`（root cause）、`harness-stack:user-test`（对照 contract 断言探测运行中的系统；写入 `validation-state.json`） |
 | **Review** | 改动已就绪、可供审视 | `harness-stack:review-request`（派发）、`harness-stack:review-receive`（处理发现）、`harness-stack:security`（安全审计） |
 | **Deliberate** | 问题有争议或高风险 | `harness-stack:debate`（多轮）、`harness-stack:decide`（一次性并行） |

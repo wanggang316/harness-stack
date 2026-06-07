@@ -1,9 +1,9 @@
 ---
-name: validation-contract
+name: fdd-validation-contract
 description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 fdd 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 hs-plan init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
 ---
 
-# validation-contract：撰写 Validation Contract
+# fdd-validation-contract：撰写 Validation Contract
 
 ## Overview
 
@@ -112,7 +112,7 @@ ASSUMPTIONS I'M MAKING:
 
 #### 0.3 撰写 `docs/user-test-patterns.md`
 
-使用模板 `skills/validation-contract/assets/user-test-patterns.md`。挑出适用于本项目的子小节。这份文档必须回答：
+使用模板 `skills/fdd-validation-contract/assets/user-test-patterns.md`。挑出适用于本项目的子小节。这份文档必须回答：
 
 1. **范围内的平台**——逐项列出，每项配一行理由。
 2. **各平台的工具**——主用 + fallback，附调用方式。
@@ -175,7 +175,7 @@ AREAS FOR <feature>:
 
 ### Step 3：Investigate（每个 area 一个 subagent）
 
-对每个 area，在写任何 assertion 之前，派发一个全新 subagent 去枚举该 area 的所有用户交互。subagent 读 plan 与相关源码，返回一份按 **obvious / subtle / error-edge** 分组的交互清单——它不写 assertion。使用 `skills/validation-contract/references/investigation-prompt.md` 里的 prompt。
+对每个 area，在写任何 assertion 之前，派发一个全新 subagent 去枚举该 area 的所有用户交互。subagent 读 plan 与相关源码，返回一份按 **obvious / subtle / error-edge** 分组的交互清单——它不写 assertion。使用 `skills/fdd-validation-contract/references/investigation-prompt.md` 里的 prompt。
 
 - 各 area 并行派发；每个 subagent 负责一个 area。
 - 对单 area 的 feature，一个 subagent 足矣（若 feature 极其简单，也可内联做 investigation）。
@@ -196,7 +196,7 @@ AREAS FOR <feature>:
 
 ### Step 5：Adversarial Review（≥ 2 轮，顺序进行）
 
-看上去完整的草稿几乎总有缺口。**至少跑两轮顺序 review**；每一轮为每个 area 派发一个 adversarial reviewer（一轮之内并行）。使用 `skills/validation-contract/references/adversarial-review-prompt.md` 里的 prompt。
+看上去完整的草稿几乎总有缺口。**至少跑两轮顺序 review**；每一轮为每个 area 派发一个 adversarial reviewer（一轮之内并行）。使用 `skills/fdd-validation-contract/references/adversarial-review-prompt.md` 里的 prompt。
 
 每个 reviewer 都被要求保持怀疑、去找 **缺了什么**——交互、edge 取值、错误状态、accessibility、security 边界、feature 内跨 area 的 flow——并返回一份缺失 case 清单，而不是盖个橡皮章。
 

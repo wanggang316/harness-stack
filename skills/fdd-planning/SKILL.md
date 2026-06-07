@@ -1,11 +1,11 @@
 ---
 name: fdd-planning
-description: FDD 的规划与拆解——Phase 1（与用户弄清需求、经 investigator 调查代码库、商定 milestone、写出已接受的 plan.md）与 Phase 3（把 milestone 拆成 features.json 并过 coverage 闸）。中间的 Phase 2（contract）交给 harness-stack:validation-contract。由 harness-stack:fdd 调用。
+description: FDD 的规划与拆解——Phase 1（与用户弄清需求、经 investigator 调查代码库、商定 milestone、写出已接受的 plan.md）与 Phase 3（把 milestone 拆成 features.json 并过 coverage 闸）。中间的 Phase 2（contract）交给 harness-stack:fdd-validation-contract。由 harness-stack:fdd 调用。
 ---
 
 # fdd-planning：规划与拆解
 
-本技能覆盖 FDD 的 **Phase 1（plan）** 与 **Phase 3（features）**；中间的 **Phase 2（contract）** 由 `harness-stack:validation-contract` 完成。
+本技能覆盖 FDD 的 **Phase 1（plan）** 与 **Phase 3（features）**；中间的 **Phase 2（contract）** 由 `harness-stack:fdd-validation-contract` 完成。
 
 规划是最重要的 phase。这里的质量会被后续每个 phase 放大；规划赶工会导致遗漏、返工和构建失败。在用户显式接受 plan 之前，不要进入 Phase 2。
 
@@ -80,9 +80,9 @@ hs-plan active          # verify
 
 呈现 plan 并问：*「接受这份 plan 吗？提出修改我就改。」* 一旦接受，`plan.md` 就作为商定的方案确立下来；告诉用户你要进 Phase 2（contract），artifacts 就绪后会回来评审。
 
-## Phase 2 — Contract（交给 validation-contract）
+## Phase 2 — Contract（交给 fdd-validation-contract）
 
-plan 被接受后，FDD 编排会调 `harness-stack:validation-contract` 把 plan 里可测试的行为写成 `.harness-runtime/plans/<slug>/validation-contract.md` 的 `VAL-<AREA>-NNN` 断言，并 `hs-plan init-state` 播种 `validation-state.json`。这不在本技能内——但 Phase 3 必须等它定稿，否则 feature 的 `fulfills` 无从绑定。
+plan 被接受后，FDD 编排会调 `harness-stack:fdd-validation-contract` 把 plan 里可测试的行为写成 `.harness-runtime/plans/<slug>/validation-contract.md` 的 `VAL-<AREA>-NNN` 断言，并 `hs-plan init-state` 播种 `validation-state.json`。这不在本技能内——但 Phase 3 必须等它定稿，否则 feature 的 `fulfills` 无从绑定。
 
 ## Phase 3 — Features
 

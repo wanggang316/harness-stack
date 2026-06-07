@@ -1,6 +1,6 @@
 ---
 name: fdd
-description: 构建新特性的主流程编排器。契约优先的多 agent 架构——捕获一个 plan，定义可测试的断言，拆解为多个 feature，再用全新上下文的 implementer/reviewer/validator subagent 驱动一个里程碑设闸的执行循环。当一处改动触及多个文件、有多条验收标准、或跨越多个 feature 时使用。把四个 phase 分发给 fdd-planning / validation-contract / fdd-execution / fdd-validate。
+description: 构建新特性的主流程编排器。契约优先的多 agent 架构——捕获一个 plan，定义可测试的断言，拆解为多个 feature，再用全新上下文的 implementer/reviewer/validator subagent 驱动一个里程碑设闸的执行循环。当一处改动触及多个文件、有多条验收标准、或跨越多个 feature 时使用。主流程分三步，分发给 fdd-planning（含 fdd-validation-contract）/ fdd-execution / fdd-validate。
 ---
 
 # fdd：特性驱动开发（feature-driven development）
@@ -9,7 +9,7 @@ description: 构建新特性的主流程编排器。契约优先的多 agent 架
 
 用户目标（经 `$ARGUMENTS` 传入时）：`$ARGUMENTS`
 
-本技能是**编排器**：它定义心智模型与各阶段衔接，把每个 phase 的细节分发给一个专门的子技能。每进入一个 phase，就调用它对应的那个 `harness-stack:fdd-*` / `harness-stack:validation-contract` 技能。
+本技能是**编排器**：它定义心智模型与各步衔接，把每一步的细节分发给一个专门的子技能。每进入一步，就调用它对应的那个 `harness-stack:fdd-*` 技能。
 
 ## Overview
 
@@ -53,36 +53,36 @@ controller 编排，下列 subagent 干活：
 
 当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `harness-stack:fdd-execution` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 `investigator` 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
 
-你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `hs-plan` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清（Phase 1 密集，之后轻量）。
+你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `hs-plan` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清（step 1 规划阶段密集，之后轻量）。
 
 ## Requirement tracking
 
-用户陈述的每一条需求——哪怕是顺口一提、哪怕只说过一次——都必须被捕获并追踪。在 Phase 1，提出 plan 之前先把每一条已捕获的需求复述一遍。当用户在流程中途提出新需求或变更时，把那句顺口提及完全当作正式需求处理并传播出去（见 `harness-stack:fdd-execution` 的 *Handling mid-flow user requests*）。**任何记录了旧真相的文件，都必须在 implementer 恢复前更新为新真相。**
+用户陈述的每一条需求——哪怕是顺口一提、哪怕只说过一次——都必须被捕获并追踪。在 step 1 的规划阶段，提出 plan 之前先把每一条已捕获的需求复述一遍。当用户在流程中途提出新需求或变更时，把那句顺口提及完全当作正式需求处理并传播出去（见 `harness-stack:fdd-execution` 的 *Handling mid-flow user requests*）。**任何记录了旧真相的文件，都必须在 implementer 恢复前更新为新真相。**
 
 ## Workflow
 
-四个 phase，按顺序进行。每进入一个 phase，就调用它对应的那个子技能。
+主流程是三步，对应三个 `fdd-*` 子技能，按顺序进行。每进入一步，就调用它对应的子技能。
 
-| Phase | 子技能 | 产出 |
+| Step | 子技能 | 产出 |
 |---|---|---|
-| 1. Plan | `harness-stack:fdd-planning`（Phase 1 段） | 已接受的 `plan.md` |
-| 2. Contract | `harness-stack:validation-contract` | `validation-contract.md` → `hs-plan init-state` 写出 `validation-state.json` |
-| 3. Features | `harness-stack:fdd-planning`（Phase 3 段） | `features.json`，且 `hs-plan contract-coverage` 通过 |
-| 4. Execution | `harness-stack:fdd-execution`（milestone/最终 gate 交给 `harness-stack:fdd-validate`） | 全绿的 plan：每条断言 `passed`、每个 milestone 已封存、最终集成评审干净 |
+| 1. Plan | `harness-stack:fdd-planning`（contract 段交给 `harness-stack:fdd-validation-contract`） | `plan.md` + `validation-contract.md` + `features.json`，且 `hs-plan contract-coverage` 通过 |
+| 2. Execute | `harness-stack:fdd-execution` | 每个 feature 过 per-feature 闸（code-review + 运行时探测）；milestone 边界回到 step 3 |
+| 3. Validate | `harness-stack:fdd-validate` | milestone 封存；全部做完后最终集成评审 + `hs-plan gate` 全绿 |
 
-琐碎工作跳过整个生命周期。但**不要**跳过 Phase 1——规划质量会被后续每个 phase 放大。
+琐碎工作跳过整个生命周期。但**不要**跳过 step 1 的规划——规划质量会被后续每一步放大。
 
-### Phase 1 — Plan
-调用 `harness-stack:fdd-planning`。初始化 plan 目录（`hs-plan init <slug>`），与用户一起弄懂需求，经只读 `investigator` 调查代码库，商定 milestone（垂直切片），把已接受的方案写进 `plan.md`。进 Phase 2 前取得显式接受。
+### Step 1 — Plan（plan → contract → features）
+调用 `harness-stack:fdd-planning`，把契约优先的规划走完三段：
 
-### Phase 2 — Contract
-调用 `harness-stack:validation-contract`、指向本 plan，来撰写 `validation-contract.md`——定义「完成」的那些可测试、用户可观测的断言（`VAL-<AREA>-NNN`）。它会跑对抗式的多 agent 撰写过程，并以 `hs-plan init-state` 收尾，给 `validation-state.json` 播种（所有断言为 `pending`）。这是契约优先的 TDD 闸：**contract 不存在就不许有 `features.json`。**
+- **plan**——初始化 plan 目录（`hs-plan init <slug>`），与用户弄懂需求，经只读 `investigator` 调查代码库，商定 milestone（垂直切片），写出已接受的 `plan.md`；进下一段前取得显式接受。
+- **contract**——调用 `harness-stack:fdd-validation-contract` 写出定义「完成」的可测试、用户可观测断言（`VAL-<AREA>-NNN`），经对抗式多 agent 撰写，并以 `hs-plan init-state` 给 `validation-state.json` 播种。契约优先的 TDD 闸：**contract 不存在就不许有 `features.json`。**
+- **features**——把 milestone 拆进 `features.json`，每个 feature 以 `fulfills` 绑定它要让其变得可测的断言，基础性 feature 排在前面；以 `hs-plan contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
 
-### Phase 3 — Features
-回到 `harness-stack:fdd-planning`（Phase 3 段），把 milestone 拆解进 `features.json`，每个 feature 以 `fulfills` 绑定到它要让其变得可测的断言。让基础性 feature 排在前面。以 `hs-plan contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
+### Step 2 — Execute
+调用 `harness-stack:fdd-execution`，串行驱动循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → per-feature `code-review` →（对完成型 feature）`user-test` 运行时探测 → `hs-plan set-status completed`。一次一个 feature；controller 绝不写实现代码。
 
-### Phase 4 — Execution
-调用 `harness-stack:fdd-execution`，驱动循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → per-feature `code-review` →（对完成型 feature）`user-test` 探测 → `hs-plan set-status completed`。在 milestone 边界与全部做完时，把更重的 gate 交给 `harness-stack:fdd-validate`（scrutiny-validator 硬门禁 + scrutiny、条件 security-auditor、user-test、应用治理反馈、`seal-milestone`；收尾最终集成评审 + `hs-plan gate`）。
+### Step 3 — Validate（milestone & final gates）
+调用 `harness-stack:fdd-validate`。在 milestone 边界，fdd-execution 把更重的 gate 交给它：`scrutiny-validator` 硬门禁（test/lint/type-check，只看新增失败）+ 逐 feature scrutiny、条件触发的 `security-auditor`、`user-test`、应用治理反馈、`hs-plan seal-milestone`。全部 feature 做完、所有 milestone 已封存后，它再跑一次最终集成评审 + coverage gate + `hs-plan gate`。
 
 ## Decoupled: design
 
@@ -92,7 +92,7 @@ controller 编排，下列 subagent 干活：
 
 1. 向用户确认你已进入 FDD 模式；用一句话复述目标供其纠正。
 2. `hs-plan init <slug>` 创建 plan 目录。
-3. 调用 `harness-stack:fdd-planning` 开始 Phase 1。不要跳到 feature 或 execution。
+3. 调用 `harness-stack:fdd-planning` 开始 step 1（规划）。不要跳到 feature 或 execution。
 
 ## Common Rationalizations
 
@@ -102,7 +102,7 @@ controller 编排，下列 subagent 干活：
 | 「我跳过 contract 直接做 feature。」 | 没有 contract，`fulfills` 就无从绑定、gate 也无从可查。永远 contract 优先。 |
 | 「需求都在代码里，我不需要 plan。」 | 代码是*已构建之物*的真相；plan 是你*决定构建什么*、并追踪没漏掉任何东西的方式。两者都要有。 |
 | 「我把 plan 放 docs/ 里好让它进版本控制。」 | plan 会过时并腐蚀 Library。单个 plan 的状态被 gitignore 是有意为之；耐久的约定才进 docs/。 |
-| 「这需要一份 design 文档，所以我把 design 当 Phase 0 跑。」 | design 是解耦的。若解法含糊，先把 design 文档作为独立一步写出来，再跑 FDD。 |
+| 「这需要一份 design 文档，所以我把 design 当成流程的前置一步跑。」 | design 是解耦的。若解法含糊，先把 design 文档作为独立一步写出来，再跑 FDD。 |
 
 ## Red Flags
 
@@ -110,7 +110,7 @@ controller 编排，下列 subagent 干活：
 - `validation-contract.md` 还不存在就写了 `features.json`。
 - plan/contract/state 被写进 `docs/` 而非 `.harness-runtime/`。
 - 用手改 JSON 而非 `hs-plan` 来记账（漂移；丢失不变量）。
-- Phase 1 被跳过或赶工；直接跳到 execution。
+- step 1 的规划被跳过或赶工；直接跳到 execution。
 - 把 `design` 当成流程里必经的一步。
 
 ## Verification

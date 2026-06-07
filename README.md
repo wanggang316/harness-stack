@@ -30,10 +30,10 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 | Define | `/harness-stack:define-architecture` | Architecture definition (global) |
 | Design (optional) | `/harness-stack:design` | Standalone technical design doc (`docs/design-docs/`) |
 | Build (main flow) | `/harness-stack:fdd` | Orchestrator: contract-first plan → features → milestone-gated execution loop |
-| Build | `/harness-stack:fdd-planning` | Phase 1 (plan) + Phase 3 (features) |
-| Build | `/harness-stack:validation-contract` | Phase 2 (definition-of-done assertions) |
-| Build | `/harness-stack:fdd-execution` | Phase 4 (per-feature build loop) |
-| Build | `/harness-stack:fdd-validate` | Milestone & final gates (scrutiny / security / user-test) |
+| Build | `/harness-stack:fdd-planning` | Step 1: plan + features |
+| Build | `/harness-stack:fdd-validation-contract` | Definition-of-done assertions (within step 1) |
+| Build | `/harness-stack:fdd-execution` | Step 2: per-feature build loop |
+| Build | `/harness-stack:fdd-validate` | Step 3: milestone & final gates (scrutiny / security / user-test) |
 | Build | `/harness-stack:tdd` | Test-driven development |
 | Verify | `/harness-stack:debug` | Debugging and error recovery |
 | Verify | `/harness-stack:user-test` | Probe running system against contract assertions |
