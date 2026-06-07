@@ -13,7 +13,7 @@
 | [references/](references/) | 外部 references、API 文档、集成说明 |
 | [generated/](generated/) | 自动生成的 artifacts —— 不要手动编辑 |
 
-逐 plan 的 feature-driven-development 状态（plan、validation contract、feature）存放在被 gitignore 的 `.harness-runtime/plans/<slug>/` 树里——不在 `docs/`。Library 保存持久的约定与记忆；具体实现以代码为准。
+逐 plan 的 fdd 状态（plan、validation contract、feature）存放在被 gitignore 的 `.harness-runtime/plans/<slug>/` 树里——不在 `docs/`。Library 保存持久的约定与记忆；具体实现以代码为准。
 
 ## Conventions
 

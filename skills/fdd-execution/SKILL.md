@@ -1,6 +1,11 @@
-# Phase 4 — Execution
+---
+name: fdd-execution
+description: FDD 的 Phase 4——执行循环。串行驱动 feature 构建：next-feature → 派 implementer → handoff 决策树 → per-feature code-review → 运行时探测 → complete；在 milestone 边界与收尾把 gate 交给 harness-stack:fdd-validate。由 harness-stack:fdd 在 features.json 通过 coverage 后调用。
+---
 
-最长的 phase。你驱动一个串行循环：一次一个 feature 过四道闸，在 milestone 边界跑 validator，然后做一次最终集成评审并过 gate。
+# fdd-execution：FDD 执行循环
+
+最长的 phase。你驱动一个串行循环：一次一个 feature 过它的 per-feature 闸，在 milestone 边界与全部做完时把更重的 gate 交给 `harness-stack:fdd-validate`。
 
 ```
 loop:
@@ -13,8 +18,9 @@ loop:
   if f.fulfills non-empty: user-test probe over f.fulfills -> loop back on FAIL
   hs-plan set-status f completed
   if milestone's impl features all completed/cancelled and not sealed:
-     scrutiny-validator (hard gate + per-feature scrutiny + guidance) + user-test -> hs-plan seal-milestone <m>
-final integration review + hs-plan gate
+     -> harness-stack:fdd-validate (milestone gate) -> hs-plan seal-milestone <m>
+when loop empty:
+  -> harness-stack:fdd-validate (final integration) -> hs-plan gate
 ```
 
 **执行是串行的。** 一次一个 feature。一个 phase 内部的只读并行（并行研究、并行评审互不相关的文件）没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
@@ -33,7 +39,7 @@ git status                    # working tree clean
 
 ### 1. Next feature
 ```bash
-hs-plan next-feature          # -> <id>\t<agent>\t<milestone>  (empty => go to the gate)
+hs-plan next-feature          # -> <id>\t<agent>\t<milestone>  (empty => 交给 fdd-validate 做 final)
 ```
 
 ### 2. Sanity check
@@ -52,7 +58,7 @@ hs-plan handoff <id>
 跑 `references/handoff-handling.md` 里的决策树。它会路由 `returnToController` / `failure` / `partial` / `success`，追踪 `discoveredIssues` / `whatWasLeftUndone`，并传播 `criticalContext`。一个 feature 只有在 `success` 经核验后才推进到下面的各道闸。
 
 ### 5. Code-review gate
-用 `references/code-reviewer-brief.md` 发 `Task(subagent_type="code-reviewer", …)`，对该 feature 的 diff 做 per-feature 静态评审（质量 + scope/spec 合规）。Approve 或 Approve-with-fixes（无 Critical）→ 继续。存在 Critical / Request changes → 重新派发 implementer；循环。（独立的硬门禁 test/lint/type-check 在 milestone 边界由 `scrutiny-validator` 统一跑——见下。）
+用 `references/code-reviewer-brief.md` 发 `Task(subagent_type="code-reviewer", …)`，对该 feature 的 diff 做 per-feature 静态评审（质量 + scope/spec 合规）。Approve 或 Approve-with-fixes（无 Critical）→ 继续。存在 Critical / Request changes → 重新派发 implementer；循环。（独立的硬门禁 test/lint/type-check 在 milestone 边界由 `fdd-validate` 的 scrutiny-validator 统一跑。）
 
 ### 6. Runtime probe (completing features only)
 若 feature 的 `fulfills` 非空，对恰好那些 `VAL-` id 以及该 feature 的 diff 区间调用 `harness-stack:user-test`。validator 探测运行中的系统，**由 controller 回写结果**——按返回的矩阵执行 `hs-plan set-assertion <VAL-id> <status> [evidence]`。任何 FAIL → 带上失败断言的证据重新派发 implementer；循环。基础性 feature（`fulfills: []`）跳过这道闸。
@@ -63,26 +69,9 @@ hs-plan set-status <id> completed     # moves it to the bottom
 ```
 更新 `plan.md` 的 Progress（追加一行 handoff-log）。回到 step 1。
 
-## Milestone validation
+## Milestone & final gates
 
-当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且该 milestone 尚未封存（`hs-plan is-sealed <m>` → `no`）时，跑里程碑的「静态 + 运行时」一对，去抓任何单个 feature 闸未覆盖到的跨 feature 问题。这两步是 `scrutiny-validator`（静态那一半）和 `user-test`（运行时那一半）：
-
-1. 用 `references/scrutiny-brief.md` 发 `Task(subagent_type="scrutiny-validator", …)`。它做：**硬门禁**（对 milestone diff 跑 test/lint/type-check/build，只看相对 baseline 的新增失败——这是 per-feature 闸做不到的独立机械验证）、逐 feature scrutiny 审查（边界/规范/范围/技术债声明等）、把低风险事实性更新直接写入 `docs/` Library，并产出 `suggestedGuidanceUpdates`。结果落到 `.harness-runtime/plans/<slug>/validation/<milestone>/scrutiny/synthesis.json`。每个 feature 都已过 per-feature code-review，所以这里重在硬门禁、跨 feature 集成、技术债汇总与治理建议，不必重新纠结已逐 feature 解决的发现。
-2. **触及敏感面时加派 security-auditor：** 若 milestone diff 触及 auth/authz、secrets/crypto、用户输入边界、裸 SQL、shell/eval、依赖升级、或 LLM 输出流入受信上下文，与 scrutiny 并行派 `Task(subagent_type="security-auditor", …)` 做深度威胁建模。它的 Critical findings 视同 `blocker`。（diff 不触及这些面时跳过——`security` 技能是独立的手动审计路径。）
-3. **应用治理反馈：** 读 synthesis 的 `suggestedGuidanceUpdates`——把系统性的约定/上下文修正写进 `AGENTS.md`、`docs/` Library 或 `references/implementer-brief.md`（这是「Fix the environment, not the prompt」的闭环）。`appliedUpdates` 是 validator 已提交的事实性更新，知悉即可。
-4. 对该 milestone 的断言子集跑 `harness-stack:user-test`；用 `hs-plan set-assertion` 回写结果。
-5. scrutiny `verdict: passed`、security-auditor（若派了）无 Critical、且 user-test 全 PASS → `hs-plan seal-milestone <m>`。任何 `blocker` / 硬门禁失败 / 安全 Critical / user-test FAIL → 在顶部创建修复 feature，修完对 scrutiny 走重跑模式、对 user-test 重探。
-
-已封存的 milestone 不可变——绝不往里加 feature。新工作进后续的 milestone 或一个 `misc-*` milestone（每个 ≤5 个 feature）。
-
-## Final integration review (once)
-
-每个 feature 都做完、最后一个 milestone 已封存之后：
-
-1. 对完整的 `BASE..HEAD` 发 `Task(subagent_type="scrutiny-validator", …)`——硬门禁全套 test/lint/type-check/build 全绿，外加一次跨 milestone 的集成 scrutiny（逐 milestone 评审看不到跨 milestone 交互）。
-2. **Coverage gate：** 在各探测记录里，每条 contract 断言至少有一次 PASS。任何从未被探测过的 → 对其余部分跑 `harness-stack:user-test`。
-3. 任何 `blocker` / 硬门禁失败 → 经 implementer 循环修复，重跑 scrutiny。
-4. `hs-plan gate` → 必须报告 `GATE PASSED`。然后交给 commit / PR。
+当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且尚未封存（`hs-plan is-sealed <m>` → `no`）时，把它交给 **`harness-stack:fdd-validate`**（scrutiny-validator 硬门禁 + scrutiny、条件 security-auditor、user-test、应用治理反馈、seal）。当循环跑空、所有 milestone 已封存时，再交给 `fdd-validate` 做最终集成评审与 `hs-plan gate`。完整流程见该技能。
 
 ## Round budget
 
@@ -108,7 +97,3 @@ implementer 为每个 feature 创建自己的原子 commit（conventional-commit
 ## When to return to the user
 
 在以下情形交还控制权：需要人来动手（批准一笔购买、向第三方认证）；某个决策需要人来判断（安全、重大架构、商业取舍）；某个外部依赖不可恢复（别为你修不了的基础设施创建重试 feature）；一处发现的含糊从上下文无法解决；或工作远超商定的范围。说明阻塞点以及继续所需的东西。
-
-## Override semantics
-
-你可以带理由覆盖一次 validator 失败，但**绝不能悄悄来**——要留下可审计的记录。要封存一个带延期断言的 milestone，把那些 `VAL-` id 从已封存 milestone 的 feature 里挪到一个**未封存** milestone 的某个 feature 中（保持 `fulfills` 唯一；确保它们在 state 里是 `pending`，好让后续探测拾起它们），并在 `plan.md` 的 Decision Log 里记下这次延期。

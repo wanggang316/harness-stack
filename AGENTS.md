@@ -23,7 +23,11 @@ Agent-first development framework implementing the harness methodology.
 - `/harness-stack:design` - Technical design doc → `docs/design-docs/`; human-invoked, not part of the main flow
 
 **Build** (main flow) → feature-driven development
-- `/harness-stack:feature-driven-development` - Contract-first plan → features → milestone-gated execution loop. Uses `validation-contract` (Phase 2) and `user-test` (Phase 4) internally.
+- `/harness-stack:fdd` - Orchestrator for the contract-first build. Dispatches the four phases to the sub-skills below; this is the only one you invoke directly.
+  - `/harness-stack:fdd-planning` - Phase 1 (plan) + Phase 3 (features)
+  - `/harness-stack:validation-contract` - Phase 2 (definition-of-done assertions)
+  - `/harness-stack:fdd-execution` - Phase 4 (per-feature build loop)
+  - `/harness-stack:fdd-validate` - milestone & final gates (scrutiny + security + user-test)
 - `/harness-stack:tdd` - Test-driven development (inside an implementer's task)
 
 **Verify** → Debug and test
@@ -51,7 +55,7 @@ When you need expert judgment:
 - `harness-stack:investigator` - Read-only codebase investigation & online research
 - `harness-stack:code-reviewer` - PR review, quality checks
 
-Reused by feature-driven-development's execution loop:
+Reused by fdd's execution loop:
 - `harness-stack:implementer` - Builds one feature, emits a handoff JSON
 - `harness-stack:scrutiny-validator` - Milestone gate: hard test/lint/type-check gate + per-feature scrutiny review + guidance feedback
 - `harness-stack:user-test-validator` - Probes contract assertions against the running system
@@ -68,7 +72,7 @@ Reused by feature-driven-development's execution loop:
 
 ## Getting Started
 
-1. Build a feature: `/harness-stack:feature-driven-development <goal>` for any non-trivial change — it drives plan → contract → features → execution.
+1. Build a feature: `/harness-stack:fdd <goal>` for any non-trivial change — it drives plan → contract → features → execution.
 2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
 3. Ship: `/harness-stack:commit` → `/harness-stack:pr` → `/harness-stack:land` → `/harness-stack:ship`.
 
@@ -95,4 +99,4 @@ harness-stack uses **pure Agent-driven architecture**:
 - Subagents provide specialized expertise
 - Self-bootstrapping capability
 
-All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:feature-driven-development`, `harness-stack:code-reviewer`), which provides collision isolation — no per-skill prefix is needed.
+All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:fdd`, `harness-stack:code-reviewer`), which provides collision isolation — no per-skill prefix is needed.

@@ -173,13 +173,13 @@ DESIGN DOC 待评审：
 
 实现期间 plan 触及现实，缺陷和未顾及的需求会浮现。**届时更新 design doc**——让文档与实际构建出来的东西保持一致。若发布后发生重大变更，加一节「Amendments」，链接到后续的 design doc。
 
-获批的 design doc 作为持久 Library 存放在 `docs/design-docs/`。开始构建时，运行 `harness-stack:feature-driven-development`——它会读取已存在的 design doc（如果有）。
+获批的 design doc 作为持久 Library 存放在 `docs/design-docs/`。开始构建时，运行 `harness-stack:fdd`——它会读取已存在的 design doc（如果有）。
 
 ## Relationship to Other Skills
 
 - **harness-stack:design** 是**独立且可选**的——它不是主 build 流程中的一步。当一个解法含糊到值得在动工前论证并记录技术路线时（非平凡的重构、迁移或架构决策），才取用它。
 - 它的产物 `docs/design-docs/<name>.md` 是受版本管理的 Library：「系统当初为何如此设计」的 source of truth。
-- **harness-stack:feature-driven-development** 是构建 feature 的主流程。它会读取相关的 design doc（如果有），但从不要求或调用 `design`。
+- **harness-stack:fdd** 是构建 feature 的主流程。它会读取相关的 design doc（如果有），但从不要求或调用 `design`。
 
 ## Common Rationalizations
 

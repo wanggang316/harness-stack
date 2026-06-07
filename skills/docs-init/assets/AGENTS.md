@@ -65,7 +65,7 @@ domains、layers 和依赖规则见 [Architecture](docs/architecture.md)。
 <!-- 关键工作流与边界 -->
 
 - 动手改动前，先读你所触及区域的相关文档
-- 复杂工作开始前，先跑 feature-driven development（`harness-stack:feature-driven-development`）
+- 复杂工作开始前，先跑 feature-driven development（`harness-stack:fdd`）
 - 提交 PR 前先跑 lint 与 test
 - 遵循架构文档里的依赖规则
 - 出问题时，问一句：「缺了什么能力？」—— 然后把它补上

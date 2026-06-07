@@ -1,13 +1,13 @@
 ---
 name: validation-contract
-description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 feature-driven-development 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 hs-plan init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
+description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 fdd 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 hs-plan init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
 ---
 
 # validation-contract：撰写 Validation Contract
 
 ## Overview
 
-这是 **feature-driven-development 的 Phase 2**：当 plan 定义了「要构建什么」之后，本技能写出 definition of done——即 **validation contract**，一组结构化、可测试、用户可观测的 **assertion**，任何人（人类或 agent）都能据此探测，从用户视角证明构建确实可用。
+这是 **fdd 的 Phase 2**：当 plan 定义了「要构建什么」之后，本技能写出 definition of done——即 **validation contract**，一组结构化、可测试、用户可观测的 **assertion**，任何人（人类或 agent）都能据此探测，从用户视角证明构建确实可用。
 
 产出物 `.harness-runtime/plans/<slug>/validation-contract.md` 成为以下内容的事实来源：
 

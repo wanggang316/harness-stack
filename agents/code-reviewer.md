@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: 资深 code reviewer，从五个维度——correctness、readability、architecture、security、performance——对照 spec 评审一段 diff。在合并任何非平凡改动前、在某个 feature-driven-development 的 feature 或里程碑完成后、或任何需要在全新上下文窗口里评估代码质量时使用。
+description: 资深 code reviewer，从五个维度——correctness、readability、architecture、security、performance——对照 spec 评审一段 diff。在合并任何非平凡改动前、在某个 fdd 的 feature 或里程碑完成后、或任何需要在全新上下文窗口里评估代码质量时使用。
 tools: Read, Glob, Grep, Bash
 model: inherit
 ---

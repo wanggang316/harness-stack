@@ -1,13 +1,15 @@
 ---
-name: feature-driven-development
-description: 构建新特性的主流程。契约优先的编排——先捕获一个 plan，定义可测试的断言，拆解为多个 feature，再用全新上下文的 implementer/reviewer/validator subagent 驱动一个里程碑设闸的执行循环。当一处改动触及多个文件、有多条验收标准、或跨越多个 feature 时使用。
+name: fdd
+description: 构建新特性的主流程编排器。契约优先的多 agent 架构——捕获一个 plan，定义可测试的断言，拆解为多个 feature，再用全新上下文的 implementer/reviewer/validator subagent 驱动一个里程碑设闸的执行循环。当一处改动触及多个文件、有多条验收标准、或跨越多个 feature 时使用。把四个 phase 分发给 fdd-planning / validation-contract / fdd-execution / fdd-validate。
 ---
 
-# feature-driven-development：特性驱动开发（FDD）
+# fdd：特性驱动开发（feature-driven development）
 
 你即将进入 **FDD 模式**：契约优先、多 agent 构建的架构师兼管理者。**你不写实现代码——你设计这次构建、定义「完成」的含义、并驱动全新上下文的 subagent 把它交付出来。**
 
 用户目标（经 `$ARGUMENTS` 传入时）：`$ARGUMENTS`
+
+本技能是**编排器**：它定义心智模型与各阶段衔接，把每个 phase 的细节分发给一个专门的子技能。每进入一个 phase，就调用它对应的那个 `harness-stack:fdd-*` / `harness-stack:validation-contract` 技能。
 
 ## Overview
 
@@ -49,38 +51,38 @@ controller 编排，下列 subagent 干活：
 
 你是架构师。**你绝不写实现代码，也绝不自己跑构建。**
 
-当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `references/execution.md` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 `investigator` 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
+当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `harness-stack:fdd-execution` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 `investigator` 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
 
 你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `hs-plan` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清（Phase 1 密集，之后轻量）。
 
 ## Requirement tracking
 
-用户陈述的每一条需求——哪怕是顺口一提、哪怕只说过一次——都必须被捕获并追踪。在 Phase 1，提出 plan 之前先把每一条已捕获的需求复述一遍。当用户在流程中途提出新需求或变更时，把那句顺口提及完全当作正式需求处理并传播出去（见 `references/execution.md`）。**任何记录了旧真相的文件，都必须在 implementer 恢复前更新为新真相。**
+用户陈述的每一条需求——哪怕是顺口一提、哪怕只说过一次——都必须被捕获并追踪。在 Phase 1，提出 plan 之前先把每一条已捕获的需求复述一遍。当用户在流程中途提出新需求或变更时，把那句顺口提及完全当作正式需求处理并传播出去（见 `harness-stack:fdd-execution` 的 *Handling mid-flow user requests*）。**任何记录了旧真相的文件，都必须在 implementer 恢复前更新为新真相。**
 
 ## Workflow
 
-四个 phase，按顺序进行。每进入一个 phase，就读它引用的那个文件。
+四个 phase，按顺序进行。每进入一个 phase，就调用它对应的那个子技能。
 
-| Phase | 参考文件 | 产出 |
+| Phase | 子技能 | 产出 |
 |---|---|---|
-| 1. Plan | `references/planning.md`（模板：`references/plan-template.md`） | 已接受的 `plan.md` |
-| 2. Contract | 调用 `harness-stack:validation-contract`（撰写 contract） | `validation-contract.md` → `hs-plan init-state` 写出 `validation-state.json` |
-| 3. Features | `references/features.md` | `features.json`，且 `hs-plan contract-coverage` 通过 |
-| 4. Execution | `references/execution.md`（+ `references/handoff-handling.md`） | 全绿的 plan：每条断言 `passed`、每个 milestone 已封存、最终集成评审干净 |
+| 1. Plan | `harness-stack:fdd-planning`（Phase 1 段） | 已接受的 `plan.md` |
+| 2. Contract | `harness-stack:validation-contract` | `validation-contract.md` → `hs-plan init-state` 写出 `validation-state.json` |
+| 3. Features | `harness-stack:fdd-planning`（Phase 3 段） | `features.json`，且 `hs-plan contract-coverage` 通过 |
+| 4. Execution | `harness-stack:fdd-execution`（milestone/最终 gate 交给 `harness-stack:fdd-validate`） | 全绿的 plan：每条断言 `passed`、每个 milestone 已封存、最终集成评审干净 |
 
 琐碎工作跳过整个生命周期。但**不要**跳过 Phase 1——规划质量会被后续每个 phase 放大。
 
 ### Phase 1 — Plan
-初始化 plan 目录（`hs-plan init <slug>`），与用户一起弄懂需求，经只读 `investigator` 调查代码库，商定 milestone（垂直切片），把已接受的方案写进 `plan.md`。进 Phase 2 前取得显式接受。完整流程：`references/planning.md`。
+调用 `harness-stack:fdd-planning`。初始化 plan 目录（`hs-plan init <slug>`），与用户一起弄懂需求，经只读 `investigator` 调查代码库，商定 milestone（垂直切片），把已接受的方案写进 `plan.md`。进 Phase 2 前取得显式接受。
 
 ### Phase 2 — Contract
 调用 `harness-stack:validation-contract`、指向本 plan，来撰写 `validation-contract.md`——定义「完成」的那些可测试、用户可观测的断言（`VAL-<AREA>-NNN`）。它会跑对抗式的多 agent 撰写过程，并以 `hs-plan init-state` 收尾，给 `validation-state.json` 播种（所有断言为 `pending`）。这是契约优先的 TDD 闸：**contract 不存在就不许有 `features.json`。**
 
 ### Phase 3 — Features
-把 milestone 拆解进 `features.json`，每个 feature 以 `fulfills` 绑定到它要让其变得可测的断言。让基础性 feature 排在前面。以 `hs-plan contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。完整流程：`references/features.md`。
+回到 `harness-stack:fdd-planning`（Phase 3 段），把 milestone 拆解进 `features.json`，每个 feature 以 `fulfills` 绑定到它要让其变得可测的断言。让基础性 feature 排在前面。以 `hs-plan contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
 
 ### Phase 4 — Execution
-驱动循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → per-feature `code-review` →（对完成型 feature）`user-test` 探测 → 在 milestone 边界跑 `scrutiny-validator`（硬门禁 + scrutiny + 治理建议）+ `user-test` 并执行 `hs-plan seal-milestone` → 最终集成评审（scrutiny + coverage）→ `hs-plan gate`。完整流程：`references/execution.md`；handoff 路由：`references/handoff-handling.md`。
+调用 `harness-stack:fdd-execution`，驱动循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → per-feature `code-review` →（对完成型 feature）`user-test` 探测 → `hs-plan set-status completed`。在 milestone 边界与全部做完时，把更重的 gate 交给 `harness-stack:fdd-validate`（scrutiny-validator 硬门禁 + scrutiny、条件 security-auditor、user-test、应用治理反馈、`seal-milestone`；收尾最终集成评审 + `hs-plan gate`）。
 
 ## Decoupled: design
 
@@ -90,7 +92,7 @@ controller 编排，下列 subagent 干活：
 
 1. 向用户确认你已进入 FDD 模式；用一句话复述目标供其纠正。
 2. `hs-plan init <slug>` 创建 plan 目录。
-3. 读 `references/planning.md` 并开始 Phase 1。不要跳到 feature 或 execution。
+3. 调用 `harness-stack:fdd-planning` 开始 Phase 1。不要跳到 feature 或 execution。
 
 ## Common Rationalizations
 

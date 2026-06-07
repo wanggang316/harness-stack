@@ -110,7 +110,7 @@ jq -r --arg m "$milestone" '.features | map(select(.milestone==$m and .status=="
   ],
   "suggestedGuidanceUpdates": [
     {
-      "target": "AGENTS.md | docs/<library-file> | references/implementer-brief.md",
+      "target": "AGENTS.md | docs/<library-file> | skills/fdd-execution/references/implementer-brief.md",
       "kind": "add | clarify | rewrite",
       "summary": "...",
       "evidence": ["feature <id>: <observation>", "feature <id>: <observation>"],

@@ -15,7 +15,7 @@ harness-stack 是一个 agent-first 的开发框架。人类给出方向；agent
 |---|---|---|
 | **Define** | what/why 尚不清晰 | `harness-stack:define-product`、`harness-stack:define-architecture`、`harness-stack:define-api-spec`、`harness-stack:define-frontend-spec`、`harness-stack:define-ui-spec`（一次性、项目级） |
 | **Design**（可选） | 方案含糊；技术路线应当先论证 | `harness-stack:design` —— 一份独立的技术文档 → `docs/design-docs/`。不是 main flow 的一步；FDD 在其存在时会读它。 |
-| **Build**（main flow） | 任何 non-trivial 改动 | `harness-stack:feature-driven-development` —— contract-first：plan → validation-contract → features → milestone-gated 执行循环。内部使用 `harness-stack:validation-contract`（Phase 2）与 `harness-stack:user-test`（Phase 4）。implementer 的任务内用 `harness-stack:tdd`（test-first）。 |
+| **Build**（main flow） | 任何 non-trivial 改动 | `harness-stack:fdd` —— 编排器，你只直接调它。它把四个 phase 分发给 `harness-stack:fdd-planning`（plan + features）、`harness-stack:validation-contract`（contract）、`harness-stack:fdd-execution`（执行循环）、`harness-stack:fdd-validate`（milestone/最终 gate）。implementer 的任务内用 `harness-stack:tdd`（test-first）。 |
 | **Verify** | 有东西坏了或未经验证 | `harness-stack:debug`（root cause）、`harness-stack:user-test`（对照 contract 断言探测运行中的系统；写入 `validation-state.json`） |
 | **Review** | 改动已就绪、可供审视 | `harness-stack:review-request`（派发）、`harness-stack:review-receive`（处理发现）、`harness-stack:security`（安全审计） |
 | **Deliberate** | 问题有争议或高风险 | `harness-stack:debate`（多轮）、`harness-stack:decide`（一次性并行） |
@@ -46,7 +46,7 @@ Trivial 的工作（一行修复、错别字、显而易见的重命名）跳过
 - TypeScript 运行时包放在 `packages/` 下，通过 pnpm workspaces 管理。
 - `@hs/llm`（`packages/hs-llm/`）是无状态的 LLM provider 抽象（api / cli / sdk / mock）。调用模型的 skill 都经由它。
 - `@hs/plan`（`packages/hs-plan/`，bin 为 `hs-plan`）是 feature-driven development 的确定性记账 CLI。FDD skill 把所有 per-plan 的状态转移都委托给它。
-- 所有 skill 与 agent 都通过 `harness-stack:` 这个 plugin 命名空间寻址（例如 `harness-stack:feature-driven-development`、`harness-stack:code-reviewer`）；plugin 名提供了冲突隔离，因此单个 skill 与 agent 不再带额外前缀。
+- 所有 skill 与 agent 都通过 `harness-stack:` 这个 plugin 命名空间寻址（例如 `harness-stack:fdd`、`harness-stack:code-reviewer`）；plugin 名提供了冲突隔离，因此单个 skill 与 agent 不再带额外前缀。
 - `docs/` 是项目的 **Library**：长期约定 + 记忆（architecture、design-docs、references、golden-rules、测试约定）。具体需求与实现以 **Code is the source of truth** 为准。
 - per-plan 的 FDD 状态（plan、validation-contract、features）放在 `.harness-runtime/plans/<slug>/` 下——**gitignored**，绝不放进 `docs/`。
 

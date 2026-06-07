@@ -29,7 +29,11 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 | Define | `/harness-stack:define-product` | Product definition (global) |
 | Define | `/harness-stack:define-architecture` | Architecture definition (global) |
 | Design (optional) | `/harness-stack:design` | Standalone technical design doc (`docs/design-docs/`) |
-| Build (main flow) | `/harness-stack:feature-driven-development` | Contract-first plan → features → milestone-gated execution loop |
+| Build (main flow) | `/harness-stack:fdd` | Orchestrator: contract-first plan → features → milestone-gated execution loop |
+| Build | `/harness-stack:fdd-planning` | Phase 1 (plan) + Phase 3 (features) |
+| Build | `/harness-stack:validation-contract` | Phase 2 (definition-of-done assertions) |
+| Build | `/harness-stack:fdd-execution` | Phase 4 (per-feature build loop) |
+| Build | `/harness-stack:fdd-validate` | Milestone & final gates (scrutiny / security / user-test) |
 | Build | `/harness-stack:tdd` | Test-driven development |
 | Verify | `/harness-stack:debug` | Debugging and error recovery |
 | Verify | `/harness-stack:user-test` | Probe running system against contract assertions |
@@ -47,7 +51,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 
 ## Naming Convention
 
-All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:feature-driven-development`, `harness-stack:code-reviewer`), which isolates them from other plugins — no per-skill prefix is needed.
+All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:fdd`, `harness-stack:code-reviewer`), which isolates them from other plugins — no per-skill prefix is needed.
 
 ## Documentation
 

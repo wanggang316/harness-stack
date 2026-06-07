@@ -38,7 +38,7 @@ description: 对项目的文档结构与基础文档做一次性初始化。从 
 - `docs/architecture.md` —— architecture 内容在别处定义
 - `docs/design-docs/<doc>.md` —— 单个 design doc 在别处撰写
 - `docs/user-test-patterns.md` —— 由 `harness-stack:validation-contract` 首次运行时 bootstrap
-- `.harness-runtime/` 内容 —— 逐 plan 的状态由 `harness-stack:feature-driven-development` 与 `hs-plan` CLI 创建；它被 gitignore，不在脚手架范围内
+- `.harness-runtime/` 内容 —— 逐 plan 的状态由 `harness-stack:fdd` 与 `hs-plan` CLI 创建；它被 gitignore，不在脚手架范围内
 - `CHANGELOG.md` —— changelog 在别处维护
 
 ## Process
@@ -84,7 +84,7 @@ description: 对项目的文档结构与基础文档做一次性初始化。从 
 
 ### Step 4b：忽略 runtime 树
 
-确保项目的 `.gitignore` 含有 `.harness-runtime/`。这里是 feature-driven-development 存放逐 plan 状态（plan、contract、feature、handoff）的地方；它绝不能被提交。幂等：若该行已存在，什么都不做；若 `.gitignore` 缺失，创建它并写入该条目；否则在一行简短注释下追加。不要触碰任何其他 `.gitignore` 条目。
+确保项目的 `.gitignore` 含有 `.harness-runtime/`。这里是 fdd 存放逐 plan 状态（plan、contract、feature、handoff）的地方；它绝不能被提交。幂等：若该行已存在，什么都不做；若 `.gitignore` 缺失，创建它并写入该条目；否则在一行简短注释下追加。不要触碰任何其他 `.gitignore` 条目。
 
 ### Step 5：遇冲突时给建议
 
