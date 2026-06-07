@@ -1,6 +1,6 @@
 ---
 name: security-auditor
-description: 安全评审专家，审计一段 diff 中的漏洞——OWASP Top 10、密钥、输入校验、认证 / 授权、依赖 CVE，以及 LLM 信任边界泄漏。当 diff 触及认证、用户输入、密钥、加密、裸查询、shell/eval、依赖升级，或 LLM 输出流入受信上下文时，与 code-reviewer 并行使用。
+description: 安全评审专家，审计一段 diff 中的漏洞——OWASP Top 10、密钥、输入校验、认证 / 授权、依赖 CVE，以及 LLM 信任边界泄漏。当 diff 触及认证、用户输入、密钥、加密、裸查询、shell/eval、依赖升级，或 LLM 输出流入受信上下文时使用。在 feature-driven-development 中由 milestone 闸条件触发，或由 security 技能手动派发。
 tools: Read, Glob, Grep, Bash
 model: inherit
 ---

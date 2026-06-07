@@ -18,6 +18,7 @@ controller 编排，下列 subagent 干活：
 - `harness-stack:implementer` — 实现单个 feature
 - `harness-stack:code-reviewer` — per-feature 静态评审：生产就绪度（含 scope/spec 合规一遍）
 - `harness-stack:scrutiny-validator` — **milestone 闸**：独立跑硬门禁（test/lint/type-check，只看新增失败）+ 逐 feature scrutiny + 产出治理建议（suggestedGuidanceUpdates）
+- `harness-stack:security-auditor` — **milestone 闸（条件触发）**：diff 触及 auth/secrets/crypto/裸查询/shell/依赖升级时做深度威胁建模
 - `user-test-validator`（经 `harness-stack:user-test`）— 对照 contract 断言探测运行中的系统
 
 **核心原则：** controller 策划上下文。implementer 不读 plan；code-reviewer 既看质量也看 scope/spec 合规；scrutiny-validator 在 milestone 边界独立跑硬门禁、不轻信 implementer 的自报，并把系统性问题回吐为治理建议；user-test-validator 不读源码。

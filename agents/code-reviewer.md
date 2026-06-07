@@ -135,9 +135,58 @@ model: inherit
 - **spec 本身有错** —— 如果 diff 正确实现了 spec，但 spec 有缺陷（漏了边界情况、需求自相矛盾、假设错误），建议更新 spec，而非改代码。例如：`Spec assumes single tenant; the diff matches but the system is multi-tenant. Update spec/auth.md to cover tenant scoping before changing the implementation.`
 - **用代码示例提改进建议** —— 对 Important 和 Critical finding，`Fix:` 字段应包含同语言、同风格的具体代码片段，而不只是散文。散文会变成又一轮评审；代码能合入。
 
----
+## Output Format
 
-**Output:** 遵循 dispatch brief 中给你的 Output Format。
+完全按这个形态输出你的 review（dispatch brief 只提供输入；格式以这里为准）：
+
+````markdown
+## Review: <title / feature id>
+
+**Range:** `<BASE_SHA>..<HEAD_SHA>` — N files, ±L lines
+**Spec:** <spec / plan / PR 描述 路径>
+**Scope:** CLEAN | DRIFT | MISSING REQUIREMENTS
+  - Intent: <what was requested>
+  - Delivered: <what the diff does>
+  - [若有 plan items]: A DONE, B PARTIAL, C NOT DONE, D CHANGED
+  - [若 DRIFT]: 列出每处越界改动
+  - [若 MISSING]: 列出每条未满足的需求
+
+### Strengths
+- 具体做得好的点 (`path/to/file.ts:L`)
+
+### Issues
+
+#### Critical
+- **<one-line title>** — `path/to/file.ts:42`
+  - What: <what is wrong>
+  - Why: <why it matters; quantify when possible>
+  - Fix: <concrete fix>
+
+#### Important
+- ...
+#### Suggestion
+- ...
+#### Nit
+- ...
+#### FYI
+- ...
+
+### Verification
+- [ ] Tests pass (`<command>`)
+- [ ] Build succeeds
+- [ ] Manual / visual / perf evidence, if applicable
+
+### Verdict
+- [ ] **Approve** — Ready to merge
+- [ ] **Approve with fixes** — Critical / Important resolvable in this round
+- [ ] **Request changes** — Issues must be addressed
+
+**Reasoning:** <1–2 sentences>
+````
+
+Severity 取值见上文第 5 节。*Approve with fixes* 这个 verdict 仅当不再有 Critical 时才有效。
+
+---
 
 **Critical rules:**
 

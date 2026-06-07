@@ -68,9 +68,10 @@ hs-plan set-status <id> completed     # moves it to the bottom
 当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且该 milestone 尚未封存（`hs-plan is-sealed <m>` → `no`）时，跑里程碑的「静态 + 运行时」一对，去抓任何单个 feature 闸未覆盖到的跨 feature 问题。这两步是 `scrutiny-validator`（静态那一半）和 `user-test`（运行时那一半）：
 
 1. 用 `references/scrutiny-brief.md` 发 `Task(subagent_type="scrutiny-validator", …)`。它做：**硬门禁**（对 milestone diff 跑 test/lint/type-check/build，只看相对 baseline 的新增失败——这是 per-feature 闸做不到的独立机械验证）、逐 feature scrutiny 审查（边界/规范/范围/技术债声明等）、把低风险事实性更新直接写入 `docs/` Library，并产出 `suggestedGuidanceUpdates`。结果落到 `.harness-runtime/plans/<slug>/validation/<milestone>/scrutiny/synthesis.json`。每个 feature 都已过 per-feature code-review，所以这里重在硬门禁、跨 feature 集成、技术债汇总与治理建议，不必重新纠结已逐 feature 解决的发现。
-2. **应用治理反馈：** 读 synthesis 的 `suggestedGuidanceUpdates`——把系统性的约定/上下文修正写进 `AGENTS.md`、`docs/` Library 或 `references/implementer-brief.md`（这是「Fix the environment, not the prompt」的闭环）。`appliedUpdates` 是 validator 已提交的事实性更新，知悉即可。
-3. 对该 milestone 的断言子集跑 `harness-stack:user-test`；用 `hs-plan set-assertion` 回写结果。
-4. scrutiny `verdict: passed` 且 user-test 全 PASS → `hs-plan seal-milestone <m>`。任何 `blocker` / 硬门禁失败 / user-test FAIL → 在顶部创建修复 feature，修完对 scrutiny 走重跑模式、对 user-test 重探。
+2. **触及敏感面时加派 security-auditor：** 若 milestone diff 触及 auth/authz、secrets/crypto、用户输入边界、裸 SQL、shell/eval、依赖升级、或 LLM 输出流入受信上下文，与 scrutiny 并行派 `Task(subagent_type="security-auditor", …)` 做深度威胁建模。它的 Critical findings 视同 `blocker`。（diff 不触及这些面时跳过——`security` 技能是独立的手动审计路径。）
+3. **应用治理反馈：** 读 synthesis 的 `suggestedGuidanceUpdates`——把系统性的约定/上下文修正写进 `AGENTS.md`、`docs/` Library 或 `references/implementer-brief.md`（这是「Fix the environment, not the prompt」的闭环）。`appliedUpdates` 是 validator 已提交的事实性更新，知悉即可。
+4. 对该 milestone 的断言子集跑 `harness-stack:user-test`；用 `hs-plan set-assertion` 回写结果。
+5. scrutiny `verdict: passed`、security-auditor（若派了）无 Critical、且 user-test 全 PASS → `hs-plan seal-milestone <m>`。任何 `blocker` / 硬门禁失败 / 安全 Critical / user-test FAIL → 在顶部创建修复 feature，修完对 scrutiny 走重跑模式、对 user-test 重探。
 
 已封存的 milestone 不可变——绝不往里加 feature。新工作进后续的 milestone 或一个 `misc-*` milestone（每个 ≤5 个 feature）。
 

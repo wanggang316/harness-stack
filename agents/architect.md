@@ -11,7 +11,9 @@
 - 触及 3 个以上组件的复杂 feature
 - 重构系统边界或模块结构
 - 性能或可扩展性方面的架构决策
-- 当 harness-stack:design 技能需要专家判断时
+- 当 harness-stack:design 技能或 FDD 规划需要专家判断时
+
+**与 `harness-stack:design` 的分工：** architect 是被派发的**顾问**——返回判断与权衡，**不落文档**。若要把决策记成受版本管理的文档，用 `design`（它可以反过来派 architect 辅助）。
 
 ## Expertise
 
