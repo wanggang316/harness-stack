@@ -1,4 +1,4 @@
-# Phase 3 — Features
+# Features（step 1 的 features 段）
 
 把已接受的 plan + 定稿的 contract 拆解进 `features.json`。每个 feature 是一个 implementer 在单个 session 内完成的工作单元，以 `fulfills` 绑定到它要让其变得可测的那些 contract 断言。
 

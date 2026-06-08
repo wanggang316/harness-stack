@@ -1,13 +1,13 @@
 ---
 name: fdd-validation-contract
-description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 fdd 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 fdd init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
+description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 fdd step 1（规划）里的 contract 阶段。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 fdd init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
 ---
 
 # fdd-validation-contract：撰写 Validation Contract
 
 ## Overview
 
-这是 **fdd 的 Phase 2**：当 plan 定义了「要构建什么」之后，本技能写出 definition of done——即 **validation contract**，一组结构化、可测试、用户可观测的 **assertion**，任何人（人类或 agent）都能据此探测，从用户视角证明构建确实可用。
+这是 **fdd step 1（规划）的 contract 阶段**：当 plan 定义了「要构建什么」之后，本技能写出 definition of done——即 **validation contract**，一组结构化、可测试、用户可观测的 **assertion**，任何人（人类或 agent）都能据此探测，从用户视角证明构建确实可用。
 
 产出物 `.harness-runtime/plans/<slug>/validation-contract.md` 成为以下内容的事实来源：
 
@@ -16,20 +16,20 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 - 证明每个行为的那条精确可观测 assertion（`VAL-<AREA>-NNN`）
 - 每条 assertion 的探测必须抓取的 Evidence，以及所需的 fixture 与起始状态
 
-工作单元是 **plan**。plan 被拆解为若干 **area**（其用户可见的子能力）；每个 area 收纳该能力对应的 assertion。每条 assertion 拿到一个稳定 id `VAL-<AREA>-NNN`——这些 id 正是 Phase 3 中 `features.json` 所绑定（`fulfills`）的对象，也是 Phase 4 中 runtime validator 所探测的对象。契约变更时，assertion id 保持稳定。
+工作单元是 **plan**。plan 被拆解为若干 **area**（其用户可见的子能力）；每个 area 收纳该能力对应的 assertion。每条 assertion 拿到一个稳定 id `VAL-<AREA>-NNN`——这些 id 正是 step 1 的 features 阶段中 `features.json` 所绑定（`fulfills`）的对象，也是 step 3（validate）中 user-test 所探测的对象。契约变更时，assertion id 保持稳定。
 
 一遍写成的契约必有盲区。本技能改为 **为每个 area 派发一个专门的 subagent 做 investigation**，据其发现起草 assertion，然后在交接前 **跑若干轮 adversarial review 来猎查缺口**。这份较真正是要点所在。
 
 ## When to Use
 
-- 已存在一个 plan，且已在 `.harness-runtime/plans/<slug>/plan.md` 被接受（FDD 的 Phase 1）
+- 已存在一个 plan，且已在 `.harness-runtime/plans/<slug>/plan.md` 被接受（fdd step 1 的 plan 阶段）
 - 构建带有用户可观测的行为（UI、API、CLI 输出、用户可见的副作用）
 - 在 feature 被拆解之前——`VAL-` id 正是 `features.json` 所绑定的对象
 
 **何时不用：**
 
 - 这项工作没有用户可观测的界面（纯重构、内部优化）。改用 test-first development 与 `docs/references/testing-patterns.md` 来驱动单测与集成测试覆盖。
-- 还没有被接受的 plan。先跑 FDD Phase 1；契约是针对 plan 撰写的。
+- 还没有被接受的 plan。先跑 fdd step 1 的 plan 阶段；契约是针对 plan 撰写的。
 
 ## Philosophy
 
@@ -42,11 +42,11 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 - **assertion 只谈可观测。** 不引用任何实现。如果一条 assertion 无法从运行系统外部探测，它就不属于这里。
 - **Evidence 是声明的，不是临场凑的。** 每条 assertion 指明 validator 必须抓取的凭证——一张截图、一段 network 签名、一行 DB 记录——这样 PASS 背后是 artifact，而非一句声称。
 - **别信第一稿。** 一人独写的契约看上去完整，实则不然。investigation 暴露一个人会遗忘的东西；adversarial review 暴露这一稿仍然漏掉的东西。
-- **对 plan 做穷尽覆盖。** plan 里的每条 requirement 都映射到 ≥ 1 条 assertion。没有 assertion 的 requirement 就是覆盖漏洞。（反方向——每条 assertion 恰被一个 feature 认领——稍后由 Phase 3 的 `fdd contract-coverage` 强制保证。）
+- **对 plan 做穷尽覆盖。** plan 里的每条 requirement 都映射到 ≥ 1 条 assertion。没有 assertion 的 requirement 就是覆盖漏洞。（反方向——每条 assertion 恰被一个 feature 认领——稍后由 features 阶段的 `fdd contract-coverage` 强制保证。）
 
 ## Prerequisites
 
-1. 已被接受的 plan，位于 `.harness-runtime/plans/<slug>/plan.md`——FDD 的 Phase 1
+1. 已被接受的 plan，位于 `.harness-runtime/plans/<slug>/plan.md`——fdd step 1 的 plan 阶段
 2. 项目测试约定，位于 `docs/user-test-patterns.md`——若缺失，由下面的 Step 0 来 bootstrap
 
 若 plan 缺失，停下。第 2 项在首次运行时由 Step 0 处理。
@@ -228,7 +228,7 @@ VALIDATION CONTRACT READY FOR REVIEW:
 → Approve, or tell me what to change.
 ```
 
-一经批准，`VAL-` id 就是 `features.json`（Phase 3）与 runtime validation（Phase 4）的稳定输入。
+一经批准，`VAL-` id 就是 `features.json`（features 阶段）与 runtime validation（step 3）的稳定输入。
 
 ## Common Rationalizations
 

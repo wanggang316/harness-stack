@@ -1,15 +1,15 @@
 ---
 name: fdd-planning
-description: FDD 的规划与拆解——Phase 1（与用户弄清需求、经 investigator 调查代码库、商定 milestone、写出已接受的 plan.md）与 Phase 3（把 milestone 拆成 features.json 并过 coverage 闸）。中间的 Phase 2（contract）交给 harness-stack:fdd-validation-contract。由 harness-stack:fdd 调用。
+description: FDD 主流程 step 1（规划与拆解）。覆盖两段——plan（与用户弄清需求、经 investigator 调查代码库、商定 milestone、写出已接受的 plan.md）与 features（把 milestone 拆成 features.json 并过 coverage 闸）。中间的 contract 段交给 harness-stack:fdd-validation-contract。由 harness-stack:fdd 调用。
 ---
 
 # fdd-planning：规划与拆解
 
-本技能覆盖 FDD 的 **Phase 1（plan）** 与 **Phase 3（features）**；中间的 **Phase 2（contract）** 由 `harness-stack:fdd-validation-contract` 完成。
+本技能是主流程的 **step 1（规划）**，覆盖其 **plan** 段与 **features** 段；中间的 **contract** 段由 `harness-stack:fdd-validation-contract` 完成。
 
-规划是最重要的 phase。这里的质量会被后续每个 phase 放大；规划赶工会导致遗漏、返工和构建失败。在用户显式接受 plan 之前，不要进入 Phase 2。
+规划是最重要的一步。这里的质量会被后续每一步放大；规划赶工会导致遗漏、返工和构建失败。在用户显式接受 plan 之前，不要进入 contract 段。
 
-## Phase 1 — Plan
+## Plan
 
 ### Step 0 — Init
 
@@ -32,7 +32,7 @@ fdd active          # verify
 
 | 话题 | 为何对下游重要 |
 |---|---|
-| 范围边界——「X 在范围内吗？」 | 防止 Phase 3 出现特性蔓延 |
+| 范围边界——「X 在范围内吗？」 | 防止 features 段出现特性蔓延 |
 | 非功能性需求：性能、安全、可访问性 | 在 contract 里成为跨 area 的断言 |
 | 技术偏好 / 约束 | 塑造 implementer brief |
 | 测试界面——真实浏览器？curl？CLI？ | 塑造 contract 的 evidence + user-test 探测 |
@@ -70,7 +70,7 @@ fdd active          # verify
 
 ### Step 7 — Draft features (shape only)
 
-按 milestone 列出候选 feature——足够与用户确认范围即可。每个应约为一个 worker session 的工作量、可独立评审、且具体（一个特定的 endpoint/table/component/function），基础性 feature 排在依赖它的 feature 前面。把 precondition/`verificationSteps` 推迟到 Phase 3。
+按 milestone 列出候选 feature——足够与用户确认范围即可。每个应约为一个 worker session 的工作量、可独立评审、且具体（一个特定的 endpoint/table/component/function），基础性 feature 排在依赖它的 feature 前面。把 precondition/`verificationSteps` 推迟到 features 段。
 
 ### Step 8 — Write the plan
 
@@ -78,13 +78,13 @@ fdd active          # verify
 
 ### Step 9 — Acceptance gate
 
-呈现 plan 并问：*「接受这份 plan 吗？提出修改我就改。」* 一旦接受，`plan.md` 就作为商定的方案确立下来；告诉用户你要进 Phase 2（contract），artifacts 就绪后会回来评审。
+呈现 plan 并问：*「接受这份 plan 吗？提出修改我就改。」* 一旦接受，`plan.md` 就作为商定的方案确立下来；告诉用户你要进 contract 段，artifacts 就绪后会回来评审。
 
-## Phase 2 — Contract（交给 fdd-validation-contract）
+## Contract（交给 fdd-validation-contract）
 
-plan 被接受后，FDD 编排会调 `harness-stack:fdd-validation-contract` 把 plan 里可测试的行为写成 `.harness-runtime/plans/<slug>/validation-contract.md` 的 `VAL-<AREA>-NNN` 断言，并 `fdd init-state` 播种 `validation-state.json`。这不在本技能内——但 Phase 3 必须等它定稿，否则 feature 的 `fulfills` 无从绑定。
+plan 被接受后，FDD 编排会调 `harness-stack:fdd-validation-contract` 把 plan 里可测试的行为写成 `.harness-runtime/plans/<slug>/validation-contract.md` 的 `VAL-<AREA>-NNN` 断言，并 `fdd init-state` 播种 `validation-state.json`。这不在本技能内——但 features 段必须等它定稿，否则 feature 的 `fulfills` 无从绑定。
 
-## Phase 3 — Features
+## Features
 
 contract 定稿、state 播种之后，回到本技能把已接受的 plan + 定稿的 contract 拆进 `.harness-runtime/plans/<slug>/features.json`。每个 feature 是一个 implementer 单 session 的工作单元，以 `fulfills` 绑定到它要让其变得可测的那些断言。完整 schema、`fulfills` 语义、排序与 sizing 规则见 `references/features.md`。
 
@@ -94,12 +94,12 @@ contract 定稿、state 播种之后，回到本技能把已接受的 plan + 定
 fdd contract-coverage     # MUST report 'coverage OK'（每条断言恰好被一个 feature 认领）
 ```
 
-解决每一处 `ORPHAN` / `DUPLICATE` / `UNKNOWN-CLAIM` / `STATE-ONLY` / `CONTRACT-ONLY` 后才进 Phase 4（`harness-stack:fdd-execution`）。
+解决每一处 `ORPHAN` / `DUPLICATE` / `UNKNOWN-CLAIM` / `STATE-ONLY` / `CONTRACT-ONLY` 后才进 step 2（`harness-stack:fdd-execution`）。
 
 ## Anti-patterns
 
 - ❌ 在 Step 1 之前就调查代码库（你还不知道要找什么）。
 - ❌ 自己调查而不经 subagent（污染你的上下文）。
 - ❌ 在 milestone 确认（Step 4）之前就拆解 feature（Step 7）。
-- ❌ 在 Phase 1 里就写 `features.json`——features 是 Phase 3 的事，要等 contract 定稿后再拆。
+- ❌ 在 plan 段就写 `features.json`——features 是 features 段的事，要等 contract 定稿后再拆。
 - ❌ 跳过需求复述（几乎必然会漏掉一条需求）。

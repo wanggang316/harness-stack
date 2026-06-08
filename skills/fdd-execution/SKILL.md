@@ -1,11 +1,11 @@
 ---
 name: fdd-execution
-description: FDD 的 Phase 4——执行循环。串行驱动 feature 构建：next-feature → 派 implementer（自验）→ handoff 决策树 → complete。per-feature 不派独立验证器——feature 级把握来自 implementer 自验 + 交接决策树；真正的验证（静态→审查→user-test）批量放在里程碑收口（调 harness-stack:fdd-validate scope=milestone）与循环跑空（scope=final）。由 harness-stack:fdd 在 features.json 通过 coverage 后调用。
+description: FDD 主流程 step 2——执行循环。串行驱动 feature 构建：next-feature → 派 implementer（自验）→ handoff 决策树 → complete。per-feature 不派独立验证器——feature 级把握来自 implementer 自验 + 交接决策树；真正的验证（静态→审查→user-test）批量放在里程碑收口（调 harness-stack:fdd-validate scope=milestone）与循环跑空（scope=final）。由 harness-stack:fdd 在 features.json 通过 coverage 后调用。
 ---
 
 # fdd-execution：FDD 执行循环
 
-最长的 phase。你驱动一个**串行构建循环**：一次一个 feature——派 implementer 构建并自验，跑交接决策树收口；**per-feature 不跑独立验证器**。真正的验证（静态验证 → 代码审查 → user-test）批量交给 `harness-stack:fdd-validate`，只在里程碑收口与循环跑空时调。
+最长的一步。你驱动一个**串行构建循环**：一次一个 feature——派 implementer 构建并自验，跑交接决策树收口；**per-feature 不跑独立验证器**。真正的验证（静态验证 → 代码审查 → user-test）批量交给 `harness-stack:fdd-validate`，只在里程碑收口与循环跑空时调。
 
 ```
 loop:
@@ -23,7 +23,7 @@ when loop empty:
 
 **per-feature 的把握从哪来？** 不来自一个独立验证器，而来自两件事：(1) implementer 在交接前**自验**——跑该 feature 声明的 test/lint/type-check，把真实输出记进 handoff 的 `verificationEvidence`；(2) controller 跑**交接决策树**核验它（commit 在、树干净、每个 verificationStep 都有真实证据，否则降级为 `partial`）。批量验证（独立硬门禁、跨 feature scrutiny、code-review、运行时探测）成本高，放到里程碑一次跑更划算，也能抓到跨 feature 交互——这正是 fdd-validate 的职责。
 
-**执行是串行的。** 一次一个 feature。一个 phase 内部的只读并行没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
+**执行是串行的。** 一次一个 feature。一步内部的只读并行没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
 
 **controller 绝不写代码、绝不为修一处发现而去编辑实现。** 每一处修复都回到 implementer。controller 一旦编辑代码，全新上下文不变量就没了。验证本身不在本技能里做——批量验证全部委派给 `harness-stack:fdd-validate`。
 
