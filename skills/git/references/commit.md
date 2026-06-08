@@ -1,6 +1,6 @@
 # Commit Reference
 
-创建一个规范 commit 的操作细节。slash command `/harness-stack:commit` 是遵循这些规则的 haiku 驱动入口；本文件是更长篇的参考。
+规范 commit 的完整规则。
 
 ## Conventional Format
 

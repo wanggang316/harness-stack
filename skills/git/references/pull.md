@@ -1,6 +1,6 @@
 # Pull Reference (merge-based update-branch)
 
-把 `origin/main` merge 进当前分支的操作细节，适用于以下场景：项目策略偏好 merge commit 而非 rebase、分支与他人共享、或重写 history 会造成麻烦。
+把 `origin/main` merge 进当前分支的规则，适用于以下场景：项目策略偏好 merge commit 而非 rebase、分支与他人共享、或重写 history 会造成麻烦。
 
 当项目保持线性 history 时改用 [sync.md](sync.md)。
 

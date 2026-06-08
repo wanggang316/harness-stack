@@ -30,7 +30,7 @@
    |---|---|
    | Mergeable `CONFLICTING` | 同步、解决、推送。回到 step 3。 |
    | Mergeable `UNKNOWN` | 等待，重查。 |
-   | CI check 失败（真失败） | 拉日志，本地修，用 `/harness-stack:commit` 提交，推送，回到 step 3。 |
+   | CI check 失败（真失败） | 拉日志，本地修，按 `harness-stack:git` 提交，推送，回到 step 3。 |
    | CI check 失败（flake——孤立超时、瞬态基础设施问题） | 重跑那个具体 job。重试通过即继续。 |
    | head 上出现 CI 自动 commit | 见下文「Auto-Commit on Head」。 |
    | 有未处理的 review comment | 交给 `harness-stack:review-receive`。在确认并（如需要）处理前别合并。 |

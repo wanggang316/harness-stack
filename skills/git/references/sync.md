@@ -1,8 +1,8 @@
 # Sync Reference (rebase + push)
 
-让 feature branch 与其 upstream 保持同步、并把结果发布出去的操作细节。slash command `/harness-stack:git-sync` 是遵循这套流程的 haiku 驱动入口；本文件是更长篇的参考。
+让 feature branch 与其 upstream 保持同步并把结果发布出去的完整规则。
 
-这是 **rebase 路线**的流程——保持线性 history。当项目策略强制要求 merge commit、分支与他人共享、或重写 history 会造成麻烦时，改用 [pull.md](pull.md)。
+这是 **rebase 路线**——保持线性 history。当项目策略强制要求 merge commit、分支与他人共享、或重写 history 会造成麻烦时，改用 [pull.md](pull.md)。
 
 ## Pre-Flight
 

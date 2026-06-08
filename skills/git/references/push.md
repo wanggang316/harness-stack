@@ -1,6 +1,6 @@
 # Push Reference
 
-更底层的 push 语义。高层的「push + open PR」流程在 [harness-stack:pr](../../pr/SKILL.md)；本文件讲 `git push` 本身——force 的几种变体、rejection 的分类、auth 与 sync 的区分。
+更底层的 push 语义。高层的 push + open PR 见 [harness-stack:pr](../../pr/SKILL.md)；本文件讲 `git push` 本身——force 的几种变体、rejection 的分类、auth 与 sync 的区分。
 
 ## Initial Push
 
