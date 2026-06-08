@@ -3,7 +3,7 @@
 输入：一个 implementer 返回了。读它的 handoff：
 
 ```bash
-hs-plan handoff <feature-id>
+fdd handoff <feature-id>
 ```
 
 每个 handoff 都必须抵达一个终态动作，循环才能继续。
@@ -20,7 +20,7 @@ implementer 撞上了它解决不了的东西，求助了。查 `criticalContext
 | 外部服务宕机 / 凭据过期 | **交还用户**——你恢复不了外部状态 |
 | 仓库处于意外状态（脏树、错误分支） | 调查；在弄懂原因之前别去「清理」 |
 
-修好根因之后：`hs-plan set-status <id> pending`，然后继续。绝不把一个被退回的 feature 标记为 `completed`。
+修好根因之后：`fdd set-status <id> pending`，然后继续。绝不把一个被退回的 feature 标记为 `completed`。
 
 ## B — `successState: failure`
 
@@ -73,7 +73,7 @@ implementer 撞上了它解决不了的东西，求助了。查 `criticalContext
 ### D.4 — Terminal
 
 ```bash
-hs-plan set-status <feature-id> completed
+fdd set-status <feature-id> completed
 ```
 
 继续循环。

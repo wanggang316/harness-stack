@@ -1,7 +1,7 @@
 export type PlanErrorKind = "data" | "invariant" | "usage";
 
 /**
- * Domain error for hs-plan. `kind` maps to a CLI exit code in cli.ts:
+ * Domain error for fdd. `kind` maps to a CLI exit code in cli.ts:
  *   data       -> 1  (no active plan, file missing/unreadable/invalid)
  *   invariant  -> 2  (contract-coverage or gate not satisfied)
  *   usage      -> 3  (bad/missing args, bad enum value)

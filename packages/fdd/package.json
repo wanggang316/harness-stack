@@ -1,5 +1,5 @@
 {
-  "name": "@hs/plan",
+  "name": "@hs/fdd",
   "version": "0.0.1",
   "description": "Deterministic bookkeeping CLI for harness-stack feature-driven development (FDD)",
   "license": "MIT",
@@ -13,7 +13,7 @@
     }
   },
   "bin": {
-    "hs-plan": "./dist/cli.js"
+    "fdd": "./dist/cli.js"
   },
   "files": [
     "dist",

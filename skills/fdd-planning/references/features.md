@@ -2,7 +2,7 @@
 
 把已接受的 plan + 定稿的 contract 拆解进 `features.json`。每个 feature 是一个 implementer 在单个 session 内完成的工作单元，以 `fulfills` 绑定到它要让其变得可测的那些 contract 断言。
 
-**前置条件：** `validation-contract.md` 已定稿、`validation-state.json` 已播种（`hs-plan init-state`）。contract 之前不许有 feature——否则 `fulfills` 无从绑定。
+**前置条件：** `validation-contract.md` 已定稿、`validation-state.json` 已播种（`fdd init-state`）。contract 之前不许有 feature——否则 `fulfills` 无从绑定。
 
 ## Feature schema
 
@@ -39,7 +39,7 @@
 | `expectedBehavior` | 可验证的成功标准。 |
 | `verificationSteps` | implementer 如何证明每条行为。 |
 | `fulfills` | 本 feature **完成**（使其完全可测）的断言 id。 |
-| `status` | 初始为 `pending`；此后仅经 `hs-plan set-status` 管理。 |
+| `status` | 初始为 `pending`；此后仅经 `fdd set-status` 管理。 |
 
 ## `fulfills` semantics
 
@@ -60,18 +60,18 @@
 `features.json` 草拟好后：
 
 ```bash
-hs-plan contract-coverage     # MUST report 'coverage OK'
+fdd contract-coverage     # MUST report 'coverage OK'
 ```
 
 执行前解决每一处违例：
 - `ORPHAN <id>` — 没有 feature 认领该断言。把它加进某个 feature 的 `fulfills`。
 - `DUPLICATE <id>` — 两个 feature 都认领它。留下真正完成它的那个。
 - `UNKNOWN-CLAIM <id>` — 某个 `fulfills` 条目不在 contract 里。改掉拼写错误，或改 contract。
-- `STATE-ONLY` / `CONTRACT-ONLY` — state 与 contract 漂移了。重跑 `hs-plan init-state`。
+- `STATE-ONLY` / `CONTRACT-ONLY` — state 与 contract 漂移了。重跑 `fdd init-state`。
 
 ## Verification
 
 - [ ] `plan.md` 里的每个 milestone 都有 feature 代表。
-- [ ] 每条断言恰好被一个 feature 认领（`hs-plan contract-coverage` OK）。
+- [ ] 每条断言恰好被一个 feature 认领（`fdd contract-coverage` OK）。
 - [ ] 基础性 feature 排在依赖它的之前；顺序反映 precondition。
 - [ ] 没有 feature 大到一个 worker session 装不下。

@@ -97,7 +97,7 @@
 对合并矩阵里每个 `VAL-` id，由 controller（而非无状态 validator）执行：
 
 ```bash
-hs-plan set-assertion <VAL-id> <status> "<evidence-pointer>"
+fdd set-assertion <VAL-id> <status> "<evidence-pointer>"
 ```
 
 矩阵结论到 state 枚举的映射：`PASS → passed`、`FAIL → failed`、`INCONCLUSIVE / SKIP / BLOCKED → blocked`。evidence-pointer 是截图 / repro 路径（或一行 network/terminal 备注）。
@@ -152,5 +152,5 @@ hs-plan set-assertion <VAL-id> <status> "<evidence-pointer>"
 - [ ] validator subagent 在全新上下文运行，且未读实现源码。
 - [ ] 请求子集里每个 `VAL-` id 在合并矩阵中恰好出现一次，带 PASS、FAIL 或 INCONCLUSIVE 及证据。
 - [ ] 每个 PASS 行带该断言声明的 Evidence；每个 FAIL 行含 reproducer。
-- [ ] 每条结果已通过 `hs-plan set-assertion` 回写 `validation-state.json`（PASS→passed、FAIL→failed、INCONCLUSIVE/SKIP/BLOCKED→blocked）。
+- [ ] 每条结果已通过 `fdd set-assertion` 回写 `validation-state.json`（PASS→passed、FAIL→failed、INCONCLUSIVE/SKIP/BLOCKED→blocked）。
 - [ ] run synthesis 落盘在 `.harness-runtime/plans/<slug>/validation/`；操作性发现已追加到 patterns 文档的 Knowledge Persistence 小节。

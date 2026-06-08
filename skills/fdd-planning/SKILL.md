@@ -16,8 +16,8 @@ description: FDD 的规划与拆解——Phase 1（与用户弄清需求、经 i
 挑一个简短的 kebab-case slug（`checkout-flow`、`auth-migration`），然后：
 
 ```bash
-hs-plan init <slug>     # creates .harness-runtime/plans/<slug>/ + makes it active
-hs-plan active          # verify
+fdd init <slug>     # creates .harness-runtime/plans/<slug>/ + makes it active
+fdd active          # verify
 ```
 
 ### Step 1 — Understand requirements with the user
@@ -82,7 +82,7 @@ hs-plan active          # verify
 
 ## Phase 2 — Contract（交给 fdd-validation-contract）
 
-plan 被接受后，FDD 编排会调 `harness-stack:fdd-validation-contract` 把 plan 里可测试的行为写成 `.harness-runtime/plans/<slug>/validation-contract.md` 的 `VAL-<AREA>-NNN` 断言，并 `hs-plan init-state` 播种 `validation-state.json`。这不在本技能内——但 Phase 3 必须等它定稿，否则 feature 的 `fulfills` 无从绑定。
+plan 被接受后，FDD 编排会调 `harness-stack:fdd-validation-contract` 把 plan 里可测试的行为写成 `.harness-runtime/plans/<slug>/validation-contract.md` 的 `VAL-<AREA>-NNN` 断言，并 `fdd init-state` 播种 `validation-state.json`。这不在本技能内——但 Phase 3 必须等它定稿，否则 feature 的 `fulfills` 无从绑定。
 
 ## Phase 3 — Features
 
@@ -91,7 +91,7 @@ contract 定稿、state 播种之后，回到本技能把已接受的 plan + 定
 收尾必须过 coverage 闸：
 
 ```bash
-hs-plan contract-coverage     # MUST report 'coverage OK'（每条断言恰好被一个 feature 认领）
+fdd contract-coverage     # MUST report 'coverage OK'（每条断言恰好被一个 feature 认领）
 ```
 
 解决每一处 `ORPHAN` / `DUPLICATE` / `UNKNOWN-CLAIM` / `STATE-ONLY` / `CONTRACT-ONLY` 后才进 Phase 4（`harness-stack:fdd-execution`）。

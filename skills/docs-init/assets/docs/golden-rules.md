@@ -34,7 +34,7 @@
 
 对非平凡的工作，构建前先跑 `harness-stack:fdd`：捕获一个 plan，定义 validation contract，分解为 feature，再驱动一个由 milestone 设闸的执行循环。逐 plan 的状态（plan、contract、feature）存放在 `.harness-runtime/plans/<slug>/`（被 gitignore）；持久的约定存放在 `docs/`；具体实现以代码为准。
 
-**Enforcement:** Process convention; `hs-plan contract-coverage` and `hs-plan gate`.
+**Enforcement:** Process convention; `fdd contract-coverage` and `fdd gate`.
 
 ## 6. Fix the environment, not the prompt
 

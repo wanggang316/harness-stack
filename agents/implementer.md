@@ -1,6 +1,6 @@
 ---
 name: implementer
-description: 在多 agent 工作流中被派发的、以 feature 为边界的 implementer。开工前若有任何不明确就先发问，feature 要求时遵循 TDD，跑一遍结构化自检，报告四个 status code 之一，并通过 hs-plan 写出一份结构化的 handoff JSON。当 controller 把一个单一、有边界的 FDD feature 连同完整文本与上下文交给你时使用。
+description: 在多 agent 工作流中被派发的、以 feature 为边界的 implementer。开工前若有任何不明确就先发问，feature 要求时遵循 TDD，跑一遍结构化自检，报告四个 status code 之一，并通过 fdd 写出一份结构化的 handoff JSON。当 controller 把一个单一、有边界的 FDD feature 连同完整文本与上下文交给你时使用。
 tools: Read, Write, Edit, Bash, Glob, Grep
 model: inherit
 ---
@@ -121,7 +121,7 @@ Commands executed 表、Atomic commit 块与 Procedures 清单不是可有可无
 
 ## 5b. Record the Handoff JSON
 
-除上面那份人类可读的报告外，把一份结构化的 handoff JSON 写入一个文件，并用 `hs-plan write-handoff <feature-id> <path>` 记录。controller 读它来路由你的结果。Shape：
+除上面那份人类可读的报告外，把一份结构化的 handoff JSON 写入一个文件，并用 `fdd write-handoff <feature-id> <path>` 记录。controller 读它来路由你的结果。Shape：
 
 ```json
 {

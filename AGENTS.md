@@ -81,7 +81,7 @@ Reused by the fdd flow:
 TypeScript runtime packages live under `packages/` and are managed through pnpm workspaces.
 
 - `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `docs/recipes/calling-hs-llm-from-a-skill.md`.
-- `@hs/plan` (`packages/hs-plan/`, bin `hs-plan`) — Deterministic bookkeeping CLI for feature-driven development: manages `features.json` / `validation-state.json` / handoffs and enforces coverage + gate over per-plan state in the gitignored `.harness-runtime/`. See `packages/hs-plan/README.md`.
+- `@hs/fdd` (`packages/fdd/`, bin `fdd`) — Deterministic bookkeeping CLI for feature-driven development: manages `features.json` / `validation-state.json` / handoffs and enforces coverage + gate over per-plan state in the gitignored `.harness-runtime/`. See `packages/fdd/README.md`.
 
 ## Documentation
 

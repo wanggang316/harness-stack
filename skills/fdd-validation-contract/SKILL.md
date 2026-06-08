@@ -1,6 +1,6 @@
 ---
 name: fdd-validation-contract
-description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 fdd 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 hs-plan init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
+description: 为一个 plan 撰写 validation contract——把 definition of done 落成一组可测试、用户可观测的 assertion（VAL-<AREA>-NNN），带 persona 与声明的 Evidence。它是 fdd 的 Phase 2。契约通过逐 area 的 investigation subagent 与若干轮 adversarial review 构建，而非一人独写。产出 .harness-runtime/plans/<slug>/validation-contract.md，并经由 fdd init-state 播种 validation-state.json。在项目内首次使用时，还会 bootstrap 项目级约定文档 docs/user-test-patterns.md。
 ---
 
 # fdd-validation-contract：撰写 Validation Contract
@@ -42,7 +42,7 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 - **assertion 只谈可观测。** 不引用任何实现。如果一条 assertion 无法从运行系统外部探测，它就不属于这里。
 - **Evidence 是声明的，不是临场凑的。** 每条 assertion 指明 validator 必须抓取的凭证——一张截图、一段 network 签名、一行 DB 记录——这样 PASS 背后是 artifact，而非一句声称。
 - **别信第一稿。** 一人独写的契约看上去完整，实则不然。investigation 暴露一个人会遗忘的东西；adversarial review 暴露这一稿仍然漏掉的东西。
-- **对 plan 做穷尽覆盖。** plan 里的每条 requirement 都映射到 ≥ 1 条 assertion。没有 assertion 的 requirement 就是覆盖漏洞。（反方向——每条 assertion 恰被一个 feature 认领——稍后由 Phase 3 的 `hs-plan contract-coverage` 强制保证。）
+- **对 plan 做穷尽覆盖。** plan 里的每条 requirement 都映射到 ≥ 1 条 assertion。没有 assertion 的 requirement 就是覆盖漏洞。（反方向——每条 assertion 恰被一个 feature 认领——稍后由 Phase 3 的 `fdd contract-coverage` 强制保证。）
 
 ## Prerequisites
 
@@ -185,7 +185,7 @@ AREAS FOR <feature>:
 
 ### Step 4：Write Assertions
 
-把 investigation 得到的清单转成 assertion，归到各自的 area 下。每条 assertion 是一个 H3 标题，形式严格为 `### VAL-<AREA>-NNN: <title>`（AREA 为大写字母数字，NNN 为零填充 3 位数字——正是这个标题被 `hs-plan init-state` 解析），其后只跟两行（见 `references/user-test-template.md`）：
+把 investigation 得到的清单转成 assertion，归到各自的 area 下。每条 assertion 是一个 H3 标题，形式严格为 `### VAL-<AREA>-NNN: <title>`（AREA 为大写字母数字，NNN 为零填充 3 位数字——正是这个标题被 `fdd init-state` 解析），其后只跟两行（见 `references/user-test-template.md`）：
 
 - **一段可观测行为段落**——以 persona 为锚，从用户视角描述必须成立的是什么。在行内指名 persona（按 registry id）。不引用任何实现。
 - **一行 `Evidence:`**——validator 必须抓取、才能判这条 assertion 为 PASS 的凭证，用 patterns 文档的词汇：`screenshot` / `console-errors` / `network(POST /sessions → 303)` / `terminal-output`。
@@ -215,10 +215,10 @@ plan 的每条 requirement 都必须被至少一条 assertion 覆盖——靠阅
 播种状态文件，然后交付人类评审：
 
 ```bash
-hs-plan init-state          # parses the VAL- headings into validation-state.json (all pending)
+fdd init-state          # parses the VAL- headings into validation-state.json (all pending)
 ```
 
-任何一轮 adversarial review 增删了 assertion 标题之后，重新跑一次 `hs-plan init-state`；它会保留已存在 id 的状态。
+任何一轮 adversarial review 增删了 assertion 标题之后，重新跑一次 `fdd init-state`；它会保留已存在 id 的状态。
 
 ```
 VALIDATION CONTRACT READY FOR REVIEW:
@@ -265,4 +265,4 @@ VALIDATION CONTRACT READY FOR REVIEW:
 - [ ] plan 的每条 requirement 都被 ≥ 1 条 assertion 覆盖
 - [ ] selector 与 assertion 只谈可观测（不引用任何实现）
 - [ ] 已经人类评审并批准
-- [ ] contract 已保存到 `.harness-runtime/plans/<slug>/validation-contract.md`，且已跑 `hs-plan init-state`
+- [ ] contract 已保存到 `.harness-runtime/plans/<slug>/validation-contract.md`，且已跑 `fdd init-state`

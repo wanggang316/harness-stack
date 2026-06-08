@@ -43,26 +43,26 @@ interface MainStreams {
 }
 
 const HELP_TEXT = `Usage:
-  hs-plan init <slug>                       Scaffold a plan dir + make it active
-  hs-plan use <slug>                        Switch the active plan
-  hs-plan active                            Print "<slug>\\t<dir>" of the active plan
-  hs-plan list-plans                        List plan slugs ("* " marks active)
+  fdd init <slug>                       Scaffold a plan dir + make it active
+  fdd use <slug>                        Switch the active plan
+  fdd active                            Print "<slug>\\t<dir>" of the active plan
+  fdd list-plans                        List plan slugs ("* " marks active)
 
-  hs-plan next-feature                      Print "<id>\\t<agent>\\t<milestone>" of first pending feature
-  hs-plan set-status <id> <status>          Set a feature's status (terminal -> move to bottom)
-  hs-plan list-features                     Print "<status>\\t<milestone>\\t<id>" per feature
-  hs-plan milestone-status <milestone>      Print "<status>\\t<count>" per status in a milestone
+  fdd next-feature                      Print "<id>\\t<agent>\\t<milestone>" of first pending feature
+  fdd set-status <id> <status>          Set a feature's status (terminal -> move to bottom)
+  fdd list-features                     Print "<status>\\t<milestone>\\t<id>" per feature
+  fdd milestone-status <milestone>      Print "<status>\\t<count>" per status in a milestone
 
-  hs-plan init-state                        (Re)generate validation-state.json from the contract
-  hs-plan contract-coverage                 Enforce: each assertion claimed by exactly one feature
-  hs-plan set-assertion <VAL-id> <status> [evidence]
-  hs-plan gate                              Succeed only if every assertion is "passed"
+  fdd init-state                        (Re)generate validation-state.json from the contract
+  fdd contract-coverage                 Enforce: each assertion claimed by exactly one feature
+  fdd set-assertion <VAL-id> <status> [evidence]
+  fdd gate                              Succeed only if every assertion is "passed"
 
-  hs-plan seal-milestone <milestone>        Mark a milestone validated
-  hs-plan is-sealed <milestone>             Print "yes" / "no"
+  fdd seal-milestone <milestone>        Mark a milestone validated
+  fdd is-sealed <milestone>             Print "yes" / "no"
 
-  hs-plan write-handoff <feature-id> <json-file>   Validate + store a worker handoff
-  hs-plan handoff <feature-id>              Print the stored handoff JSON
+  fdd write-handoff <feature-id> <json-file>   Validate + store a worker handoff
+  fdd handoff <feature-id>              Print the stored handoff JSON
 
 Plan selection: --plan <slug> overrides the active plan (.active) for any command.
 Feature status: ${featureStatuses.join(" | ")}
@@ -221,7 +221,7 @@ async function runUse(parsed: ParsedArgs, out: NodeJS.WritableStream): Promise<n
 
 async function runActive(out: NodeJS.WritableStream): Promise<number> {
   const slug = await readActiveSlug();
-  if (slug === undefined) throw new PlanError("data", "no active plan; run `hs-plan use <slug>`");
+  if (slug === undefined) throw new PlanError("data", "no active plan; run `fdd use <slug>`");
   out.write(`${slug}\t${planDir(slug)}\n`);
   return 0;
 }

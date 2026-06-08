@@ -45,7 +45,7 @@ Trivial 的工作（一行修复、错别字、显而易见的重命名）跳过
 
 - TypeScript 运行时包放在 `packages/` 下，通过 pnpm workspaces 管理。
 - `@hs/llm`（`packages/hs-llm/`）是无状态的 LLM provider 抽象（api / cli / sdk / mock）。调用模型的 skill 都经由它。
-- `@hs/plan`（`packages/hs-plan/`，bin 为 `hs-plan`）是 feature-driven development 的确定性记账 CLI。FDD skill 把所有 per-plan 的状态转移都委托给它。
+- `@hs/fdd`（`packages/fdd/`，bin 为 `fdd`）是 feature-driven development 的确定性记账 CLI。FDD skill 把所有 per-plan 的状态转移都委托给它。
 - 所有 skill 与 agent 都通过 `harness-stack:` 这个 plugin 命名空间寻址（例如 `harness-stack:fdd`、`harness-stack:code-reviewer`）；plugin 名提供了冲突隔离，因此单个 skill 与 agent 不再带额外前缀。
 - `docs/` 是项目的 **Library**：长期约定 + 记忆（architecture、design-docs、references、golden-rules、测试约定）。具体需求与实现以 **Code is the source of truth** 为准。
 - per-plan 的 FDD 状态（plan、validation-contract、features）放在 `.harness-runtime/plans/<slug>/` 下——**gitignored**，绝不放进 `docs/`。

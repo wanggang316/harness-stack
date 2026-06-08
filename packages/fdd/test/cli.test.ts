@@ -47,7 +47,7 @@ function featuresFixture() {
   };
 }
 
-describe("hs-plan cli", () => {
+describe("fdd cli", () => {
   let root: string;
   let planDir: string;
   let prevEnv: string | undefined;
@@ -60,7 +60,7 @@ describe("hs-plan cli", () => {
   }
 
   beforeEach(async () => {
-    root = await mkdtemp(join(tmpdir(), "hs-plan-cli-"));
+    root = await mkdtemp(join(tmpdir(), "fdd-cli-"));
     prevEnv = process.env.HS_PLAN_RUNTIME_DIR;
     process.env.HS_PLAN_RUNTIME_DIR = root;
     planDir = join(root, "plans", "demo");

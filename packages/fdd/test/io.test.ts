@@ -7,7 +7,7 @@ import { writeJsonAtomic } from "../src/io.js";
 describe("writeJsonAtomic", () => {
   let dir: string;
   beforeEach(async () => {
-    dir = await mkdtemp(join(tmpdir(), "hs-plan-io-"));
+    dir = await mkdtemp(join(tmpdir(), "fdd-io-"));
   });
   afterEach(async () => {
     await rm(dir, { recursive: true, force: true });

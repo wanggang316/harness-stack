@@ -85,7 +85,7 @@ export async function resolvePlan(
   if (slug === undefined) {
     throw new PlanError(
       "data",
-      "no active plan; run `hs-plan use <slug>` or pass --plan <slug>"
+      "no active plan; run `fdd use <slug>` or pass --plan <slug>"
     );
   }
   const dir = planDir(slug, env);

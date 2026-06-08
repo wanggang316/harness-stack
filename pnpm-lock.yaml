@@ -42,7 +42,7 @@ importers:
         specifier: ^3.25.76
         version: 3.25.76
 
-  packages/hs-plan:
+  packages/fdd:
     dependencies:
       zod:
         specifier: ^3.25.76

@@ -52,7 +52,7 @@ confirm nothing was dropped. One bullet each. -->
 
 <!-- Live dashboard. The ONLY section that uses checklists. Update at every state
 change. Authoritative state of the build lives in features.json / validation-state.json
-(via hs-plan); this is the human-readable narration. -->
+(via fdd); this is the human-readable narration. -->
 
 **State:** Planning | Executing | Blocked | Done
 **Active feature:** (id + started-at, or "none")

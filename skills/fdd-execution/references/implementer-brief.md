@@ -81,5 +81,5 @@ need to read them. If this feature is foundational (fulfills empty), state that.
    }
    ```
 
-   把它写到一个文件，然后运行 `hs-plan write-handoff {FEATURE_ID} <path>`。每个 verification step 必须对应一条 `verificationEvidence` 条目——若有一条你没能跑，写 `failure: <reason>`。仅当你撞上自己解决不了的东西（缺少 precondition、边界冲突、spec 含糊）时才设 `returnToController:true`。
+   把它写到一个文件，然后运行 `fdd write-handoff {FEATURE_ID} <path>`。每个 verification step 必须对应一条 `verificationEvidence` 条目——若有一条你没能跑，写 `failure: <reason>`。仅当你撞上自己解决不了的东西（缺少 precondition、边界冲突、spec 含糊）时才设 `returnToController:true`。
 3. 向 controller 返回一段 2-3 句的 summary。

@@ -31,5 +31,5 @@ raw/
 debate-runs/
 decision-runs/
 
-# Feature-driven development per-plan runtime state (managed by @hs/plan)
+# Feature-driven development per-plan runtime state (managed by @hs/fdd)
 .harness-runtime/

@@ -2,7 +2,7 @@
 
 撰写 `.harness-runtime/plans/<slug>/validation-contract.md` 时使用这份骨架。
 每条 assertion 都 **必须** 是一个 H3 标题，形式严格为 `### VAL-<AREA>-NNN: <title>`
-（AREA 为大写字母数字，NNN 为零填充 3 位数字）——`hs-plan init-state` 解析这些标题来播种
+（AREA 为大写字母数字，NNN 为零填充 3 位数字）——`fdd init-state` 解析这些标题来播种
 `validation-state.json`。每条 assertion 只包含：它的标题 + 一段可观测行为段落（行内指名
 persona）+ 一行 `Evidence:`——别无其它。契约按 **area**（plan 的用户可见子能力）组织。
 
