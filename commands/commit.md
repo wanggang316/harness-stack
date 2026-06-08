@@ -1,5 +1,5 @@
 ---
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git commit:*), Bash(git restore:*), Bash(grep:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*), Bash(git commit:*), Bash(git restore:*), Bash(grep:*), Read
 description: Create an atomic git commit with conventional-commit format and no attribution trailers
 model: claude-haiku-4-5
 ---
@@ -11,29 +11,11 @@ model: claude-haiku-4-5
 - Current branch: !`git branch --show-current`
 - Recent commits: !`git log --oneline -10`
 
-## Commit Rules
+## Task
 
-- **Conventional Commits**: `<type>: <short imperative description>`
-  - Types: `feat`, `fix`, `refactor`, `perf`, `test`, `docs`, `style`, `chore`
-- **Atomic**: one commit does one logical thing. If the diff mixes refactor + feature, or formatting + behavior, split it first (`git restore --staged` and re-stage by path).
-- **Subject line**: short, imperative, standalone (`Delete the FizzBuzz RPC`, not `Deleted...` / `Updating...`).
-- **Body** (when non-trivial): explain *why*, not *what*. Reference design decisions, constraints, or context not visible in the diff.
-- **Anti-patterns**: `fix bug`, `update X`, `misc` — none of these survive history.
-- **No planning refs**: never use planning/task/milestone numbers (`Phase 1`, `Slice 2`, `D-12`, `Q3 cleanup`, `feature auth-login`, `see the plan`) as commit content. These rot (plan slugs live in gitignored runtime state). Describe the change itself.
-- **No discussion recap**: the body describes the delivered change, not the alternatives weighed or the conversation that led to it. State rationale, don't narrate deliberation. Long rationale belongs in the PR description.
-- **No attribution lines**: never append `Co-Authored-By:`, `Generated with ...`, or any model/tool banner. Strip such lines if tooling injects them.
-- **No secrets**: scan the staged diff for `password`, `secret`, `api_key`, `token` before committing.
+读 `skills/git/references/commit.md` 并按它创建 commit——那是规则的唯一来源（conventional format、atomic、body 说 why、here-doc `-F`、无 attribution trailer、无 planning 引用、提交前扫 secret）。
 
-## Your task
+1. 审上面的 diff。若它混了不相关的关注点，**停下**，告诉用户你会怎么拆，而不是一次性全提交。
+2. 显式按路径 stage（避免 `git add -A` 带入未追踪的 secret/artifact），创建 commit，报告 hash + 一行摘要。
 
-1. Review the diff above. If it mixes unrelated concerns, **stop** and tell the user how you would split it instead of committing everything at once.
-2. Pick the right type and write a focused subject line. Add a body only when intent isn't obvious from the diff.
-3. Stage what belongs to this commit (prefer explicit paths over `git add -A` to avoid pulling in untracked secrets/artifacts).
-4. Create the commit with a heredoc-formatted message.
-5. Report the resulting commit hash and a one-line summary.
-
-## Important
-
-- **Preserve work**: never `git push --force`, `git reset --hard`, `git rebase -i`, or otherwise rewrite history.
-- **No hook bypassing**: do not pass `--no-verify` or `--no-gpg-sign` unless the user explicitly asks.
-- **Handle errors**: if a pre-commit hook fails, fix the underlying issue and create a new commit — never `--amend` to hide a hook failure.
+绝不 `--force` / `reset --hard` / `rebase -i` / 改写历史；绝不 `--no-verify`；hook 失败就修根因再新建 commit，不 `--amend` 掩盖。
