@@ -80,7 +80,7 @@ controller 编排，下列 subagent 干活：
 - **features**——把 milestone 拆进 `features.json`，每个 feature 以 `fulfills` 绑定它要让其变得可测的断言，基础性 feature 排在前面；以 `fdd contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
 
 ### Step 2 — Execute
-调用 `harness-stack:fdd-execution`，串行驱动构建循环：`fdd next-feature` → 派发 `implementer`（自验，把真实证据写进 handoff）→ **交接决策树**（per-feature 闸：commit/树/证据核验）→ `fdd set-status completed`。一次一个 feature；per-feature 不派独立验证器；controller 绝不写实现代码。
+调用 `harness-stack:fdd-execution`，串行驱动构建循环：`fdd next-feature` → 派发 `implementer` → **交接决策树**（per-feature 闸：核验 commit / 干净树 / implementer 自验留下的真实证据）→ `fdd set-status completed`。一次一个 feature；controller 绝不写实现代码。
 
 ### Step 3 — Validate
 `harness-stack:fdd-validate` 是验证流水线本身——**静态验证 → 代码审查 → user-test**——作为**里程碑 / 最终批量闸**运行（per-feature 的把关已在 step 2 由自验 + 交接决策树完成）。它在两个粒度被调：里程碑收口（milestone scope：逐 feature scrutiny + 逐 feature code-review + 运行时探测、条件 `security-auditor`、治理反馈、`fdd seal-milestone`）；循环跑空后一次（final scope：跨 milestone scrutiny + coverage gate + `fdd gate`）。

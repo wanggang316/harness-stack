@@ -18,7 +18,7 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 
 工作单元是 **plan**。plan 被拆解为若干 **area**（其用户可见的子能力）；每个 area 收纳该能力对应的 assertion。每条 assertion 拿到一个稳定 id `VAL-<AREA>-NNN`——这些 id 正是 step 1 的 features 阶段中 `features.json` 所绑定（`fulfills`）的对象，也是 step 3（validate）中 user-test 所探测的对象。契约变更时，assertion id 保持稳定。
 
-一遍写成的契约必有盲区。本技能改为 **为每个 area 派发一个专门的 subagent 做 investigation**，据其发现起草 assertion，然后在交接前 **跑若干轮 adversarial review 来猎查缺口**。这份较真正是要点所在。
+一遍写成的契约必有盲区。本技能 **为每个 area 派发一个专门的 subagent 做 investigation**，据其发现起草 assertion，然后在交接前 **跑若干轮 adversarial review 来猎查缺口**。这份较真正是要点所在。
 
 ## When to Use
 
