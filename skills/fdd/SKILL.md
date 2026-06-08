@@ -18,14 +18,14 @@ FDD 把一次构建中易变的状态——plan、完成的定义、工作清单
 controller 编排，下列 subagent 干活：
 
 - `harness-stack:investigator` — 只读调查 / 在线调研：规划阶段查代码库、流程中途分析范围变更、feature 失败根因分析
-- `harness-stack:implementer` — 实现单个 feature
-- 验证流水线的三级 worker（全部由 `harness-stack:fdd-validate` 按 scope 派发）：
-  - `harness-stack:scrutiny-validator` — **① 静态验证**：独立跑硬门禁（test/lint/type-check，只看新增失败）+ scrutiny；milestone/final scope 还产出治理建议（suggestedGuidanceUpdates）
+- `harness-stack:implementer` — 实现单个 feature，并**自验**（跑 feature 的 verification steps、把真实证据写进 handoff）
+- 验证流水线的三级 worker（全部由 `harness-stack:fdd-validate` 在 milestone / final 批量派发）：
+  - `harness-stack:scrutiny-validator` — **① 静态验证**：独立跑硬门禁（test/lint/type-check，只看新增失败）+ 逐 feature scrutiny；产出治理建议（suggestedGuidanceUpdates）
   - `harness-stack:code-reviewer` — **② 代码审查**：生产就绪度（含 scope/spec 合规一遍）
   - `harness-stack:user-test-validator` — **③ user-test**：对照 contract 断言探测运行中的系统
   - `harness-stack:security-auditor` — **条件加派**（milestone/final scope，diff 触及 auth/secrets/crypto/裸查询/shell/依赖升级时）：深度威胁建模
 
-**核心原则：** controller 策划上下文、绝不写实现代码。implementer 不读 plan；验证由 `fdd-validate` 编排成 **静态 → 审查 → user-test** 三级、按 feature/milestone/final scope 复用；scrutiny-validator 独立跑硬门禁、不轻信 implementer 自报，code-reviewer 既看质量也看 scope/spec，user-test-validator 不读源码。
+**核心原则：** controller 策划上下文、绝不写实现代码。implementer 不读 plan、但在交接前自验；验证由 `fdd-validate` 编排成 **静态 → 审查 → user-test** 三级、作为里程碑 / 最终批量闸（per-feature 由 implementer 自验 + 交接决策树把关）；scrutiny-validator 独立跑硬门禁、不轻信 implementer 自报，code-reviewer 既看质量也看 scope/spec，user-test-validator 不读源码。
 
 ## The two locations
 
@@ -39,7 +39,7 @@ controller 编排，下列 subagent 干活：
 ## When to Use
 
 - 请求触及很多文件、有多条验收标准、或跨越多个 feature。
-- 你希望每个 feature 在下一个开始前都通过一道 spec 闸**且**一道代码质量闸**且**一次运行时探测。
+- 你希望工作按里程碑设闸：每个 milestone 收口都过静态验证 + 代码审查 + 运行时探测，全绿才封存。
 - 工作已足够成形，可以拆解成一个个可独立实现的 feature。
 
 ## When NOT to Use
@@ -67,8 +67,8 @@ controller 编排，下列 subagent 干活：
 | Step | 子技能 | 产出 |
 |---|---|---|
 | 1. Plan | `harness-stack:fdd-planning`（contract 段交给 `harness-stack:fdd-validation-contract`） | `plan.md` + `validation-contract.md` + `features.json`，且 `hs-plan contract-coverage` 通过 |
-| 2. Execute | `harness-stack:fdd-execution` | 串行构建；每个 feature 构建完调 fdd-validate（feature scope）；milestone 边界与收尾按更大 scope 再调 |
-| 3. Validate | `harness-stack:fdd-validate` | 验证流水线（静态→审查→user-test），feature/milestone/final 三 scope；milestone 封存、final 过 `hs-plan gate` |
+| 2. Execute | `harness-stack:fdd-execution` | 串行构建（implementer 自验 + 交接决策树把 per-feature 闸）；milestone 收口与收尾调 fdd-validate |
+| 3. Validate | `harness-stack:fdd-validate` | 里程碑 / 最终批量闸：验证流水线（静态→审查→user-test）；milestone 封存、final 过 `hs-plan gate` |
 
 琐碎工作跳过整个生命周期。但**不要**跳过 step 1 的规划——规划质量会被后续每一步放大。
 
@@ -80,10 +80,10 @@ controller 编排，下列 subagent 干活：
 - **features**——把 milestone 拆进 `features.json`，每个 feature 以 `fulfills` 绑定它要让其变得可测的断言，基础性 feature 排在前面；以 `hs-plan contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
 
 ### Step 2 — Execute
-调用 `harness-stack:fdd-execution`，串行驱动构建循环：`hs-plan next-feature` → 派发 `implementer` → handoff 决策树 → 对该 feature 调 `harness-stack:fdd-validate`（feature scope，跑 静态 → 审查 → user-test）→ `hs-plan set-status completed`。一次一个 feature；controller 绝不写实现代码。
+调用 `harness-stack:fdd-execution`，串行驱动构建循环：`hs-plan next-feature` → 派发 `implementer`（自验，把真实证据写进 handoff）→ **交接决策树**（per-feature 闸：commit/树/证据核验）→ `hs-plan set-status completed`。一次一个 feature；per-feature 不派独立验证器；controller 绝不写实现代码。
 
 ### Step 3 — Validate
-`harness-stack:fdd-validate` 是验证流水线本身——**静态验证 → 代码审查 → user-test**，按 scope 复用，既是 step 2 的一部分，也是收尾的 gate。它在三个粒度被调：每个 feature 构建完（feature scope）；里程碑收口（milestone scope：加跨 feature scrutiny、条件 `security-auditor`、治理反馈、`hs-plan seal-milestone`）；循环跑空后一次（final scope：跨 milestone scrutiny + coverage gate + `hs-plan gate`）。
+`harness-stack:fdd-validate` 是验证流水线本身——**静态验证 → 代码审查 → user-test**——作为**里程碑 / 最终批量闸**运行（per-feature 的把关已在 step 2 由自验 + 交接决策树完成）。它在两个粒度被调：里程碑收口（milestone scope：逐 feature scrutiny + 逐 feature code-review + 运行时探测、条件 `security-auditor`、治理反馈、`hs-plan seal-milestone`）；循环跑空后一次（final scope：跨 milestone scrutiny + coverage gate + `hs-plan gate`）。
 
 ## Decoupled: design
 
@@ -118,7 +118,7 @@ controller 编排，下列 subagent 干活：
 
 - [ ] `.harness-runtime/plans/<slug>/` 里有 `plan.md`、`validation-contract.md`、`validation-state.json`、`features.json`。
 - [ ] execution 开始前 `hs-plan contract-coverage` 报告 OK。
-- [ ] 每个 feature 都过了 feature-scope 的 fdd-validate（静态 → 审查 → user-test）。
-- [ ] 每个 milestone 都过了 milestone-scope 的 fdd-validate（含治理反馈应用、条件 security），并已 seal。
+- [ ] 每个 feature 都过了交接决策树（implementer 自验 + commit/树/证据核验）才置 `completed`。
+- [ ] 每个 milestone 都过了 milestone-scope 的 fdd-validate（静态 → 审查 → user-test，含治理反馈应用、条件 security），并已 seal。
 - [ ] final-scope 的 fdd-validate 通过；`hs-plan gate` 报告所有断言 `passed`。
 - [ ] controller 没有写过任何实现代码。

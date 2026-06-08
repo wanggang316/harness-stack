@@ -7,8 +7,7 @@
 `{SCOPE}`
 
 <!--
-feature | milestone | final。
-- feature：只对 {SUBJECT}（单个 feature）跑硬门禁（新增失败）+ 单 feature 逐项审查；不写 synthesis、不做 Library 更新/治理建议，直接返回 verdict + findings。
+milestone | final。
 - milestone：对该 milestone 全部已完成 feature 做完整 batch + synthesis。
 - final：范围 = BASE..HEAD 全量，审查重点转向跨 milestone 交互 + synthesis。
 -->
@@ -16,14 +15,14 @@ feature | milestone | final。
 ## Plan
 
 - Slug: `{PLAN_SLUG}`（plan 目录：`.harness-runtime/plans/{PLAN_SLUG}/`）
-- Subject: `{SUBJECT}`（feature scope 为 feature id；milestone scope 为 milestone 名；final 为 `final`）
+- Subject: `{SUBJECT}`（milestone scope 为 milestone 名；final 为 `final`）
 - features.json：`.harness-runtime/plans/{PLAN_SLUG}/features.json`
 - handoffs：`.harness-runtime/plans/{PLAN_SLUG}/handoffs/<id>.json`
-- 写 synthesis 到（仅 milestone/final scope）：`.harness-runtime/plans/{PLAN_SLUG}/validation/{SUBJECT}/scrutiny/synthesis.json`
+- 写 synthesis 到：`.harness-runtime/plans/{PLAN_SLUG}/validation/{SUBJECT}/scrutiny/synthesis.json`
 
 ## Git Range
 
-**Base（本 scope baseline——feature 之前 / milestone 第一个 feature 之前 / plan 的 BASE）:** `{BASE_SHA}`
+**Base（本 scope baseline——milestone 第一个 feature 之前 / plan 的 BASE）:** `{BASE_SHA}`
 **Head:** `{HEAD_SHA}`
 
 ```bash

@@ -26,8 +26,8 @@ Agent-first development framework implementing the harness methodology.
 - `/harness-stack:fdd` - Orchestrator for the contract-first build. Runs a 3-step main flow over the sub-skills below; this is the only one you invoke directly.
   - `/harness-stack:fdd-planning` - Step 1: plan + features (contract sub-step delegated to fdd-validation-contract)
   - `/harness-stack:fdd-validation-contract` - definition-of-done assertions (within step 1)
-  - `/harness-stack:fdd-execution` - Step 2: per-feature build loop
-  - `/harness-stack:fdd-validate` - Step 3: milestone & final gates (scrutiny + security + user-test)
+  - `/harness-stack:fdd-execution` - Step 2: serial build loop (per-feature gate = implementer self-verify + handoff decision tree)
+  - `/harness-stack:fdd-validate` - Step 3: milestone & final gates — validation pipeline (static → review → user-test)
 - `/harness-stack:tdd` - Test-driven development (inside an implementer's task)
 
 **Verify** → Debug and test

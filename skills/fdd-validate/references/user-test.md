@@ -1,6 +1,6 @@
 # Stage 3 — user-test：运行时断言验证
 
-> `fdd-validate` 流水线第 3 级的执行细则——在静态验证（stage 1）与代码审查（stage 2）之后，从用户视角确认运行中的系统真的符合 validation contract。由 fdd-validate 在 feature / milestone / final 各 scope 调用，断言子集与 diff 区间由调用方按 scope 给定（feature scope = 该 feature 的 `fulfills`；milestone scope = 该里程碑断言子集；final scope = 全集 coverage）。
+> `fdd-validate` 流水线第 3 级的执行细则——在静态验证（stage 1）与代码审查（stage 2）之后，从用户视角确认运行中的系统真的符合 validation contract。由 fdd-validate 在 milestone / final scope 调用，断言子集与 diff 区间由调用方按 scope 给定（milestone scope = 该里程碑断言子集；final scope = 全集 coverage）。
 
 ## Overview
 
@@ -8,7 +8,7 @@
 
 在本 stage，**fdd-validate 担任 controller**：它解析运行目标、规划隔离、派发 validator、合并结果。`user-test-validator` subagent 是**无状态探针**：跑一组断言，返回一份局部矩阵。当一次运行规模大、或其界面成本昂贵时，controller 并行派发多个 validator——每个隔离组一个——再合并。没有单独的「flow」agent：复用同一个 validator，编排由 controller 负责。
 
-基础性 feature（`fulfills` 为空）在 feature scope 下没有断言可探，跳过本 stage。改动若是非行为性的（纯重构、无用户可见变化），stage 1/2 已足够；本 stage 无断言时为 no-op。
+本 stage 只探有断言可探的范围：里程碑/全集中那些 `fulfills` 非空的工作。纯重构、无用户可见变化的改动由 stage 1/2 把关；无断言时本 stage 为 no-op。
 
 ## Prerequisites
 
