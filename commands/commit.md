@@ -4,11 +4,4 @@ description: Create an atomic git commit with conventional-commit format and no 
 model: claude-haiku-4-5
 ---
 
-## Context
-
-- Git status: !`git status`
-- Staged + unstaged diff: !`git diff HEAD`
-- Current branch: !`git branch --show-current`
-- Recent commits: !`git log --oneline -10`
-
 按 `harness-stack:git` 的 commit 规范（`skills/git/references/commit.md`）创建 commit。

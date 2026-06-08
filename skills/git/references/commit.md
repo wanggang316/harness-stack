@@ -2,6 +2,17 @@
 
 规范 commit 的完整规则。
 
+## Context to gather
+
+开始前先看清当前状态：
+
+```bash
+git status                      # 暂存 / 未暂存 / 未跟踪
+git diff HEAD                   # 即将提交的完整改动
+git branch --show-current       # 当前分支
+git log --oneline -10           # 近期 commit——对齐其 type 与措辞约定
+```
+
 ## Conventional Format
 
 ```
