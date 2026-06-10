@@ -20,6 +20,23 @@ for model invocation. Keeping these transitions in tested TypeScript (rather tha
 hand-edited JSON in a skill prompt) keeps state versioned and the agent's context
 clean.
 
+## Distribution
+
+The CLI ships as a **committed, prebuilt single-file bundle** at `bin/fdd.mjs`
+(dependencies inlined; Node >= 20 is the only runtime requirement). Plugin users
+never install anything or compile on site — invoke it as:
+
+```bash
+node "<plugin-root>/packages/fdd/bin/fdd.mjs" <subcommand> ...
+```
+
+`fdd <subcommand>` in the skills is shorthand for that invocation. Resolution
+order, usage, and troubleshooting live in `<plugin-root>/references/fdd-cli.md`.
+
+Developers changing `src/` must regenerate the bundle and commit it alongside
+the source: `pnpm --filter @hs/fdd build` (tsc for `dist/` + esbuild for
+`bin/fdd.mjs`).
+
 ## Commands
 
 ```

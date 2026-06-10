@@ -34,7 +34,7 @@ import {
   writeActiveSlug
 } from "./store.js";
 import { mkdir } from "node:fs/promises";
-import { existsSync } from "node:fs";
+import { existsSync, realpathSync } from "node:fs";
 import { writeTextIfMissing } from "./io.js";
 
 interface MainStreams {
@@ -353,8 +353,15 @@ function reportError(e: unknown, err: NodeJS.WritableStream): number {
   return 2;
 }
 
-const isCliEntrypoint =
-  processArgv[1] !== undefined && import.meta.url === pathToFileURL(processArgv[1]).href;
+// argv[1] may be a symlink (npm global bin shim) while import.meta.url is the real path
+const isCliEntrypoint = (() => {
+  if (processArgv[1] === undefined) return false;
+  try {
+    return import.meta.url === pathToFileURL(realpathSync(processArgv[1])).href;
+  } catch {
+    return false;
+  }
+})();
 if (isCliEntrypoint) {
   void main(processArgv.slice(2)).then(
     (code) => exit(code),
