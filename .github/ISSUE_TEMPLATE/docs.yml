@@ -1,0 +1,38 @@
+name: "📝 Docs"
+description: A SKILL.md, AGENTS.md, README, or docs/ page is missing, outdated, or ambiguous.
+title: "[docs] "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        In an agent-first framework, docs the agent can't read don't exist — so doc gaps are real bugs.
+  - type: input
+    id: location
+    attributes:
+      label: Doc location
+      description: File path or URL of the page in question.
+      placeholder: skills/<name>/SKILL.md  ·  AGENTS.md  ·  docs/...
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What's wrong / missing
+      description: The gap, the stale claim, or the ambiguity — and how it misled you.
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix (optional)
+      description: Wording or content you'd expect instead.
+    validations:
+      required: false
+  - type: checkboxes
+    id: dedup
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true

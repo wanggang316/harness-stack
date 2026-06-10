@@ -1,0 +1,38 @@
+name: "✨ Enhancement"
+description: harness-stack is missing a capability, or a skill should cover a case it currently doesn't.
+title: "[enhancement] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem first, the solution second — it keeps the design space open.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What can't you do today, and in what situation does it come up?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed direction (optional)
+      description: A sketch of how it might work — a new skill, a new step, a config. Keep it light.
+    validations:
+      required: false
+  - type: input
+    id: area
+    attributes:
+      label: Closest existing skill / area (optional)
+      description: Where this would most naturally live, if you have a guess.
+      placeholder: harness-stack:<name>
+    validations:
+      required: false
+  - type: checkboxes
+    id: dedup
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true

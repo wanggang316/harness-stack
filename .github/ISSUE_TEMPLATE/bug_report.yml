@@ -1,0 +1,56 @@
+name: "🐞 Bug"
+description: A harness-stack skill / agent / command behaves contrary to what its SKILL.md or the docs promise.
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve harness-stack. Please ground the report in reproducible facts — what you ran, what happened, what the docs led you to expect.
+  - type: input
+    id: area
+    attributes:
+      label: Skill / command / agent affected
+      description: e.g. `harness-stack:fdd-planning`, `/harness-stack:commit`, `harness-stack:code-reviewer`.
+      placeholder: harness-stack:<name>
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Plugin version
+      description: From the installed plugin's `.claude-plugin/plugin.json` (`version`).
+      placeholder: "0.1.0"
+    validations:
+      required: false
+  - type: textarea
+    id: steps
+    attributes:
+      label: What happened (steps to reproduce)
+      description: The minimal sequence that triggers it.
+      placeholder: |
+        1. Ran /harness-stack:...
+        2. At step X, the skill did ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What you expected, and the basis for it — quote the SKILL.md line or golden rule.
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment (optional)
+      description: OS, and versions of any tool involved (gh, node/pnpm, etc.) when relevant.
+    validations:
+      required: false
+  - type: checkboxes
+    id: dedup
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
