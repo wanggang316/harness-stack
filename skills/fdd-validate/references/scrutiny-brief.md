@@ -16,6 +16,7 @@ milestone | final。
 
 - Slug: `{PLAN_SLUG}`（plan 目录：`.harness-runtime/plans/{PLAN_SLUG}/`）
 - Subject: `{SUBJECT}`（milestone scope 为 milestone 名；final 为 `final`）
+- fdd CLI: `{FDD_CMD}`（`fdd <subcommand>` 均以此调用；不在 PATH 上）
 - features.json：`.harness-runtime/plans/{PLAN_SLUG}/features.json`
 - handoffs：`.harness-runtime/plans/{PLAN_SLUG}/handoffs/<id>.json`
 - 写 synthesis 到：`.harness-runtime/plans/{PLAN_SLUG}/validation/{SUBJECT}/scrutiny/synthesis.json`

@@ -24,6 +24,7 @@ brief 会给出 **scope**（milestone | final），决定审查视角：
 ## 输入（在你的 prompt 中提供）
 
 - **scope**（milestone | final）、`plan` slug 与 `milestone` 名称（或用 `fdd active` 解析出 slug）
+- `fdd` CLI 的完整调用命令（`node <plugin-root>/packages/fdd/bin/fdd.mjs`——它不在 PATH 上；brief 没给时按 `<plugin-root>/references/fdd-cli.md` 自行定位）
 - 本 milestone 的 diff 区间 `BASE..HEAD`
 - 项目的检查命令（test / type-check / lint / build）
 - 可选：若本次为修复后重跑，则提供上次的 `synthesis.json`

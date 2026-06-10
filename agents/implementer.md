@@ -121,7 +121,7 @@ Commands executed 表、Atomic commit 块与 Procedures 清单不是可有可无
 
 ## 5b. Record the Handoff JSON
 
-除上面那份人类可读的报告外，把一份结构化的 handoff JSON 写入一个文件，并用 `fdd write-handoff <feature-id> <path>` 记录。controller 读它来路由你的结果。Shape：
+除上面那份人类可读的报告外，把一份结构化的 handoff JSON 写入一个文件，并用 `fdd write-handoff <feature-id> <path>` 记录。`fdd` 不在 PATH 上——brief 的 **fdd CLI** 一节给出了完整调用命令（`node <plugin-root>/packages/fdd/bin/fdd.mjs`）；brief 没给时按 `<plugin-root>/references/fdd-cli.md` 自行定位。controller 读这份 handoff 来路由你的结果。Shape：
 
 ```json
 {

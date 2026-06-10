@@ -15,6 +15,10 @@ description: FDD 的验证流水线——里程碑 / 最终批量闸。一条线
 
 任一级失败 → 在 features 顶部建修复 feature、回 implementer 修 → 对该范围重跑流水线。三级全过，本次 validate 才算通过。controller 自己绝不写实现代码。
 
+## 工具：fdd CLI
+
+本技能所有 `fdd <subcommand>` 都指 `node <plugin-root>/packages/fdd/bin/fdd.mjs <subcommand>`——插件自带的预构建 bundle，不在 PATH 上、无需安装、无需编译（只要 Node >= 20）。定位 bundle、命令速查与故障排查见 `<plugin-root>/references/fdd-cli.md`。派发 subagent 时把解析好的完整命令填进 brief（如 scrutiny-brief 的 `{FDD_CMD}`）——subagent 是全新上下文，没有它就找不到 CLI。
+
 ## Scopes
 
 本技能按 **scope** 复用，由 `harness-stack:fdd-execution` 调：

@@ -56,6 +56,10 @@ controller 编排，下列 subagent 干活：
 
 你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `fdd` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清（step 1 规划阶段密集，之后轻量）。
 
+## 工具：fdd CLI
+
+本流程所有 `fdd <subcommand>` 都指 `node <plugin-root>/packages/fdd/bin/fdd.mjs <subcommand>`——插件自带的预构建 bundle，不在 PATH 上、无需安装、无需编译（只要 Node >= 20）。定位 bundle、命令速查与故障排查见 `<plugin-root>/references/fdd-cli.md`。**绝不**以手改 JSON 代替 CLI 记账。
+
 ## Requirement tracking
 
 用户陈述的每一条需求——哪怕是顺口一提、哪怕只说过一次——都必须被捕获并追踪。在 step 1 的规划阶段，提出 plan 之前先把每一条已捕获的需求复述一遍。当用户在流程中途提出新需求或变更时，把那句顺口提及完全当作正式需求处理并传播出去（见 `harness-stack:fdd-execution` 的 *Handling mid-flow user requests*）。**任何记录了旧真相的文件，都必须在 implementer 恢复前更新为新真相。**
@@ -92,8 +96,9 @@ controller 编排，下列 subagent 干活：
 ## Getting started
 
 1. 向用户确认你已进入 FDD 模式；用一句话复述目标供其纠正。
-2. `fdd init <slug>` 创建 plan 目录。
-3. 调用 `harness-stack:fdd-planning` 开始 step 1（规划）。不要跳到 feature 或 execution。
+2. 确认 `fdd` CLI 可达（调用方式见上文「工具：fdd CLI」一节）。
+3. `fdd init <slug>` 创建 plan 目录。
+4. 调用 `harness-stack:fdd-planning` 开始 step 1（规划）。不要跳到 feature 或 execution。
 
 ## Common Rationalizations
 

@@ -32,6 +32,10 @@ these boundaries, set returnToController:true rather than crossing them.
 
 `{WORKDIR}`——除非本 brief 另有说明，否则不要在 `main` / `master` 上干活。
 
+## fdd CLI
+
+`fdd` 指 `{FDD_CMD}`（插件自带的预构建 bundle，不在 PATH 上、无需安装）。下文所有 `fdd <subcommand>` 都以此调用。
+
 ## Preconditions (assume satisfied; report if not)
 
 {PRECONDITIONS}

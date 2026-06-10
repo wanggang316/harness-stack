@@ -20,6 +20,10 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 
 一遍写成的契约必有盲区。本技能 **为每个 area 派发一个专门的 subagent 做 investigation**，据其发现起草 assertion，然后在交接前 **跑若干轮 adversarial review 来猎查缺口**。这份较真正是要点所在。
 
+## 工具：fdd CLI
+
+本技能所有 `fdd <subcommand>` 都指 `node <plugin-root>/packages/fdd/bin/fdd.mjs <subcommand>`——插件自带的预构建 bundle，不在 PATH 上、无需安装、无需编译（只要 Node >= 20）。定位 bundle、命令速查与故障排查见 `<plugin-root>/references/fdd-cli.md`。
+
 ## When to Use
 
 - 已存在一个 plan，且已在 `.harness-runtime/plans/<slug>/plan.md` 被接受（fdd step 1 的 plan 阶段）
