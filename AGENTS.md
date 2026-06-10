@@ -10,6 +10,7 @@ Agent-first development framework implementing the harness methodology.
 - `/harness-stack:docs-init` - One-time scaffold of docs structure and base documents
 - `/harness-stack:env-init` - Initialize per-worktree isolated runtime environment
 - `/harness-stack:skill-create` - Create new skills
+- `/harness-stack:feedback` - Reflect after using harness-stack and file upstream issues for friction/bugs/suggestions
 
 ### Lifecycle Skills
 

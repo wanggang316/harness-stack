@@ -22,6 +22,7 @@ Based on the [harness methodology](https://openai.com/index/harness-engineering/
 | Command | Description |
 |---------|-------------|
 | `/harness-stack:skill-create` | Create new skills |
+| `/harness-stack:feedback` | Reflect on a session and file an upstream issue for friction / bugs / suggestions |
 
 ### Lifecycle (Full development workflow)
 | Phase | Command | Description |
@@ -60,6 +61,14 @@ All skills and agents are addressed through the `harness-stack:` plugin namespac
 - [ARCHITECTURE.md](ARCHITECTURE.md) — System design
 - [Golden Rules](docs/golden-rules.md) — Core principles
 - [References](docs/references/) — Checklists and patterns
+
+## Feedback
+
+Found friction, a bug, or have a suggestion? All feedback goes to this repo —
+**[github.com/wanggang316/harness-stack/issues](https://github.com/wanggang316/harness-stack/issues)** — regardless of which project you were using harness-stack in. You don't need write access to open an issue.
+
+- **From Claude Code**: run `/harness-stack:feedback`. It walks you through a short reflection, de-dups against existing issues, and files a structured report for you.
+- **From GitHub directly**: open [a new issue](https://github.com/wanggang316/harness-stack/issues/new/choose) and pick a form — Bug, Friction/DX, Enhancement, or Docs.
 
 ## License
 

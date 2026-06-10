@@ -1,0 +1,6 @@
+# Keep a free-form escape hatch, but steer most reports into the structured forms below.
+blank_issues_enabled: true
+contact_links:
+  - name: Reflect & file from Claude Code
+    url: https://github.com/wanggang316/harness-stack/blob/main/skills/feedback/SKILL.md
+    about: If you use harness-stack inside Claude Code, run /harness-stack:feedback — it walks you through reflection, de-dup, and filing a structured issue here.

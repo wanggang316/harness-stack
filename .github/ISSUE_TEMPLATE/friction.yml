@@ -1,0 +1,44 @@
+name: "🧭 Friction / DX"
+description: A workflow technically works, but it's clumsy, slow, error-prone, or counter-intuitive.
+title: "[friction] "
+labels: ["dx"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Recurring small friction is exactly what this form is for. Tell us where the workflow fought you, not just that it did.
+  - type: input
+    id: area
+    attributes:
+      label: Skill / command / area
+      placeholder: harness-stack:<name>
+    validations:
+      required: true
+  - type: textarea
+    id: friction
+    attributes:
+      label: Where's the friction
+      description: The step that was clumsy / slow / surprising, and what you were trying to do.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What would have felt right
+      description: The smoother behavior you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact (optional)
+      description: How often it bites, and how much it slows you down.
+    validations:
+      required: false
+  - type: checkboxes
+    id: dedup
+    attributes:
+      label: Pre-flight
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
