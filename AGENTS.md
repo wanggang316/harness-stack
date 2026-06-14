@@ -1,6 +1,6 @@
 # harness-stack
 
-Agent-first development framework implementing the harness methodology.
+An agent-first **development harness** — a curated stack of tools that keep an agent building stably, durably, and at high quality. FDD (contract-first, coordinator/implementer/validator) is the core.
 
 **Philosophy**: Humans provide direction, agents execute.
 
@@ -81,16 +81,14 @@ Reused by the fdd flow:
 
 TypeScript runtime packages live under `packages/` and are managed through pnpm workspaces.
 
-- `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `docs/recipes/calling-hs-llm-from-a-skill.md`.
+- `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `references/calling-hs-llm-from-a-skill.md`.
 - `@hs/fdd` (`packages/fdd/`, bin `fdd`) — Deterministic bookkeeping CLI for feature-driven development: manages `features.json` / `validation-state.json` / handoffs and enforces coverage + gate over per-plan state in the gitignored `.harness-runtime/`. See `packages/fdd/README.md`.
 
 ## Documentation
 
-- [Golden Rules](docs/golden-rules.md) - Core principles
-- [Architecture](docs/architecture.md) - System design
-- [Getting Started](docs/index.md) - Quick start guide
-- [References](docs/references/) - Checklists and patterns
-- [Recipes](docs/recipes/) - How-to guides for cross-cutting tasks
+- [Getting Started](references/getting-started.md) - Doc index & quick start
+- [Golden Rules](references/golden-rules.md) - Core principles
+- [References](references/) - All long-lived references: checklists (testing / security / performance / review), fdd-cli, skill-anatomy, @hs/llm design & recipe
 
 ## How It Works
 

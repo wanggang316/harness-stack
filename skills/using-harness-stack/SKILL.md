@@ -26,7 +26,7 @@ Trivial 的工作（一行修复、错别字、显而易见的重命名）跳过
 
 ## Golden rules
 
-这些规则在每个 skill 中都成立。完整文本见 `docs/golden-rules.md`。
+这些规则在每个 skill 中都成立。完整文本见 `references/golden-rules.md`。
 
 1. **AGENTS.md is a map, not a manual** —— 入口简短，纵深内容放在 skills 和 docs 里。
 2. **Repository knowledge is the source of truth** —— agent 读不到的东西就等于不存在。

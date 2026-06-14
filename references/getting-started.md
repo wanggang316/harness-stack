@@ -4,7 +4,7 @@ harness-stack 文档中心。
 
 ## Core
 - [Golden Rules](golden-rules.md) — 核心原则（必读）
-- [Architecture](architecture.md) — 系统架构
+- [Skill Anatomy](skill-anatomy.md) — Skill 的结构
 
 ## Skills
 
@@ -39,6 +39,10 @@ harness-stack 文档中心。
 - [harness-stack:code-reviewer](../agents/code-reviewer.md) — 代码审查
 
 ## References
-- [Testing Patterns](references/testing-patterns.md)
-- [Security Checklist](references/security-checklist.md)
-- [Performance Checklist](references/performance-checklist.md)
+- [Testing Patterns](testing-patterns.md)
+- [Security Checklist](security-checklist.md)
+- [Performance Checklist](performance-checklist.md)
+- [Review Checklist](review-checklist.md)
+- [fdd CLI](fdd-cli.md)
+- [Calling @hs/llm from a skill](calling-hs-llm-from-a-skill.md)
+- [@hs/llm design doc](hs-llm-design.md)

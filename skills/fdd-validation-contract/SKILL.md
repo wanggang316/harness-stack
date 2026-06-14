@@ -32,7 +32,7 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 
 **何时不用：**
 
-- 这项工作没有用户可观测的界面（纯重构、内部优化）。改用 test-first development 与 `docs/references/testing-patterns.md` 来驱动单测与集成测试覆盖。
+- 这项工作没有用户可观测的界面（纯重构、内部优化）。改用 test-first development 与 `references/testing-patterns.md` 来驱动单测与集成测试覆盖。
 - 还没有被接受的 plan。先跑 fdd step 1 的 plan 阶段；契约是针对 plan 撰写的。
 
 ## Philosophy
