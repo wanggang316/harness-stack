@@ -26,14 +26,14 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 
 ## When to Use
 
-- 已存在一个 plan，且已在 `.harness-runtime/plans/<slug>/plan.md` 被接受（fdd step 1 的 plan 阶段）
+- 已存在一个 plan，已写定于 `.harness-runtime/plans/<slug>/plan.md`（fdd step 1 的 plan 阶段）
 - 构建带有用户可观测的行为（UI、API、CLI 输出、用户可见的副作用）
 - 在 feature 被拆解之前——`VAL-` id 正是 `features.json` 所绑定的对象
 
 **何时不用：**
 
 - 这项工作没有用户可观测的界面（纯重构、内部优化）。改用 test-first development 与 `references/testing-patterns.md` 来驱动单测与集成测试覆盖。
-- 还没有被接受的 plan。先跑 fdd step 1 的 plan 阶段；契约是针对 plan 撰写的。
+- 还没有写定的 plan。先跑 fdd step 1 的 plan 阶段；契约是针对 plan 撰写的。
 
 ## Philosophy
 
@@ -50,7 +50,7 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 
 ## Prerequisites
 
-1. 已被接受的 plan，位于 `.harness-runtime/plans/<slug>/plan.md`——fdd step 1 的 plan 阶段
+1. 已写定的 plan，位于 `.harness-runtime/plans/<slug>/plan.md`——fdd step 1 的 plan 阶段
 2. 项目测试约定，位于 `docs/user-test-patterns.md`——若缺失，由下面的 Step 0 来 bootstrap
 
 若 plan 缺失，停下。第 2 项在首次运行时由 Step 0 处理。
@@ -60,13 +60,15 @@ description: 为一个 plan 撰写 validation contract——把 definition of do
 ```
 [Step 0: BOOTSTRAP — first run only] ──┐
                                        ▼
-INGEST → AREAS → INVESTIGATE → WRITE → REVIEW (≥2) → COVER → APPROVE
+INGEST → AREAS → INVESTIGATE → WRITE → REVIEW (≥2) → COVER → PRESENT
    │       │         │           │        │           │        │
    ▼       ▼         ▼           ▼        ▼           ▼        ▼
- read   plan →    one sub-    draft     adversarial  req →    human
- plan   sub-      agent per   rich      gap-hunt,    assert.  confirms
+ read   plan →    one sub-    draft     adversarial  req →    show,
+ plan   sub-      agent per   rich      gap-hunt,    assert.  no block
  +conv  capab.    area        assert.   update doc   matrix
 ```
+
+AREAS 与 PRESENT 都只**呈现、不阻塞**：呈现后自动进入下一段，用户可随时打断纠正。人类确认在 fdd step 1 的需求澄清已一次性完成——本技能不再单独设批准闸。
 
 ### Step 0：Bootstrap 项目约定（仅首次运行）
 
@@ -128,18 +130,18 @@ ASSUMPTIONS I'M MAKING:
 8. **失败复现期望**——每个 FAIL 都附带一个可运行的 reproducer；格式与位置。
 9. **反模式**——禁用 selector / 臆造 assertion / 状态泄漏 / grader gaming 的具体示例。
 
-#### 0.4 交接
+#### 0.4 交接（呈现，不阻塞）
 
 ```
-USER-TEST PATTERNS READY FOR REVIEW:
+USER-TEST PATTERNS WRITTEN — 呈现供知悉，随即继续：
 - Platforms in scope: [list]
 - Primary tooling: [list]
 - Surface cost tiers: [list]
 - Anti-patterns called out: [count]
-→ Approve, or tell me what to change.
+→ 要改随时打断；否则我据此继续。
 ```
 
-一经批准，继续下面的 Step 1。本项目后续的运行将完全跳过 Step 0。
+呈现后直接进入下面的 Step 1，不阻塞等待批准。本项目后续的运行将完全跳过 Step 0。
 
 ### Step 1：Ingest
 
@@ -167,7 +169,7 @@ ASSUMPTIONS I'M MAKING:
 - **一个跨 area 的位置。** 跨越 *本 feature 内* 多个子能力的 flow（例如「找回密码 → 然后用新密码登录」）放进单一的 `## Cross-Area Journeys` 小节。
 - **止步于 feature 边界。** 跨入 *其它 feature* 的 flow 不在这里的范围内——把它们记成一条 Open Question，指向 milestone 集成验证，然后继续。
 
-列出各 area 并在 investigation 前确认它们：
+列出各 area 并在 investigation 前呈现（不阻塞，随即开始调查）：
 
 ```
 AREAS FOR <feature>:
@@ -214,9 +216,9 @@ AREAS FOR <feature>:
 
 plan 的每条 requirement 都必须被至少一条 assertion 覆盖——靠阅读来核验，而不是靠矩阵。一条不证明任何 plan requirement 的 assertion，要么是臆造覆盖（删掉它），要么是 plan 缺口（暴露它）。若你发现 plan 不完整或含糊，停下并暴露它；**不要** 凭空发明 plan 没有声明的行为。
 
-### Step 6：Seed state 并交接
+### Step 6：Seed state 并呈现（不阻塞）
 
-播种状态文件，然后交付人类评审：
+播种状态文件，然后呈现契约供用户知悉——随即自动进入 features 段，不阻塞等待批准：
 
 ```bash
 fdd init-state          # parses the VAL- headings into validation-state.json (all pending)
@@ -225,14 +227,14 @@ fdd init-state          # parses the VAL- headings into validation-state.json (a
 任何一轮 adversarial review 增删了 assertion 标题之后，重新跑一次 `fdd init-state`；它会保留已存在 id 的状态。
 
 ```
-VALIDATION CONTRACT READY FOR REVIEW:
+VALIDATION CONTRACT WRITTEN — 呈现供知悉，随即继续：
 - Plan: <slug>
 - Areas: <list>
 - Assertions written: <count>  (investigation surfaced <N>, review added <M>)
-→ Approve, or tell me what to change.
+→ 要改随时打断；否则 VAL- id 就此定稿。
 ```
 
-一经批准，`VAL-` id 就是 `features.json`（features 阶段）与 runtime validation（step 3）的稳定输入。
+`VAL-` id 自此就是 `features.json`（features 阶段）与 runtime validation（step 3）的稳定输入。若 contract 暴露出 Step 1 未澄清的需求含糊，停下回到 step 1 的需求澄清——这是唯一应当停的理由。
 
 ## Common Rationalizations
 
@@ -260,13 +262,13 @@ VALIDATION CONTRACT READY FOR REVIEW:
 
 ## Verification
 
-- [ ] plan 已在 `.harness-runtime/plans/<slug>/plan.md` 被接受
-- [ ] 若为项目内首次运行：已按 Step 0 撰写并批准 `docs/user-test-patterns.md`（9 个小节齐全；selector 规则含正例 + 反例；surface cost tier 已设定；反模式已点明）
-- [ ] plan 已拆解为 area；area 已在 investigation 前确认
+- [ ] plan 已写定于 `.harness-runtime/plans/<slug>/plan.md`
+- [ ] 若为项目内首次运行：已按 Step 0 撰写并呈现 `docs/user-test-patterns.md`（9 个小节齐全；selector 规则含正例 + 反例；surface cost tier 已设定；反模式已点明）
+- [ ] plan 已拆解为 area；area 已在 investigation 前呈现
 - [ ] 每个 area 都由一个 subagent 做过 investigation（单 area 的简单 plan 可内联进行）
 - [ ] 至少跑了两轮 adversarial review；两轮之间编辑过 contract
 - [ ] 每条 assertion 都是 `### VAL-<AREA>-NNN: <title>` 形式的 H3，含一段可观测行为段落（行内指名 persona）+ 一行 `Evidence:`，符合 `references/user-test-template.md`
 - [ ] plan 的每条 requirement 都被 ≥ 1 条 assertion 覆盖
 - [ ] selector 与 assertion 只谈可观测（不引用任何实现）
-- [ ] 已经人类评审并批准
+- [ ] 已向用户呈现（不阻塞）；人类确认在 fdd step 1 的需求澄清已完成，本技能不单独设批准闸
 - [ ] contract 已保存到 `.harness-runtime/plans/<slug>/validation-contract.md`，且已跑 `fdd init-state`

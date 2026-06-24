@@ -54,7 +54,7 @@ controller 编排，下列 subagent 干活：
 
 当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `harness-stack:fdd-execution` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 `investigator` 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
 
-你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `fdd` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清（step 1 规划阶段密集，之后轻量）。
+你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `fdd` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清——**集中在 step 1 的需求澄清（唯一的人类确认闸）；milestone / plan / contract 等中间产物只呈现、不阻塞**，之后仅在卡死或需人工裁决时才回到用户。
 
 ## 工具：fdd CLI
 
@@ -79,7 +79,7 @@ controller 编排，下列 subagent 干活：
 ### Step 1 — Plan（plan → contract → features）
 调用 `harness-stack:fdd-planning`，把契约优先的规划走完三段：
 
-- **plan**——初始化 plan 目录（`fdd init <slug>`），与用户弄懂需求，经只读 `investigator` 调查代码库，商定 milestone（垂直切片），写出已接受的 `plan.md`；进下一段前取得显式接受。
+- **plan**——初始化 plan 目录（`fdd init <slug>`），在 step 1 把需求**问透并签收**（唯一的人类确认闸），经只读 `investigator` 调查代码库，定出 milestone（垂直切片），写出 `plan.md` 并呈现；**不阻塞，随即自动进入 contract 段**。
 - **contract**——调用 `harness-stack:fdd-validation-contract` 写出定义「完成」的可测试、用户可观测断言（`VAL-<AREA>-NNN`），经对抗式多 agent 撰写，并以 `fdd init-state` 给 `validation-state.json` 播种。契约优先的 TDD 闸：**contract 不存在就不许有 `features.json`。**
 - **features**——把 milestone 拆进 `features.json`，每个 feature 以 `fulfills` 绑定它要让其变得可测的断言，基础性 feature 排在前面；以 `fdd contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
 
