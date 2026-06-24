@@ -10,6 +10,17 @@ harness-stack is the harness around the agent: a collection of **Skills**, **Com
 
 Everything is addressed through the `harness-stack:` plugin namespace, and everything lives in the repo: an agent that can't read it doesn't know it. There is no out-of-band CLI — every operation is a Skill or a Subagent.
 
+## Install
+
+harness-stack is distributed through Gump's plugin marketplace, [`wanggang316/claude-plugins`](https://github.com/wanggang316/claude-plugins). Install it from within Claude Code:
+
+```
+/plugin marketplace add wanggang316/claude-plugins
+/plugin install harness-stack@wanggang316
+```
+
+The marketplace pulls the plugin straight from this repo, so re-running the install (or `/plugin update`) picks up new releases. Once installed, every tool is addressed through the `harness-stack:` namespace — start with `/harness-stack:fdd`.
+
 ## FDD — the core
 
 **Feature-Driven Development** (`/harness-stack:fdd`) is the heart of the stack. It is a *contract-first, multi-agent loop* that turns a goal into shipped, verified code. Three roles, each running in a fresh context so judgment never blurs:
