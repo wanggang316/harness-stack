@@ -1,98 +1,58 @@
 # Handoff decision tree
 
-输入：一个 implementer 返回了。读它的 handoff：
-
-```bash
-fdd handoff <feature-id>
-```
-
-每个 handoff 都必须抵达一个终态动作，循环才能继续。
+读取 `fdd handoff <feature-id>`（隔离 worker 先由 controller 登记其产物）。先按 attempt 核对输入版本、输出目录和 worker 状态；旧结果不能覆盖新尝试。结果存档后记录 `fdd log handoff <attempt-id> <message>`。
 
 ## A — `returnToController: true`
 
-implementer 撞上了它解决不了的东西，求助了。查 `criticalContext` 和那段 summary：
+查 `criticalContext`、已有产物和日志：
 
 | 原因 | 动作 |
 |---|---|
-| 缺少 precondition（例如 schema 未部署） | 在它前面创建/重排一个 precondition feature |
-| plan 边界无法遵守 | 交还用户——边界是用户确认过的 |
-| spec 含糊（两种读法，无法抉择） | 把 `plan.md` / contract 消歧（contract 编辑委派出去）；必要时与用户再确认；用更清晰的 description 把 feature 复位为 `pending` |
-| 外部服务宕机 / 凭据过期 | **交还用户**——你恢复不了外部状态 |
-| 仓库处于意外状态（脏树、错误分支） | 调查；在弄懂原因之前别去「清理」 |
+| 缺少 precondition | 调查真实依赖，补齐或调整任务顺序 |
+| 行为/边界无法确定 | 用已有上下文消歧；涉及未授权范围、安全或重大架构决策才回到用户 |
+| 外部服务/GUI 环境不可用 | 单独记录环境 BLOCKED，恢复或请求必要人工动作，不创建产品 fix feature |
+| 工作树/进程状态异常 | 先查 owner，不清理未知改动，不重复派发 |
 
-修好根因之后：`fdd set-status <id> pending`，然后继续。绝不把一个被退回的 feature 标记为 `completed`。
+根因解决、旧 attempt 释放资源后，复位 pending 并继续原任务预算。不能把未完成工作标 completed。
 
-## B — `successState: failure`
+## B — `failure` / `partial`
 
-1. 把失败分析委派给只读的 `harness-stack:investigator`：读 handoff（尤其是 `verificationEvidence`、`criticalContext`、`discoveredIssues`）、该 feature、以及 `plan.md`；定位根因；推荐 1-3 个修复 feature（id、description、preconditions、expectedBehavior、verificationSteps、agent、fulfills），并判断原 feature 是更新 description 后留作 `pending`、还是被替换。
-2. 最常见：在 `features.json` 的**顶部**创建修复 feature 并把原 feature 复位为 `pending`。修复先跑；原 feature 之后重跑。
+1. 先检查是否仅缺报告或证据路径；已有真实测量就补交接，不重跑整套验证。
+2. 已知根因交原 implementer follow-up，明确剩余 expectedBehavior、最小 reproducer 和回归范围。原上下文不可用时才交新 worker。
+3. 根因不明、重复失败或跨模块冲突时派 investigator，读取失败证据，输出根因与一个有边界的修复方案。
+4. 按 [resource-scheduling.md](resource-scheduling.md) 合并同根因 findings。尚未验收的 feature 复位 pending；只有缺口独立或跨 feature 才建修复 feature。不为每条 finding 新建任务。
+5. 实现及里程碑返工共享原 feature/验收批次的三轮预算。功能和验证缺口未解决前不能报完成。
 
-## C — `successState: partial`
+## C — `success`
 
-一部分 `expectedBehavior` 过了，一部分没过。
-- 最常见：把原 feature 复位为 `pending`，更新 `description` 精确说明还剩什么（把相关 `criticalContext` 折叠进去给下一个 worker）。
-- 若部分结果可用、且缺口界限清楚：标 `completed`，并在同一 milestone 里（紧跟其后）为该缺口创建一个后续 feature。
-- 若缺口很大：当作 `failure`（路径 B）。
+核验：
 
-## D — `successState: success`
+- `commits[]` 在指定工作目录存在，完整 SHA 与本次输出匹配；检查确切 SHA，不只看最近五条 log。
+- 自己负责的工作树符合 brief 的交接方式；用户明确不提交时检查受控 diff/产物，不能强行要求 commit。并行结果还需集成与集成后验证。
+- 每个 `verificationStep` 有真实命令、退出结果和证据路径；缺少已要求的自验按 partial 处理。计划归 milestone 的 GUI sweep 不是 feature 漏做事项。
+- 已知正确性 concern 影响 expectedBehavior 时按 partial 处理，即使 worker 自报 success。
 
-别盲信——简短核验：
-1. 与 `commits[]` 匹配的 commit 存在吗？（`git log --oneline -5`）
-2. 树干净吗？若不干净，worker 忘了提交——当作 `partial`。
-3. `verificationEvidence` 是否以真实结果（而非「verified」/「looks fine」）覆盖了每个 `verificationStep`？缺失的验证是技术债——见 D.2。
+### 发现的问题
 
-然后处理这几个清单：
-
-### D.1 — `discoveredIssues`（顺带发现的缺陷；必须被追踪）
-
-| 严重度 | 默认处理 |
+| 归属 | 处理 |
 |---|---|
-| `blocker` | 在**顶部**新建一个 feature；原 feature 维持 `completed` |
-| `tech-debt` | 若 milestone 未封存则在同一 milestone 里做后续，否则进一个 `misc-*` milestone（≤5 个 feature） |
-| `nit` | 值得修就进 `misc-*`，否则带理由 dismiss |
+| 本次引入的 bug / 验收缺口 / 阻塞集成的缺陷 | 回原任务或归入修复批次；不能以低优先级跳过 |
+| 无关历史 bug / tech-debt | 记入 plan 的 Backlog：来源、影响、延期理由与后续归属；不自动加入本轮 milestone |
+| nit | 有实际价值且范围允许时处理，否则附理由关闭 |
+| 范围内未完成工作 | 保持原任务 pending 或拆出明确缺口，不能伪装成范围外债务 |
 
-仅在以下情形允许跳过：(1) 已被某个现有 feature 追踪（引用其 id），或 (2) 确实永远不需要修。「优先级低」/「不阻塞」/「以后再说」**不是**正当理由。
+“已记录”不等于“本轮必须修”。不能用严重度标签替代范围判断；若历史缺陷确实阻塞本次验收，说明因果并纳入修复批次。无需用户授权的外部 issue 不自动创建或发送。
 
-### D.2 — `whatWasLeftUndone`（范围内未做完的工作；必须被追踪）
+### 必要上下文
 
-跳过的手动 QA / 不完整的验证 = 技术债。
+项目耐久事实进 `docs/`；feature 的剩余上下文进 brief/description；决策写 plan 的 Decision Log。handoff JSON 保留证据，事件保留时间与引用，不把整份报告重复抄进多处。
 
-| 归属 | 动作 |
-|---|---|
-| 本 feature（例如它的 QA 被跳过了） | 复位为 `pending`，更新 `description` 覆盖该缺口 |
-| 某个现有的 pending feature | 折叠进那个 feature 的 `description`（若合并后的范围仍能装进一个 session） |
-| 一块新的、界限清楚的工作 | 新建 feature（顶部 / milestone 内 / `misc-*`） |
-| 超出范围（罕见） | 带理由 dismiss，或上交 |
-
-### D.3 — `criticalContext`（下一个 worker/validator 需要的事实）
-
-- 项目/代码库事实（例如「迁移必须在应用启动前跑」）→ 相关的 `docs/` Library 文件。
-- 特定于某 feature → 更新那个 feature 的 `description`。
-- 值得保留的决策/理由 → `plan.md` 的 Decision Log。
-
-### D.4 — Terminal
+完成核验、必要早期 review 和集成后：
 
 ```bash
 fdd set-status <feature-id> completed
+fdd log completed <attempt-id> <message>
+fdd progress
 ```
 
-继续循环。
-
-## Dismissals — when and how
-
-dismiss 是有意决定不对某个 handoff 项采取行动。慎用。一个有效的理由要有实质（≥ 一句话）：「已作为 feature `<id>` 追踪：……」或「永远不需要修：……」。无效的：「优先级低」「不阻塞」「以后再说」、光秃秃的「超出范围」。把这个决定记进 `plan.md` 的 Decision Log（plan 目录是工作记录；`docs/` 的 git 历史是耐久事实的审计痕迹）。
-
-## Quick reference
-
-```
-handoff arrives
-├── returnToController? ──► (A) fix root cause / escalate; feature → pending
-├── failure?            ──► (B) subagent analysis → fix features at top → original → pending
-├── partial?            ──► (C) usually feature → pending with updated description
-└── success
-    ├── verify commits + clean tree + real evidence (else → partial)
-    ├── discoveredIssues: blocker→top · tech-debt→milestone/misc · nit→misc/dismiss
-    ├── whatWasLeftUndone: this-feature→pending · existing→update · new→feature · oos→dismiss
-    ├── criticalContext: project→docs/ Library · feature→description · decision→plan.md
-    └── set-status completed → loop
-```
+milestone 验证仍须通过才能 seal，completed 不等于断言 passed。

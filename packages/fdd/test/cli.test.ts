@@ -216,4 +216,25 @@ describe("fdd cli", () => {
     // active is now "other"; --plan demo targets the seeded plan
     expect((await run("next-feature", "--plan", "demo")).out).toBe("demo-a\timplementer\tm1\n");
   });
+  it("log honors --plan and progress reports the recorded event", async () => {
+    await seed();
+    await run("init", "other");
+    const result = await run("log", "dispatch", "demo-a", "worker=42 phase=build", "--plan", "demo");
+    expect(result.code).toBe(0);
+    expect(JSON.parse(result.out)).toMatchObject({ kind: "dispatch", subject: "demo-a" });
+    expect((await run("progress", "--plan", "demo")).out).toContain("worker=42 phase=build");
+    expect((await run("progress")).out).toContain("Features: 0");
+    expect((await run("progress")).out).not.toContain("worker=42");
+  });
+
+  it("log and progress reject missing, extra, and invalid arguments", async () => {
+    await seed();
+    for (const args of [
+      ["log", "dispatch", "a"], ["log", "dispatch", "a", "ok", "extra"],
+      ["log", "Bad", "a", "ok"], ["log", "progress", "a", " "],
+      ["progress", "extra"], ["progress", "--plan"], ["progress", "--unknown"],
+      ["progress", "--plan", "../demo"]
+    ]) expect((await run(...args)).code).toBe(3);
+  });
+
 });

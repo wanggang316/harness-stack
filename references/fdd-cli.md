@@ -94,3 +94,18 @@ fdd write-handoff <feature-id> <json-file> | handoff <feature-id>
 | `error (data): no active plan` | 还没 `fdd init <slug>` 或 `.active` 丢失 → `fdd use <slug>`。 |
 | `slug must be kebab-case` | slug 只允许小写字母、数字、连字符。 |
 | 子命令与 skill 文档不符 | 源码与 bundle 漂移（开发侧）→ 第 2 节重新 build 并提交。 |
+
+## 5. 执行事件与进度摘要
+
+```bash
+fdd log dispatch feature-a "worker=42 phase=implementation session=abc"
+fdd log progress feature-a "phase=build session=build-7 evidence=logs/build.txt"
+fdd log handoff feature-a "worker=42 handoff=handoffs/feature-a.json"
+fdd progress --plan demo
+```
+
+`fdd log <kind> <subject> <message>` 在当前 plan 的 `events.jsonl` 追加事件，stdout 返回该事件 JSON。时间由系统自动生成，字段为 `timestamp`、`kind`、`subject`、`message`。`kind` 使用 kebab-case，常用 `dispatch`、`progress`、`completed`、`handoff`、`blocked`、`recovery`、`resource`、`decision`；`subject` 为非空单行标识；`message` 为非空文本，以一个参数传入。单条 UTF-8 JSON 行最大 16 KiB。参数以 `--` 开头时，在位置参数前加 `--` 分隔。
+
+`fdd progress` 只向 stdout 输出 feature 状态计数、所有进行中任务、下一条 pending 和最后 10 条事件（按追加顺序），不覆盖 `plan.md`，Decision Log 仍由 controller 维护。老 plan 无事件文件时正常显示空事件列表。
+
+日志使用一次追加写入，支持本机多个 worker 并发记录；运行目录应位于本地文件系统，不使用 NFS 等网络共享挂载。损坏或不完整的记录会报数据错误，不会被静默跳过。事件不改变 feature 或断言状态，现有状态文件仍由 controller 单写。命令不会自动记录派发/完成，也不提供守护进程或自动唤醒；技能需在对应操作时调用，检查活性仍需结合进程、工具 session 和证据。

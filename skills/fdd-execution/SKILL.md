@@ -1,99 +1,64 @@
 ---
 name: fdd-execution
-description: FDD 主流程 step 2——执行循环。串行驱动 feature 构建：next-feature → 派 implementer → handoff 决策树 → complete。每个 feature 由交接决策树把关（核验 implementer 自验留下的证据）。静态验证 → 代码审查 → user-test 这条验证流水线在里程碑收口（fdd-validate scope=milestone）与循环跑空（scope=final）批量跑。由 harness-stack:fdd 在 features.json 通过 coverage 后调用。
+description: FDD step 2。按依赖与资源调度 implementer、自验和交接，维护 worker 活性与修复批次；在 milestone/final 调用 fdd-validate。由 harness-stack:fdd 在 contract-coverage 通过后调用。
 ---
 
-# fdd-execution：FDD 执行循环
+# fdd-execution：执行与交接
 
-最长的一步。你驱动一个**串行构建循环**：一次一个 feature——派 implementer 构建，跑交接决策树收口。验证流水线（静态验证 → 代码审查 → user-test）由 `harness-stack:fdd-validate` 在里程碑收口与循环跑空时批量跑。
+controller 编排，implementer 实现。feature 的 `completed` 表示实现已集成、声明的自验通过且交接有效；**不表示 milestone 的独立审查和用户行为验证已通过**。断言是否通过由 validation-state 记录。
 
-```
-loop:
-  f = fdd next-feature           # first pending; empty => done
-  sanity-check preconditions
-  fdd set-status f in_progress
-  dispatch implementer (self-verifies) -> handoff (fdd handoff f)
-  run handoff decision tree (references/handoff-handling.md)   # per-feature gate
-  fdd set-status f completed
-  if milestone's impl features all completed/cancelled and not sealed:
-     harness-stack:fdd-validate(scope=milestone)  -> fdd seal-milestone <m>
-when loop empty:
-  harness-stack:fdd-validate(scope=final)         -> fdd gate
-```
+## 工具与协议
 
-**per-feature 的把关由两部分构成：**(1) implementer 在交接前自验——跑该 feature 声明的 test/lint/type-check，把真实输出记进 handoff 的 `verificationEvidence`；(2) controller 跑**交接决策树**核验（commit 在、树干净、每个 verificationStep 都有真实证据，否则降级 `partial`）。里程碑收口与收尾的批量验证（硬门禁、跨 feature scrutiny、code-review、运行时探测）由 `harness-stack:fdd-validate` 负责，它能抓到跨 feature 交互。
+`fdd` 指 `node <plugin-root>/packages/fdd/bin/fdd.mjs`，无需安装或构建，Node >= 20。定位与完整命令见 `<plugin-root>/references/fdd-cli.md`。
 
-**执行是串行的。** 一次一个 feature。一步内部的只读并行没问题；并发的 implementer 不行——它们会践踏共享状态、做出互相矛盾的决策。
+- 派发任何 worker 前读 [worker-lifecycle.md](references/worker-lifecycle.md)：登记 attempt、等待、检查进展、恢复与回收。
+- 安排并行实现、共享构建/GUI 或修复时读 [resource-scheduling.md](references/resource-scheduling.md)：资源 owner、串行状态写入、集成与修复预算。
+- 收到结果后走 [handoff-handling.md](references/handoff-handling.md)。
 
-**controller 绝不写代码、绝不为修一处发现而去编辑实现。** 每一处修复都回到 implementer。controller 一旦编辑代码，全新上下文不变量就没了。本技能负责构建与调度；批量验证由 `harness-stack:fdd-validate` 负责。
+controller 不编辑实现代码。默认一个 implementer；有隔离 worktree、明确依赖与集成策略时可并行独立任务。共享 GUI 仍按 lane 串行。CLI 不提供调度器、资源锁或自动唤醒。
 
-## 工具：fdd CLI
-
-本技能所有 `fdd <subcommand>` 都指 `node <plugin-root>/packages/fdd/bin/fdd.mjs <subcommand>`——插件自带的预构建 bundle，不在 PATH 上、无需安装、无需编译（只要 Node >= 20）。定位 bundle、命令速查与故障排查见 `<plugin-root>/references/fdd-cli.md`。派发 implementer 时把解析好的完整命令填进 brief 的 `{FDD_CMD}`——subagent 是全新上下文，没有它就找不到 CLI。
-
-## Before the loop (once)
+## 开始与恢复
 
 ```bash
-fdd contract-coverage     # MUST report 'coverage OK'
-fdd list-features         # eyeball ordering
-git status                    # working tree clean
+fdd contract-coverage
+fdd list-features
+fdd progress
 ```
 
-## Per-feature loop
+固定 plan runtime、工作目录、BASE commit、资源预算、项目 preflight 命令和验证分层。检查工作树与现有 worker；恢复会话时先对照事件、实际进程和 handoff 回收遗留任务，不能因为没有 pending 就进入 final。
 
-### 1. Next feature
-```bash
-fdd next-feature          # -> <id>\t<agent>\t<milestone>  (empty => 交给 fdd-validate 做 final)
-```
+## 执行循环
 
-### 2. Sanity check
-feature 的 `preconditions` 满足了吗？（若其中一条说「schema X 存在」，确认它确实存在。）工作树干净吗？若某个 precondition 未满足，在它前面创建/重排一个基础性 feature，或者若它已无意义就 `fdd set-status <id> cancelled`。
+1. **选择。** `fdd next-feature` 提供首个 pending 候选。controller 核验依赖、写入范围和资源可用性；并行候选须单独核验。缺少前置条件先调查，不能盲目派发或取消仍需完成的需求。
+2. **派发。** `fdd set-status <id> in_progress`，记录 `fdd log dispatch <attempt-id> <message>`。使用 [implementer-brief.md](references/implementer-brief.md)，给出自验步骤、边界、代码阅读入口、工作目录、资源分配、CLI/runtime 和 attempt 信息。不内联完整 plan/contract。
+3. **等待。** 履行 lifecycle 协议；长命令必须有人等待退出并回收结果。实际阶段推进写 `fdd log progress <attempt-id> <message>`；时间由 CLI 生成。
+4. **交接与集成。** 按 handoff 决策树处理成功、返工、阻塞和范围外发现。并行 worktree 的结果由 controller 串行登记，安排 implementer 集成与集成后自验。高风险或阻塞下游的改动在消费者开始前完成独立 review。
+5. **完成。** 证据与集成均满足后 `fdd set-status <id> completed`，记录 `fdd log completed <attempt-id> <message>`。用 `fdd progress` 展示当前状态，不重复手写 plan 的 Progress 或分钟级时间戳。
+6. **里程碑。** 该 milestone 全部实现任务 completed/cancelled、无活动 worker/未集成结果时，调用 `harness-stack:fdd-validate(scope=milestone)`。未通过先按修复批次处理，再重验；通过后封存。
+7. **最终。** 无 pending、in_progress、partial、failure 或未处理 handoff，全部 milestone 已通过并封存后，调用 `fdd-validate(scope=final)`。确认最终证据仍有效且 `fdd gate` 通过，再报告交付。
 
-### 3. Dispatch the implementer
-```bash
-fdd set-status <id> in_progress
-```
-然后用 `references/implementer-brief.md` 的 brief 发 `Task(subagent_type="implementer", …)`。填入 feature 的各字段、**Boundaries** 块（来自 `plan.md` 的 Infrastructure）、文件范围、以及 `{FDD_CMD}`（你解析出的 fdd 完整调用命令——implementer 是全新上下文，没有它就找不到 CLI）。implementer 只读 brief——**不要**把 plan 或 contract 内联进去。brief 要求 implementer **自验**（逐条跑 feature 的 verification steps、抓真实输出），并以写一份带 `verificationEvidence` 的 handoff JSON、执行 `fdd write-handoff <id> <path>` 收尾。
+若有非终态任务但没有可派发任务，调查阻塞依赖并报告，不能把空队列当作完成。
 
-### 4. Handle the handoff —— per-feature 闸
-```bash
-fdd handoff <id>
-```
-跑 `references/handoff-handling.md` 里的决策树。它会路由 `returnToController` / `failure` / `partial` / `success`，追踪 `discoveredIssues` / `whatWasLeftUndone`，并传播 `criticalContext`。**这就是 per-feature 闸**：一个 feature 只有在 `success` 经核验（commit 在、树干净、每个 `verificationStep` 都有真实证据——否则降级 `partial`）后才算完成。任何 `failure`/`partial`/`returnToController` → 按决策树回 implementer 或修根因。
+## 验证与修复
 
-### 5. Complete
-```bash
-fdd set-status <id> completed     # moves it to the bottom
-```
-更新 `plan.md` 的 Progress（追加一行 handoff-log）。回到 step 1。
+feature 自验以目标单测、必要编译/静态检查为主；GUI 缺陷修复包含最小 reproducer。昂贵的完整 GUI sweep 明确归 milestone/修复批次，不能先列为 feature 必跑步骤、失败后再偷偷降级。未通过自验的工作不能标 completed。
 
-## Milestone & final gates
+milestone 负责独立工具门禁、代码审查与集成行为验证；final 检查跨 milestone 交互和当前有效覆盖。同输入证据可由 validator 按范围核对后复用，历史 PASS 本身不够。三级细则以 `fdd-validate` 为准。
 
-当一个 milestone 里每个实现型 feature 都 `completed`/`cancelled` 且尚未封存（`fdd is-sealed <m>` → `no`）时，调用 **`harness-stack:fdd-validate`，scope = milestone**——它对里程碑累计 diff 跑完整流水线（静态验证：硬门禁 + 逐 feature scrutiny + 治理反馈、触敏感面时并行 security-auditor；代码审查；运行时探测里程碑断言子集），全过后应用治理反馈并 `fdd seal-milestone`。当循环跑空、所有 milestone 已封存时，调用 **`harness-stack:fdd-validate`，scope = final**——跨 milestone scrutiny + coverage gate + `fdd gate`。完整流程见该技能。
+finding 按根因和范围合并，优先原任务返工；范围外历史债务记录到 backlog。三轮预算沿原 feature/验收批次累计，换 fix id 不重置。每次修复前记录根因与待验范围，不在相同条件下重复派发。
 
-milestone gate 失败时，validator 会指明问题 feature 与证据——按那些发现回 implementer 修（在 features 顶部建修复 feature），修完对该 milestone 重跑 fdd-validate。
+## 提交与范围变化
 
-## Round budget
+遵守用户与仓库的提交授权。允许提交时 implementer 保留原子 commit 与干净树；用户明确要求不提交时，在 brief 里改用受控 diff/产物交接并标明尚未提交，不能仅因遵守用户要求而判失败。并行集成依赖 commit 的模式在无提交授权时不可用，退回串行。
 
-**每个 feature 3 轮。** 3 轮 implementer 之后交接仍非 `success`、或仍 `BLOCKED` → 停下并上交给人。问题出在 plan、contract、或 feature 范围上；再加轮次只会稀释信号。绝不在相同条件下重新派发一个 `BLOCKED` feature——换上下文、换模型，或拆了它。（milestone gate 暴露的问题同样回 implementer，不在 controller 手里修。）
+用户中途调整需求时，沿用已知授权；仅对影响正确性、架构或安全边界的未决事项澄清。必要时派 investigator，更新 plan 与相关 contract、features 及耐久约定。修改 contract 后 `fdd init-state`，语义改变或证据失效的断言**立即**复位 pending，再跑 `fdd contract-coverage`。更新完成后才恢复受影响 worker；不受影响的隔离工作可继续。
 
-## Commit discipline
+范围收缩保留 cancelled 历史，移除被撤销的 contract 断言与对应 fulfills。新增行为不得借“修复”绕过范围记录。
 
-implementer 为每个 feature 创建自己的原子 commit（conventional-commit 格式）。**controller** 只 commit 自己的 artifact/Library 更新（plan.md、contract、docs/ Library），用 `harness-stack:git` 的 commit 流程提交；plan 目录已 gitignore，所以 controller 的 commit 大多只是耐久的 docs/ 更新。若一个 implementer 返回 `success` 却留下一棵未提交的脏树，停下：当作 `partial` 处理，并修正 implementer brief。
+## Verification
 
-## Handling mid-flow user requests
-
-当用户在流程中途要求一处改动时：
-
-1. **暂停**——不要立刻拆解。
-2. **澄清 + 调查**——`AskUserQuestion` + 只读 `investigator`（若涉及新技术再加在线调研）。迭代到清晰为止。
-3. **提出**你打算如何容纳它（新 feature / 改动范围 / 新 milestone）。取得接受。
-4. **在任何 implementer 恢复前传播到共享状态：** `plan.md`（范围/策略/边界）、`docs/` Library（耐久约定），以及——对变化了的可测试行为——`validation-contract.md`。**把 contract 的编辑委派给一个 subagent**；不要在流程中途手改 contract。语义：新断言 → 增加 + `fdd init-state`（播种为 `pending`）；移除 → 从 contract 删除、重跑 `init-state`（从 state 里去掉它）；改动到先前证据不再能证明它 → 它的断言在重新探测时复位为 `pending`。
-5. **重新覆盖**——更新 `features.json` 让每条断言都被认领；`fdd contract-coverage` OK。
-6. **恢复**循环。
-
-范围收缩（「我们不再需要那个了」）：`fdd set-status <id> cancelled`（不要删除——保留历史），从 contract 移除该断言、重跑 `init-state`、丢掉成孤儿的 `fulfills`。断言没有「cancelled」状态；被丢弃的需求是直接移除的。
-
-## When to return to the user
-
-在以下情形交还控制权：需要人来动手（批准一笔购买、向第三方认证）；某个决策需要人来判断（安全、重大架构、商业取舍）；某个外部依赖不可恢复（别为你修不了的基础设施创建重试 feature）；一处发现的含糊从上下文无法解决；或工作远超商定的范围。说明阻塞点以及继续所需的东西。
+- [ ] 每个 attempt 有 owner、工作目录、产物与等待责任，结束后已回收。
+- [ ] 构建 slot 与 GUI lane 分开管理，无重复 worker 写入或共享状态并发更新。
+- [ ] completed 的实现满足自验与集成要求，未冒充已通过行为验证。
+- [ ] 修复按批次收敛，范围外债务已记录，预算未因新 id 重置。
+- [ ] milestone/final 的独立验证通过；无遗留非终态任务或失效 PASS。

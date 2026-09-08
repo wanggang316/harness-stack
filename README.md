@@ -25,9 +25,9 @@ The marketplace pulls the plugin straight from this repo, so re-running the inst
 
 **Feature-Driven Development** (`/harness-stack:fdd`) is the heart of the stack. It is a *contract-first, multi-agent loop* that turns a goal into shipped, verified code. Three roles, each running in a fresh context so judgment never blurs:
 
-- **Coordinator** — `fdd` orchestrates the flow; `fdd-execution` drives the serial build loop, dispatching one feature at a time and gating each handoff.
+- **Coordinator** — `fdd` orchestrates the flow; `fdd-execution` schedules isolated work within dependency and resource limits, tracks worker progress, and gates each handoff and repair batch.
 - **Implementer** — the `implementer` subagent builds exactly one bounded feature (test-first when required) and reports a structured handoff.
-- **Validator** — a cost-increasing pipeline (`fdd-validate`) that probes the work against the contract: static gate (`scrutiny-validator`: test / lint / type-check + scrutiny) → review (`code-reviewer`: five axes, plus `security-auditor` when warranted) → behavioral user-test (`user-test-validator`).
+- **Validator** — a cost-increasing pipeline (`fdd-validate`) that probes the work against the contract: static gate (`scrutiny-validator`: test / lint / type-check / build + evidence completeness) → review (`code-reviewer`: five axes, plus `security-auditor` when warranted) → behavioral user-test (`user-test-validator`).
 
 The glue is the **validation contract** (`fdd-validation-contract`): the definition of done written as testable, user-observable assertions *before* code is written. The coordinator/implementer/validator triad checks every milestone against that contract — that's what keeps the program **continuously converging on the goal at high quality** rather than drifting.
 
@@ -36,7 +36,7 @@ The glue is the **validation contract** (`fdd-validation-contract`): the definit
 | `/harness-stack:fdd` | Orchestrator — runs the 3-step main flow (the only one you invoke directly) |
 | `/harness-stack:fdd-planning` | Step 1 — capture the plan and break it into features |
 | `/harness-stack:fdd-validation-contract` | Step 1 — write the definition-of-done assertions |
-| `/harness-stack:fdd-execution` | Step 2 — the serial per-feature build loop |
+| `/harness-stack:fdd-execution` | Step 2 — resource-aware execution, worker recovery, and repair batches |
 | `/harness-stack:fdd-validate` | Step 3 — milestone & final gates (static → review → user-test) |
 | `/harness-stack:tdd` | Test-first development, used inside an implementer's task |
 
@@ -90,7 +90,7 @@ Fresh-context experts. Some stand alone; the rest are the FDD roles above.
 | `harness-stack:code-reviewer` | Five-axis review (correctness / readability / architecture / security / performance) |
 | `harness-stack:security-auditor` | Vulnerability audit — OWASP, secrets, auth, dependency CVEs, LLM trust boundaries |
 | `harness-stack:implementer` | Builds one bounded feature, emits a structured handoff |
-| `harness-stack:scrutiny-validator` | Static gate — test/lint/type-check + per-feature scrutiny |
+| `harness-stack:scrutiny-validator` | Static gate — independent tool checks + handoff evidence completeness |
 | `harness-stack:user-test-validator` | Behavioral gate — probes contract assertions against the running system |
 
 ## Packages

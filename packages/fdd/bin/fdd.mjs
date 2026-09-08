@@ -9,57 +9,10 @@ var __export = (target, all) => {
 import { argv as processArgv, exit, stderr, stdout } from "node:process";
 import { pathToFileURL } from "node:url";
 
-// src/errors.ts
-var PlanError = class extends Error {
-  kind;
-  constructor(kind, message, options) {
-    super(message, options);
-    this.name = "PlanError";
-    this.kind = kind;
-  }
-};
-
-// src/io.ts
-import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
-import { dirname } from "node:path";
-async function readText(path) {
-  try {
-    return await readFile(path, "utf8");
-  } catch (err) {
-    throw new PlanError("data", `cannot read ${path}`, { cause: err });
-  }
-}
-async function readJson(path) {
-  const raw = await readText(path);
-  try {
-    return JSON.parse(raw);
-  } catch (err) {
-    throw new PlanError("data", `${path} is not valid JSON`, { cause: err });
-  }
-}
-async function writeJsonAtomic(path, value) {
-  const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(tmp, `${JSON.stringify(value, null, 2)}
-`, "utf8");
-  await rename(tmp, path);
-}
-async function writeTextIfMissing(path, contents) {
-  const { existsSync: existsSync5 } = await import("node:fs");
-  if (existsSync5(path)) return false;
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, contents, "utf8");
-  return true;
-}
-
-// src/core.ts
-import { existsSync as existsSync2 } from "node:fs";
-
-// src/store.ts
-import { execFileSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { readdir } from "node:fs/promises";
-import { join, resolve } from "node:path";
+// src/progress.ts
+import { closeSync, openSync, writeSync } from "node:fs";
+import { readFile as readFile2 } from "node:fs/promises";
+import { join as join2 } from "node:path";
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v3/external.js
 var external_exports = {};
@@ -4102,6 +4055,58 @@ var coerce = {
 };
 var NEVER = INVALID;
 
+// src/core.ts
+import { existsSync as existsSync2 } from "node:fs";
+
+// src/errors.ts
+var PlanError = class extends Error {
+  kind;
+  constructor(kind, message, options) {
+    super(message, options);
+    this.name = "PlanError";
+    this.kind = kind;
+  }
+};
+
+// src/io.ts
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { dirname } from "node:path";
+async function readText(path) {
+  try {
+    return await readFile(path, "utf8");
+  } catch (err) {
+    throw new PlanError("data", `cannot read ${path}`, { cause: err });
+  }
+}
+async function readJson(path) {
+  const raw = await readText(path);
+  try {
+    return JSON.parse(raw);
+  } catch (err) {
+    throw new PlanError("data", `${path} is not valid JSON`, { cause: err });
+  }
+}
+async function writeJsonAtomic(path, value) {
+  const tmp = `${path}.${process.pid}.${Date.now()}.tmp`;
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(tmp, `${JSON.stringify(value, null, 2)}
+`, "utf8");
+  await rename(tmp, path);
+}
+async function writeTextIfMissing(path, contents) {
+  const { existsSync: existsSync5 } = await import("node:fs");
+  if (existsSync5(path)) return false;
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, contents, "utf8");
+  return true;
+}
+
+// src/store.ts
+import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
+import { readdir } from "node:fs/promises";
+import { join, resolve } from "node:path";
+
 // src/schema.ts
 var KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 var VAL_ID = /^VAL-[A-Z0-9]+-\d{3}$/;
@@ -4389,6 +4394,113 @@ async function isSealed(dir, milestone) {
   return file.sealed.includes(milestone);
 }
 
+// src/progress.ts
+var MAX_EVENT_BYTES = 16 * 1024;
+var EventSchema = external_exports.object({
+  timestamp: external_exports.string().datetime(),
+  kind: external_exports.string().regex(KEBAB),
+  subject: external_exports.string().trim().min(1).regex(/^[^\r\n\x00-\x1f\x7f]+$/),
+  message: external_exports.string().trim().min(1)
+}).strict();
+var eventsPath = (dir) => join2(dir, "events.jsonl");
+function logEvent(dir, kind, subject, message) {
+  const parsed = EventSchema.safeParse({
+    timestamp: (/* @__PURE__ */ new Date()).toISOString(),
+    kind,
+    subject,
+    message
+  });
+  if (!parsed.success)
+    throw new PlanError("usage", `invalid event: ${parsed.error.message}`);
+  const record = Buffer.from(`${JSON.stringify(parsed.data)}
+`, "utf8");
+  if (record.length > MAX_EVENT_BYTES)
+    throw new PlanError("usage", "event exceeds 16 KiB UTF-8 limit");
+  let fd;
+  let failure;
+  try {
+    fd = openSync(eventsPath(dir), "a", 384);
+    if (writeSync(fd, record) !== record.length)
+      throw new Error(
+        "short event write; inspect events.jsonl before continuing"
+      );
+  } catch (cause) {
+    const detail = cause instanceof Error ? cause.message : String(cause);
+    failure = new PlanError(
+      "data",
+      `cannot append ${eventsPath(dir)}: ${detail}`,
+      { cause }
+    );
+  } finally {
+    if (fd !== void 0) {
+      try {
+        closeSync(fd);
+      } catch (cause) {
+        failure ??= new PlanError(
+          "data",
+          `cannot close ${eventsPath(dir)}; inspect the log before retrying`,
+          { cause }
+        );
+      }
+    }
+  }
+  if (failure !== void 0) throw failure;
+  return parsed.data;
+}
+async function readEvents(dir) {
+  let raw;
+  try {
+    raw = await readFile2(eventsPath(dir), "utf8");
+  } catch (cause) {
+    if (cause.code === "ENOENT") return [];
+    throw new PlanError("data", `cannot read ${eventsPath(dir)}`, { cause });
+  }
+  if (raw === "") return [];
+  if (!raw.endsWith("\n"))
+    throw new PlanError("data", "incomplete event record in events.jsonl");
+  return raw.slice(0, -1).split("\n").map((line, index) => {
+    try {
+      return EventSchema.parse(JSON.parse(line));
+    } catch (cause) {
+      throw new PlanError(
+        "data",
+        `invalid events.jsonl record at line ${index + 1}`,
+        { cause }
+      );
+    }
+  });
+}
+async function progressReport(dir) {
+  const [features, events] = await Promise.all([
+    listFeatures(dir),
+    readEvents(dir)
+  ]);
+  const lines = [`Features: ${features.length}`];
+  for (const status of featureStatuses) {
+    lines.push(
+      `  ${status}: ${features.filter((feature) => feature.status === status).length}`
+    );
+  }
+  const current = features.filter(
+    (feature) => feature.status === "in_progress"
+  );
+  lines.push(
+    `Current: ${current.length ? current.map((feature) => `${feature.id} (${feature.milestone})`).join(", ") : "none"}`
+  );
+  lines.push(
+    `Next pending: ${features.find((feature) => feature.status === "pending")?.id ?? "none"}`
+  );
+  lines.push("Recent events (append order, last 10):");
+  if (!events.length) lines.push("  none");
+  for (const event of events.slice(-10)) {
+    lines.push(
+      `  ${event.timestamp} ${event.kind} ${event.subject}: ${JSON.stringify(event.message)}`
+    );
+  }
+  return `${lines.join("\n")}
+`;
+}
+
 // src/handoff.ts
 import { existsSync as existsSync3 } from "node:fs";
 function formatIssues2(issues) {
@@ -4439,6 +4551,9 @@ var HELP_TEXT = `Usage:
 
   fdd write-handoff <feature-id> <json-file>   Validate + store a worker handoff
   fdd handoff <feature-id>              Print the stored handoff JSON
+
+  fdd log <kind> <subject> <message>    Append a system-timestamped event (JSON stdout)
+  fdd progress                         Print feature counts, current work, and recent events
 
 Plan selection: --plan <slug> overrides the active plan (.active) for any command.
 Feature status: ${featureStatuses.join(" | ")}
@@ -4540,6 +4655,10 @@ async function main(argv, streams = {}) {
         return await runWriteHandoff(parseArgs(rest), out);
       case "handoff":
         return await runHandoff(parseArgs(rest), out);
+      case "log":
+        return await runLog(parseArgs(rest), out);
+      case "progress":
+        return await runProgress(parseArgs(rest), out);
       case "--help":
       case "-h":
         out.write(HELP_TEXT);
@@ -4698,6 +4817,31 @@ async function runHandoff(parsed, out) {
   const handoff = await readHandoff(await dirFor(parsed.flags), featureId);
   out.write(`${JSON.stringify(handoff, null, 2)}
 `);
+  return 0;
+}
+function checkProgressArgs(parsed, count) {
+  if (parsed.positional.length !== count) throw new UsageError(`expected ${count} positional arguments`);
+  for (const [key, value] of Object.entries(parsed.flags)) {
+    if (key !== "plan" || typeof value !== "string" || !KEBAB.test(value)) {
+      throw new UsageError("only --plan <kebab-case-slug> is supported");
+    }
+  }
+}
+async function runLog(parsed, out) {
+  checkProgressArgs(parsed, 3);
+  const event = logEvent(
+    await dirFor(parsed.flags),
+    requirePositional(parsed.positional, 0, "kind"),
+    requirePositional(parsed.positional, 1, "subject"),
+    requirePositional(parsed.positional, 2, "message")
+  );
+  out.write(`${JSON.stringify(event)}
+`);
+  return 0;
+}
+async function runProgress(parsed, out) {
+  checkProgressArgs(parsed, 0);
+  out.write(await progressReport(await dirFor(parsed.flags)));
   return 0;
 }
 function reportError(e, err) {
