@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { argv as processArgv, exit, stderr, stdout } from "node:process";
 import { pathToFileURL } from "node:url";
+import { logEvent, progressReport } from "./progress.js";
 import { PlanError } from "./errors.js";
 import { readJson } from "./io.js";
 import {
@@ -63,6 +64,9 @@ const HELP_TEXT = `Usage:
 
   fdd write-handoff <feature-id> <json-file>   Validate + store a worker handoff
   fdd handoff <feature-id>              Print the stored handoff JSON
+
+  fdd log <kind> <subject> <message>    Append a system-timestamped event (JSON stdout)
+  fdd progress                         Print feature counts, current work, and recent events
 
 Plan selection: --plan <slug> overrides the active plan (.active) for any command.
 Feature status: ${featureStatuses.join(" | ")}
@@ -176,6 +180,10 @@ export async function main(argv: string[], streams: MainStreams = {}): Promise<n
         return await runWriteHandoff(parseArgs(rest), out);
       case "handoff":
         return await runHandoff(parseArgs(rest), out);
+      case "log":
+        return await runLog(parseArgs(rest), out);
+      case "progress":
+        return await runProgress(parseArgs(rest), out);
       case "--help":
       case "-h":
         out.write(HELP_TEXT);
@@ -335,6 +343,31 @@ async function runHandoff(parsed: ParsedArgs, out: NodeJS.WritableStream): Promi
   const featureId = requirePositional(parsed.positional, 0, "feature-id");
   const handoff = await readHandoff(await dirFor(parsed.flags), featureId);
   out.write(`${JSON.stringify(handoff, null, 2)}\n`);
+  return 0;
+}
+
+function checkProgressArgs(parsed: ParsedArgs, count: number): void {
+  if (parsed.positional.length !== count) throw new UsageError(`expected ${count} positional arguments`);
+  for (const [key, value] of Object.entries(parsed.flags)) {
+    if (key !== "plan" || typeof value !== "string" || !KEBAB.test(value)) {
+      throw new UsageError("only --plan <kebab-case-slug> is supported");
+    }
+  }
+}
+
+async function runLog(parsed: ParsedArgs, out: NodeJS.WritableStream): Promise<number> {
+  checkProgressArgs(parsed, 3);
+  const event = logEvent(await dirFor(parsed.flags),
+    requirePositional(parsed.positional, 0, "kind"),
+    requirePositional(parsed.positional, 1, "subject"),
+    requirePositional(parsed.positional, 2, "message"));
+  out.write(`${JSON.stringify(event)}\n`);
+  return 0;
+}
+
+async function runProgress(parsed: ParsedArgs, out: NodeJS.WritableStream): Promise<number> {
+  checkProgressArgs(parsed, 0);
+  out.write(await progressReport(await dirFor(parsed.flags)));
   return 0;
 }
 

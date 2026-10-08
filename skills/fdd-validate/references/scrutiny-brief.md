@@ -1,6 +1,6 @@
 # Scrutiny Brief
 
-你是 `fdd-validate` 的**静态验证（stage 1）**。按下面的 **scope** 对该范围的 diff 跑硬门禁 + scrutiny 审查；milestone/final scope 还应用低风险事实性更新并写出 synthesis。完整方法见 `agents/scrutiny-validator.md`。
+你是 `fdd-validate` 的**静态验证（stage 1）**。按下面的 **scope** 对该范围的 diff 跑独立工具硬门禁 + 交接证据完整性检查，写出 synthesis；语义审查交给 code-reviewer。完整方法见 `agents/scrutiny-validator.md`。
 
 ## Scope
 
@@ -9,7 +9,7 @@
 <!--
 milestone | final。
 - milestone：对该 milestone 全部已完成 feature 做完整 batch + synthesis。
-- final：范围 = BASE..HEAD 全量，审查重点转向跨 milestone 交互 + synthesis。
+- final：范围 = BASE..HEAD 全量，检查范围覆盖所有 milestone + synthesis。
 -->
 
 ## Plan
@@ -47,8 +47,14 @@ git log --oneline {BASE_SHA}..{HEAD_SHA}
 
 {PRIOR_SYNTHESIS}
 
-<!-- 若为修复后重跑，填上次 synthesis 路径，validator 只重验失败项 + 变更过的 feature。 -->
+<!-- 若为修复后重跑，填上次 synthesis 路径，controller 指明失败项、受影响检查及旧证据仍适用的理由；影响不明则扩大检查。 -->
 
 ## Notes from the Controller
 
 {NOTES}
+
+## 输入身份与资源
+
+{INPUT_EVIDENCE_AND_RESOURCES}
+
+<!-- 填写契约版本、未提交 patch 身份、依赖/配置/环境记录、可靠 baseline 证据（或隔离 worktree 方案）、构建并发上限、worker 生命周期记录与输出路径。遵循 skills/fdd-execution/references/worker-lifecycle.md。 -->

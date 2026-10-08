@@ -86,11 +86,13 @@ REQUIREMENTS LOCKED — 动 investigator 前最后一次纠正机会：
 
 ### Step 5 — Infrastructure and boundaries
 
-确认并记录 worker 可碰与不可碰的东西：新服务的端口范围；它们可用的外部服务（例如跑在 `:5432` 上的现有 postgres）；禁区服务和路径；并发规则（默认：一次一个 feature）。这些原样写入 `plan.md` 的 **Infrastructure** 小节，并回显进 implementer brief 的 Boundaries 块——不存在逐 plan 的 AGENTS.md，所以边界以 `plan.md` 为准。
+确认并记录 worker 可碰与不可碰的东西：新服务的端口范围；它们可用的外部服务（例如跑在 `:5432` 上的现有 postgres）；禁区服务和路径；并发规则（默认一次一个实现；独立 worktree、依赖与集成顺序明确后可并行）。这些写入 `plan.md` 的 **Infrastructure** 小节，并回显进 implementer brief。分别声明构建 slots、共享 GUI/设备 lane 与 owner、fixture 隔离及项目 preflight 命令。没有预检工具时先完成最小相关环境检查；不能假定已有锁或自动恢复机制。调度方法见 `../fdd-execution/references/resource-scheduling.md`。
 
 ### Step 6 — Testing strategy
 
 确认：**测试命令**（确认它*现在*能跑——派一个 subagent 跑一次）；**user-test 界面**（validator 如何端到端地驱动产品——dev server + browser MCP、对 API 打 curl、CLI 二进制、库 fixture）；以及每个界面的 **surface cost tier**（cheap / medium / expensive），user-test 探测据此选择隔离策略。这些约定活在 `docs/user-test-patterns.md`（Library）里；引用它，别重新推导。
+
+将 feature 自验（目标测试/必要编译）、修复的最小 reproducer 与 milestone 的昂贵 sweep 分开。不要为每个 feature 复制完整 GUI 验证步骤。第一份可用垂直切片准备 5 分钟真实使用清单，覆盖真实配置、权限和可见结果；能自动完成的先执行。只有用户确认需要人工判断的项目才作为人工 gate，记录安排，不能默认让整个流程停等真人。
 
 ### Step 7 — Draft features (shape only)
 

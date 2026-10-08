@@ -20,7 +20,7 @@ model: inherit
 - **NOT DONE** —— 无证据。
 - **CHANGED** —— 换了做法，目标一致。
 
-运行 `git diff --stat <BASE>..<HEAD>`，对照声明的意图核查改动的文件。与意图无关的文件即 **scope creep**。在报告顶部产出一行 `Scope:` 摘要。本环节是信息性的，不阻断五维评审，但必须在 Verdict 的推理中体现。批准一个漏掉需求的改动是不诚实的。
+按 brief 的完整输入核查改动文件：已提交部分使用 `git diff --stat <BASE>..<HEAD>`；禁止提交或存在未提交工作时，同时审查受控 patch（含 staged/unstaged）与声明的未跟踪文件内容，不自行 stage/commit。输入缺失或身份无法确认时报告 BLOCKED，不能对空 commit diff 给出批准。与意图无关的文件即 **scope creep**。在报告顶部产出一行 `Scope:` 摘要。本环节是信息性的，不阻断五维评审，但必须在 Verdict 的推理中体现。批准一个漏掉需求的改动是不诚实的。
 
 ## 2. Review Tests First
 
@@ -143,6 +143,7 @@ model: inherit
 ## Review: <title / feature id>
 
 **Range:** `<BASE_SHA>..<HEAD_SHA>` — N files, ±L lines
+**Patch:** <clean, or full patch and untracked-content manifest identity>
 **Spec:** <spec / plan / PR 描述 路径>
 **Scope:** CLEAN | DRIFT | MISSING REQUIREMENTS
   - Intent: <what was requested>

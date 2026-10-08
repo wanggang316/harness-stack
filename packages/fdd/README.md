@@ -10,6 +10,7 @@ FDD keeps per-plan state in a gitignored runtime tree, one directory per plan:
 ├── validation-contract.md  # testable assertions, one H3 per: "### VAL-<AREA>-NNN: <title>"
 ├── validation-state.json   # { assertions: { "VAL-AUTH-001": { status, evidence? } } }
 ├── features.json           # { features: [ { id, agent, milestone, fulfills, status, ... } ] }
+├── events.jsonl            # append-only, system-timestamped execution events
 ├── sealed-milestones.json  # auxiliary: validated milestones
 └── handoffs/<feature-id>.json
 ```
@@ -57,6 +58,9 @@ fdd gate                            exit 0 only if every assertion is "passed"
 
 fdd seal-milestone <m> | is-sealed <m>
 fdd write-handoff <feature-id> <json-file> | handoff <feature-id>
+
+fdd log <kind> <subject> <message>  append an event; print its JSON
+fdd progress                       print counts, current work, next pending, last 10 events
 ```
 
 `--plan <slug>` overrides the active plan for any command.
@@ -64,3 +68,31 @@ fdd write-handoff <feature-id> <json-file> | handoff <feature-id>
 **Exit codes:** `0` success · `1` data error · `2` invariant violation (coverage/gate) · `3` usage error.
 
 The runtime root is `<git-toplevel>/.harness-runtime`, overridable with `$HS_PLAN_RUNTIME_DIR`.
+
+## Execution events
+
+```bash
+fdd log dispatch feature-a "worker=42 phase=implementation session=abc"
+fdd log progress feature-a "phase=build session=build-7 evidence=logs/build.txt"
+fdd log handoff feature-a "worker=42 handoff=handoffs/feature-a.json"
+fdd progress
+```
+
+`log` creates `events.jsonl` on first use. Each record has `timestamp` (system UTC
+ISO time), `kind` (kebab-case), `subject` (nonempty single line), and `message`
+(nonempty text). The UTF-8 encoded JSON line must fit within 16 KiB. Quote the
+message as one argument; use `--` before positional arguments beginning with
+`--`. Kinds are extensible; common values are `dispatch`, `progress`, `completed`,
+`handoff`, `blocked`, `recovery`, `resource`, and `decision`.
+
+A single append write preserves concurrent workers' records on local filesystems;
+use a local runtime directory, not an NFS/shared network mount. I/O failures are
+reported, and malformed or incomplete records cause a data error when read.
+Events do not change feature or assertion status. The controller remains the
+single writer for those existing state files. `progress` renders to stdout only;
+it never overwrites `plan.md` or its Decision Log. Recent events use append order,
+not timestamp sorting. Event age alone does not establish worker liveness; these
+commands do not monitor processes, schedule wakeups, or record events implicitly.
+
+Library users can import `logEvent`, `readEvents`, `progressReport`, `eventsPath`,
+and the `ProgressEvent` type from `@hs/fdd`.

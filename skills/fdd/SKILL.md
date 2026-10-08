@@ -1,129 +1,79 @@
 ---
 name: fdd
-description: 构建新特性的主流程编排器。契约优先的多 agent 架构——捕获一个 plan，定义可测试的断言，拆解为多个 feature，再用全新上下文的 implementer/reviewer/validator subagent 驱动一个里程碑设闸的执行循环。当一处改动触及多个文件、有多条验收标准、或跨越多个 feature 时使用。主流程分三步，分发给 fdd-planning（含 fdd-validation-contract）/ fdd-execution / fdd-validate。
+description: 构建非平凡特性的契约优先编排器。规划需求与断言、拆解 feature，调度 implementer 和独立验证，在 milestone/final 收口。主流程调用 fdd-planning（含 validation-contract）、fdd-execution 与 fdd-validate。
 ---
 
-# fdd：特性驱动开发（feature-driven development）
+# fdd：特性驱动开发
 
-你即将进入 **FDD 模式**：契约优先、多 agent 构建的架构师兼管理者。**你不写实现代码——你设计这次构建、定义「完成」的含义、并驱动全新上下文的 subagent 把它交付出来。**
+进入 FDD 模式：controller 定义完成条件、策划上下文并驱动 worker；不编辑实现代码。用户目标来自当前对话或 `$ARGUMENTS`。
 
-用户目标（经 `$ARGUMENTS` 传入时）：`$ARGUMENTS`
+## 使用范围
 
-本技能是**编排器**：它定义心智模型与各步衔接，把每一步的细节分发给一个专门的子技能。每进入一步，就调用它对应的那个 `harness-stack:fdd-*` 技能。
+适用于多文件、多验收条件或跨 feature 的构建。琐碎改动直接处理；形态未知的探索或重大未决方案先调查/讨论。`harness-stack:design` 是独立的人类入口，FDD 可读取已有设计但不强制生成设计文档。
 
-## Overview
+## 职责
 
-FDD 把一次构建中易变的状态——plan、完成的定义、工作清单——存在一棵 **gitignore 的运行时目录树** 里，每个 plan 一个目录，所有机械性的记账都交给 `fdd` CLI。controller 负责策划上下文并编排；被复用的 subagent 干活。
+- `investigator`：规划、范围变化和疑难失败的只读调查。
+- `implementer`：实现有边界的 feature 或修复批次，完成自验并交接真实证据。
+- `scrutiny-validator`：独立执行工具门禁及交接证据完整性检查。
+- `code-reviewer`：独立审查正确性、测试质量、设计与 scope/spec；高风险/阻塞下游时前置，其他按批次审查。
+- `user-test-validator`：不读实现源码，从运行系统外部验证 contract。
+- `security-auditor`：触及敏感边界时按 fdd-validate 条件加派。
 
-controller 编排，下列 subagent 干活：
+每次派发和等待遵循 execution 的 worker lifecycle。只有明确隔离、依赖与资源预算时并行实现；共享 GUI 保持单 owner。保持新鲜的独立验证上下文，原任务的局部返工可交原 implementer。
 
-- `harness-stack:investigator` — 只读调查 / 在线调研：规划阶段查代码库、流程中途分析范围变更、feature 失败根因分析
-- `harness-stack:implementer` — 实现单个 feature，并**自验**（跑 feature 的 verification steps、把真实证据写进 handoff）
-- 验证流水线的三级 worker（全部由 `harness-stack:fdd-validate` 在 milestone / final 批量派发）：
-  - `harness-stack:scrutiny-validator` — **① 静态验证**：独立跑硬门禁（test/lint/type-check，只看新增失败）+ 逐 feature scrutiny；产出治理建议（suggestedGuidanceUpdates）
-  - `harness-stack:code-reviewer` — **② 代码审查**：生产就绪度（含 scope/spec 合规一遍）
-  - `harness-stack:user-test-validator` — **③ user-test**：对照 contract 断言探测运行中的系统
-  - `harness-stack:security-auditor` — **条件加派**（milestone/final scope，diff 触及 auth/secrets/crypto/裸查询/shell/依赖升级时）：深度威胁建模
+## 状态位置
 
-**核心原则：** controller 策划上下文、绝不写实现代码。implementer 不读 plan、但在交接前自验；验证由 `fdd-validate` 编排成 **静态 → 审查 → user-test** 三级、作为里程碑 / 最终批量闸（per-feature 由 implementer 自验 + 交接决策树把关）；scrutiny-validator 独立跑硬门禁、不轻信 implementer 自报，code-reviewer 既看质量也看 scope/spec，user-test-validator 不读源码。
-
-## The two locations
-
-| 位置 | 存放 | 纳入版本控制？ |
+| 位置 | 内容 | 版本控制 |
 |---|---|---|
-| `.harness-runtime/plans/<slug>/` | 单个 plan 的状态：`plan.md`、`validation-contract.md`、`validation-state.json`、`features.json`（外加 `handoffs/`、`sealed-milestones.json`） | **否——已 gitignore** |
-| `docs/` | 项目 Library：约定 + 记忆（`product-spec.md`、`architecture.md`、`api-spec.md`、`frontend-spec.md`、`design-docs/`、`references/`、`golden-rules.md`、`user-test-patterns.md`） | 是 |
+| `.harness-runtime/plans/<slug>/` | plan、contract、features/state、handoffs、sealed milestones、事件与验证产物 | gitignored |
+| `docs/` | 产品/架构/API/UI 约定、测试方法与耐久知识 | 是 |
 
-需求文档和 plan 文档很快就会过时，所以它们活在运行时目录树里，而非 `docs/`。**代码才是真相之源**——一个 feature 究竟做了什么、怎么构建的，看代码；Library 记录的是耐久的约定，而非逐 feature 的细节。
+每条用户需求都记录到 plan；每条 contract 断言恰由一个 feature 认领。代码描述已实现的事实，contract 描述要证明的行为；不能为通过 gate 降低要求。
 
-## When to Use
+## CLI
 
-- 请求触及很多文件、有多条验收标准、或跨越多个 feature。
-- 你希望工作按里程碑设闸：每个 milestone 收口都过静态验证 + 代码审查 + 运行时探测，全绿才封存。
-- 工作已足够成形，可以拆解成一个个可独立实现的 feature。
+`fdd <command>` 指 `node <plugin-root>/packages/fdd/bin/fdd.mjs <command>`，Node >= 20，无需安装或编译。完整路径解析和命令见 `<plugin-root>/references/fdd-cli.md`。
 
-## When NOT to Use
+状态转换、断言结果和 handoff 经 CLI；不以脚本手改已有 JSON 状态。CLI 尚无 feature 创建/编辑命令时，controller 按规划 schema 编写或调整清单定义，随后跑 coverage；这不允许绕过 `set-status`。`fdd log` 用系统时钟记录事件，`fdd progress` 生成人可读状态。Decision Log 与 Backlog 由 controller 记录判断，避免重复抄写机器状态。
 
-- 单文件或琐碎改动——直接做（或对单处逻辑改动用 `harness-stack:tdd`）。
-- 形态未知的纯探索——先澄清；动用 `harness-stack:debate`/`harness-stack:decide`，或写一份 `harness-stack:design` 文档。
-- 解法确实含糊、需要先把技术方案争论清楚——先写那份 design 文档，再对着它跑 FDD。
+CLI 不执行自动巡检、依赖调度、GUI 锁或证据缓存；这些责任必须由 controller/项目工具真实履行。
 
-## You do not implement
+## 三步主流程
 
-你是架构师。**你绝不写实现代码，也绝不自己跑构建。**
+### 1. Plan — `harness-stack:fdd-planning`
 
-当用户在流程中途让你修 / 建 / 改某样东西时，遵循 `harness-stack:fdd-execution` 里的 *Handling mid-flow user requests*。简言之：弄懂这次改动（经只读 `investigator` 调查）、取得确认、把它传播到共享状态（`plan.md` + contract + 耐久时写入 `docs/` Library）、拆解成 feature，然后恢复循环让 implementer 去构建。
+复述目标、捕获范围与验收意图，按已有授权确认必要的未决事项。初始化 plan，调查代码与环境，定义 milestone 和验证分层，写 plan 并呈现。
 
-你的工具：`Read`/`LS`/`Glob` 仅用于看结构；`Edit`/`Write` **仅**用于 `.harness-runtime/plans/<slug>/` 下的 plan artifacts 以及耐久的 `docs/` Library 更新，**绝不**用于实现代码；`Bash` 用于 `fdd` 调用和轻量检查；`Task` 是你的主力工具；`AskUserQuestion` 用于澄清——**集中在 step 1 的需求澄清（唯一的人类确认闸）；milestone / plan / contract 等中间产物只呈现、不阻塞**，之后仅在卡死或需人工裁决时才回到用户。
+调用 `fdd-validation-contract` 定义稳定的 `VAL-<AREA>-NNN` 断言，再以 `fdd init-state` 播种状态；contract 存在后才拆解 features，`fdd contract-coverage` 通过才能执行。规划规则详见对应子技能。
 
-## 工具：fdd CLI
+规划须明确构建 slots、共享 GUI/设备、项目 preflight、worker 等待责任，以及首次可用构建的真实使用检查。平台细节属于项目，不能把某台机器的端口或并发上限写成通用规则。
 
-本流程所有 `fdd <subcommand>` 都指 `node <plugin-root>/packages/fdd/bin/fdd.mjs <subcommand>`——插件自带的预构建 bundle，不在 PATH 上、无需安装、无需编译（只要 Node >= 20）。定位 bundle、命令速查与故障排查见 `<plugin-root>/references/fdd-cli.md`。**绝不**以手改 JSON 代替 CLI 记账。
+### 2. Execute — `harness-stack:fdd-execution`
 
-## Requirement tracking
+核验依赖与资源 → 登记 attempt → 派 implementer → 有界等待并检查进展 → 自验/交接 → 必要早期 review → 集成后完成。
 
-用户陈述的每一条需求——哪怕是顺口一提、哪怕只说过一次——都必须被捕获并追踪。在 step 1 的规划阶段，提出 plan 之前先把每一条已捕获的需求复述一遍。当用户在流程中途提出新需求或变更时，把那句顺口提及完全当作正式需求处理并传播出去（见 `harness-stack:fdd-execution` 的 *Handling mid-flow user requests*）。**任何记录了旧真相的文件，都必须在 implementer 恢复前更新为新真相。**
+feature `completed` 仅表示实现和声明的自验、交接已满足；独立行为验收由后续 gate 证明。局部返工保留原任务上下文，finding 按根因合并为修复批次，范围外债务进入 backlog。新 fix id 不重置验收批次预算。
 
-## Workflow
+### 3. Validate — `harness-stack:fdd-validate`
 
-主流程是三步，对应三个 `fdd-*` 子技能，按顺序进行。每进入一步，就调用它对应的子技能。
+milestone 收口：独立工具门禁 → 代码审查 → 运行时验证；昂贵 GUI 按 milestone/修复批次 sweep，保留最小失败 reproducer。通过后 seal。
 
-| Step | 子技能 | 产出 |
-|---|---|---|
-| 1. Plan | `harness-stack:fdd-planning`（contract 段交给 `harness-stack:fdd-validation-contract`） | `plan.md` + `validation-contract.md` + `features.json`，且 `fdd contract-coverage` 通过 |
-| 2. Execute | `harness-stack:fdd-execution` | 串行构建（implementer 自验 + 交接决策树把 per-feature 闸）；milestone 收口与收尾调 fdd-validate |
-| 3. Validate | `harness-stack:fdd-validate` | 里程碑 / 最终批量闸：验证流水线（静态→审查→user-test）；milestone 封存、final 过 `fdd gate` |
+final：确认无活动 worker、未集成产物或非终态任务，检查跨 milestone 交互、后续改动影响和有效覆盖，再执行 `fdd gate`。相同输入的有效证据可按验证规则复用，历史 PASS 不自动证明当前版本。
 
-琐碎工作跳过整个生命周期。但**不要**跳过 step 1 的规划——规划质量会被后续每一步放大。
+环境失败归 BLOCKED，先恢复环境；测量已完成但报告丢失时补交接，不重复整轮验证。宿主不支持自动恢复时明确报告限制，不许承诺不存在的后台监控。
 
-### Step 1 — Plan（plan → contract → features）
-调用 `harness-stack:fdd-planning`，把契约优先的规划走完三段：
+## 中途变化与交付
 
-- **plan**——初始化 plan 目录（`fdd init <slug>`），在 step 1 把需求**问透并签收**（唯一的人类确认闸），经只读 `investigator` 调查代码库，定出 milestone（垂直切片），写出 `plan.md` 并呈现；**不阻塞，随即自动进入 contract 段**。
-- **contract**——调用 `harness-stack:fdd-validation-contract` 写出定义「完成」的可测试、用户可观测断言（`VAL-<AREA>-NNN`），经对抗式多 agent 撰写，并以 `fdd init-state` 给 `validation-state.json` 播种。契约优先的 TDD 闸：**contract 不存在就不许有 `features.json`。**
-- **features**——把 milestone 拆进 `features.json`，每个 feature 以 `fulfills` 绑定它要让其变得可测的断言，基础性 feature 排在前面；以 `fdd contract-coverage` 报告 OK 收尾（每条断言恰好被一个 feature 认领）。
+需求变化按 execution 的范围传播规则更新共享事实和失效断言。controller 仅编辑运行时 artifacts 与授权的耐久文档；代码修改、集成和修复交 implementer。所有提交、外部操作沿用用户授权，技能本身不扩大权限。
 
-### Step 2 — Execute
-调用 `harness-stack:fdd-execution`，串行驱动构建循环：`fdd next-feature` → 派发 `implementer` → **交接决策树**（per-feature 闸：核验 commit / 干净树 / implementer 自验留下的真实证据）→ `fdd set-status completed`。一次一个 feature；controller 绝不写实现代码。
-
-### Step 3 — Validate
-`harness-stack:fdd-validate` 是验证流水线本身——**静态验证 → 代码审查 → user-test**——作为**里程碑 / 最终批量闸**运行（per-feature 的把关已在 step 2 由自验 + 交接决策树完成）。它在两个粒度被调：里程碑收口（milestone scope：逐 feature scrutiny + 逐 feature code-review + 运行时探测、条件 `security-auditor`、治理反馈、`fdd seal-milestone`）；循环跑空后一次（final scope：跨 milestone scrutiny + coverage gate + `fdd gate`）。
-
-## Decoupled: design
-
-`harness-stack:design` **不是**本流程的一部分。它是一个独立、由人调用的工具，用于把一份技术实现文档写到 `docs/design-docs/`。若存在一份现成的 design 文档，FDD 会读它，但绝不调用 `design`、也绝不要求有一份。
-
-## Getting started
-
-1. 向用户确认你已进入 FDD 模式；用一句话复述目标供其纠正。
-2. 确认 `fdd` CLI 可达（调用方式见上文「工具：fdd CLI」一节）。
-3. `fdd init <slug>` 创建 plan 目录。
-4. 调用 `harness-stack:fdd-planning` 开始 step 1（规划）。不要跳到 feature 或 execution。
-
-## Common Rationalizations
-
-| 借口 | 现实 |
-|---|---|
-| 「这一个 feature 我自己写得了，它很小。」 | controller 一旦写代码，本次运行后续的全新上下文不变量就没了。派发一个 implementer。 |
-| 「我跳过 contract 直接做 feature。」 | 没有 contract，`fulfills` 就无从绑定、gate 也无从可查。永远 contract 优先。 |
-| 「需求都在代码里，我不需要 plan。」 | 代码是*已构建之物*的真相；plan 是你*决定构建什么*、并追踪没漏掉任何东西的方式。两者都要有。 |
-| 「我把 plan 放 docs/ 里好让它进版本控制。」 | plan 会过时并腐蚀 Library。单个 plan 的状态被 gitignore 是有意为之；耐久的约定才进 docs/。 |
-| 「这需要一份 design 文档，所以我把 design 当成流程的前置一步跑。」 | design 是解耦的。若解法含糊，先把 design 文档作为独立一步写出来，再跑 FDD。 |
-
-## Red Flags
-
-- controller 编辑实现代码（`.harness-runtime/plans/<slug>/` 或 `docs/` 之外的任何文件）。
-- `validation-contract.md` 还不存在就写了 `features.json`。
-- plan/contract/state 被写进 `docs/` 而非 `.harness-runtime/`。
-- 用手改 JSON 而非 `fdd` 来记账（漂移；丢失不变量）。
-- step 1 的规划被跳过或赶工；直接跳到 execution。
-- 把 `design` 当成流程里必经的一步。
+完成后报告交付内容、有效验证证据、剩余人工动作和产物位置。尚有必须的人工验收时不能宣布 final gate 完成；用户授权延期时记录范围与覆盖变化。
 
 ## Verification
 
-- [ ] `.harness-runtime/plans/<slug>/` 里有 `plan.md`、`validation-contract.md`、`validation-state.json`、`features.json`。
-- [ ] execution 开始前 `fdd contract-coverage` 报告 OK。
-- [ ] 每个 feature 都过了交接决策树（implementer 自验 + commit/树/证据核验）才置 `completed`。
-- [ ] 每个 milestone 都过了 milestone-scope 的 fdd-validate（静态 → 审查 → user-test，含治理反馈应用、条件 security），并已 seal。
-- [ ] final-scope 的 fdd-validate 通过；`fdd gate` 报告所有断言 `passed`。
-- [ ] controller 没有写过任何实现代码。
+- [ ] plan → contract → features 顺序与唯一 coverage 成立。
+- [ ] worker 有活性检查和结果回收责任，无后台命令被遗弃。
+- [ ] 资源并发符合项目声明，所有实现结果已集成并自验。
+- [ ] 修复预算与范围受控，未将无关债务强制加入本轮。
+- [ ] milestone/final 独立验证通过，证据适用于当前系统。
+- [ ] controller 未编辑实现代码，提交遵守授权。

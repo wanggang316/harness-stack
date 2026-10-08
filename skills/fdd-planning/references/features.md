@@ -37,7 +37,7 @@
 | `milestone` | 它所属的垂直切片（与某个 `plan.md` milestone 对应）。 |
 | `preconditions` | 派发前必须为真的事。属说明性质；由 controller 核验。 |
 | `expectedBehavior` | 可验证的成功标准。 |
-| `verificationSteps` | implementer 如何证明每条行为。 |
+| `verificationSteps` | 本 feature 必跑的自验命令与证据。昂贵 milestone sweep 放 plan 的 Testing strategy。 |
 | `fulfills` | 本 feature **完成**（使其完全可测）的断言 id。 |
 | `status` | 初始为 `pending`；此后仅经 `fdd set-status` 管理。 |
 
@@ -49,11 +49,13 @@
 
 ## Ordering
 
-`features.json` 数组的顺序就是执行顺序（没有隐式的依赖求解器）。这样排：基础性 feature 在依赖它的之前；按 milestone 分组；某个 precondition 的生产者在其消费者之前。终态 feature 在执行期间会自动移到底部，所以进行中的工作总停在顶部附近。
+`features.json` 数组的顺序就是执行顺序（没有隐式的依赖求解器）。CLI 不做依赖求解或资源领取；只有 controller 根据 plan 的隔离与集成安排才能选择并行候选，状态仍串行写入。这样排：基础性 feature 在依赖它的之前；按 milestone 分组；某个 precondition 的生产者在其消费者之前。终态 feature 在执行期间会自动移到底部，所以进行中的工作总停在顶部附近。
 
 ## Sizing
 
-每个 feature 应约为一个 worker session（人力等效约 30 分钟–4 小时）、可独立评审、触及一小撮文件、并有明确的验收。若一个 feature 需要的文件多于一小撮、或混杂了不相干的关注点，拆了它。
+每个 feature 应约为一个 worker session（人力等效约 30 分钟–4 小时）、可独立评审、触及一小撮文件、并有明确的验收。若一个 feature 混杂不相干关注点或超出一个 session 的上下文预算，拆分它；不要按文件数量机械拆。共享上下文、同一行为闭环的小修改合在一个 feature。review findings 按根因归原任务或修复批次，不逐条新建 feature。
+
+`completed` 代表实现已集成且声明的自验通过；独立审查和运行时验收由 milestone/final gate 决定，不能据此直接标断言 passed。
 
 ## Coverage gate
 

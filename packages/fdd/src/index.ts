@@ -33,3 +33,5 @@ export {
   statePath
 } from "./store.js";
 export { main } from "./cli.js";
+
+export { logEvent, readEvents, progressReport, eventsPath, type ProgressEvent } from "./progress.js";
