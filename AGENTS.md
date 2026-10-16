@@ -1,44 +1,28 @@
 # harness-stack
 
-An agent-first **development harness** — a curated stack of tools that keep an agent building stably, durably, and at high quality. FDD (contract-first, coordinator/implementer/validator) is the core.
+An agent-first **development harness** — a curated stack of tools that keep an agent building stably, durably, and at high quality.
 
 **Philosophy**: Humans provide direction, agents execute.
+
+> **Refactor in progress.** Retired skills live in `skills/deprecated/` and are not loaded by the plugin. Do not reference or invoke them.
 
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
-- `/harness-stack:docs-init` - One-time scaffold of docs structure and base documents
-- `/harness-stack:env-init` - Initialize per-worktree isolated runtime environment
 - `/harness-stack:skill-create` - Create new skills
 - `/harness-stack:feedback` - Reflect after using harness-stack and file upstream issues for friction/bugs/suggestions
 
 ### Lifecycle Skills
 
-**Define** (one-time, project-wide) → product, architecture, API, UI
-- `/harness-stack:define-product` - Product definition (global)
-- `/harness-stack:define-architecture` - Architecture definition (global)
-- `/harness-stack:define-api-spec` - API specification (global)
+**Define** → UI
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
 
-**Design** (optional, standalone) → technical decision docs
-- `/harness-stack:design` - Technical design doc → `docs/design-docs/`; human-invoked, not part of the main flow
-
-**Build** (main flow) → feature-driven development
-- `/harness-stack:fdd` - Orchestrator for the contract-first build. Runs a 3-step main flow over the sub-skills below; this is the only one you invoke directly.
-  - `/harness-stack:fdd-planning` - Step 1: plan + features (contract sub-step delegated to fdd-validation-contract)
-  - `/harness-stack:fdd-validation-contract` - definition-of-done assertions (within step 1)
-  - `/harness-stack:fdd-execution` - Step 2: serial build loop (per-feature gate = implementer self-verify + handoff decision tree)
-  - `/harness-stack:fdd-validate` - Step 3: milestone & final gates — validation pipeline (static → review → user-test)
-- `/harness-stack:tdd` - Test-driven development (inside an implementer's task)
-
-**Verify** → Debug and test
-- `/harness-stack:debug` - Debugging and error recovery
-- `/harness-stack:fdd-validate` - Validation pipeline (static → review → user-test); probes contract assertions against the running system and writes results to validation-state.json
+**Build**
+- `/harness-stack:tdd` - Test-driven development
 
 **Review** → Ensure quality
 - `/harness-stack:review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
 - `/harness-stack:review-receive` - Handle reviewer feedback (author side)
-- `/harness-stack:security` - Security audit
 
 **Deliberate** → Multi-agent reasoning
 - `/harness-stack:debate` - Multi-agent debate among heterogeneous LLM agents on a single question
@@ -48,18 +32,21 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr` - Open a PR and drive it to a clean merge
-- `/harness-stack:ship` - Shipping and launch
+
+### Skill Layout
+
+Skills are grouped by category: `skills/{engineering,productivity,ui}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`, `using-harness-stack`).
 
 ### Specialized Agents
 
-When you need expert judgment:
 - `harness-stack:investigator` - Read-only codebase investigation & online research
 - `harness-stack:code-reviewer` - PR review, quality checks
+- `harness-stack:security-auditor` - Security review of a diff
 
-Reused by the fdd flow:
-- `harness-stack:implementer` - Builds one feature, emits a handoff JSON (dispatched by fdd-execution)
-- `harness-stack:scrutiny-validator` - fdd-validate stage 1 (static validation): hard test/lint/type-check gate + scrutiny; governance feedback at milestone/final scope
-- `harness-stack:user-test-validator` - fdd-validate stage 3 (user-test): probes contract assertions against the running system
+Kept from the retired fdd flow (no active skill dispatches them):
+- `harness-stack:implementer` - Builds one feature, emits a handoff JSON
+- `harness-stack:scrutiny-validator` - Static validation: hard test/lint/type-check gate + scrutiny
+- `harness-stack:user-test-validator` - Probes contract assertions against the running system
 
 ## Golden Rules
 
@@ -73,16 +60,16 @@ Reused by the fdd flow:
 
 ## Getting Started
 
-1. Build a feature: `/harness-stack:fdd <goal>` for any non-trivial change — it drives plan → contract → features → execution.
+1. Build: `/harness-stack:tdd` for any logic change or bug fix.
 2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
-3. Ship: `/harness-stack:commit` → `/harness-stack:pr` (opens and lands) → `/harness-stack:ship`.
+3. Ship: `/harness-stack:commit` → `/harness-stack:pr` (opens and lands) → `/harness-stack:changelog`.
 
 ## Packages
 
 TypeScript runtime packages live under `packages/` and are managed through pnpm workspaces.
 
 - `@hs/llm` (`packages/hs-llm/`) — Stateless LLM provider abstraction (api / cli / sdk / mock). Library + CLI binary. Consumed by skills that need to invoke models. See `packages/hs-llm/README.md` and `references/calling-hs-llm-from-a-skill.md`.
-- `@hs/fdd` (`packages/fdd/`, bin `fdd`) — Deterministic bookkeeping CLI for feature-driven development: manages `features.json` / `validation-state.json` / handoffs and enforces coverage + gate over per-plan state in the gitignored `.harness-runtime/`. See `packages/fdd/README.md`.
+- `@hs/fdd` (`packages/fdd/`, bin `fdd`) — Deterministic bookkeeping CLI for feature-driven development: manages `features.json` / `validation-state.json` / handoffs and enforces coverage + gate over per-plan state in the gitignored `.harness-runtime/`. Used only by the retired fdd skills. See `packages/fdd/README.md`.
 
 ## Documentation
 
@@ -98,4 +85,4 @@ harness-stack uses **pure Agent-driven architecture**:
 - Subagents provide specialized expertise
 - Self-bootstrapping capability
 
-All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:fdd`, `harness-stack:code-reviewer`), which provides collision isolation — no per-skill prefix is needed.
+All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:tdd`, `harness-stack:code-reviewer`), which provides collision isolation — no per-skill prefix is needed.

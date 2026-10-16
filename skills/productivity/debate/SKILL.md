@@ -172,7 +172,7 @@ AGENTS_JSON="$(printf '%s\n' "${AGENT_IDS[@]}" | shuf | jq -R . | jq -s .)"
 1. 渲染 prompt。
 
    ```bash
-   sed "s|{{QUESTION}}|$QUESTION|" skills/debate/prompts/round-opening.md > "$OUT_DIR/round-1/prompt.txt"
+   sed "s|{{QUESTION}}|$QUESTION|" skills/productivity/debate/prompts/round-opening.md > "$OUT_DIR/round-1/prompt.txt"
    ```
 
    这里用 `sed` 没问题，因为问题是单行的。若问题含有会让 `sed` 困惑的字符（斜杠、换行），改用 `Write` 工具做显式替换。
@@ -223,7 +223,7 @@ AGENTS_JSON="$(printf '%s\n' "${AGENT_IDS[@]}" | shuf | jq -R . | jq -s .)"
        --config "$CONFIG" \
        --agent "$agent_id" \
        --prompt-file "$OUT_DIR/round-1/$peer.claim-prompt.txt" \
-       --schema-file skills/debate/schemas/claims.schema.json \
+       --schema-file skills/productivity/debate/schemas/claims.schema.json \
        --out "$OUT_DIR/round-1/$peer.claims.json" &
    done
    wait
@@ -291,7 +291,7 @@ $HS_LLM_BIN invoke \
   --config "$CONFIG" \
   --agent "$SYNTH_AGENT" \
   --prompt-file "$OUT_DIR/round-$R/convergence.prompt.txt" \
-  --schema-file skills/debate/schemas/convergence.schema.json \
+  --schema-file skills/productivity/debate/schemas/convergence.schema.json \
   --out "$OUT_DIR/round-$R/convergence.json"
 ```
 
@@ -341,7 +341,7 @@ $HS_LLM_BIN invoke \
   --config "$CONFIG" \
   --agent "$SYNTH_AGENT" \
   --prompt-file "$OUT_DIR/synthesis.prompt.txt" \
-  --schema-file skills/debate/schemas/synthesis.schema.json \
+  --schema-file skills/productivity/debate/schemas/synthesis.schema.json \
   --out "$OUT_DIR/synthesis.json"
 ```
 
@@ -380,7 +380,7 @@ $HS_LLM_BIN invoke \
 然后渲染一份 HTML report 供可视化查阅：
 
 ```bash
-node skills/debate/render.mjs "$OUT_DIR"
+node skills/productivity/debate/render.mjs "$OUT_DIR"
 ```
 
 这会产出 `$OUT_DIR/report.html`——一个自包含的文件（数据内联，无外部资源），涵盖 headline、synthesis、每个 round 带抽取出的 claim 的逐字记录、跨 peer 的 claim catalog，以及一个折叠的 details 小节，内含 peer→agent 映射。直接用 `open "$OUT_DIR/report.html"`（macOS）或任意浏览器打开。
@@ -409,7 +409,7 @@ $OUT_DIR/
 ├─ synthesis.prompt.txt
 ├─ synthesis.json             # parsed + raw synthesis response
 ├─ summary.md                 # human-readable result
-└─ report.html                # self-contained visual report (rendered by skills/debate/render.mjs)
+└─ report.html                # self-contained visual report (rendered by skills/productivity/debate/render.mjs)
 ```
 
 `meta.json` 是唯一存放 agent id（去匿名化映射）的地方。把它当作调试产物对待——绝不要把它的内容喂进任何 prompt。

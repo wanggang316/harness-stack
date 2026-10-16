@@ -4,4 +4,4 @@ description: Create an atomic git commit with conventional-commit format and no 
 model: claude-haiku-4-5
 ---
 
-按 `harness-stack:git` 的 commit 规范（`skills/git/references/commit.md`）创建 commit。
+按 `harness-stack:git` 的 commit 规范（`skills/productivity/git/references/commit.md`）创建 commit。

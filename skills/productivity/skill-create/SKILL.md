@@ -24,7 +24,7 @@ description: 创建新的 harness-stack skill。在向框架新增 skill、扩�
 
 在动手前先判断你要造的是 **skill** 还是 **command**——别混。
 
-- **Skill**（`skills/<name>/SKILL.md` + `references/`）= 一套**工作流 / 心法**：有多步流程、判断、反模式，深度内容放 `references/`。例如 `git`、`fdd`、`design`。
+- **Skill**（`skills/<category>/<name>/SKILL.md` + `references/`）= 一套**工作流 / 心法**：有多步流程、判断、反模式，深度内容放 `references/`。例如 `git`、`tdd`、`review-request`。
 - **Command**（`commands/<name>.md`）= 一次**轻量、一次性操作**：低上下文、可直接当 slash 入口跑，不需要一整套方法论。例如 `commit`、`git-sync`、`pr-watch`。
 
 经验法则：要写 `references/` 的就是 skill；一屏内能讲完、本质是「跑个操作」的就是 command。一个 skill 常常**配一两个 command 作为日常入口**（如 `git` 技能 + `/commit`、`/git-sync`）。
@@ -41,15 +41,17 @@ description: 创建新的 harness-stack skill。在向框架新增 skill、扩�
 
 ### Step 2: Determine Location
 
-所有 skill 都直接放在 `skills/` 下；目录名即裸 skill 名（不带前缀）。`harness-stack` 这个 plugin 命名空间使其可以 `harness-stack:{name}` 的形式寻址：
+skill 按分类放在 `skills/{category}/` 下（`engineering` / `productivity` / `ui`）；目录名即裸 skill 名（不带前缀，分类不进入名字）。`harness-stack` 这个 plugin 命名空间使其可以 `harness-stack:{name}` 的形式寻址：
 
 ```
-skills/{name}/SKILL.md
+skills/{category}/{name}/SKILL.md
 ```
+
+分类目录必须列在 `.claude-plugin/plugin.json` 的 `skills` 数组里，否则 skill 不会被加载。新增分类时同步更新该数组。不要把新 skill 放进 `skills/deprecated/`。
 
 ### Step 3: Generate SKILL.md
 
-创建 `skills/{name}/SKILL.md`：
+创建 `skills/{category}/{name}/SKILL.md`：
 
 ```markdown
 ---
@@ -98,7 +100,7 @@ description: {purpose}. Use when {trigger}.
 ```markdown
 Load and execute the harness-stack:{name} skill.
 
-Read the skill definition at skills/{name}/SKILL.md and follow its Process section step by step.
+Read the skill definition at skills/{category}/{name}/SKILL.md and follow its Process section step by step.
 
 Context: {brief context about when this runs}
 ```

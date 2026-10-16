@@ -11,8 +11,6 @@ description: 在合并前派发一个全新上下文的 code-reviewer subagent�
 
 reviewer 的方法论与 Output Format 都存于 `harness-stack:code-reviewer` subagent 内部；本技能只负责固定 diff、组装一份精简 brief（输入）、派发、并把 findings 交出去。
 
-**这是「流程外」评审路径。** `harness-stack:fdd` 内部已对每个 feature 自动 code-review、每个 milestone 跑 scrutiny——**走 FDD 时不需要本技能**。review-request 用于 **FDD 之外** 的改动：手改、hotfix、未走 FDD 的工作，或想对一个 PR 做一次独立审视。
-
 **核心原则：** 趁早 review，常常 review。
 
 ## When to Request Review
@@ -20,7 +18,7 @@ reviewer 的方法论与 Output Format 都存于 `harness-stack:code-reviewer` s
 **强制：**
 
 - 打开或合并 PR 之前。
-- 完成一项 **FDD 之外** 的非平凡改动（手改、hotfix、重构）之后。
+- 完成一项非平凡改动（feature、hotfix、重构）之后。
 - 即将交付 AI 生成的代码时——它需要更多审视，而非更少。
 
 **何时不要派发：**
@@ -30,11 +28,6 @@ reviewer 的方法论与 Output Format 都存于 `harness-stack:code-reviewer` s
 - 同一 diff 与 reviewer 已来回两轮——停下，升级给人类。
 
 ## Integration with Workflows
-
-**Feature-driven development：**
-
-- FDD 内部已自动 code-review（每 feature）+ scrutiny（每 milestone）——**流程内不需要本技能**。
-- 仅当你在 FDD 之外手动改了它的产物，才对那段改动单独 review。
 
 **并行 / 多 agent 实现：**
 

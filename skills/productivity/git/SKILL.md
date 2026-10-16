@@ -63,7 +63,7 @@ git worktree add ../project-feature-b feature/user-settings
 git worktree remove ../project-feature-a   # when done
 ```
 
-每个 worktree 是一个隔离的 checkout——agent 可以并行干活，无需来回切分支。某次试验失败了，删掉 worktree，什么都不丢。每个 worktree 的运行时隔离见 `harness-stack:env-init`。
+每个 worktree 是一个隔离的 checkout——agent 可以并行干活，无需来回切分支。某次试验失败了，删掉 worktree，什么都不丢。
 
 让某条 worktree 分支追上 trunk 时，不必切回主 worktree——直接对最新的 `origin/main` rebase（或 merge）即可，见 [references/update-from-main.md](references/update-from-main.md)（命令 `/harness-stack:sync-main`）。
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Render a debate-runs/<timestamp>/ directory into a self-contained report.html.
-// Usage: node skills/debate/render.mjs <run-dir> [--out <path>]
+// Usage: node skills/productivity/debate/render.mjs <run-dir> [--out <path>]
 //
 // Reads `report-template.html` (next to this script), substitutes the data
 // inline, and writes report.html into the run directory (or --out path).

@@ -4,14 +4,17 @@ This document describes the structure and format of agent-skills skill files. Us
 
 ## File Location
 
-Every skill lives in its own directory under `skills/`:
+Every skill lives in its own directory under a category directory in `skills/`:
 
 ```
 skills/
-  skill-name/
-    SKILL.md          # Required: The skill definition
-    supporting-file.md # Optional: Reference material loaded on demand
+  category/             # engineering / productivity / ui; listed in .claude-plugin/plugin.json "skills"
+    skill-name/
+      SKILL.md          # Required: The skill definition
+      supporting-file.md # Optional: Reference material loaded on demand
 ```
+
+The category is not part of the skill name. `skills/deprecated/` holds retired skills and is not loaded.
 
 ## SKILL.md Format
 

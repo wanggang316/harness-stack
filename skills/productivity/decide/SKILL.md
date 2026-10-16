@@ -181,7 +181,7 @@ jq -n --arg q "$QUESTION" --argjson agents "$AGENTS_JSON" \
      --config "$CONFIG" \
      --agents "$AGENTS_CSV" \
      --prompt-file "$OUT_DIR/recommendation.prompt.txt" \
-     --schema-file skills/decide/schemas/recommendation.schema.json \
+     --schema-file skills/productivity/decide/schemas/recommendation.schema.json \
      --out-dir "$OUT_DIR/raw" \
      --concurrency "$(jq '.agents | length' "$OUT_DIR/meta.json")"
    ```
@@ -230,7 +230,7 @@ $HS_LLM_BIN invoke \
   --config "$CONFIG" \
   --agent "$(jq -r .synthesisAgent "$OUT_DIR/meta.json")" \
   --prompt-file "$OUT_DIR/synthesis.prompt.txt" \
-  --schema-file skills/decide/schemas/synthesis.schema.json \
+  --schema-file skills/productivity/decide/schemas/synthesis.schema.json \
   --out "$OUT_DIR/synthesis.json"
 ```
 

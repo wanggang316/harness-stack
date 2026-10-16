@@ -7,5 +7,10 @@
   },
   "homepage": "https://github.com/wanggang316/harness-stack",
   "repository": "https://github.com/wanggang316/harness-stack",
-  "license": "MIT"
+  "license": "MIT",
+  "skills": [
+    "./skills/engineering/",
+    "./skills/productivity/",
+    "./skills/ui/"
+  ]
 }

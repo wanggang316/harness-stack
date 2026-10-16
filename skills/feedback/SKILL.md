@@ -106,7 +106,7 @@ Title: [bug|friction|enhancement|docs] <一句话现象>
 
 ```bash
 gh issue create --repo wanggang316/harness-stack \
-  --title "[friction] fdd-planning 的 contract 段缺少 X 的示例" \
+  --title "[friction] review-request 的 brief 缺少 X 的示例" \
   --label dx \
   --body-file - <<'EOF'
 ## Context

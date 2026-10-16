@@ -13,14 +13,14 @@ harness-stack 是一个 agent-first 的开发框架。人类给出方向；agent
 
 | Phase | Trigger | Skill |
 |---|---|---|
-| **Define** | what/why 尚不清晰 | `harness-stack:define-product`、`harness-stack:define-architecture`、`harness-stack:define-api-spec`、`harness-stack:define-frontend-spec`、`harness-stack:define-ui-spec`（一次性、项目级） |
-| **Design**（可选） | 方案含糊；技术路线应当先论证 | `harness-stack:design` —— 一份独立的技术文档 → `docs/design-docs/`。不是 main flow 的一步；FDD 在其存在时会读它。 |
-| **Build**（main flow） | 任何 non-trivial 改动 | `harness-stack:fdd` —— 编排器，你只直接调它。它把主流程分成三步：`harness-stack:fdd-planning`（plan + contract + features，其中 contract 段交给 `harness-stack:fdd-validation-contract`）、`harness-stack:fdd-execution`（执行循环）、`harness-stack:fdd-validate`（milestone / 最终 gate）。implementer 的任务内用 `harness-stack:tdd`（test-first）。 |
-| **Verify** | 有东西坏了或未经验证 | `harness-stack:debug`（root cause）、`harness-stack:fdd-validate`（验证流水线：静态 → 审查 → user-test；对照 contract 断言探测运行中的系统、写入 `validation-state.json`） |
-| **Review** | 改动已就绪、可供审视 | `harness-stack:review-request`（派发）、`harness-stack:review-receive`（处理发现）、`harness-stack:security`（安全审计） |
+| **Define** | UI 视觉语言尚未确立 | `harness-stack:define-ui-spec`（一次性、项目级） |
+| **Build** | 实现逻辑、修 bug、改行为 | `harness-stack:tdd`（test-first） |
+| **Review** | 改动已就绪、可供审视 | `harness-stack:review-request`（派发）、`harness-stack:review-receive`（处理发现） |
 | **Deliberate** | 问题有争议或高风险 | `harness-stack:debate`（多轮）、`harness-stack:decide`（一次性并行） |
-| **Ship** | 代码已获批 | `harness-stack:commit` → `harness-stack:pr`（开 PR 并推进到合并）→ `harness-stack:changelog` → `harness-stack:ship` |
-| **Meta** | 管理框架本身 | `harness-stack:docs-init`、`harness-stack:env-init`、`harness-stack:skill-create` |
+| **Ship** | 代码已获批 | `harness-stack:commit` → `harness-stack:pr`（开 PR 并推进到合并）→ `harness-stack:changelog` |
+| **Meta** | 管理框架本身 | `harness-stack:git`、`harness-stack:skill-create`、`harness-stack:feedback` |
+
+`skills/deprecated/` 下的 skill 已废弃、不再加载，不要引用或调用它们。
 
 Trivial 的工作（一行修复、错别字、显而易见的重命名）跳过 lifecycle。请用判断力：这些 skill 的存在是为了防止跳过它们所带来的失败模式，而不是走形式。
 
@@ -45,10 +45,8 @@ Trivial 的工作（一行修复、错别字、显而易见的重命名）跳过
 
 - TypeScript 运行时包放在 `packages/` 下，通过 pnpm workspaces 管理。
 - `@hs/llm`（`packages/hs-llm/`）是无状态的 LLM provider 抽象（api / cli / sdk / mock）。调用模型的 skill 都经由它。
-- `@hs/fdd`（`packages/fdd/`）是 feature-driven development 的确定性记账 CLI。FDD skill 把所有 per-plan 的状态转移都委托给它。它以**预构建单文件 bundle**（`packages/fdd/bin/fdd.mjs`，依赖已内联）随插件分发——不装进系统、不现场编译，经 `node <plugin-root>/packages/fdd/bin/fdd.mjs` 调用；skills 里的 `fdd <subcommand>` 都是它的简写。定位与使用见 `<plugin-root>/references/fdd-cli.md`。
-- 所有 skill 与 agent 都通过 `harness-stack:` 这个 plugin 命名空间寻址（例如 `harness-stack:fdd`、`harness-stack:code-reviewer`）；plugin 名提供了冲突隔离，因此单个 skill 与 agent 不再带额外前缀。
+- 所有 skill 与 agent 都通过 `harness-stack:` 这个 plugin 命名空间寻址（例如 `harness-stack:tdd`、`harness-stack:code-reviewer`）；plugin 名提供了冲突隔离，因此单个 skill 与 agent 不再带额外前缀。
 - `docs/` 是项目的 **Library**：长期约定 + 记忆（architecture、design-docs、references、golden-rules、测试约定）。具体需求与实现以 **Code is the source of truth** 为准。
-- per-plan 的 FDD 状态（plan、validation-contract、features）放在 `.harness-runtime/plans/<slug>/` 下——**gitignored**，绝不放进 `docs/`。
 
 ## How to use this document
 

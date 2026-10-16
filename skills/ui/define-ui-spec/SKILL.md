@@ -117,10 +117,9 @@ DESIGN SYSTEM READY:
 ## Relationship to Other Skills
 
 - **harness-stack:define-ui-spec** 定义 *它该长什么样*——视觉设计语言（`docs/ui-design.md`）
-- **harness-stack:design** 定义 *技术上如何构建*——需要时的 architecture 决策
-- **harness-stack:fdd** 是主构建流程；其 implementer 在构建 UI 组件时会读 `docs/ui-design.md`
+- 构建 UI 组件时先读 `docs/ui-design.md`，再按 `harness-stack:tdd` 实现
 
-新 UI feature 的推荐顺序：`harness-stack:define-ui-spec`（一次性）→ 每个 feature 用 `harness-stack:fdd`
+新 UI feature 的推荐顺序：`harness-stack:define-ui-spec`（一次性）→ 每个 feature 按 `harness-stack:tdd` 实现
 
 ## Available Pre-built Styles
 

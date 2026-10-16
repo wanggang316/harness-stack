@@ -11,7 +11,7 @@ code review 需要的是技术评估，而非情绪表演。实现前先核实�
 
 reviewer 的一条 finding 是对某一时刻 codebase 的一个论断。它可能对、部分对，或在本上下文里是错的。你的工作是评估每一条论断，而不是表演附和。
 
-findings 来自哪不重要——可以是 FDD 流程内各闸（`code-reviewer` / `scrutiny-validator` / `security-auditor`）自动产出的，也可以是流程外 `harness-stack:review-request` 手动派发的，或你自己的 self-review。本技能对所有来源一视同仁。
+findings 来自哪不重要——可以是 `harness-stack:review-request` 派发的 reviewer（`code-reviewer` / `security-auditor`）、人类 reviewer，或你自己的 self-review。本技能对所有来源一视同仁。
 
 ## When to Use
 

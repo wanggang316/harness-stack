@@ -71,7 +71,6 @@ git fetch origin main:main
 ## Worktree notes
 
 - 同一分支不能在两个 worktree 同时 checkout。用 `git worktree list` 查看谁占用了什么。
-- 每个 worktree 的运行时隔离（端口 / 数据库 / 缓存）见 `harness-stack:env-init`。
 
 ## Verification
 
