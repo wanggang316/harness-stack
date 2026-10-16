@@ -16,6 +16,7 @@ harness-stack 文档中心。
 | Phase | Skill | Link |
 |-------|-------|------|
 | Define | harness-stack:define-ui-spec | [SKILL.md](../skills/ui/define-ui-spec/SKILL.md) |
+| Plan | harness-stack:to-github-issues | [SKILL.md](../skills/engineering/to-github-issues/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:review-request | [SKILL.md](../skills/engineering/review-request/SKILL.md) |
 | Review | harness-stack:review-receive | [SKILL.md](../skills/engineering/review-receive/SKILL.md) |

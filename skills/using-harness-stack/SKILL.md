@@ -14,6 +14,7 @@ harness-stack 是一个 agent-first 的开发框架。人类给出方向；agent
 | Phase | Trigger | Skill |
 |---|---|---|
 | **Define** | UI 视觉语言尚未确立 | `harness-stack:define-ui-spec`（一次性、项目级） |
+| **Plan** | 工作跨多个会话，需要拆成可认领的 Issue | `harness-stack:to-github-issues`（用户调用；发布到 GitHub，不写仓库） |
 | **Build** | 实现逻辑、修 bug、改行为 | `harness-stack:tdd`（test-first） |
 | **Review** | 改动已就绪、可供审视 | `harness-stack:review-request`（派发）、`harness-stack:review-receive`（处理发现） |
 | **Deliberate** | 问题有争议或高风险 | `harness-stack:debate`（多轮）、`harness-stack:decide`（一次性并行） |

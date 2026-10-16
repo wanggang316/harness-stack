@@ -17,6 +17,9 @@ An agent-first **development harness** — a curated stack of tools that keep an
 **Define** → UI
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
 
+**Plan** → Break work into GitHub issues
+- `/harness-stack:to-github-issues` - Split a plan, spec, or conversation into tracer-bullet issues with native blocked-by / sub-issue links; writes nothing into the repo
+
 **Build**
 - `/harness-stack:tdd` - Test-driven development
 
