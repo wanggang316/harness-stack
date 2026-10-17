@@ -1,0 +1,121 @@
+---
+name: skill-create
+description: 在 harness-stack 仓库里新增、拆分或调整 skill / command 时使用——决定形态与调用方式、落位与注册、按约定写作、并实测插件能加载它。只管 harness-stack 自身约定，不教通用的 skill 写作方法。
+---
+
+# skill-create：维护 harness-stack 的 skill
+
+本 skill 是 harness-stack 仓库的**维护工具**，放在 `.claude/skills/`，不随插件分发。它只记录这个仓库特有、从环境里查不到的约定。通用写作方法另有出处，可用时直接引用，不在这里重复：
+
+- 写作方法（context pointer、信息层级、completion criterion、剪枝）→ `mattpocock-skills:writing-for-agents`
+- 需要跑 eval、对比基线、优化 description 触发率 → Anthropic 的 `skill-creator`
+
+每一步都以一个可检查的结论收尾；全部完成后过最后的 Verification。
+
+## Step 1: 判断要不要新建
+
+按顺序问，第一个「是」就停下：
+
+1. 已有 skill 覆盖这个职责？→ 改那个 skill；只有部分场景需要的内容，加到它的 `references/` 并在 SKILL.md 里加一条指针。
+2. 本质是「跑一个操作」，一屏写完、不需要 `references/`？→ 写 command（Step 2）。
+3. 都不是 → 新建 skill。
+
+**结论**：一句话写下「改 X」「新建 command Y」或「新建 skill Z」，以及理由。
+
+## Step 2: 选形态与调用方式
+
+**形态**
+
+| 形态 | 位置 | 适用 |
+|---|---|---|
+| skill | `skills/<category>/<name>/SKILL.md`（可带 `references/`、`scripts/`、`assets/`） | 多步流程、判断、按场景分流的工作流 |
+| command | `commands/<name>.md`（单文件） | 轻量入口：固定 `allowed-tools`、钉一个便宜的 `model`、`argument-hint`、`!` 注入 shell 上下文，或作为某个 skill 的日常快捷入口（如 `/commit` → `harness-stack:git`） |
+
+skill 本身就能以 `/harness-stack:<name>` 调用，**不需要**配一个同名 command 才能被发现。只有当入口需要上表里 command 独有的价值时才配。
+
+**调用方式**（每个 skill 必须显式选择）
+
+| 方式 | frontmatter | 选它的条件 | description 写法 |
+|---|---|---|---|
+| model-invoked | 省略 `disable-model-invocation` | agent 需要自主触发它，或别的 skill 要调它 | 面向模型：先写它是什么，再列**互不重复**的触发分支；不概括流程步骤 |
+| user-invoked | `disable-model-invocation: true` | 只由人手动发起（例如 `to-github-issues`：一次性对外发布） | 面向人：一行说明它做什么 |
+
+model-invoked 的 description 常驻每个会话的上下文，是插件对所有使用项目的永久开销。拿不准时选 user-invoked。
+
+**结论**：形态、调用方式、理由各一句。
+
+## Step 3: 落位与命名
+
+- **目录**：`skills/<category>/<name>/`。现有分类：
+
+  | category | 放什么 |
+  |---|---|
+  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr、changelog、to-github-issues） |
+  | `productivity` | 跨任务的工作方式（git、debate、decide） |
+  | `ui` | UI / 设计系统 |
+
+  `skills/feedback/` 直接放在 `skills/` 下，靠默认扫描加载。新 skill 一律放进分类目录。
+- **注册**：插件默认只扫描 `skills/<name>/SKILL.md` 一层。每个分类目录必须出现在 `.claude-plugin/plugin.json` 的 `skills` 数组里，否则其下的 skill 不会加载。新增分类 = 同时改这个数组。
+- **命名**：`name` 等于目录名，小写连字符，裸名——不带 `hs-` / `harness-stack:` 前缀，分类不进名字。最终以 `harness-stack:<name>` 寻址，所以全插件内必须唯一。
+- **不要放进** `skills/deprecated/`：那里是已退役的 skill，不加载、不被引用。
+
+**结论**：目录路径已建好，`plugin.json` 已覆盖它所在的分类。
+
+## Step 4: 写 SKILL.md
+
+**仓库约定**
+
+- 正文用中文；代码、命令、标识符、frontmatter 的 key 用英文。与同分类的兄弟 skill 保持同一语气和格式。
+- 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤，每步以可检查的结论收尾；分流型 skill（如 `changelog`、`pr`）的 SKILL.md 只是一张路由表，细节放 `references/`。
+- 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
+- 引用其他 skill 只用 `harness-stack:<name>`，且只引用仍在加载的 skill。引用仓库路径时写新布局的完整路径（`skills/<category>/<name>/...`）。
+- 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。
+- 「Common Rationalizations」「Red Flags」只在你**观察到**过 agent 真实绕开某一步时才写，并且写成目标行为，而不是只罗列禁令。没有观察到的失败模式，就不加这两节。
+- 每句话都过一遍：删掉它，agent 的行为会变吗？不会就删。从 `package.json`、`--help`、目录结构一查就有的事实不要抄进来。
+
+**结论**：SKILL.md 写完，`references/` / `scripts/` 中的每个文件都被 SKILL.md 中的一条指针引用。
+
+## Step 5: 登记
+
+- `AGENTS.md` 的 Quick Navigation：在对应阶段加一行 `/harness-stack:<name> - <一句话>`。
+- `references/getting-started.md` 的 Lifecycle Skills 表：加一行，链接用相对路径 `../skills/<category>/<name>/SKILL.md`。
+- 新增或删除 skill 时，同步修改仓库里所有引用它的地方（见 Step 6 的扫描）。
+
+**结论**：两处都已更新。
+
+## Step 6: 验证加载与引用
+
+在仓库根目录执行，全部通过才算完成：
+
+```bash
+# 1. Manifest is valid
+claude plugin validate .
+
+# 2. The skill actually loads. Run from a scratch dir so project files do not interfere.
+#    A user-invoked skill is hidden from the model, so probe a temp copy with the flag stripped.
+probe="$(mktemp -d)"
+cp -R .claude-plugin skills commands agents "$probe"/
+find "$probe/skills" -name SKILL.md -exec sed -i '' '/^disable-model-invocation: true$/d' {} +
+(cd "$(mktemp -d)" && claude --plugin-dir "$probe" --model haiku \
+  -p "List every skill name in your available-skills list that starts with 'harness-stack:'. Output only the names." </dev/null)
+rm -rf "$probe"
+
+# 3. No stale references to moved, renamed, or retired skills
+grep -rnE "harness-stack:<old-or-new-name>|skills/<old-path>" -I . \
+  --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=deprecated
+```
+
+第 2 步的输出必须包含 `harness-stack:<name>`。`sed -i ''` 是 macOS 写法；Linux 上用 `sed -i`。
+
+**复杂或有对外副作用的 skill**：再做一次前向测试。派一个全新上下文的 subagent，只给它一个真实的用户请求和这个 skill 的路径，不给预期答案或你怀疑的问题；让它在仓库外的临时目录里工作，对外副作用一律停在确认步骤之前。只根据观察到的行为修改 skill。
+
+**结论**：三条命令的实际输出已记录；需要前向测试的已做完。
+
+## Verification
+
+- [ ] Step 1 的决定有理由：没有和已有 skill 重叠
+- [ ] 形态与调用方式已显式选择；model-invoked 的 description 只含互不重复的触发分支
+- [ ] 目录在 `skills/<category>/<name>/`，`name` 等于目录名，所在分类在 `plugin.json` 的 `skills` 数组里
+- [ ] SKILL.md 中的每个步骤都以可检查的结论收尾；`references/` 中的每个文件都有指针
+- [ ] `AGENTS.md` 与 `references/getting-started.md` 已登记
+- [ ] `claude plugin validate .` 通过，加载探测的输出里有 `harness-stack:<name>`，引用扫描没有命中

@@ -4,12 +4,11 @@ harness-stack 文档中心。
 
 ## Core
 - [Golden Rules](golden-rules.md) — 核心原则（必读）
-- [Skill Anatomy](skill-anatomy.md) — Skill 的结构
+- [skill-create](../.claude/skills/skill-create/SKILL.md) — 在本仓库新增或修改 skill / command（仓库内工具，不随插件分发）
 
 ## Skills
 
 ### Meta-Skills
-- [harness-stack:skill-create](../skills/productivity/skill-create/SKILL.md) — 创建新 Skill
 - [harness-stack:feedback](../skills/feedback/SKILL.md) — 复盘并上报反馈
 
 ### Lifecycle Skills

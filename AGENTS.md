@@ -9,7 +9,6 @@ An agent-first **development harness** — a curated stack of tools that keep an
 ## Quick Navigation
 
 ### Meta-Skills (Manage harness itself)
-- `/harness-stack:skill-create` - Create new skills
 - `/harness-stack:feedback` - Reflect after using harness-stack and file upstream issues for friction/bugs/suggestions
 
 ### Lifecycle Skills
@@ -39,6 +38,8 @@ An agent-first **development harness** — a curated stack of tools that keep an
 ### Skill Layout
 
 Skills are grouped by category: `skills/{engineering,productivity,ui}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`).
+
+To add or change a skill or command in this repo, use the repo-local `/skill-create` (`.claude/skills/skill-create/`). It is not shipped with the plugin.
 
 ### Specialized Agents
 
@@ -78,7 +79,7 @@ TypeScript runtime packages live under `packages/` and are managed through pnpm 
 
 - [Getting Started](references/getting-started.md) - Doc index & quick start
 - [Golden Rules](references/golden-rules.md) - Core principles
-- [References](references/) - All long-lived references: checklists (testing / security / performance / review), fdd-cli, skill-anatomy, @hs/llm design & recipe
+- [References](references/) - All long-lived references: checklists (testing / security / performance / review), fdd-cli, @hs/llm design & recipe
 
 ## How It Works
 
