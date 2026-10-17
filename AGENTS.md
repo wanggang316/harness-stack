@@ -38,7 +38,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Skill Layout
 
-Skills are grouped by category: `skills/{engineering,productivity,ui}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`, `using-harness-stack`).
+Skills are grouped by category: `skills/{engineering,productivity,ui}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`).
 
 ### Specialized Agents
 
