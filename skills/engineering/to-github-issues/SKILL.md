@@ -10,7 +10,7 @@ disable-model-invocation: true
 
 ## 1. Resolve the target
 
-读项目配置 `~/.harness-stack/<project>/`（`<project>` 是 `origin` 的 `<owner>.<repo>`）：
+读配置目录 `~/.harness-stack/<owner>.<repo>/`（`<owner>/<repo>` 取自 `origin`）：
 
 - `issue-tracker.md` 给出目标仓库；不存在时用 `origin` 对应的仓库。用户指定了仓库时以用户为准。
 - `triage-labels.md` 给出 triage 角色对应的 label；不存在时不打 triage label。

@@ -1,17 +1,17 @@
 ---
 name: setup-harness-stack
-description: 为当前项目配置 harness-stack：Issue 发布到哪个 GitHub 仓库、triage 状态用哪些 label。配置写到 ~/.harness-stack/<project>/，不写进项目。
+description: 为当前项目配置 Issue 发布到哪个 GitHub 仓库，以及 triage 角色对应哪些 label。
 disable-model-invocation: true
 ---
 
 # setup-harness-stack
 
-配置写在 `~/.harness-stack/<project>/`，不写进项目。`<project>` 由 `origin` 指向的 GitHub 仓库得出：`<owner>.<repo>`，例如 `wanggang316.harness-stack`。没有 GitHub `origin` 时停下告诉用户。
+配置目录是 `~/.harness-stack/<owner>.<repo>/`，`<owner>/<repo>` 取自 `origin` 指向的 GitHub 仓库。没有 GitHub `origin` 时停下告诉用户。
 
 ## 1. Explore
 
 - 各个 remote 指向哪些 GitHub 仓库。
-- `~/.harness-stack/<project>/` 是否已有配置。有就在它的基础上更新。
+- 配置目录里是否已有配置。有就在它的基础上更新。
 - 目标仓库已有的 label。
 
 ## 2. Ask
