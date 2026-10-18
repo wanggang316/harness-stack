@@ -1,6 +1,6 @@
 ---
 name: pr-land
-description: 把一个已打开的 pull request 推进到干净合并——盯 CI、处理 review 反馈、解决冲突，全绿时 squash-merge。在用户要求把改动合进去、或推进一个已开的 PR 直到合并时使用。还没有 PR 时先经 harness-stack:pr-open 打开。不涉及 commit、code review 与发布事务。
+description: 把一个已打开的 pull request 推进到干净合并——盯 CI、处理 review 反馈、解决冲突，全绿时 squash-merge。在用户要求把改动合进去、或推进一个已开的 PR 直到合并时使用。不涉及 commit、code review 与发布事务。
 ---
 
 # pr-land：推进 PR 到合并
@@ -12,7 +12,7 @@ description: 把一个已打开的 pull request 推进到干净合并——盯 C
 ## Preconditions
 
 - `gh` CLI 已认证。
-- 当前分支已有 open 的 PR（或手上有它的编号）。还没有 → 先交给 `harness-stack:pr-open`，打开后再回到这里。
+- 当前分支已有 open 的 PR（或手上有它的编号）。没有 → 停下告诉用户。
 - 本地工作树干净，本地全套检查在 head commit 上已通过——本地全绿是个便宜的信号，意味着 CI 不该给你惊喜。
 - 只想对 PR 做一次性检查、不进持续循环 → 改用 `/harness-stack:pr-watch`。
 
