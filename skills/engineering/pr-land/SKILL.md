@@ -14,7 +14,6 @@ description: 把一个已打开的 pull request 推进到干净合并——盯 C
 - `gh` CLI 已认证。
 - 当前分支已有 open 的 PR（或手上有它的编号）。没有 → 停下告诉用户。
 - 本地工作树干净，本地全套检查在 head commit 上已通过——本地全绿是个便宜的信号，意味着 CI 不该给你惊喜。
-- 只想对 PR 做一次性检查、不进持续循环 → 改用 `/harness-stack:pr-watch`。
 
 ## Workflow
 
@@ -25,7 +24,7 @@ description: 把一个已打开的 pull request 推进到干净合并——盯 C
    ```
 
 2. **冲突检查**
-   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：同步分支（rebase 见 [git/references/sync.md](../../productivity/git/references/sync.md)，merge 见 [pull.md](../../productivity/git/references/pull.md)），仅当历史是被刻意重写时才 force-push（[push.md](../../productivity/git/references/push.md)）。
+   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：`git fetch origin <base>` 后 rebase 到 `origin/<base>`（团队惯例是 merge 就 merge），解决冲突后推送。只有 rebase 了自己独占的分支，才用 `git push --force-with-lease`。
    - 若 `mergeable == "UNKNOWN"`，稍候（10–30s）再查；GitHub 正在计算。
 
 3. **并行盯 CI、review 与 head 漂移**
@@ -38,11 +37,11 @@ description: 把一个已打开的 pull request 推进到干净合并——盯 C
    |---|---|
    | Mergeable `CONFLICTING` | 同步、解决、推送。回到 step 3。 |
    | Mergeable `UNKNOWN` | 等待，重查。 |
-   | CI check 失败（真失败） | 拉日志，本地修，按 `harness-stack:git` 提交，推送，回到 step 3。 |
+   | CI check 失败（真失败） | 拉日志，本地修，提交，推送，回到 step 3。 |
    | CI check 失败（flake——孤立超时、瞬态基础设施问题） | 重跑那个具体 job。重试通过即继续。 |
    | head 上出现 CI 自动 commit | 见下文「Auto-Commit on Head」。 |
-   | 有未处理的 review comment | 交给 `harness-stack:review-receive`。在确认并（如需要）处理前别合并。 |
-   | 推送被拒（auth / permission / policy） | 把错误呈上来。别掩盖——见 [push.md](../../productivity/git/references/push.md)。 |
+   | 有未处理的 review comment | 按下文 Review-Feedback Handling 处理。在确认并（如需要）处理前别合并。 |
+   | 推送被拒（auth / permission / policy） | 把错误呈上来，别掩盖。 |
    | 所有 check 通过、无未处理反馈 | 合并（step 5）。 |
 
 5. **Squash-merge**
@@ -66,8 +65,6 @@ description: 把一个已打开的 pull request 推进到干净合并——盯 C
 3. **分类。** correctness / design / style / clarification / scope。correctness 必须处理，或用具体验证反驳；design / style / clarification 可延后——明确说明并附理由。
 4. **先回复再改动。** 推送代码前始终先表明打算做什么——这比「force-pushed；这是 10 个新 commit」更便于 reviewer 跟进。
 5. **批量修复。** 一批修复之后一条汇总的「review addressed」comment，胜过十条零碎回复。
-
-完整深度：`harness-stack:review-receive`。
 
 ## CI Failure Handling
 

@@ -20,7 +20,7 @@ gh pr list --head "$(git branch --show-current)" --state open --json number,url
 
 `gh pr list` 在没有 PR 时输出 `[]` 并以 0 退出；非零退出是环境问题（网络、权限），不是「没有 PR」。
 
-- 工作树不干净 → 停下，交给用户或 `/harness-stack:commit`。
+- 工作树不干净 → 停下，交给用户。
 - 当前在 `main` / `master` / base 分支上 → 停下，PR 需要 feature branch。
 - 没有 remote、`gh` 未登录，或 `gh pr list` 非零退出 → 停下报告，不要继续。
 - 该分支已有 open 的 PR → 不重复创建；跳到 Step 4，最后用 `gh pr edit` 更新 title 与 body。
@@ -57,7 +57,7 @@ git push -u origin "$BRANCH"
 git push --force-with-lease -u origin "$BRANCH"
 ```
 
-推送被拒时，先分清是 auth / 权限 / 分支保护，还是远端有新提交；处理方法见 [push.md](../../productivity/git/references/push.md)。
+推送被拒时，先分清原因：auth / 权限 / 分支保护 → 停下报告，不要绕过；远端有新提交 → 回到 Step 2 同步后再推。
 
 **结论**：`git status -sb` 显示分支与 `origin/$BRANCH` 同步。
 
