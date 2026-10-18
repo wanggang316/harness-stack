@@ -33,7 +33,8 @@ An agent-first **development harness** — a curated stack of tools that keep an
 **Ship** → Deploy and release
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
-- `/harness-stack:pr` - Open a PR and drive it to a clean merge
+- `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
+- `/harness-stack:pr` - Drive a PR to a clean merge (opens it via pr-open first)
 
 ### Skill Layout
 

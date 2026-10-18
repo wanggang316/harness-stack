@@ -17,7 +17,7 @@
    ```
 
 2. **冲突检查**
-   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：同步分支（rebase 见 [git/references/sync.md](../../git/references/sync.md)，merge 见 [pull.md](../../git/references/pull.md)），仅当历史是被刻意重写时才 force-push（[push.md](../../git/references/push.md)）。
+   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：同步分支（rebase 见 [git/references/sync.md](../../../productivity/git/references/sync.md)，merge 见 [pull.md](../../../productivity/git/references/pull.md)），仅当历史是被刻意重写时才 force-push（[push.md](../../../productivity/git/references/push.md)）。
    - 若 `mergeable == "UNKNOWN"`，稍候（10–30s）再查；GitHub 正在计算。
 
 3. **并行盯 CI、review 与 head 漂移**
@@ -34,7 +34,7 @@
    | CI check 失败（flake——孤立超时、瞬态基础设施问题） | 重跑那个具体 job。重试通过即继续。 |
    | head 上出现 CI 自动 commit | 见下文「Auto-Commit on Head」。 |
    | 有未处理的 review comment | 交给 `harness-stack:review-receive`。在确认并（如需要）处理前别合并。 |
-   | 推送被拒（auth / permission / policy） | 把错误呈上来。别掩盖——见 [push.md](../../git/references/push.md)。 |
+   | 推送被拒（auth / permission / policy） | 把错误呈上来。别掩盖——见 [push.md](../../../productivity/git/references/push.md)。 |
    | 所有 check 通过、无未处理反馈 | 合并（step 5）。 |
 
 5. **Squash-merge**

@@ -23,6 +23,7 @@ harness-stack 文档中心。
 | Deliberate | harness-stack:decide | [SKILL.md](../skills/productivity/decide/SKILL.md) |
 | Ship | harness-stack:changelog | [SKILL.md](../skills/engineering/changelog/SKILL.md) |
 | Ship | harness-stack:git | [SKILL.md](../skills/productivity/git/SKILL.md) |
+| Ship | harness-stack:pr-open | [SKILL.md](../skills/engineering/pr-open/SKILL.md) |
 | Ship | harness-stack:pr | [SKILL.md](../skills/engineering/pr/SKILL.md) |
 
 已废弃的 skill 在 [skills/deprecated/](../skills/deprecated/)，不再加载。
