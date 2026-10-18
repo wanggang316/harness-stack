@@ -73,6 +73,8 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 - 需要按项目保存配置或状态时，放在 `~/.harness-stack/<project>/`，不写进项目；新文件在 `references/state.md` 登记写入方与读取方。读状态的 skill 在状态缺失时按默认行为运行。
 - 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。
 - 「Common Rationalizations」「Red Flags」只在你**观察到**过 agent 真实绕开某一步时才写，并且写成目标行为，而不是只罗列禁令。没有观察到的失败模式，就不加这两节。
+- 读者是执行 skill 的 agent，不是提需求的人。写它要做什么、写到哪里、何时停下；设计原则与理由放进 `references/` 或 `AGENTS.md`，不要把需求方的原话或口号搬进 skill。
+- 同一个事实只说一次：在第一次需要它的地方写清楚，之后用简称指代，不重复强调。
 - 长度参照 mattpocock 的 skill：流程型 skill 的 SKILL.md 以 100 行以内为目标。超过时，先找出在教模型它本来就会做的事的句子。
 - 每句话都过一遍：删掉它，agent 的行为会变吗？不会就删。从 `package.json`、`--help`、目录结构一查就有的事实不要抄进来。
 
