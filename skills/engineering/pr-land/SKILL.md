@@ -1,12 +1,20 @@
-# Land the PR
+---
+name: pr-land
+description: 把一个已打开的 pull request 推进到干净合并——盯 CI、处理 review 反馈、解决冲突，全绿时 squash-merge。在用户要求把改动合进去、或推进一个已开的 PR 直到合并时使用。还没有 PR 时先经 harness-stack:pr-open 打开。不涉及 commit、code review 与发布事务。
+---
 
-一旦 PR 已打开且不是 draft、目标就是合并，进入推进循环：盯 CI、处理 review 反馈、保持可合并状态，全绿时 squash-merge。**坚持到底**——只在 PR 合并、或遇到 *Yield Conditions* 时才停。
+# pr-land：推进 PR 到合并
+
+你是作者，PR 已打开且不是 draft，目标就是合并。进入推进循环：盯 CI、处理 review 反馈、保持可合并状态，全绿时 squash-merge。**坚持到底**——只要还有可处理的工作（待修的 CI 失败、待回的 comment、待解的冲突），就不交还控制权；只在 PR 合并、或遇到 *Yield Conditions* 时才停。
+
+用户要求把改动合进去，即授权推送修复 commit 并在全绿时合并。超出这个范围的动作（改 base、force-push 共享分支、绕过 required checks）先问。
 
 ## Preconditions
 
 - `gh` CLI 已认证。
-- 你处在该 PR 的 head branch 上（或手上有它的编号）。
+- 当前分支已有 open 的 PR（或手上有它的编号）。还没有 → 先交给 `harness-stack:pr-open`，打开后再回到这里。
 - 本地工作树干净，本地全套检查在 head commit 上已通过——本地全绿是个便宜的信号，意味着 CI 不该给你惊喜。
+- 只想对 PR 做一次性检查、不进持续循环 → 改用 `/harness-stack:pr-watch`。
 
 ## Workflow
 
@@ -17,7 +25,7 @@
    ```
 
 2. **冲突检查**
-   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：同步分支（rebase 见 [git/references/sync.md](../../../productivity/git/references/sync.md)，merge 见 [pull.md](../../../productivity/git/references/pull.md)），仅当历史是被刻意重写时才 force-push（[push.md](../../../productivity/git/references/push.md)）。
+   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：同步分支（rebase 见 [git/references/sync.md](../../productivity/git/references/sync.md)，merge 见 [pull.md](../../productivity/git/references/pull.md)），仅当历史是被刻意重写时才 force-push（[push.md](../../productivity/git/references/push.md)）。
    - 若 `mergeable == "UNKNOWN"`，稍候（10–30s）再查；GitHub 正在计算。
 
 3. **并行盯 CI、review 与 head 漂移**
@@ -34,7 +42,7 @@
    | CI check 失败（flake——孤立超时、瞬态基础设施问题） | 重跑那个具体 job。重试通过即继续。 |
    | head 上出现 CI 自动 commit | 见下文「Auto-Commit on Head」。 |
    | 有未处理的 review comment | 交给 `harness-stack:review-receive`。在确认并（如需要）处理前别合并。 |
-   | 推送被拒（auth / permission / policy） | 把错误呈上来。别掩盖——见 [push.md](../../../productivity/git/references/push.md)。 |
+   | 推送被拒（auth / permission / policy） | 把错误呈上来。别掩盖——见 [push.md](../../productivity/git/references/push.md)。 |
    | 所有 check 通过、无未处理反馈 | 合并（step 5）。 |
 
 5. **Squash-merge**

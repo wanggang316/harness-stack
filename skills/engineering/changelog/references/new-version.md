@@ -88,4 +88,4 @@
 - 发布到 registry（npm、PyPI、crates.io 等）。
 - 更新 `package.json`、`pyproject.toml`、`Cargo.toml` 或类似清单里的版本字符串。
 
-这些归 `harness-stack:pr` 与发布流程。在 `CHANGELOG.md` 提交后再交接。
+这些归 `harness-stack:pr-land` 与发布流程。在 `CHANGELOG.md` 提交后再交接。

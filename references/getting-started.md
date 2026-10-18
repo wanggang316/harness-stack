@@ -24,7 +24,7 @@ harness-stack 文档中心。
 | Ship | harness-stack:changelog | [SKILL.md](../skills/engineering/changelog/SKILL.md) |
 | Ship | harness-stack:git | [SKILL.md](../skills/productivity/git/SKILL.md) |
 | Ship | harness-stack:pr-open | [SKILL.md](../skills/engineering/pr-open/SKILL.md) |
-| Ship | harness-stack:pr | [SKILL.md](../skills/engineering/pr/SKILL.md) |
+| Ship | harness-stack:pr-land | [SKILL.md](../skills/engineering/pr-land/SKILL.md) |
 
 已废弃的 skill 在 [skills/deprecated/](../skills/deprecated/)，不再加载。
 

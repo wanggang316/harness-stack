@@ -5,7 +5,7 @@ description: 把一个已提交的 feature branch 开成 pull request——检�
 
 # pr-open：开 PR
 
-PR body 是写给一个没读过你会话的 reviewer 的：他要在一屏之内看懂**改了什么**（Summary）、**凭什么相信它能用**（Evidence）、**合进去有多危险**（Merge Danger）。本 skill 只负责把分支变成这样一个 PR；之后的 CI、review 与合并交给 `harness-stack:pr`。
+PR body 是写给一个没读过你会话的 reviewer 的：他要在一屏之内看懂**改了什么**（Summary）、**凭什么相信它能用**（Evidence）、**合进去有多危险**（Merge Danger）。本 skill 只负责把分支变成这样一个 PR；之后的 CI、review 与合并交给 `harness-stack:pr-land`。
 
 用户要求开 PR，即授权推送**自己的** feature branch 并创建 PR。超出这个范围的动作（force-push 共享分支、改 base、拆分分支）先问。
 
@@ -134,7 +134,7 @@ gh pr view --json number,url,baseRefName,headRefName,isDraft
 
 ## Step 6: Report and hand off
 
-把 PR 编号、URL、`base ← head`、draft / ready 状态交给用户。要继续推进到合并（盯 CI、处理 review、squash-merge），交给 `harness-stack:pr`。
+把 PR 编号、URL、`base ← head`、draft / ready 状态交给用户。要继续推进到合并（盯 CI、处理 review、squash-merge），交给 `harness-stack:pr-land`。
 
 ## Verification
 

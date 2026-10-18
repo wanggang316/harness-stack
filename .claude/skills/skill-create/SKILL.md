@@ -50,7 +50,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 
   | category | 放什么 |
   |---|---|
-  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr、changelog、to-github-issues） |
+  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr-open、pr-land、changelog、to-github-issues） |
   | `productivity` | 跨任务的工作方式（git、debate、decide） |
   | `ui` | UI / 设计系统 |
 
@@ -66,7 +66,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 **仓库约定**
 
 - 正文用中文；代码、命令、标识符、frontmatter 的 key 用英文。与同分类的兄弟 skill 保持同一语气和格式。
-- 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤，每步以可检查的结论收尾；分流型 skill（如 `changelog`、`pr`）的 SKILL.md 只是一张路由表，细节放 `references/`。
+- 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤，每步以可检查的结论收尾；分流型 skill（如 `changelog`）的 SKILL.md 只是一张路由表，细节放 `references/`。
 - 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
 - 引用其他 skill 只用 `harness-stack:<name>`，且只引用仍在加载的 skill。引用仓库路径时写新布局的完整路径（`skills/<category>/<name>/...`）。
 - 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。

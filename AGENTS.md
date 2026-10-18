@@ -34,7 +34,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
-- `/harness-stack:pr` - Drive a PR to a clean merge (opens it via pr-open first)
+- `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
 
 ### Skill Layout
 
@@ -67,7 +67,7 @@ Kept from the retired fdd flow (no active skill dispatches them):
 
 1. Build: `/harness-stack:tdd` for any logic change or bug fix.
 2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
-3. Ship: `/harness-stack:commit` → `/harness-stack:pr` (opens and lands) → `/harness-stack:changelog`.
+3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:pr-land` → `/harness-stack:changelog`.
 
 ## Packages
 
