@@ -20,17 +20,16 @@ disable-model-invocation: true
 
 **A. Issue 仓库。** 推荐 `origin`。有 `upstream` 之类指向另一个仓库的 remote（fork）时，问 Issue 发到哪一个。
 
-**B. Triage labels。** harness-stack 用五个 triage 角色：
+**B. Triage labels。** harness-stack 用四个 triage 角色：
 
 | Role | Meaning |
 |---|---|
-| `needs-triage` | 等待维护者评估 |
-| `needs-info` | 等待报告者补充信息 |
-| `ready-for-agent` | 描述完整，agent 可以直接认领 |
-| `ready-for-human` | 需要人来实现 |
-| `wontfix` | 不处理 |
+| `agent-todo` | 需要 agent 实现 |
+| `agent-done` | agent 已实现完成 |
+| `needs-info` | 需要作者补充信息 |
+| `wontfix` | 无需修复 |
 
-推荐 label 名与角色同名。仓库已有含义相同的 label（例如 `bug:triage`）时，推荐映射到它。映射到的 label 在仓库里不存在时，问用户是否现在创建。
+推荐 label 名与角色同名。仓库已有含义相同的 label（例如 `status:needs-info`）时，推荐映射到它。映射到的 label 在仓库里不存在时，问用户是否现在创建。
 
 ## 3. Confirm and write
 
@@ -51,10 +50,9 @@ Repo: <owner>/<repo>
 
 | Role | Label |
 |---|---|
-| needs-triage | needs-triage |
+| agent-todo | agent-todo |
+| agent-done | agent-done |
 | needs-info | needs-info |
-| ready-for-agent | ready-for-agent |
-| ready-for-human | ready-for-human |
 | wontfix | wontfix |
 ```
 

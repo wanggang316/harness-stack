@@ -41,7 +41,7 @@ disable-model-invocation: true
 
 ## 6. Publish
 
-按依赖顺序（blocker 在前）逐条创建，body 文件放在仓库之外的临时目录。有 `ready-for-agent` 角色对应的 label 时，给每条打上它。每条创建后，用 GitHub 原生的 blocked-by 关系连到它的 blocker；来源是已有 Issue 时，再挂为它的 sub-issue。
+按依赖顺序（blocker 在前）逐条创建，body 文件放在仓库之外的临时目录。有 `agent-todo` 角色对应的 label 时，给每条打上它。每条创建后，用 GitHub 原生的 blocked-by 关系连到它的 blocker；来源是已有 Issue 时，再挂为它的 sub-issue。
 
 - 关系建立失败时继续发布，body 里的 Blocked by 已记录依赖；最后报告失败项。
 - 一条 Issue 创建失败时停下，报告已创建的 Issue。
