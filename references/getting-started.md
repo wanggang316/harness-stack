@@ -4,6 +4,7 @@ harness-stack 文档中心。
 
 ## Core
 - [Golden Rules](golden-rules.md) — 核心原则（必读）
+- [State](state.md) — 按项目存放在 `~/.harness-stack/<project>/` 的配置与状态
 - [skill-create](../.claude/skills/skill-create/SKILL.md) — 在本仓库新增或修改 skill / command（仓库内工具，不随插件分发）
 
 ## Skills
@@ -15,6 +16,7 @@ harness-stack 文档中心。
 | Phase | Skill | Link |
 |-------|-------|------|
 | Define | harness-stack:define-ui-spec | [SKILL.md](../skills/ui/define-ui-spec/SKILL.md) |
+| Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
 | Plan | harness-stack:to-github-issues | [SKILL.md](../skills/engineering/to-github-issues/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:review-request | [SKILL.md](../skills/engineering/review-request/SKILL.md) |

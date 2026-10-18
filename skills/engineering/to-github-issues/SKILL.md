@@ -10,13 +10,12 @@ disable-model-invocation: true
 
 ## 1. Resolve the target
 
-```bash
-gh auth status
-repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"   # or the repo the user named
-gh label list --repo "$repo" --limit 200 --json name -q '.[].name'
-```
+读项目配置 `~/.harness-stack/<project>/`（`<project>` 是 `origin` 的 `<owner>.<repo>`）：
 
-只使用仓库已有的 label；想用的 label 不存在时，在第 5 步列出来让用户决定。
+- `issue-tracker.md` 给出目标仓库；不存在时用 `origin` 对应的仓库。用户指定了仓库时以用户为准。
+- `triage-labels.md` 给出 triage 角色对应的 label；不存在时不打 triage label。
+
+确认 `gh` 已登录，并记下目标仓库已有的 label。只使用已有的 label；想用的 label 不存在时，在第 5 步列出来让用户决定。
 
 ## 2. Gather context
 
@@ -42,7 +41,7 @@ gh label list --repo "$repo" --limit 200 --json name -q '.[].name'
 
 ## 6. Publish
 
-按依赖顺序（blocker 在前）逐条创建，body 文件放在仓库之外的临时目录。每条创建后，用 GitHub 原生的 blocked-by 关系连到它的 blocker；来源是已有 Issue 时，再挂为它的 sub-issue。
+按依赖顺序（blocker 在前）逐条创建，body 文件放在仓库之外的临时目录。有 `ready-for-agent` 角色对应的 label 时，给每条打上它。每条创建后，用 GitHub 原生的 blocked-by 关系连到它的 blocker；来源是已有 Issue 时，再挂为它的 sub-issue。
 
 - 关系建立失败时继续发布，body 里的 Blocked by 已记录依赖；最后报告失败项。
 - 一条 Issue 创建失败时停下，报告已创建的 Issue。

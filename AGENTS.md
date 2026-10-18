@@ -16,6 +16,9 @@ An agent-first **development harness** — a curated stack of tools that keep an
 **Define** → UI
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
 
+**Setup** → Per-project config
+- `/harness-stack:setup-harness-stack` - Configure the issue repo and triage labels for this project; writes to `~/.harness-stack/<project>/`, not the repo
+
 **Plan** → Break work into GitHub issues
 - `/harness-stack:to-github-issues` - Split a plan, spec, or conversation into tracer-bullet issues with native blocked-by / sub-issue links; writes nothing into the repo
 
@@ -35,6 +38,10 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
 - `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
+
+### State
+
+harness-stack is stateful. Per-project config and state live in `~/.harness-stack/<project>/`, never in the project repo. Skills must still run when the state is missing. See [references/state.md](references/state.md).
 
 ### Skill Layout
 

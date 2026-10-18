@@ -50,7 +50,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 
   | category | 放什么 |
   |---|---|
-  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr-open、pr-land、changelog、to-github-issues） |
+  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr-open、pr-land、changelog、to-github-issues、setup-harness-stack） |
   | `productivity` | 跨任务的工作方式（git、debate、decide） |
   | `ui` | UI / 设计系统 |
 
@@ -70,6 +70,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 - 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
 - **原子性**：一个 skill 只负责一段单一、完整的职责。不写「之后交给 X」「先经 Y」；前提不满足时停下告诉用户。流程编排只写在 `AGENTS.md`。
 - **自足**：去掉所有外部引用后 skill 仍能正常运行。必需的步骤（同步分支、推送、处理被拒）直接写进本 skill，一两句话或一条命令即可；引用其他 skill 只作可选的增强，用 `harness-stack:<name>`，且只引用仍在加载的 skill。本 skill 自己的 `references/`、`scripts/` 不算外部引用。
+- 需要按项目保存配置或状态时，放在 `~/.harness-stack/<project>/`，不写进项目；新文件在 `references/state.md` 登记写入方与读取方。读状态的 skill 在状态缺失时按默认行为运行。
 - 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。
 - 「Common Rationalizations」「Red Flags」只在你**观察到**过 agent 真实绕开某一步时才写，并且写成目标行为，而不是只罗列禁令。没有观察到的失败模式，就不加这两节。
 - 长度参照 mattpocock 的 skill：流程型 skill 的 SKILL.md 以 100 行以内为目标。超过时，先找出在教模型它本来就会做的事的句子。

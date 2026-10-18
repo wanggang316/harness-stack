@@ -1,0 +1,63 @@
+---
+name: setup-harness-stack
+description: 为当前项目配置 harness-stack：Issue 发布到哪个 GitHub 仓库、triage 状态用哪些 label。配置写到 ~/.harness-stack/<project>/，不写进项目。
+disable-model-invocation: true
+---
+
+# setup-harness-stack
+
+配置写在 `~/.harness-stack/<project>/`，不写进项目。`<project>` 由 `origin` 指向的 GitHub 仓库得出：`<owner>.<repo>`，例如 `wanggang316.harness-stack`。没有 GitHub `origin` 时停下告诉用户。
+
+## 1. Explore
+
+- 各个 remote 指向哪些 GitHub 仓库。
+- `~/.harness-stack/<project>/` 是否已有配置。有就在它的基础上更新。
+- 目标仓库已有的 label。
+
+## 2. Ask
+
+逐节问，每节先给推荐答案，用户一个词就能确认。探索已经能确定的节直接跳过。
+
+**A. Issue 仓库。** 推荐 `origin`。有 `upstream` 之类指向另一个仓库的 remote（fork）时，问 Issue 发到哪一个。
+
+**B. Triage labels。** harness-stack 用五个 triage 角色：
+
+| Role | Meaning |
+|---|---|
+| `needs-triage` | 等待维护者评估 |
+| `needs-info` | 等待报告者补充信息 |
+| `ready-for-agent` | 描述完整，agent 可以直接认领 |
+| `ready-for-human` | 需要人来实现 |
+| `wontfix` | 不处理 |
+
+推荐 label 名与角色同名。仓库已有含义相同的 label（例如 `bug:triage`）时，推荐映射到它。映射到的 label 在仓库里不存在时，问用户是否现在创建。
+
+## 3. Confirm and write
+
+先展示两个文件的草稿和要创建的 label，用户确认后再写入、创建。
+
+`issue-tracker.md`：
+
+```markdown
+# Issue tracker
+
+Repo: <owner>/<repo>
+```
+
+`triage-labels.md`：
+
+```markdown
+# Triage labels
+
+| Role | Label |
+|---|---|
+| needs-triage | needs-triage |
+| needs-info | needs-info |
+| ready-for-agent | ready-for-agent |
+| ready-for-human | ready-for-human |
+| wontfix | wontfix |
+```
+
+## 4. Report
+
+列出写入的文件路径和创建的 label，告诉用户可以直接编辑这两个文件。
