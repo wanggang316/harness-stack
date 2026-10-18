@@ -55,13 +55,17 @@ Kept from the retired fdd flow (no active skill dispatches them):
 
 ## Golden Rules
 
-1. **Progressive Disclosure** - AGENTS.md is a map, not a manual
-2. **Repository Knowledge** - All context versioned in-repo
-3. **Agent-Driven** - Everything is a Skill or Subagent
-4. **Evidence Required** - Every verification needs proof
-5. **Anti-Rationalization** - Address excuses preemptively
-6. **Platform-Agnostic** - Read config, don't assume
-7. **Self-Bootstrapping** - harness improves itself
+Rules 1 and 2 come first in this version.
+
+1. **Atomic** - A skill owns one complete job and does not assume which skill runs before or after it
+2. **Self-Contained** - References to other skills are optional; a skill must still work with all of them removed
+3. **Progressive Disclosure** - AGENTS.md is a map, not a manual
+4. **Repository Knowledge** - All context versioned in-repo
+5. **Agent-Driven** - Everything is a Skill or Subagent
+6. **Evidence Required** - Every verification needs proof
+7. **Anti-Rationalization** - Address excuses preemptively
+8. **Platform-Agnostic** - Read config, don't assume
+9. **Self-Bootstrapping** - harness improves itself
 
 ## Getting Started
 

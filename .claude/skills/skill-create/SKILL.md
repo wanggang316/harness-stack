@@ -68,7 +68,8 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 - 正文用中文；代码、命令、标识符、frontmatter 的 key 用英文。与同分类的兄弟 skill 保持同一语气和格式。
 - 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤，每步以可检查的结论收尾；分流型 skill（如 `changelog`）的 SKILL.md 只是一张路由表，细节放 `references/`。
 - 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
-- 引用其他 skill 只用 `harness-stack:<name>`，且只引用仍在加载的 skill。引用仓库路径时写新布局的完整路径（`skills/<category>/<name>/...`）。
+- **原子性**：一个 skill 只负责一段单一、完整的职责。不写「之后交给 X」「先经 Y」；前提不满足时停下告诉用户。流程编排只写在 `AGENTS.md`。
+- **自足**：去掉所有外部引用后 skill 仍能正常运行。必需的步骤（同步分支、推送、处理被拒）直接写进本 skill，一两句话或一条命令即可；引用其他 skill 只作可选的增强，用 `harness-stack:<name>`，且只引用仍在加载的 skill。本 skill 自己的 `references/`、`scripts/` 不算外部引用。
 - 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。
 - 「Common Rationalizations」「Red Flags」只在你**观察到**过 agent 真实绕开某一步时才写，并且写成目标行为，而不是只罗列禁令。没有观察到的失败模式，就不加这两节。
 - 每句话都过一遍：删掉它，agent 的行为会变吗？不会就删。从 `package.json`、`--help`、目录结构一查就有的事实不要抄进来。
@@ -117,5 +118,6 @@ grep -rnE "harness-stack:<old-or-new-name>|skills/<old-path>" -I . \
 - [ ] 形态与调用方式已显式选择；model-invoked 的 description 只含互不重复的触发分支
 - [ ] 目录在 `skills/<category>/<name>/`，`name` 等于目录名，所在分类在 `plugin.json` 的 `skills` 数组里
 - [ ] SKILL.md 中的每个步骤都以可检查的结论收尾；`references/` 中的每个文件都有指针
+- [ ] 原子且自足：不预设前后衔接的 skill；删掉所有指向其他 skill / command 的引用后，流程仍能走完
 - [ ] `AGENTS.md` 与 `references/getting-started.md` 已登记
 - [ ] `claude plugin validate .` 通过，加载探测的输出里有 `harness-stack:<name>`，引用扫描没有命中
