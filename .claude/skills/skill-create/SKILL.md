@@ -72,6 +72,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 - **自足**：去掉所有外部引用后 skill 仍能正常运行。必需的步骤（同步分支、推送、处理被拒）直接写进本 skill，一两句话或一条命令即可；引用其他 skill 只作可选的增强，用 `harness-stack:<name>`，且只引用仍在加载的 skill。本 skill 自己的 `references/`、`scripts/` 不算外部引用。
 - 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。
 - 「Common Rationalizations」「Red Flags」只在你**观察到**过 agent 真实绕开某一步时才写，并且写成目标行为，而不是只罗列禁令。没有观察到的失败模式，就不加这两节。
+- 长度参照 mattpocock 的 skill：流程型 skill 的 SKILL.md 以 100 行以内为目标。超过时，先找出在教模型它本来就会做的事的句子。
 - 每句话都过一遍：删掉它，agent 的行为会变吗？不会就删。从 `package.json`、`--help`、目录结构一查就有的事实不要抄进来。
 
 **结论**：SKILL.md 写完，`references/` / `scripts/` 中的每个文件都被 SKILL.md 中的一条指针引用。
