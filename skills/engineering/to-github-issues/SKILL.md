@@ -42,27 +42,9 @@ gh label list --repo "$repo" --limit 200 --json name -q '.[].name'
 
 ## 6. Publish
 
-按依赖顺序（blocker 在前）逐条创建。body 文件写到仓库之外的临时目录：
+按依赖顺序（blocker 在前）逐条创建，body 文件放在仓库之外的临时目录。每条创建后，用 GitHub 原生的 blocked-by 关系连到它的 blocker；来源是已有 Issue 时，再挂为它的 sub-issue。
 
-```bash
-tmp="$(mktemp -d)"
-url="$(gh issue create --repo "$repo" --title "<title>" --body-file "$tmp/01.md" [--label <existing-label>])"
-n="${url##*/}"
-```
-
-每条创建后建立原生关系。两个接口都要 Issue 的 REST `id`，不是 `#number`：
-
-```bash
-issue_id() { gh api "repos/$repo/issues/$1" --jq .id; }
-
-# For each blocker b of issue n:
-gh api -X POST "repos/$repo/issues/$n/dependencies/blocked_by" -F issue_id="$(issue_id "$b")"
-
-# When the source was an existing issue p:
-gh api -X POST "repos/$repo/issues/$p/sub_issues" -F sub_issue_id="$(issue_id "$n")"
-```
-
-- 关系接口失败（例如 GitHub Enterprise Server 不支持）时继续发布，body 里的 Blocked by 已记录依赖；最后报告失败项。
+- 关系建立失败时继续发布，body 里的 Blocked by 已记录依赖；最后报告失败项。
 - 一条 Issue 创建失败时停下，报告已创建的 Issue。
 - 不修改、不关闭 parent Issue。
 
