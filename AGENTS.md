@@ -14,9 +14,13 @@ An agent-first **development harness** — a curated stack of tools that keep an
 ### Lifecycle Skills
 
 **Define** → Domain, design, UI
-- `/harness-stack:domain-modeling` - Sharpen the domain model: CONTEXT.md glossary and ADRs in docs/adr/
-- `/harness-stack:design-doc` - Write or update a design doc in docs/design/NNN-slug/: plan before coding, action after
+- `/harness-stack:domain-modeling` - Clarify domain terms and decisions during design discussions
+- `/harness-stack:design` - Review a complex change proposal; close it with delivery evidence and links to current knowledge
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
+
+**Knowledge** → Maintain project understanding
+- `/harness-stack:document` - Update current domain knowledge, decisions, and runbooks from confirmed changes
+- `/harness-stack:audit-docs` - Check documentation accuracy, discoverability, and value; repair supported findings
 
 **Setup** → Per-project config
 - `/harness-stack:setup-harness-stack` - Configure the issue repo and triage labels for this project; writes to `~/.harness-stack/<project>/`, not the repo
@@ -40,6 +44,12 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
 - `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
+
+### Documentation workflow
+
+Use current domain documentation and active decisions when changing a feature. Keep relevant knowledge accurate as part of the change; no document is required when no durable knowledge changes. Use proposals for complex trade-offs and tickets or PRs for execution state and evidence. Close proposals after current knowledge is updated.
+
+For document roles, placement, and lifecycle, read [Project Knowledge](references/project-knowledge.md). The documentation skills are independent; none requires another skill to run first.
 
 ### State
 

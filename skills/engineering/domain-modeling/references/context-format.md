@@ -1,4 +1,4 @@
-# CONTEXT.md 格式
+# 术语表格式
 
 ```md
 # {Context Name}
@@ -25,7 +25,7 @@ _Avoid_: Bill, payment request
 
 ## 多上下文
 
-根目录的 `CONTEXT-MAP.md` 列出各上下文、它们的位置与相互关系：
+沿用已有上下文索引。以下是根目录 `CONTEXT-MAP.md` 的例子，链接应使用项目实际路径：
 
 ```md
 # Context Map
@@ -40,4 +40,4 @@ _Avoid_: Bill, payment request
 - **Ordering → Billing**: Ordering emits `OrderPlaced` events; Billing consumes them to generate invoices
 ```
 
-判断结构：有 `CONTEXT-MAP.md` 就从它找上下文；只有根目录 `CONTEXT.md` 就是单一上下文；都没有就在第一个术语确定时创建根目录 `CONTEXT.md`。
+判断结构：有 `CONTEXT-MAP.md` 就从它找上下文；只有根目录 `CONTEXT.md` 就是单一上下文；都没有时先查项目已有术语表；没有约定就在第一个术语确定时创建 `docs/glossary.md`。沿用已选路径，不因模板里的名称再建一份。

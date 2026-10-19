@@ -16,8 +16,10 @@ harness-stack 文档中心。
 | Phase | Skill | Link |
 |-------|-------|------|
 | Define | harness-stack:domain-modeling | [SKILL.md](../skills/engineering/domain-modeling/SKILL.md) |
-| Define | harness-stack:design-doc | [SKILL.md](../skills/engineering/design-doc/SKILL.md) |
+| Define | harness-stack:design | [SKILL.md](../skills/engineering/design/SKILL.md) |
 | Define | harness-stack:define-ui-spec | [SKILL.md](../skills/ui/define-ui-spec/SKILL.md) |
+| Knowledge | harness-stack:document | [SKILL.md](../skills/engineering/document/SKILL.md) |
+| Knowledge | harness-stack:audit-docs | [SKILL.md](../skills/engineering/audit-docs/SKILL.md) |
 | Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
 | Plan | harness-stack:to-github-issues | [SKILL.md](../skills/engineering/to-github-issues/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
@@ -38,6 +40,7 @@ harness-stack 文档中心。
 - [harness-stack:security-auditor](../agents/security-auditor.md) — 安全审计
 
 ## References
+- [Project Knowledge](project-knowledge.md) — 当前知识、决策记录与交付过程的职责和维护方式
 - [Testing Patterns](testing-patterns.md)
 - [Security Checklist](security-checklist.md)
 - [Performance Checklist](performance-checklist.md)
