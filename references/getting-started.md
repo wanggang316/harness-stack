@@ -15,6 +15,8 @@ harness-stack 文档中心。
 ### Lifecycle Skills
 | Phase | Skill | Link |
 |-------|-------|------|
+| Define | harness-stack:domain-modeling | [SKILL.md](../skills/engineering/domain-modeling/SKILL.md) |
+| Define | harness-stack:design-doc | [SKILL.md](../skills/engineering/design-doc/SKILL.md) |
 | Define | harness-stack:define-ui-spec | [SKILL.md](../skills/ui/define-ui-spec/SKILL.md) |
 | Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
 | Plan | harness-stack:to-github-issues | [SKILL.md](../skills/engineering/to-github-issues/SKILL.md) |

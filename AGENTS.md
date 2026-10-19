@@ -13,7 +13,9 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Lifecycle Skills
 
-**Define** → UI
+**Define** → Domain, design, UI
+- `/harness-stack:domain-modeling` - Sharpen the domain model: CONTEXT.md glossary and ADRs in docs/adr/
+- `/harness-stack:design-doc` - Write or update a design doc in docs/design/NNN-slug/: plan before coding, action after
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
 
 **Setup** → Per-project config
