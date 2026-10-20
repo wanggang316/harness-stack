@@ -50,7 +50,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 
   | category | 放什么 |
   |---|---|
-  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr-open、pr-land、changelog、to-github-issues、setup-harness-stack、domain-modeling、to-spec、document、audit-docs） |
+  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr-open、pr-land、changelog、to-github-issues、setup-harness-stack、domain-modeling、grill-with-docs、to-spec、document、audit-docs） |
   | `productivity` | 跨任务的工作方式（git、debate、decide） |
   | `ui` | UI / 设计系统 |
 

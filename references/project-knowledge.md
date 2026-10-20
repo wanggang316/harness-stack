@@ -29,6 +29,7 @@
 
 ## 独立能力
 
+- `grill-with-docs`：用户主动发起的分轮设计访谈，在讨论中记录已确认的术语与重要决定。
 - `to-spec`：把已讨论清楚的需求与设计发布为一张 spec Issue，不自动拆票。
 - `to-github-issues`：把 spec、plan 或会话拆成带依赖的执行任务。
 - `document`：将已确认变化落实到最小的长期知识集合。

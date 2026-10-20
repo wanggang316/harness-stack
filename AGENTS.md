@@ -14,6 +14,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 ### Lifecycle Skills
 
 **Define** → Domain, design, UI
+- `/harness-stack:grill-with-docs` - Stress-test requirements and design in rounds; record confirmed terms and decisions
 - `/harness-stack:domain-modeling` - Clarify domain terms and decisions during design discussions
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
 
@@ -47,7 +48,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Documentation workflow
 
-Use current domain documentation and active decisions when changing a feature. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-github-issues` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in issues and PRs. Use a design file only when the change needs one.
+Use current domain documentation and active decisions when changing a feature. Use `grill-with-docs` when you want an explicit design interview with durable notes. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-github-issues` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in issues and PRs. Use a design file only when the change needs one.
 
 Make all repository edits in a dedicated worktree on a non-main branch, including documentation and skills. Review code and related knowledge in the same PR; main remains the merged baseline.
 
