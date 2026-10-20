@@ -1,173 +1,46 @@
-# Review Checklist
+# 评审检查参考
 
-经验型 review 模式池。五轴框架定义在 `agents/code-reviewer.md` 系统提示中，这里是项目无关、复用率最高的雷区清单。每条都附带：什么模式、为什么是问题、怎么修。
+按改动涉及的风险读取。评审范围、finding 标准和结论见 [code-review](../skills/engineering/code-review/SKILL.md)。下列问题帮助定位需要调查的路径，实际严重度取决于可达条件和影响。
 
-`code-reviewer` 在 Process 第 3 步 (walk the diff) 把这份清单当作模式匹配字典使用。安全/性能的细节请配合 `security-checklist.md` 与 `performance-checklist.md`。
+## 状态、数据与并发
 
-## 使用方式
+- 状态变化失败后，数据和外部副作用是否一致？沿异常、取消和重试路径检查资源释放与补偿。
+- 读—判断—写是否可能交错？检查事务、唯一约束、锁或条件更新能否守住业务不变量，不能仅凭使用了某个 API 就推定原子性。
+- 幂等键是否覆盖正确的主体与操作？重试是否重复扣款、发送或写入？同键不同请求如何处理？
+- 分页、缓存、批量操作是否遗漏数据？检查租户、权限、筛选条件和失效策略是否进入正确边界。
+- 迁移是否兼容实际部署顺序和存量数据？检查失败恢复、调用方切换和旧版本读写行为。
 
-- **两遍走查**：先扫 Pass 1 (Critical 类)，再扫 Pass 2 (Informational 类)。Critical 没清干净之前不要在 Informational 上花时间。
-- **必读 diff 外的代码**：标 ★ 的条目必须读 diff 之外的文件才能判定。reviewer 不能只看 hunk。
-- **Confidence 标注**：可疑但未读到具体代码的 finding，标 `(confidence: 5/10)` 并放在附录而不是主报告。
-- **抑制项**：`## Suppressions` 列出的模式不要 flag，避免噪音评审。
+## 接口与调用方
 
----
+- 新增状态、枚举或类型后，逐个检查相关消费者的分支、白名单、序列化及展示。默认分支是否真的适用于新值？
+- 签名或返回形状变化后，检查真实调用方、协议和生成代码，而不仅是同目录的引用。
+- 边界类型转换是否改变含义？关注整数精度、时区、单位、空值和规范化后的签名或幂等键。
+- 文档、错误提示和日志是否仍准确描述用户能观察到的行为？
 
-## Pass 1 — Critical
+## 测试与验证
 
-### SQL & Data Safety
+- 测试期望是否来自需求或独立算例？断言是否会在目标错误存在时失败？
+- 失败路径是否检查必须保持的状态和禁止发生的外部副作用？已有覆盖是否足够，无需机械要求每个 diff 都新增测试。
+- fake 或 mock 隔离了什么，哪些真实接线仍未证明？接口契约、持久化和关键交互是否有适当层级的证据？
+- 当前测试结果对应哪个版本和环境？静态检查、局部测试和真实入口验证分别覆盖什么？
 
-- SQL 字符串拼接（即使值是 `.to_i` / `.toString()` / `Number()`）→ 必须参数化查询、prepared statement 或 ORM 安全 API。
-- TOCTOU：先 `SELECT` 再 `UPDATE` 的 check-then-set 模式 → 改为原子的 `WHERE old_value = ? UPDATE ...`。
-- 绕过 ORM 校验直接写库（`update_column` / `QuerySet.update()` / Prisma `$executeRaw`）→ 默认禁止，特殊场景需注释说明绕过原因。
-- 缺索引但被高频查询的字段（migration 与 query 不同 PR 落地的情况尤其常见）。
+需要具体的测试边界和断言示例时读 [测试设计](../skills/engineering/tdd/references/test-design.md)。
 
-### Race Conditions & Concurrency ★
+## 安全与依赖
 
-- `find_or_create` / `upsert` 没有数据库唯一索引兜底 → 并发请求会产生重复行。
-- 读—判断—写 (read-check-write) 没有唯一约束或乐观锁 → 必须捕获 duplicate key 重试，或用 `ON CONFLICT` / `INSERT ... WHERE NOT EXISTS`。
-- 状态机迁移没有用 `WHERE status = old_status` 守卫 → 并发请求可能跳过或重复触发副作用。
-- 共享可变状态（模块级变量、单例缓存）在多 worker / 多请求下被写入。
+- 不可信数据是否到达 SQL、shell、模板、文件路径、动态执行或外部请求？核查参数化、编码、允许范围和执行权限是否适合该操作。
+- 身份、授权与租户边界是否在真实执行路径上生效？包括缓存、后台任务和绕过常规入口的调用。
+- 密钥或用户数据是否进入日志、错误、快照或可访问的构建产物？
+- LLM 输出和检索内容是否被误当成可信指令或权限依据？数据格式校验不等于消除指令注入风险。
+- 新依赖是否扩大供应链或运行权限风险？结合项目用途核查维护、许可证、安装脚本和已知漏洞；devDependency 仍可能影响构建与发布。
 
-### LLM Output Trust Boundary ★
+## 性能与可维护性
 
-LLM 输出 = 不可信用户输入。我们整套 stack 跑 AI agent，这一类 finding 高发。
+- 查询、循环、网络和内存使用是否会随实际输入规模失控？给出具体规模、调用链或测量依据，不以“可能慢”判定问题。
+- 缓存、并发和异步处理是否改变正确性？局部加速是否把成本转移到其他路径？
+- 重复结构是否代表同一业务规则？抽象是否减少真实修改成本，还是引入不需要的间接层？
+- 关注未来读者容易误用或漏改的结构。命名与注释遵循项目约定，个人偏好单独标为建议。
 
-- LLM 生成的字段（emails、URLs、names、ids）写入数据库或传给 mailer 之前没做格式校验 → 加最小必要的 guard：正则、`URL.parse`、长度上限、字符白名单。
-- 结构化 tool output（数组、对象）在写库前没做类型/形状校验 → 用 Zod / Pydantic / JSON Schema 在边界处校验。
-- LLM 生成的 URL 直接 `fetch` / `requests.get` → SSRF 风险，必须先解析 hostname 与 allowlist 比对。
-- LLM 输出存入 vector store / knowledge base 不做清洗 → 存储型 prompt injection，下次检索会污染上下文。
-- LLM 输出的代码用 `eval` / `exec` / `vm.runInNewContext` 执行 → 必须沙箱（隔离进程、超时、资源限制）。
+## 控制误报
 
-### Enum & Value Completeness ★
-
-新增枚举值是 review 中最容易漏的一类（diff 看不到）：
-
-1. 用 Grep 搜 sibling 值（如新增 `tier: "enterprise"`，搜 `"basic"`、`"pro"` 全部出现位置）。
-2. 逐个 Read 相关文件，确认：
-   - `switch` / `if-elsif` 分支是否覆盖新值，落到 default 是否正确？
-   - 数组、白名单、`%w[]` 是否需要新增？
-   - 前端下拉、过滤器、文案 i18n 是否同步？
-   - 数据库 enum 类型 / migration 是否已 ALTER？
-3. 漏一处就标 `Important` 起步，业务核心字段直接 `Critical`。
-
-### Shell / Eval Injection
-
-- `subprocess.run(..., shell=True)` + 字符串插值 → 改为参数数组形式。
-- `os.system` / Node `child_process.exec` 拼接变量 → 改为 `execFile` / `spawn` + 参数数组。
-- `eval` / `Function()` 跑用户或 LLM 来源的字符串 → 沙箱或拒绝。
-
----
-
-## Pass 2 — Informational
-
-### Conditional Side Effects
-
-- 分支条件下应用副作用，但其中一支忘了执行 → 例：item 升级到 verified 但 URL 只在子条件成立时附加，另一支静默落库不一致数据。
-- 日志声称做了某事，但实际被条件跳过了 → 日志要反映真实结果。
-
-### Type Coercion at Boundaries
-
-- 跨语言/跨序列化边界的类型变化（Ruby ↔ JSON ↔ JS、Python int ↔ JSON number ↔ TS）。
-- 哈希/签名输入没在序列化前 normalize → `{ cores: 8 }` 与 `{ cores: "8" }` 算出不同 hash，幂等键失效。
-- API 返回 number 但前端用作字符串拼 key → 大整数精度丢失（>2^53）。
-
-### Magic Numbers & String Coupling
-
-- 同一裸字面量在 ≥2 个文件出现 → 抽常量、放同一处。
-- 错误信息字符串被另一个文件用作 filter / match 条件 → 一改全错；用错误码或常量。
-- 时间窗、页大小、重试次数硬编码在多处。
-
-### Dead Code & Consistency
-
-- 变量赋值后从未读取。
-- 注释、docstring 描述的是改动前的行为。
-- CHANGELOG / VERSION / package.json 三处版本号不一致。
-- 标 `// TODO` / `// FIXME` 但没有 owner / 时限 / 跟踪 issue。
-
-### Test Gaps
-
-- 负路径只断言了 status / type，没断言副作用（URL 是否附加、callback 是否触发、外部服务是否被调用）。
-- 不应调用外部服务的路径缺 `expect(spy).not.toHaveBeenCalled()` 之类的反向断言。
-- 安全/限流/权限拦截类功能只有单元测试，缺端到端验证拦截真实生效。
-- Bug fix 没附回归测试（先用失败测试钉住 bug，再修；见 `skills/engineering/tdd/SKILL.md`）。
-
-### LLM Prompt Issues
-
-- prompt 里写 0-indexed 列表（LLM 几乎一定返回 1-indexed）。
-- prompt 列出的可用工具与代码里 `tools: [...]` 数组不一致。
-- token / 字数上限在 prompt 里多处声明，会漂移。
-
-### Time Window Safety
-
-- 按日期 key 查询假设“今天”等于 24h → 早 8 点的报表只看到 0-8 点数据。
-- 关联功能用了不同时间窗（一个 hourly、一个 daily），同源数据对不上。
-- 时区：服务端 UTC 与用户本地时区切换处必须显式转换。
-
-### Performance & Bundle Impact
-
-- 新增已知重型依赖：`moment` (用 `date-fns` / `dayjs`)、整包 `lodash` (用 per-function 或 `lodash-es`)、`jquery`、整包 polyfill。
-- lockfile 因单个新依赖膨胀显著（>10 个新传递依赖要质疑）。
-- 图片无 `loading="lazy"` 与显式宽高 → 触发 CLS。
-- 同步 `<script>` 没 `async` / `defer`。
-- `useEffect` 串行 fetch 形成 waterfall（应并行或合并请求）。
-- tree-shake 友好库被改成 default import → 失去 tree-shaking。
-
-不要 flag：
-
-- devDependencies 增加（不影响产物）。
-- 动态 `import()`（这是 code splitting，是好事）。
-- 服务端独占依赖。
-- < 5KB gzip 的小工具。
-
-### CI/CD & Distribution
-
-- workflow 文件改动后构建工具版本与项目要求不匹配。
-- secrets 直接写在 workflow 而不是 `${{ secrets.X }}`。
-- 跨平台 build 矩阵漏了目标平台，或没标注哪些是未测试的。
-- Release / publish 步骤不幂等（重跑会失败）。
-
----
-
-## Suppressions — 不要 flag 这些
-
-降低噪音评审。下列模式即使匹配，也不要在 finding 里报：
-
-- “X 与 Y 冗余” 但冗余有助于可读性（如 `present?` 与 `length > 20` 同时存在）。
-- “给阈值 / 调参常量加注释” → 这类常量会随 tuning 变化，注释会先于代码腐烂。
-- “这个断言可以更紧” 当现有断言已经覆盖了该行为。
-- 仅为一致性而修改（把一个值包进与另一处相同结构的 conditional）。
-- “正则没处理边界情况 X” 当输入由上游约束、X 实际不会出现。
-- “一个测试同时验证了多个 guard” → 测试不需要每个 guard 隔离。
-- 已经在被评审的 diff 内修复的问题（评审前必须把 diff 完整读一遍）。
-- ML/eval 类阈值的微调（top-K、min-score 等会反复调整）。
-- 无副作用的 no-op（如 `.filter` 一个永远不在数组里的元素）。
-
----
-
-## Confidence 校准
-
-每条 finding 必须自评 confidence (1-10)：
-
-| 分数 | 含义 | 处理 |
-|------|------|------|
-| 9-10 | 已读到具体代码，能演示出 bug 或攻击路径 | 主报告正常列出 |
-| 7-8  | 高置信度模式匹配，几乎一定对 | 主报告正常列出 |
-| 5-6  | 可能是假阳性，需要作者确认 | 列出但加 `verify this is actually an issue` 标注 |
-| 3-4  | 模式可疑，未确认 | 不进主报告，附录列出 |
-| 1-2  | 纯猜测 | 仅在严重度会是 P0 的情况下才提 |
-
-格式：`[Severity] (confidence: N/10) file:line — description`。
-
-如果作者后续确认了一个 confidence < 7 的 finding 是真问题，记一笔学到的模式 — 下次该模式应以更高 confidence 抓到。
-
----
-
-## See Also
-
-- `agents/code-reviewer.md` — 五轴评审主流程（subagent 系统提示）。
-- `skills/engineering/review-request/SKILL.md` — 作者侧调度入口与 lane 选择。
-- `references/security-checklist.md` — OWASP-class 安全检查。
-- `references/performance-checklist.md` — 性能检查。
-- `agents/security-auditor.md` — 深度安全审计。
-- `skills/engineering/tdd/SKILL.md` — Bug fix 的回归测试编写。
+提出问题前检查输入约束、周边调用和 diff 后半部分是否已消除它。既有问题注明来源；仅在改动引入或加重影响时作为本次回归报告。关键事实无法核实时提出明确问题，避免为每种代码形状预设“必须报”或“永不报”。
