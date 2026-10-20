@@ -2,6 +2,9 @@
 name: to-spec
 description: 将已讨论清楚的需求与设计整理成一份完整 spec，并发布为一张 GitHub Issue。
 disable-model-invocation: true
+metadata:
+  adapted-from: >-
+    [mattpocock/skills: to-spec](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md).
 ---
 
 # to-spec
@@ -84,7 +87,3 @@ disable-model-invocation: true
 - 取得 URL 后用 `gh issue view` 回读，核对仓库、标题、正文与标签。回读失败时区分已获得的创建结果与尚未验证的内容。
 
 结论：返回 Issue URL 与回读结果；失败时报告已知状态和剩余阻塞，不把草稿当作已发布。
-
----
-
-Adapted from [mattpocock/skills: to-spec](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md).

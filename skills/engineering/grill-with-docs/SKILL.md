@@ -2,6 +2,9 @@
 name: grill-with-docs
 description: 深入追问需求或设计，澄清决策之间的依赖，并在讨论中记录已确认的领域术语与重要决定。
 disable-model-invocation: true
+metadata:
+  adapted-from: >-
+    [mattpocock/skills: grill-with-docs](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md) and its [grilling](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md) and [domain-modeling](https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md) disciplines.
 ---
 
 # grill-with-docs
@@ -45,7 +48,3 @@ disable-model-invocation: true
 决策树没有未决分支时，简要汇总目标、关键决定、范围边界及已更新文档，确认双方理解一致。用户已明确确认同一总结时不再追问。用户提前结束时，列出剩余问题，不声称讨论已收敛。
 
 检查改动文档的术语、状态和链接，返回文件位置与未解决事项。本 skill 到访谈及知识记录为止，不自动开始实现、发布 Issue 或调用其他工作流。
-
----
-
-Adapted from [mattpocock/skills: grill-with-docs](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md) and its [grilling](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md) and [domain-modeling](https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md) disciplines.
