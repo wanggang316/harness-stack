@@ -81,7 +81,7 @@ Kept from the retired fdd flow (no active skill dispatches them):
 Rules 1 and 2 come first in this version.
 
 1. **Atomic** - A skill owns one complete job and does not assume which skill runs before or after it
-2. **Self-Contained** - References to other skills are optional; a skill must still work with all of them removed
+2. **Self-Contained** - A skill owns its goal and completion criteria; it may call specialist skills with explicit fallback or blocking behavior
 3. **Progressive Disclosure** - AGENTS.md is a map, not a manual
 4. **Repository Knowledge** - All context versioned in-repo
 5. **Agent-Driven** - Everything is a Skill or Subagent

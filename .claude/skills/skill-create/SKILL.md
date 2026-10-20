@@ -1,122 +1,76 @@
 ---
 name: skill-create
-description: 在 harness-stack 仓库里新增、拆分或调整 skill 时使用——决定调用方式、落位与注册、按约定写作、并实测插件能加载它。只管 harness-stack 自身约定，不教通用的 skill 写作方法。
+description: 编写或修改 harness-stack 的 Skill 时使用，指导指令表达、上下文引用、信息组织和行为验证。
+metadata:
+  credits:
+    skill: writing-for-agents
+    author: Matt Pocock
+    url: "https://github.com/mattpocock/skills/blob/main/skills/productivity/writing-for-agents/SKILL.md"
 ---
 
-# skill-create：维护 harness-stack 的 skill
+# skill-create
 
-本 skill 是 harness-stack 仓库的**维护工具**，放在 `.claude/skills/`，不随插件分发。它只记录这个仓库特有、从环境里查不到的约定。通用写作方法另有出处，可用时直接引用，不在这里重复：
+为执行任务的 agent 写指导。目标是让它在不同输入下稳定地作出正确判断，而不是让每次输出都套同一模板。本 Skill 是仓库内的写作参考，不随插件分发。
 
-- 写作方法（context pointer、信息层级、completion criterion、剪枝）→ `mattpocock-skills:writing-for-agents`
-- 需要跑 eval、对比基线、优化 description 触发率 → Anthropic 的 [`skill-creator`](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
+## 从职责和判断写起
 
-## Step 1: 判断要不要新建
+先说清 Skill 要完成的工作、接受什么输入、什么结果算完成。正文围绕会改变执行选择的信息展开：条件、动作、证据、边界和例外。
 
-为纠正 agent 的失败而加规则时，同一个失败至少出现两次再加；一次会话的经历不足以成为规则。用户明确要求的 skill 不受此限。
+使用直接的动词，并解释非显然规则的原因与适用条件。原因能让 agent 在新情境下沿用判断，而不只是机械匹配文字。例如，“测试期望值来自规格或独立算例，因为复写实现算法会复制同一个错误”，比“测试必须正确”更能指导执行。
 
-按顺序问，第一个「是」就停下：
+优先描述目标行为。确需禁止的操作紧邻安全做法，例如“只暂存本次拥有的路径或 hunks，保留用户的未提交改动”。不要为假想的偷懒行为堆叠警告；反复出现的失败先考虑能否由类型、测试或工具检查消除。
 
-1. 能用结构强制？按可靠程度选：架构或数据结构让错误无法发生 > 类型、lint、CI 检查（报错里写明修法）> 测试 > 脚本。→ 做成检查，不写成 skill 文字。只有需要判断、无法结构化的规则才继续往下。
-2. 已有 skill 覆盖这个职责？→ 改那个 skill；只有部分场景需要的内容，加到它的 `references/` 并在 SKILL.md 里加一条指针。
-3. 都不是 → 新建 skill。
+## 写能触发的上下文指针
 
-## Step 2: 选调用方式
+引用要同时说明材料是什么、什么时候读取。只有名称或“参见更多”无法帮助 agent 判断当前是否需要它。
 
-每个 skill 必须显式选择：
+- 弱指针：“参考 TDD。”
+- 明确指针：“新增或修复行为时，读取 `harness-stack:tdd`，按其测试边界和红绿循环实施。”
 
-| 方式 | frontmatter | 选它的条件 | description 写法 |
-|---|---|---|---|
-| model-invoked | 省略 `disable-model-invocation` | agent 需要自主触发它，或别的 skill 要调它 | 面向模型：先写它是什么，再列**互不重复**的触发分支；不概括流程步骤 |
-| user-invoked | `disable-model-invocation: true` | 只由人手动发起（例如 `to-github-issues`：一次性对外发布） | 面向人：一行说明它做什么 |
+description 也是指针。先写核心能力，再列不同的触发情境；删掉只是换词的重复条件。使用项目实际采用的术语、符号和文件名，同一概念保持同一名称，避免另造缩写增加解释成本。
 
-model-invoked 的 description 常驻每个会话的上下文，是插件对所有使用项目的永久开销。拿不准时选 user-invoked。
+需要 agent 自主使用或被其他 Skill 调用时，采用 model-invoked，省略 `disable-model-invocation`。仅供用户主动发起时设为 `true`，description 用一句话说明用途。调用方式影响可发现性，应按宿主能力检查，不能假设一个被隐藏的入口仍可由模型调用。
 
-## Step 3: 落位与命名
+## 按使用时机组织信息
 
-- **目录**：`skills/<category>/<name>/`。现有分类：
+步骤描述行动顺序，参考内容支持判断；不要求所有 Skill 都写成流程。共同必需的信息留在入口，只在部分情境下使用的细节移到参考文件，并在对应分支给出读取条件。
 
-  | category | 放什么 |
-  |---|---|
-  | `engineering` | 写代码、评审、交付的流程（tdd、review-*、pr-open、pr-land、changelog、to-github-issues、setup-harness-stack、domain-modeling、grill-with-docs、to-spec、document、audit-docs） |
-  | `productivity` | 跨任务的工作方式（git、debate、decide） |
-  | `ui` | UI / 设计系统 |
+把一个概念的定义、规则和例外放在一起。零散分布会让 agent 只读到规则而漏掉例外；把必需信息移得太远也会造成漏读。先改善指针和聚合方式，再决定是否内联。
 
-  `skills/feedback/` 直接放在 `skills/` 下，靠默认扫描加载。新 skill 一律放进分类目录。
-- **注册**：插件默认只扫描 `skills/<name>/SKILL.md` 一层。每个分类目录必须出现在 `.claude-plugin/plugin.json` 的 `skills` 数组里，否则其下的 skill 不会加载。新增分类 = 同时改这个数组。
-- **命名**：`name` 等于目录名，小写连字符，裸名——不带 `hs-` / `harness-stack:` 前缀，分类不进名字。最终以 `harness-stack:<name>` 寻址，所以全插件内必须唯一。
-- **不要放进** `skills/deprecated/`：那里是已退役的 skill，不加载、不被引用。
+长度由执行需要决定，不按行数截断。长文会分散注意力、增加维护成本；过短又可能省掉判断依据。检查每段是否帮助当前路径作决定：共同规则保留，分支细节按需披露，重复或可直接查询的事实删除。不要为了变短把多个条件挤进难以理解的长句。
 
-## Step 4: 写 SKILL.md
+只有任务边界、使用时机或调用方式确实不同，才拆成独立 Skill。拆分也会增加寻找和选择入口的成本。普通文件引用不会清空上下文，不能把拆文件当成已经隔离了后续步骤。
 
-**仓库约定**
+## 给出可检查的完成条件
 
-- 正文用中文；代码、命令、标识符、frontmatter 的 key 用英文。与同分类的兄弟 skill 保持同一语气和格式。
-- 引用或改编他人的 skill 时，将来源署名写入 frontmatter 的 `metadata.credits`。`credits` 包含 `skill`（原 skill 名）、`author`、`url`（原始 SKILL.md 链接，加引号），来源属于组织时再加 `organisation`。示例：
+用实际产物或观察结果区分完成与未完成。例如，“每个改动的公共入口都有对应测试结果，无法执行的项注明原因”，比“充分测试”更明确。
 
-  ```yaml
-  metadata:
-    credits:
-      skill: to-spec
-      author: Matt Pocock
-      url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md"
-  ```
-- 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤；分流型 skill（如 `changelog`）的 SKILL.md 只是一张路由表，细节放 `references/`。
-- 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
-- **原子性**：一个 skill 只负责一段单一、完整的职责。不写「之后交给 X」「先经 Y」；前提不满足时停下告诉用户。流程编排只写在 `AGENTS.md`。
-- **自足**：去掉所有外部引用后 skill 仍能正常运行。必需的步骤（同步分支、推送、处理被拒）直接写进本 skill，一两句话或一条命令即可；引用其他 skill 只作可选的增强，用 `harness-stack:<name>`，且只引用仍在加载的 skill。本 skill 自己的 `references/`、`scripts/` 不算外部引用。
-- 需要按项目保存配置或状态时，放在 `~/.harness-stack/<project>/`，不写进项目；新文件在 `references/state.md` 登记写入方与读取方。读状态的 skill 在状态缺失时按默认行为运行。
-- 会产生对外副作用的步骤（发 Issue、推送、发布）在执行前取得用户明确同意，并写清停止条件。
-- 不在其他任务进行中顺手改 skill：skill 改动单独提交、单独 PR，便于评审和评估。
-- 「Common Rationalizations」「Red Flags」只在你**观察到**过 agent 真实绕开某一步时才写，并且写成目标行为，而不是只罗列禁令。没有观察到的失败模式，就不加这两节。
-- 读者是执行 skill 的 agent，不是提需求的人。用命令句写它要做什么、写到哪里、何时停下；只有缺了理由会被误读的规则才补一句为什么。设计原则放进 `references/` 或 `AGENTS.md`，不要把需求方的原话或口号搬进 skill。
-- 需要判断、无法结构化的规则放在显眼位置，并给一个失败示例。
-- 写代码库里真实的符号、文件、命令名，不用同义词或描述代替；同一事物全文只用一个名字。
-- 只写当前方案。仅当要避开 agent 默认会采用的通用做法时，才写「不要 X」；历史方案和过程中放弃的方案不在正文出现。
-- 同一个事实只说一次：在第一次需要它的地方写清楚，之后用简称指代，不重复强调。
-- 长度参照 mattpocock 的 skill：流程型 skill 的 SKILL.md 以 100 行以内为目标。超过时，先找出在教模型它本来就会做的事的句子。
-- 每句话都过一遍：删掉它，agent 的行为会变吗？不会就删。从 `package.json`、`--help`、目录结构一查就有的事实不要抄进来。
+完成条件应覆盖任务承诺，也允许表达不适用、失败和未知。命令成功只证明它检查的范围；没有输出、没有运行或结论不确定不能记为通过。
 
-## Step 5: 登记
+把条件放在相关动作旁或统一的收口处，选择最清楚的位置。无需在每步追加“结论”段落，也不要为了可检查而制造没有业务意义的清单。
 
-- `AGENTS.md` 的 Quick Navigation：在对应阶段加一行 `/harness-stack:<name> - <一句话>`。
-- `references/getting-started.md` 的 Lifecycle Skills 表：加一行，链接用相对路径 `../skills/<category>/<name>/SKILL.md`。
-- 新增或删除 skill 时，同步修改仓库里所有引用它的地方（见 Step 6 的扫描）。
+## 复用专业 Skill
 
-## Step 6: 验证加载与引用
+一个 Skill 对自己的完整职责负责，可以在职责内调用其他 Skill。例如 `implement` 在行为改动时使用 `harness-stack:tdd`；这不会把整个实现任务转交出去。
 
-在仓库根目录执行，全部通过才算完成：
+引用处说明触发条件、需要读取或执行什么，以及结果怎样回到当前任务。共享方法只维护一个权威版本，避免每个调用方都复制完整教程。只引用仍在使用且实际可发现的 Skill 或有效文件。
 
-```bash
-# 1. Manifest is valid
-claude plugin validate .
+自足指目标、上下文和完成条件明确，不代表禁止协作。为缺失依赖写清处理：能保持相同完成标准时用简短的本地方法继续；不能时报告缺少的能力及受影响的步骤。不可用的工具或 Skill 不等于已执行。
 
-# 2. The skill actually loads. Run from a scratch dir so project files do not interfere.
-#    A user-invoked skill is hidden from the model, so probe a temp copy with the flag stripped.
-probe="$(mktemp -d)"
-cp -R .claude-plugin skills commands agents "$probe"/
-find "$probe/skills" -name SKILL.md -exec sed -i '' '/^disable-model-invocation: true$/d' {} +
-(cd "$(mktemp -d)" && claude --plugin-dir "$probe" --model haiku \
-  -p "List every skill name in your available-skills list that starts with 'harness-stack:'. Output only the names." </dev/null)
-rm -rf "$probe"
+区分内部方法复用和额外任务授权。调用测试方法不意味着自动获得推送、发布或关闭工单的权限；已有会话或宿主授权应沿用，不重复询问。
 
-# 3. No stale references to moved, renamed, or retired skills
-grep -rnE "harness-stack:<old-or-new-name>|skills/<old-path>" -I . \
-  --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=deprecated
-```
+## 剪枝与维护
 
-第 2 步的输出必须包含 `harness-stack:<name>`。`sed -i ''` 是 macOS 写法；Linux 上用 `sed -i`。
+每项规则保留一个权威位置。配置、目录和 `--help` 已能直接回答的事实，通常让 agent 现场查询；保留不容易查到的约定、理由和陷阱。
 
-**复杂或有对外副作用的 skill**：再做一次前向测试。派一个全新上下文的 subagent，只给它一个真实的用户请求和这个 skill 的路径，不给预期答案或你怀疑的问题；让它在仓库外的临时目录里工作，对外副作用一律停在确认步骤之前。只根据观察到的行为修改 skill。
+逐句检查：删掉它会改变执行判断吗？不确定时通过实际任务比较，而不是继续争论措辞。删除失效或无作用的整句，避免只缩短几个词却留下重复含义。示例用于说明容易误解的选择，不用于教模型已经掌握的基础语法。
 
-**改变已有 skill 的行为时**：按 [references/blind-comparison.md](references/blind-comparison.md) 做新旧版本盲测对比。
+正文沿用中文，代码、命令和标识符使用简洁英文。改编来源放在 frontmatter 的 `metadata.credits`，记录 `skill`、`author`、原始 `url`；多个来源用列表，属于组织时可补 `organisation`。
 
-## Verification
+## 用实际行为检验指导
 
-- [ ] Step 1 的决定有理由：不能用结构强制，也没有和已有 skill 重叠
-- [ ] 调用方式已显式选择；model-invoked 的 description 只含互不重复的触发分支
-- [ ] 目录在 `skills/<category>/<name>/`，`name` 等于目录名，所在分类在 `plugin.json` 的 `skills` 数组里
-- [ ] `references/` 中的每个文件都在 SKILL.md 中有指针
-- [ ] 原子且自足：不预设前后衔接的 skill；删掉所有指向其他 skill 的引用后，流程仍能走完
-- [ ] `AGENTS.md` 与 `references/getting-started.md` 已登记
-- [ ] 改变已有 skill 行为时，盲测对比显示新版更好
-- [ ] `claude plugin validate .` 通过，加载探测的输出里有 `harness-stack:<name>`，引用扫描没有命中
+选择能暴露关键取舍的自然任务，观察 agent 读了什么、执行了什么、遇到障碍后如何处理，以及最终产物。对外操作限于已有授权；用隔离的临时目录避免影响真实项目。
+
+修改已有行为时，按 [新旧版本盲测对比](references/blind-comparison.md) 用相同请求比较两个版本。可以让全新上下文的 subagent 分别执行，保持输入和环境一致，不透露预期答案；结论依据实际操作及产物，不依赖 agent 自称遵守了规则。样例只能证明该情境的表现，不能证明普遍提升。
+
+需要系统设计评估、扩大样本或优化触发率时，可使用 Anthropic 的 [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)。这里只保留指导行为的方法，不规定插件登记和加载操作流程。
