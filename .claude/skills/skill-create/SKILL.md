@@ -1,6 +1,6 @@
 ---
 name: skill-create
-description: 在 harness-stack 仓库里新增、拆分或调整 skill / command 时使用——决定形态与调用方式、落位与注册、按约定写作、并实测插件能加载它。只管 harness-stack 自身约定，不教通用的 skill 写作方法。
+description: 在 harness-stack 仓库里新增、拆分或调整 skill 时使用——决定调用方式、落位与注册、按约定写作、并实测插件能加载它。只管 harness-stack 自身约定，不教通用的 skill 写作方法。
 ---
 
 # skill-create：维护 harness-stack 的 skill
@@ -8,7 +8,7 @@ description: 在 harness-stack 仓库里新增、拆分或调整 skill / command
 本 skill 是 harness-stack 仓库的**维护工具**，放在 `.claude/skills/`，不随插件分发。它只记录这个仓库特有、从环境里查不到的约定。通用写作方法另有出处，可用时直接引用，不在这里重复：
 
 - 写作方法（context pointer、信息层级、completion criterion、剪枝）→ `mattpocock-skills:writing-for-agents`
-- 需要跑 eval、对比基线、优化 description 触发率 → Anthropic 的 `skill-creator`
+- 需要跑 eval、对比基线、优化 description 触发率 → Anthropic 的 [`skill-creator`](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)
 
 ## Step 1: 判断要不要新建
 
@@ -18,21 +18,11 @@ description: 在 harness-stack 仓库里新增、拆分或调整 skill / command
 
 1. 能用结构强制？按可靠程度选：架构或数据结构让错误无法发生 > 类型、lint、CI 检查（报错里写明修法）> 测试 > 脚本。→ 做成检查，不写成 skill 文字。只有需要判断、无法结构化的规则才继续往下。
 2. 已有 skill 覆盖这个职责？→ 改那个 skill；只有部分场景需要的内容，加到它的 `references/` 并在 SKILL.md 里加一条指针。
-3. 本质是「跑一个操作」，一屏写完、不需要 `references/`？→ 写 command（Step 2）。
-4. 都不是 → 新建 skill。
+3. 都不是 → 新建 skill。
 
-## Step 2: 选形态与调用方式
+## Step 2: 选调用方式
 
-**形态**
-
-| 形态 | 位置 | 适用 |
-|---|---|---|
-| skill | `skills/<category>/<name>/SKILL.md`（可带 `references/`、`scripts/`、`assets/`） | 多步流程、判断、按场景分流的工作流 |
-| command | `commands/<name>.md`（单文件） | 轻量入口：固定 `allowed-tools`、钉一个便宜的 `model`、`argument-hint`、`!` 注入 shell 上下文，或作为某个 skill 的日常快捷入口（如 `/commit` → `harness-stack:git`） |
-
-skill 本身就能以 `/harness-stack:<name>` 调用，**不需要**配一个同名 command 才能被发现。只有当入口需要上表里 command 独有的价值时才配。
-
-**调用方式**（每个 skill 必须显式选择）
+每个 skill 必须显式选择：
 
 | 方式 | frontmatter | 选它的条件 | description 写法 |
 |---|---|---|---|
@@ -117,19 +107,15 @@ grep -rnE "harness-stack:<old-or-new-name>|skills/<old-path>" -I . \
 
 **复杂或有对外副作用的 skill**：再做一次前向测试。派一个全新上下文的 subagent，只给它一个真实的用户请求和这个 skill 的路径，不给预期答案或你怀疑的问题；让它在仓库外的临时目录里工作，对外副作用一律停在确认步骤之前。只根据观察到的行为修改 skill。
 
-**改变已有 skill 的行为时**：做盲测对比，防止只凭一次坏会话写的修复过拟合。
-- 用同一个自然的用户请求，分别让旧版和新版各跑一次，每个 agent 在自己的临时目录里工作。
-- agent 能看到的目录、文件名和 prompt 里不出现 eval、test、judge、candidate、compare 等字样；不告诉它还有其他版本；不要求它列出用了哪些 skill 或文件。
-- 是否按 skill 执行，以 transcript 里它实际读过的文件和产出的形状为准，不看它的自述。
-- 自己读完每份输出再下结论；结论与预期不符时，先怀疑评判标准。
+**改变已有 skill 的行为时**：按 [references/blind-comparison.md](references/blind-comparison.md) 做新旧版本盲测对比。
 
 ## Verification
 
 - [ ] Step 1 的决定有理由：不能用结构强制，也没有和已有 skill 重叠
-- [ ] 形态与调用方式已显式选择；model-invoked 的 description 只含互不重复的触发分支
+- [ ] 调用方式已显式选择；model-invoked 的 description 只含互不重复的触发分支
 - [ ] 目录在 `skills/<category>/<name>/`，`name` 等于目录名，所在分类在 `plugin.json` 的 `skills` 数组里
 - [ ] `references/` 中的每个文件都在 SKILL.md 中有指针
-- [ ] 原子且自足：不预设前后衔接的 skill；删掉所有指向其他 skill / command 的引用后，流程仍能走完
+- [ ] 原子且自足：不预设前后衔接的 skill；删掉所有指向其他 skill 的引用后，流程仍能走完
 - [ ] `AGENTS.md` 与 `references/getting-started.md` 已登记
 - [ ] 改变已有 skill 行为时，盲测对比显示新版更好
 - [ ] `claude plugin validate .` 通过，加载探测的输出里有 `harness-stack:<name>`，引用扫描没有命中

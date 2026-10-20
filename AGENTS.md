@@ -62,7 +62,7 @@ harness-stack is stateful. Per-project config and state live in `~/.harness-stac
 
 Skills are grouped by category: `skills/{engineering,productivity,ui}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`).
 
-To add or change a skill or command in this repo, use the repo-local `/skill-create` (`.claude/skills/skill-create/`). It is not shipped with the plugin.
+To add or change a skill in this repo, use the repo-local `/skill-create` (`.claude/skills/skill-create/`). It is not shipped with the plugin.
 
 ### Specialized Agents
 
