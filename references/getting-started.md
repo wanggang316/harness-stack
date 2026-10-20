@@ -34,6 +34,8 @@ harness-stack 文档中心。
 | Ship | harness-stack:git | [SKILL.md](../skills/productivity/git/SKILL.md) |
 | Ship | harness-stack:pr-open | [SKILL.md](../skills/engineering/pr-open/SKILL.md) |
 | Ship | harness-stack:pr-land | [SKILL.md](../skills/engineering/pr-land/SKILL.md) |
+| Productivity | harness-stack:screenshot | [SKILL.md](../skills/productivity/screenshot/SKILL.md) |
+| Productivity | harness-stack:screen-record | [SKILL.md](../skills/productivity/screen-record/SKILL.md) |
 
 已废弃的 skill 在 [skills/deprecated/](../skills/deprecated/)，不再加载。
 
