@@ -34,6 +34,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:tdd` - Test-driven development
 
 **Review** → Ensure quality
+- `/harness-stack:code-review` - Review a defined change against requirements, project standards, and evidence
 - `/harness-stack:review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
 - `/harness-stack:review-receive` - Handle reviewer feedback (author side)
 
@@ -93,7 +94,7 @@ Rules 1 and 2 come first in this version.
 ## Getting Started
 
 1. Build: `/harness-stack:implement` for a defined task; `/harness-stack:tdd` for focused test-driven work.
-2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
+2. Review: `/harness-stack:code-review` for the review method; `/harness-stack:review-request` for independent review; `/harness-stack:review-receive` to verify and address feedback.
 3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:pr-land` → `/harness-stack:changelog`.
 
 ## Packages

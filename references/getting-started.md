@@ -25,6 +25,7 @@ harness-stack 文档中心。
 | Plan | harness-stack:to-github-issues | [SKILL.md](../skills/engineering/to-github-issues/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
+| Review | harness-stack:code-review | [SKILL.md](../skills/engineering/code-review/SKILL.md) |
 | Review | harness-stack:review-request | [SKILL.md](../skills/engineering/review-request/SKILL.md) |
 | Review | harness-stack:review-receive | [SKILL.md](../skills/engineering/review-receive/SKILL.md) |
 | Deliberate | harness-stack:debate | [SKILL.md](../skills/productivity/debate/SKILL.md) |
