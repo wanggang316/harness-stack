@@ -3,8 +3,10 @@ name: grill-with-docs
 description: 深入追问需求或设计，澄清决策之间的依赖，并在讨论中记录已确认的领域术语与重要决定。
 disable-model-invocation: true
 metadata:
-  adapted-from: >-
-    [mattpocock/skills: grill-with-docs](https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md) and its [grilling](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md) and [domain-modeling](https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md) disciplines.
+  credits:
+    skill: grill-with-docs
+    author: Matt Pocock
+    url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/grill-with-docs/SKILL.md"
 ---
 
 # grill-with-docs

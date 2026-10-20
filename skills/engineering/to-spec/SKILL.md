@@ -3,8 +3,10 @@ name: to-spec
 description: 将已讨论清楚的需求与设计整理成一份完整 spec，并发布为一张 GitHub Issue。
 disable-model-invocation: true
 metadata:
-  adapted-from: >-
-    [mattpocock/skills: to-spec](https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md).
+  credits:
+    skill: to-spec
+    author: Matt Pocock
+    url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md"
 ---
 
 # to-spec

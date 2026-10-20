@@ -66,7 +66,15 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 **仓库约定**
 
 - 正文用中文；代码、命令、标识符、frontmatter 的 key 用英文。与同分类的兄弟 skill 保持同一语气和格式。
-- 引用或改编他人的 skill 时，将来源署名写入 frontmatter 的 `metadata.adapted-from`，保留作者或仓库名及原始链接，不在正文末尾追加 `Adapted from`。[Agent Skills 标准](https://agentskills.io/specification#metadata-field)规定 `metadata` 为字符串键值映射；`adapted-from` 是本仓库约定的扩展键。多个来源用 YAML 折叠字符串（`>-`）记录，不使用数组或嵌套对象。
+- 引用或改编他人的 skill 时，将来源署名写入 frontmatter 的 `metadata.credits`，不在正文末尾追加 `Adapted from`。`credits` 包含 `skill`（原 skill 名）、`author`、`url`（原始 SKILL.md 链接，加引号），来源属于组织时再加 `organisation`。示例：
+
+  ```yaml
+  metadata:
+    credits:
+      skill: to-spec
+      author: Matt Pocock
+      url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md"
+  ```
 - 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤，每步以可检查的结论收尾；分流型 skill（如 `changelog`）的 SKILL.md 只是一张路由表，细节放 `references/`。
 - 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
 - **原子性**：一个 skill 只负责一段单一、完整的职责。不写「之后交给 X」「先经 Y」；前提不满足时停下告诉用户。流程编排只写在 `AGENTS.md`。
