@@ -30,6 +30,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:to-github-issues` - Split a plan, spec, or conversation into tracer-bullet issues with native blocked-by / sub-issue links; writes nothing into the repo
 
 **Build**
+- `/harness-stack:implement` - Implement a defined task with verification and a reviewable handoff
 - `/harness-stack:tdd` - Test-driven development
 
 **Review** → Ensure quality
@@ -91,7 +92,7 @@ Rules 1 and 2 come first in this version.
 
 ## Getting Started
 
-1. Build: `/harness-stack:tdd` for any logic change or bug fix.
+1. Build: `/harness-stack:implement` for a defined task; `/harness-stack:tdd` for focused test-driven work.
 2. Review: `/harness-stack:review-request` to dispatch reviewers, `/harness-stack:review-receive` after feedback.
 3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:pr-land` → `/harness-stack:changelog`.
 
