@@ -51,7 +51,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 **仓库约定**
 
 - 正文用中文；代码、命令、标识符、frontmatter 的 key 用英文。与同分类的兄弟 skill 保持同一语气和格式。
-- 引用或改编他人的 skill 时，将来源署名写入 frontmatter 的 `metadata.credits`，不在正文末尾追加 `Adapted from`。`credits` 包含 `skill`（原 skill 名）、`author`、`url`（原始 SKILL.md 链接，加引号），来源属于组织时再加 `organisation`。示例：
+- 引用或改编他人的 skill 时，将来源署名写入 frontmatter 的 `metadata.credits`。`credits` 包含 `skill`（原 skill 名）、`author`、`url`（原始 SKILL.md 链接，加引号），来源属于组织时再加 `organisation`。示例：
 
   ```yaml
   metadata:
