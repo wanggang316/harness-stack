@@ -1,6 +1,12 @@
 ---
 name: pr-open
 description: 把一个已提交的 feature branch 开成 pull request——检测 base、同步并推送、写出以图示和证据为核心的 PR body、用 gh 创建。在用户要求提 PR / 开 PR、或已有 PR 的 title 与 body 需要按当前 diff 重写时使用。不负责 commit、review 与合并。
+metadata:
+  credits:
+    skill: show-me
+    author: Dex Horthy
+    organisation: Humanlayer
+    url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 ---
 
 # pr-open：开 PR
