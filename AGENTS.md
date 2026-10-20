@@ -15,7 +15,6 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 **Define** → Domain, design, UI
 - `/harness-stack:domain-modeling` - Clarify domain terms and decisions during design discussions
-- `/harness-stack:design` - Review a complex change proposal; close it with delivery evidence and links to current knowledge
 - `/harness-stack:define-ui-spec` - UI design system (DESIGN.md)
 
 **Knowledge** → Maintain project understanding
@@ -25,7 +24,8 @@ An agent-first **development harness** — a curated stack of tools that keep an
 **Setup** → Per-project config
 - `/harness-stack:setup-harness-stack` - Configure the issue repo and triage labels for this project; writes to `~/.harness-stack/<project>/`, not the repo
 
-**Plan** → Break work into GitHub issues
+**Plan** → Capture specs and split work into GitHub issues
+- `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec issue
 - `/harness-stack:to-github-issues` - Split a plan, spec, or conversation into tracer-bullet issues with native blocked-by / sub-issue links; writes nothing into the repo
 
 **Build**
@@ -47,7 +47,9 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Documentation workflow
 
-Use current domain documentation and active decisions when changing a feature. Keep relevant knowledge accurate as part of the change; no document is required when no durable knowledge changes. Use proposals for complex trade-offs and tickets or PRs for execution state and evidence. Close proposals after current knowledge is updated.
+Use current domain documentation and active decisions when changing a feature. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-github-issues` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in issues and PRs. Use a design file only when the change needs one.
+
+Make all repository edits in a dedicated worktree on a non-main branch, including documentation and skills. Review code and related knowledge in the same PR; main remains the merged baseline.
 
 For document roles, placement, and lifecycle, read [Project Knowledge](references/project-knowledge.md). The documentation skills are independent; none requires another skill to run first.
 

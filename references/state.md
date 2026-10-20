@@ -13,8 +13,8 @@
 
 | 文件 | 写入方 | 读取方 |
 |---|---|---|
-| `issue-tracker.md` | `setup-harness-stack` | `to-github-issues` |
-| `triage-labels.md` | `setup-harness-stack` | `to-github-issues` |
+| `issue-tracker.md` | `setup-harness-stack` | `to-spec`, `to-github-issues` |
+| `triage-labels.md` | `setup-harness-stack` | `to-spec`, `to-github-issues` |
 
 新增文件时在这张表里登记。
 
