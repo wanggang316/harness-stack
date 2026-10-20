@@ -1,6 +1,6 @@
 # 评审检查参考
 
-按改动涉及的风险读取。评审范围、finding 标准和结论见 [code-review](../skills/engineering/code-review/SKILL.md)。下列问题帮助定位需要调查的路径，实际严重度取决于可达条件和影响。
+按改动涉及的风险读取。评审范围与双轴派发见 [code-review](../skills/engineering/code-review/SKILL.md)，finding 标准和每轴结论见 [Reviewer 指导](../skills/engineering/code-review/references/reviewer-guide.md)。下列问题帮助定位需要调查的路径，实际严重度取决于可达条件和影响。
 
 ## 状态、数据与并发
 
