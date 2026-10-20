@@ -14,8 +14,6 @@ disable-model-invocation: true
 
 先区分当前知识、决策记录和过程历史。历史背景与现状不同并不构成错误；只检查其身份、状态、替代关系和可追溯性。
 
-结论：待审文件及其角色明确，未覆盖范围可见。
-
 ## 2. Check evidence and value
 
 对每份当前知识核查相关代码入口、契约、配置、测试和决定。需要外部事实时查一手来源并记录适用版本。检查：
@@ -28,8 +26,6 @@ disable-model-invocation: true
 
 给每个问题附证据。没有证据只能判定未验证，不能判定错误或据此删除。
 
-结论：问题区分为事实错误、契约冲突、重复、检索障碍或价值不足，并有可定位的依据。
-
 ## 3. Apply bounded repairs
 
 逐份选择 `Keep`、`Update`、`Consolidate`、`Retire` 或 `Unresolved`：
@@ -41,8 +37,6 @@ disable-model-invocation: true
 - `Unresolved`：证据不足或需要产品决定，保留原规则并报告。
 
 删除整份文档仅在用户已授权清理、且确认无独有知识或历史价值时进行；其他情况保留替代指针并建议删除。保留 ADR 和交付记录中的原始背景。沿用项目目录，不以审计为由全面重组。
-
-结论：修复与证据对应，未解决冲突没有被静默消除。
 
 ## 4. Verify and report
 
