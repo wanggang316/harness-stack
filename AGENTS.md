@@ -48,6 +48,10 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
 - `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
 
+**Productivity** → Capture visual evidence
+- `/harness-stack:screenshot` - Capture and process macOS screenshots
+- `/harness-stack:screen-record` - Record macOS screens and process videos
+
 ### Documentation workflow
 
 Use current domain documentation and active decisions when changing a feature. Use `grill-with-docs` when you want an explicit design interview with durable notes. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-github-issues` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in issues and PRs. Use a design file only when the change needs one.
