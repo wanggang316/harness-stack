@@ -111,7 +111,3 @@ sequenceDiagram
 +  write new content
 +  invalidate cache
 ```
-
----
-
-Adapted from the `show-me` skill by Dex Horthy (HumanLayer), <https://github.com/humanlayer/skills>.

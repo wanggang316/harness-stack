@@ -1,6 +1,11 @@
 ---
 name: domain-modeling
 description: 构建并打磨项目的领域模型：在设计讨论中澄清术语、压测概念边界，并记录当场确定的定义和决策。
+metadata:
+  credits:
+    skill: domain-modeling
+    author: Matt Pocock
+    url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/domain-modeling/SKILL.md"
 ---
 
 # domain-modeling
@@ -43,7 +48,3 @@ description: 构建并打磨项目的领域模型：在设计讨论中澄清术�
 当缺少背景会让后来的人做出看似合理、实际有害的修改，或重复进行昂贵调查时，提议记录 ADR。只记录已确认的选择、约束与真实取舍；回退成本不是唯一门槛。
 
 没有独立决策价值的事实写入相关现有文档，不为每次讨论新建 ADR。格式、有效状态与替代关系见 [references/adr-format.md](references/adr-format.md)。
-
----
-
-Adapted from the `domain-modeling` skill in [mattpocock/skills](https://github.com/mattpocock/skills).
