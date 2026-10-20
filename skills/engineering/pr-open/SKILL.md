@@ -26,8 +26,6 @@ gh pr list --head "$(git branch --show-current)" --state open --json number,url
 - 该分支已有 open 的 PR → 不重复创建；跳到 Step 4，最后用 `gh pr edit` 更新 title 与 body。
 - commit subject 带 `WIP` / `fixup!`，或 commit 里有 `Co-Authored-By` / 模型署名 → 停下，先整理历史。
 
-**结论**：工作树干净、在 feature branch 上，且确定了是「新建」还是「更新已有 PR」。
-
 ## Step 2: Detect base and sync
 
 ```bash
@@ -40,8 +38,6 @@ git diff --stat "origin/$BASE...HEAD" | tail -1      # diff size
 - 用户指定了别的目标（release 分支、`develop`）就用它；默认分支与团队实际目标看起来不一致时，问。
 - base 已前进 → `git rebase "origin/$BASE"`。冲突在推送前解决；解不开就停下报告。
 - 按 diff 规模决定：≤ ~800 行照常开；超过 ~800 行先向用户提议拆分（叠 PR、重构与 feature 分开）。整文件删除、lockfile、codemod 例外，在 body 里注明。
-
-**结论**：`$BASE` 已确定；分支包含 `origin/$BASE` 的最新提交；diff 规模已检查。
 
 ## Step 3: Push
 
@@ -57,9 +53,7 @@ git push -u origin "$BRANCH"
 git push --force-with-lease -u origin "$BRANCH"
 ```
 
-推送被拒时，先分清原因：auth / 权限 / 分支保护 → 停下报告，不要绕过；远端有新提交 → 回到 Step 2 同步后再推。
-
-**结论**：`git status -sb` 显示分支与 `origin/$BRANCH` 同步。
+推送被拒时，先分清原因：auth / 权限 / 分支保护 → 停下报告，不要绕过；远端有新提交 → 回到 Step 2 同步后再推。推送后用 `git status -sb` 确认分支与 `origin/$BRANCH` 同步。
 
 ## Step 4: Compose title and body
 
@@ -111,8 +105,6 @@ Closes #<n>
 - **Linked Issues**：用 `Closes #n` / `Refs #n`；没有就删掉这一节。
 - 不写开场白，不留占位符，不写空节。title、body 里不出现工具、模型或 agent 署名（`Co-Authored-By`、`Generated with ...`）。
 
-**结论**：title 与 body 已写完；Evidence 中的每一条都对应一次实际执行的命令或截图。
-
 ## Step 5: Create or update
 
 body 一律经 stdin 传入；`--body` 里的 `\n` 不会被展开。默认创建 ready-for-review 的 PR；仅当用户要求时加 `--draft`。
@@ -129,8 +121,6 @@ EOF
 
 gh pr view --json number,url,baseRefName,headRefName,isDraft
 ```
-
-**结论**：`gh pr view` 返回了 PR 编号与 URL。
 
 ## Step 6: Report
 

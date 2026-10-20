@@ -10,8 +10,6 @@ description: 在 harness-stack 仓库里新增、拆分或调整 skill / command
 - 写作方法（context pointer、信息层级、completion criterion、剪枝）→ `mattpocock-skills:writing-for-agents`
 - 需要跑 eval、对比基线、优化 description 触发率 → Anthropic 的 `skill-creator`
 
-每一步都以一个可检查的结论收尾；全部完成后过最后的 Verification。
-
 ## Step 1: 判断要不要新建
 
 按顺序问，第一个「是」就停下：
@@ -19,8 +17,6 @@ description: 在 harness-stack 仓库里新增、拆分或调整 skill / command
 1. 已有 skill 覆盖这个职责？→ 改那个 skill；只有部分场景需要的内容，加到它的 `references/` 并在 SKILL.md 里加一条指针。
 2. 本质是「跑一个操作」，一屏写完、不需要 `references/`？→ 写 command（Step 2）。
 3. 都不是 → 新建 skill。
-
-**结论**：一句话写下「改 X」「新建 command Y」或「新建 skill Z」，以及理由。
 
 ## Step 2: 选形态与调用方式
 
@@ -42,8 +38,6 @@ skill 本身就能以 `/harness-stack:<name>` 调用，**不需要**配一个同
 
 model-invoked 的 description 常驻每个会话的上下文，是插件对所有使用项目的永久开销。拿不准时选 user-invoked。
 
-**结论**：形态、调用方式、理由各一句。
-
 ## Step 3: 落位与命名
 
 - **目录**：`skills/<category>/<name>/`。现有分类：
@@ -59,8 +53,6 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 - **命名**：`name` 等于目录名，小写连字符，裸名——不带 `hs-` / `harness-stack:` 前缀，分类不进名字。最终以 `harness-stack:<name>` 寻址，所以全插件内必须唯一。
 - **不要放进** `skills/deprecated/`：那里是已退役的 skill，不加载、不被引用。
 
-**结论**：目录路径已建好，`plugin.json` 已覆盖它所在的分类。
-
 ## Step 4: 写 SKILL.md
 
 **仓库约定**
@@ -75,7 +67,7 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
       author: Matt Pocock
       url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/to-spec/SKILL.md"
   ```
-- 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤，每步以可检查的结论收尾；分流型 skill（如 `changelog`）的 SKILL.md 只是一张路由表，细节放 `references/`。
+- 结构跟着内容走，没有强制小节。流程型 skill 用编号步骤；分流型 skill（如 `changelog`）的 SKILL.md 只是一张路由表，细节放 `references/`。
 - 只有部分分支用到的内容放进本 skill 的 `references/`，在 SKILL.md 里写明何时读它。确定性、会被反复重写的逻辑放 `scripts/`，写完就跑一遍。
 - **原子性**：一个 skill 只负责一段单一、完整的职责。不写「之后交给 X」「先经 Y」；前提不满足时停下告诉用户。流程编排只写在 `AGENTS.md`。
 - **自足**：去掉所有外部引用后 skill 仍能正常运行。必需的步骤（同步分支、推送、处理被拒）直接写进本 skill，一两句话或一条命令即可；引用其他 skill 只作可选的增强，用 `harness-stack:<name>`，且只引用仍在加载的 skill。本 skill 自己的 `references/`、`scripts/` 不算外部引用。
@@ -87,15 +79,11 @@ model-invoked 的 description 常驻每个会话的上下文，是插件对所�
 - 长度参照 mattpocock 的 skill：流程型 skill 的 SKILL.md 以 100 行以内为目标。超过时，先找出在教模型它本来就会做的事的句子。
 - 每句话都过一遍：删掉它，agent 的行为会变吗？不会就删。从 `package.json`、`--help`、目录结构一查就有的事实不要抄进来。
 
-**结论**：SKILL.md 写完，`references/` / `scripts/` 中的每个文件都被 SKILL.md 中的一条指针引用。
-
 ## Step 5: 登记
 
 - `AGENTS.md` 的 Quick Navigation：在对应阶段加一行 `/harness-stack:<name> - <一句话>`。
 - `references/getting-started.md` 的 Lifecycle Skills 表：加一行，链接用相对路径 `../skills/<category>/<name>/SKILL.md`。
 - 新增或删除 skill 时，同步修改仓库里所有引用它的地方（见 Step 6 的扫描）。
-
-**结论**：两处都已更新。
 
 ## Step 6: 验证加载与引用
 
@@ -123,14 +111,12 @@ grep -rnE "harness-stack:<old-or-new-name>|skills/<old-path>" -I . \
 
 **复杂或有对外副作用的 skill**：再做一次前向测试。派一个全新上下文的 subagent，只给它一个真实的用户请求和这个 skill 的路径，不给预期答案或你怀疑的问题；让它在仓库外的临时目录里工作，对外副作用一律停在确认步骤之前。只根据观察到的行为修改 skill。
 
-**结论**：三条命令的实际输出已记录；需要前向测试的已做完。
-
 ## Verification
 
 - [ ] Step 1 的决定有理由：没有和已有 skill 重叠
 - [ ] 形态与调用方式已显式选择；model-invoked 的 description 只含互不重复的触发分支
 - [ ] 目录在 `skills/<category>/<name>/`，`name` 等于目录名，所在分类在 `plugin.json` 的 `skills` 数组里
-- [ ] SKILL.md 中的每个步骤都以可检查的结论收尾；`references/` 中的每个文件都有指针
+- [ ] `references/` 中的每个文件都在 SKILL.md 中有指针
 - [ ] 原子且自足：不预设前后衔接的 skill；删掉所有指向其他 skill / command 的引用后，流程仍能走完
 - [ ] `AGENTS.md` 与 `references/getting-started.md` 已登记
 - [ ] `claude plugin validate .` 通过，加载探测的输出里有 `harness-stack:<name>`，引用扫描没有命中
