@@ -1,10 +1,10 @@
-# 新旧版本盲测对比
+# Blind comparison of old and new versions
 
-只凭一次坏会话写的修复容易过拟合。改变已有 skill 的行为后，用盲测检查目标行为是否改善，也观察是否引入新的失败；允许结论是持平、退步或证据不足。
+A fix based on one bad conversation can overfit. After changing a skill's behavior, use a blind comparison to check the target behavior and new failure modes. A tie, regression, or insufficient evidence is a valid conclusion.
 
-- 用同一个自然的用户请求，分别让旧版和新版各跑一次，每个 agent 在自己的临时目录里工作。
-- agent 能看到的目录、文件名和 prompt 里不出现 eval、test、judge、candidate、compare 等字样；不告诉它还有其他版本；不要求它列出用了哪些 skill 或文件。
-- 是否按 skill 执行，以 transcript 里它实际读过的文件和产出的形状为准，不看它的自述。
-- 自己读完每份输出再下结论；结论与预期不符时，先怀疑评判标准。
-- 分别记录结果正确性和执行过程。例如两个版本都修好了缺陷，但只有一个逐切片取得红绿证据，不能只比较最后的测试数。
-- 报告样例范围和未覆盖情境；一次成功不能证明对所有任务都更好。发现具体问题后针对它修改并重验，不为获得预期胜负不断重跑。
+- Run the same natural user request once with each version. Each agent works in its own temporary directory.
+- Keep words such as eval, test, judge, candidate, and compare out of agent-visible directory names, filenames, and prompts. Do not reveal the other version or ask the agent to list the skills or files it used.
+- Determine skill adherence from files actually read and artifact structure in the transcript, not self-reports.
+- Read every output before concluding. When results conflict with expectations, question the evaluation criteria first.
+- Record correctness and execution separately. Both versions may fix a bug while only one produces red-green evidence per slice; final test counts alone miss that distinction.
+- Report scenario scope and untested cases. One success does not establish superiority across tasks. Fix and recheck specific findings rather than rerunning until a preferred winner emerges.

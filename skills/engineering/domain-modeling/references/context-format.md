@@ -1,4 +1,4 @@
-# 术语表格式
+# Glossary format
 
 ```md
 # {Context Name}
@@ -16,16 +16,16 @@ A request for payment sent to a customer after delivery.
 _Avoid_: Bill, payment request
 ```
 
-## 规则
+## Rules
 
-- **有主见。** 同一概念有多个词时，选最好的那个，其余列在 `_Avoid_` 下。
-- **定义要紧。** 最多一两句，说它**是什么**，不说它做什么。
-- **只收本项目特有的概念。** 超时、错误类型、工具模式这类通用编程概念，即使项目里用得很多也不收。
-- 术语自然成簇时，用小标题分组；只有一簇就用平铺列表。
+- **Be opinionated.** Choose the best term for a concept and list alternatives under `_Avoid_`.
+- **Keep definitions tight.** Use one or two sentences to say what the concept **is**, not what it does.
+- **Include only project-specific concepts.** Exclude generic programming concepts such as timeouts, error types, or tool patterns, even when used frequently.
+- Group natural clusters under subheadings. Use a flat list for a single cluster.
 
-## 多上下文
+## Multiple contexts
 
-沿用已有上下文索引。以下是根目录 `CONTEXT-MAP.md` 的例子，链接应使用项目实际路径：
+Use the existing context index. This root-level `CONTEXT-MAP.md` example must use actual project paths:
 
 ```md
 # Context Map
@@ -40,4 +40,4 @@ _Avoid_: Bill, payment request
 - **Ordering → Billing**: Ordering emits `OrderPlaced` events; Billing consumes them to generate invoices
 ```
 
-判断结构：有 `CONTEXT-MAP.md` 就从它找上下文；只有根目录 `CONTEXT.md` 就是单一上下文；都没有时先查项目已有术语表；没有约定就在第一个术语确定时创建 `docs/glossary.md`。沿用已选路径，不因模板里的名称再建一份。
+Find contexts through `CONTEXT-MAP.md` when present. A root `CONTEXT.md` alone indicates a single context. If neither exists, look for the project's glossary. Without a convention, create `docs/glossary.md` when the first term is settled. Reuse the chosen path; template names do not justify a duplicate.

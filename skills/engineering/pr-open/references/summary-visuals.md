@@ -1,20 +1,20 @@
 # Summary visuals
 
-为 PR body 的 Summary 挑一个最小的图示。按改动的**主要看点**选形状：
+Choose the smallest visual for the PR Summary. Match its shape to the change's **main point**:
 
-| 看点 | 形状 |
+| Main point | Shape |
 |---|---|
-| 逻辑 / 算法 | 伪代码 |
-| 运行时的调用顺序 | 调用树 |
-| UI 结构、状态与模块边界 | 组件树 |
-| 文件职责、大范围重构 | 浅层文件树 |
-| 组件交互、控制流、数据流 | Mermaid |
-| 已有结构上的增删 | 对应形状的 `diff` |
-| 大部分是新代码，或 reviewer 需要可复制的目标形状 | 完整代码块 |
+| Logic or algorithm | Pseudocode |
+| Runtime call order | Call tree |
+| UI structure, state, and module boundaries | Component tree |
+| File responsibilities or broad refactoring | Shallow file tree |
+| Component interaction, control flow, or data flow | Mermaid |
+| Additions or removals in an existing structure | A `diff` of that shape |
+| Mostly new code, or a copyable target shape | Complete code block |
 
-通常一个就够，最多两个。每个图示紧挨着它要支撑的那句话；只保留回答「改了什么」所需的调用、文件、props、状态与边界。
+One visual is usually enough; use at most two. Place each next to the statement it supports. Keep only calls, files, props, states, and boundaries needed to explain what changed.
 
-## 伪代码
+## Pseudocode
 
 ```text
 on(save)
@@ -24,7 +24,7 @@ on(save)
   return fresh result
 ```
 
-## 调用树
+## Call tree
 
 ```text
 submitForm
@@ -34,9 +34,9 @@ submitForm
   navigateToSession
 ```
 
-## 组件树
+## Component tree
 
-标出影响理解的状态与包边界：
+Show state and package boundaries that matter to understanding:
 
 ```text
 <SessionPage> (apps/web/src/routes/session.tsx)
@@ -45,7 +45,7 @@ submitForm
     <RunSkillButton> (packages/ui)
 ```
 
-## 文件树
+## File tree
 
 ```text
 src/
@@ -66,11 +66,11 @@ sequenceDiagram
     Daemon-->>UI: stream result
 ```
 
-## diff 形状
+## Diff shapes
 
-周围结构已经存在、要点是「变了什么」时，用 `diff` 包住上面任一形状。
+Use a `diff` of any shape above when the surrounding structure already exists and the point is what changed.
 
-组件：
+Component:
 
 ```diff
  <SessionPage>
@@ -80,7 +80,7 @@ sequenceDiagram
 +    <SkillResultCard />
 ```
 
-文件布局：
+File layout:
 
 ```diff
  src/
@@ -91,7 +91,7 @@ sequenceDiagram
 +    └── stream.ts
 ```
 
-调用树：
+Call tree:
 
 ```diff
  submitForm
@@ -101,7 +101,7 @@ sequenceDiagram
      launchAgent
 ```
 
-控制流：
+Control flow:
 
 ```diff
  on(save)

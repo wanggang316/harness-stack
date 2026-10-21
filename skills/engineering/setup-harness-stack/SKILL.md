@@ -1,41 +1,41 @@
 ---
 name: setup-harness-stack
-description: 为当前项目配置 Issue 发布到哪个 GitHub 仓库，以及 triage 角色对应哪些 label。
+description: Configure the current project's GitHub issue repository and the labels mapped to triage roles.
 disable-model-invocation: true
 ---
 
 # setup-harness-stack
 
-配置目录是 `~/.harness-stack/<owner>.<repo>/`，`<owner>/<repo>` 取自 `origin` 指向的 GitHub 仓库。没有 GitHub `origin` 时停下告诉用户。
+Use `~/.harness-stack/<owner>.<repo>/` as the configuration directory, deriving `<owner>/<repo>` from the GitHub repository at `origin`. If no GitHub `origin` exists, stop and tell the user.
 
 ## 1. Explore
 
-- 各个 remote 指向哪些 GitHub 仓库。
-- 配置目录里是否已有配置。有就在它的基础上更新。
-- 目标仓库已有的 label。
+- Identify the GitHub repositories referenced by each remote.
+- Check for existing configuration and update it in place when present.
+- Read the target repository's existing labels.
 
 ## 2. Ask
 
-逐节问，每节先给推荐答案，用户一个词就能确认。探索已经能确定的节直接跳过。
+Ask one section at a time, with a recommendation the user can confirm in one word. Skip sections already resolved by inspection.
 
-**A. Issue 仓库。** 推荐 `origin`。有 `upstream` 之类指向另一个仓库的 remote（fork）时，问 Issue 发到哪一个。
+**A. Issue repository.** Recommend `origin`. If another remote such as `upstream` points to a different repository in a fork setup, ask which one should receive issues.
 
-**B. Triage labels。** harness-stack 用四个 triage 角色：
+**B. Triage labels.** harness-stack uses four triage roles:
 
 | Role | Meaning |
-|---|---|
-| `agent-todo` | 需要 agent 实现 |
-| `agent-done` | agent 已实现完成 |
-| `needs-info` | 需要作者补充信息 |
-| `wontfix` | 无需修复 |
+| --- | --- |
+| `agent-todo` | Needs agent implementation |
+| `agent-done` | Agent implementation is complete |
+| `needs-info` | Needs more information from the author |
+| `wontfix` | No fix required |
 
-推荐 label 名与角色同名。仓库已有含义相同的 label（例如 `status:needs-info`）时，推荐映射到它。映射到的 label 在仓库里不存在时，问用户是否现在创建。
+Recommend label names that match the roles. Prefer an existing equivalent label, such as `status:needs-info`, when available. If a mapped label does not exist, ask whether to create it now.
 
 ## 3. Confirm and write
 
-先展示两个文件的草稿和要创建的 label，用户确认后再写入、创建。
+Show drafts of both files and the labels to create. Write the files and create labels after the user confirms.
 
-`issue-tracker.md`：
+`issue-tracker.md`:
 
 ```markdown
 # Issue tracker
@@ -43,7 +43,7 @@ disable-model-invocation: true
 Repo: <owner>/<repo>
 ```
 
-`triage-labels.md`：
+`triage-labels.md`:
 
 ```markdown
 # Triage labels
@@ -58,4 +58,4 @@ Repo: <owner>/<repo>
 
 ## 4. Report
 
-列出写入的文件路径和创建的 label，告诉用户可以直接编辑这两个文件。
+List written file paths and created labels. Tell the user they can edit both files directly.

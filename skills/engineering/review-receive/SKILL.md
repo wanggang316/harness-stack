@@ -1,31 +1,31 @@
 ---
 name: review-receive
-description: 核实并处理代码评审反馈，修复成立的问题，以证据说明异议，记录未解决项与复验结果。
+description: Verify and address code review feedback, fix valid findings, support disagreements with evidence, and record unresolved items and revalidation results.
 ---
 
 # review-receive
 
-将评审反馈落实为经过验证的修复或有依据的处理决定。finding 是针对某个版本的论断，先检查它是否适用于当前代码，再决定修改。
+Turn review feedback into verified fixes or evidence-based dispositions. A finding is a claim about a particular version. Check whether it applies to current code before deciding to change it.
 
-## 核实与分诊
+## Verify and triage
 
-读完整份报告及其评审范围，对照当前代码、需求、调用方和有效决定逐项核实。检查问题是否真实可达，是否已被后续修改解决，修复是否会破坏其他契约。
+Read the full report and its scope. Verify each finding against current code, requirements, callers, and active decisions. Check whether the problem is reachable, whether later changes already resolved it, and whether the proposed fix would break another contract.
 
-对每条 finding 记录处理：
+Record a disposition for each finding:
 
-- **成立**：说明触发条件和影响，安排修复。
-- **不成立或已解决**：引用当前代码、测试或决定说明理由。
-- **需要信息**：写明缺少的事实或决策，继续处理不依赖它的其他项。
-- **延后**：记录风险、理由及已有跟踪位置；阻塞性风险需有权者明确接受，不能由作者自行降级。
+- **Valid**: state trigger conditions and impact, then schedule a fix.
+- **Invalid or already resolved**: cite current code, tests, or decisions that support the conclusion.
+- **Needs information**: state missing facts or decisions and continue independent items.
+- **Deferred**: record risk, reason, and existing tracking location. Blocking risks require explicit acceptance by an authorized decision-maker; the author cannot downgrade them unilaterally.
 
-使用报告的严重度理解优先级，并核对实际影响。存在错误的需求或重要契约分歧时，先取得决定；个人偏好或建议不要求机械实现。无关的新需求作为范围外事项报告，不擅自创建外部工单。
+Use the reported severity to understand priority, then verify actual impact. Obtain a decision before resolving incorrect requirements or major contract disagreements. Preferences and suggestions do not require mechanical adoption. Report unrelated new requirements as out of scope; do not create external tickets without authorization.
 
-## 修复与复验
+## Fix and revalidate
 
-先处理安全、数据完整性和行为回归。按根因组织小步修复，相关 findings 可以一起处理；每步有针对性的验证，避免为每条评论制造独立但相互冲突的补丁。
+Address security, data integrity, and behavioral regressions first. Organize small fixes by root cause; related findings can share a fix. Give each step focused validation rather than producing separate, conflicting patches for every comment.
 
-行为修复使用 `harness-stack:tdd`，取得缺陷复现与修复后的证据。该 Skill 不可用时，先用最小检查证明问题，再修复并重跑，明确自动回归覆盖的缺口。修复后检查受影响调用方和测试，按项目约定提交自己的改动。
+Use `harness-stack:tdd` for behavioral fixes, with reproduction and after-fix evidence. If unavailable, prove the problem with the smallest check, fix it, and rerun. State gaps in automated regression coverage. Check affected callers and tests after the fix, and commit task-owned changes under project conventions.
 
-记录每条 finding 的最终处理和证据。修复过的代码需要重新验证，原评审不能自动覆盖新版本；需要独立复审时，提供原 findings、处理理由和新范围。相同问题反复出现时重新调查根因或澄清契约；条件未变、没有新证据时不重复派发。
+Record the final disposition and evidence for every finding. Changed code needs revalidation; the original review does not automatically cover the new version. For independent re-review, supply the original findings, disposition reasons, and new scope. If a problem recurs, investigate the root cause again or clarify the contract. Do not redispatch without changed conditions or new evidence.
 
-报告已修复、已驳回、待决定或延后的问题及其证据，明确剩余阻塞项。回复 PR 线程、标记解决或发布评论需已有授权；授权后核对线程与代码版本，操作后读回结果。
+Report fixed, rejected, pending, and deferred findings with evidence and remaining blockers. Replying to PR threads, marking them resolved, or publishing comments requires existing authorization. Once authorized, check the thread and code version, then read back the result after the operation.

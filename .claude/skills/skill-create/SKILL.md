@@ -1,6 +1,6 @@
 ---
 name: skill-create
-description: 编写或修改 harness-stack 的 Skill 时使用，指导指令表达、上下文引用、信息组织和行为验证。
+description: Write or revise harness-stack skills with guidance on instruction wording, context pointers, information structure, and behavioral validation.
 metadata:
   credits:
     skill: writing-for-agents
@@ -10,67 +10,67 @@ metadata:
 
 # skill-create
 
-为执行任务的 agent 写指导，让它在不同输入下稳定地作出正确判断。本 Skill 是仓库内的写作参考，不随插件分发。
+Write guidance that helps an executing agent make sound decisions across different inputs. This skill is a repository-local writing reference and is not distributed with the plugin.
 
-## 从职责和判断写起
+## Start with responsibility and decisions
 
-先说清 Skill 要完成的工作、接受什么输入、什么结果算完成。正文围绕会改变执行选择的信息展开：条件、动作、证据、边界和例外。
+State the job, accepted inputs, and what counts as completion. Build the body around information that changes execution choices: conditions, actions, evidence, boundaries, and exceptions.
 
-使用直接的动词，并解释非显然规则的原因与适用条件。原因能让 agent 在新情境下沿用判断，而不只是机械匹配文字。例如，“测试期望值来自规格或独立算例，因为复写实现算法会复制同一个错误”，比“测试必须正确”更能指导执行。
+Use direct verbs. Explain why non-obvious rules exist and when they apply. Reasons help an agent transfer judgment to new situations instead of matching text mechanically. For example, "Derive expected values from the spec or an independent worked example, because copying the implementation algorithm can reproduce the same error" guides execution better than "Tests must be correct."
 
-优先描述目标行为。确需禁止的操作紧邻安全做法，例如“只暂存本次拥有的路径或 hunks，保留用户的未提交改动”。不要为假想的偷懒行为堆叠警告；反复出现的失败先考虑能否由类型、测试或工具检查消除。
+Prefer the target behavior. Pair necessary prohibitions with the safe action, such as staging only task-owned paths or hunks while preserving user changes. Avoid accumulating warnings about hypothetical shortcuts. For recurring failures, first consider whether types, tests, or tools can prevent them.
 
-## 写能触发的上下文指针
+## Write context pointers that trigger reliably
 
-引用要同时说明材料是什么、什么时候读取。只有名称或“参见更多”无法帮助 agent 判断当前是否需要它。
+A reference must identify the material and when to read it. A name alone or "see more" does not help the agent decide whether the material is needed now.
 
-- 弱指针：“参考 TDD。”
-- 明确指针：“新增或修复行为时，读取 `harness-stack:tdd`，按其测试边界和红绿循环实施。”
+- Weak pointer: "See TDD."
+- Explicit pointer: "When adding or fixing behavior, read `harness-stack:tdd` and use its test seams and red-green loop."
 
-description 也是指针。先写核心能力，再列不同的触发情境；删掉只是换词的重复条件。使用项目实际采用的术语、符号和文件名，同一概念保持同一名称，避免另造缩写增加解释成本。
+A description is also a pointer. Lead with the core capability, then list distinct trigger branches. Remove synonymous triggers for the same branch. Use the project's actual terms, symbols, and filenames. Keep one name per concept rather than inventing abbreviations that need explanation.
 
-需要 agent 自主使用或被其他 Skill 调用时，采用 model-invoked，省略 `disable-model-invocation`。仅供用户主动发起时设为 `true`，description 用一句话说明用途。调用方式影响可发现性，应按宿主能力检查，不能假设一个被隐藏的入口仍可由模型调用。
+For autonomous use or calls from other skills, use model invocation and omit `disable-model-invocation`. For user-only invocation, set it to `true` and use a one-sentence purpose in the description. Invocation affects discoverability. Check host capabilities rather than assuming a hidden entry point remains callable by the model.
 
-## 按使用时机组织信息
+## Organize by when information is needed
 
-步骤描述行动顺序，参考内容支持判断；不要求所有 Skill 都写成流程。共同必需的信息留在入口，只在部分情境下使用的细节移到参考文件，并在对应分支给出读取条件。
+Steps describe action order; reference material supports decisions. Not every skill needs a workflow. Keep universally required information in the entry point. Move branch-specific details into reference files with explicit reading conditions at the relevant branch.
 
-把一个概念的定义、规则和例外放在一起。零散分布会让 agent 只读到规则而漏掉例外；把必需信息移得太远也会造成漏读。先改善指针和聚合方式，再决定是否内联。
+Keep a concept's definition, rules, and exceptions together. Scattering them can expose a rule without its exception, while moving required material too far away can cause it to be missed. Improve pointers and grouping before deciding to inline material.
 
-长度由执行需要决定。长文会分散注意力、增加维护成本；过短又可能省掉判断依据。检查每段是否帮助当前路径作决定：共同规则保留，分支细节按需披露，重复或可直接查询的事实删除。保持句子清楚，每句承载一个判断。
+Let execution needs determine length. Long documents dilute attention and increase maintenance cost; overly short ones can omit decision criteria. Check whether each paragraph helps the current path make a decision. Retain shared rules, disclose branch-specific details on demand, and remove repetition or facts available through direct lookup. Use clear sentences with one judgment each.
 
-只有任务边界、使用时机或调用方式确实不同，才拆成独立 Skill。拆分也会增加寻找和选择入口的成本。普通文件引用不会清空上下文，不能把拆文件当成已经隔离了后续步骤。
+Split into separate skills only when task boundaries, usage timing, or invocation differ meaningfully. Splitting also adds discovery and selection cost. A normal file reference does not clear context; separate files do not isolate later steps by themselves.
 
-## 给出可检查的完成条件
+## Give checkable completion criteria
 
-用实际产物或观察结果区分完成与未完成。例如，“每个改动的公共入口都有对应测试结果，无法执行的项注明原因”，比“充分测试”更明确。
+Use actual artifacts or observations to distinguish complete from incomplete. For example, "Each changed public entry point has a corresponding test result; state why any check could not run" is more precise than "Test thoroughly."
 
-完成条件应覆盖任务承诺，也允许表达不适用、失败和未知。命令成功只证明它检查的范围；没有输出、没有运行或结论不确定不能记为通过。
+Completion criteria must cover the promised task and allow not-applicable, failed, and unknown results. A successful command proves only what it checks. No output, no execution, or an uncertain conclusion is not a pass.
 
-把条件放在相关动作旁或统一的收口处，选择最清楚的位置。
+Place criteria beside the relevant action or in a shared closing section, whichever is clearer.
 
-## 复用专业 Skill
+## Reuse specialist skills
 
-一个 Skill 对自己的完整职责负责，可以在职责内调用其他 Skill。例如 `implement` 在行为改动时使用 `harness-stack:tdd`；这不会把整个实现任务转交出去。
+A skill owns its complete responsibility and may call other skills within it. For example, `implement` uses `harness-stack:tdd` for behavior changes without transferring ownership of the whole implementation task.
 
-引用处说明触发条件、需要读取或执行什么，以及结果怎样回到当前任务。共享方法只维护一个权威版本，避免每个调用方都复制完整教程。只引用仍在使用且实际可发现的 Skill 或有效文件。
+At each reference, state the trigger, what to read or execute, and how the result returns to the current task. Maintain one authoritative version of a shared method rather than copying a full tutorial into each caller. Reference only active, discoverable skills or valid files.
 
-自足指目标、上下文和完成条件明确，不代表禁止协作。为缺失依赖写清处理：能保持相同完成标准时用简短的本地方法继续；不能时报告缺少的能力及受影响的步骤。不可用的工具或 Skill 不等于已执行。
+Self-contained means explicit goals, context, and completion criteria; it does not prohibit collaboration. Define missing-dependency behavior. Continue with a brief local method when it can meet the same standard. Otherwise, report the missing capability and affected step. An unavailable tool or skill has not been executed.
 
-区分内部方法复用和额外任务授权。调用测试方法不意味着自动获得推送、发布或关闭工单的权限；已有会话或宿主授权应沿用，不重复询问。
+Distinguish method reuse from authorization for additional tasks. Invoking a testing method does not authorize pushing, publishing, or closing issues. Reuse existing conversation or host authorization without asking again.
 
-## 剪枝与维护
+## Prune and maintain
 
-每项规则保留一个权威位置。配置、目录和 `--help` 已能直接回答的事实，通常让 agent 现场查询；保留不容易查到的约定、理由和陷阱。
+Keep each rule in one authoritative location. Let the agent inspect facts available directly from configuration, directories, or `--help`. Retain hard-to-discover conventions, reasons, and pitfalls.
 
-逐句检查：删掉它会改变执行判断吗？不确定时通过实际任务比较，而不是继续争论措辞。删除失效或无作用的整句，避免只缩短几个词却留下重复含义。示例用于说明容易误解的选择，不用于教模型已经掌握的基础语法。
+Check each sentence: would deleting it change an execution decision? Resolve uncertainty by comparing actual tasks rather than debating wording. Delete obsolete or ineffective sentences in full instead of trimming words while preserving duplicate meaning. Use examples to explain easily misunderstood choices, not basic syntax the model already knows.
 
-正文沿用中文，代码、命令和标识符使用简洁英文。改编来源放在 frontmatter 的 `metadata.credits`，记录 `skill`、`author`、原始 `url`；多个来源用列表，属于组织时可补 `organisation`。
+Write skill instructions, descriptions, references, and examples in clear English. Keep code, commands, and identifiers concise. Record adaptations in frontmatter `metadata.credits` with `skill`, `author`, and the original `url`; use a list for multiple sources and add `organisation` when applicable.
 
-## 用实际行为检验指导
+## Validate guidance through behavior
 
-选择能暴露关键取舍的自然任务，观察 agent 读了什么、执行了什么、遇到障碍后如何处理，以及最终产物。对外操作限于已有授权；用隔离的临时目录避免影响真实项目。
+Choose natural tasks that expose important trade-offs. Observe what the agent reads, does, how it handles obstacles, and what it produces. Keep external actions within existing authorization and use isolated temporary directories to protect real projects.
 
-修改已有行为时，按 [新旧版本盲测对比](references/blind-comparison.md) 用相同请求比较两个版本。可以让全新上下文的 subagent 分别执行，保持输入和环境一致，不透露预期答案；结论依据实际操作及产物，不依赖 agent 自称遵守了规则。样例只能证明该情境的表现，不能证明普遍提升。
+When changing existing behavior, follow [Blind comparison of old and new versions](references/blind-comparison.md) using the same request for both versions. Fresh-context subagents may run each version with identical inputs and environments, without being told the expected answer. Judge actual actions and artifacts, not claims of compliance. Examples establish behavior only in those scenarios, not general improvement.
 
-需要系统设计评估、扩大样本或优化触发率时，可使用 Anthropic 的 [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)。
+For systematic evaluation design, larger samples, or trigger optimization, use Anthropic's [skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) when appropriate.

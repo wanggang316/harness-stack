@@ -1,6 +1,6 @@
-# ADR 格式
+# ADR format
 
-沿用项目现有决策目录；没有约定时放在 `docs/decisions/`。按目录现有编号递增，不复用编号。
+Use the existing decision directory, or `docs/decisions/` if no convention exists. Increment its numbering without reusing numbers.
 
 ```markdown
 # <Decision title>
@@ -12,16 +12,16 @@ Status: Accepted
 <Trade-offs and conditions for reconsideration.>
 ```
 
-一两段即可。可行替代方案及其否决原因值得记住时再补充，不为填模板扩写。
+One or two paragraphs are enough. Add viable alternatives and rejection reasons only when worth retaining, not to fill a template.
 
-## 状态与更新
+## Status and updates
 
-- 待定方案用 `Proposed`，用户已确认的决定用 `Accepted`；批准不代表已经实现或部署。
-- 新决定推翻旧决定时创建新记录，旧记录标为 `Superseded by <link>`，新记录链接回旧记录。
-- 保留当时的背景和理由，勘误明确标注；后续实现细节维护在相关当前文档中。
+- Use `Proposed` for pending choices and `Accepted` for user-confirmed decisions. Approval does not prove implementation or deployment.
+- When a new decision overturns an old one, create a new record. Mark the old record `Superseded by <link>` and link back from the new record.
+- Preserve original context and rationale. Label corrections explicitly. Maintain later implementation details in relevant current documentation.
 
-## 收录判断
+## Inclusion criteria
 
-缺少理由是否会导致有害修改或昂贵的重复调查？优先记录：数据所有权和集成边界、外部约束、重要取舍、刻意偏离常规的实现，以及不明显的否决理由。容易回退但受外部兼容性约束的决定也可能值得记录。
+Could missing rationale cause harmful changes or costly repeated investigation? Prioritize data ownership, integration boundaries, external constraints, major trade-offs, deliberate departures from convention, and non-obvious rejection reasons. An easily reversible decision may still merit a record when external compatibility constrains it.
 
-从代码、测试或现有文档就能低成本理解的普通选择，不另建 ADR。
+Do not create a separate ADR for an ordinary choice that code, tests, or existing documentation explain at low cost.

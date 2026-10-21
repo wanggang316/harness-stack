@@ -1,6 +1,6 @@
 ---
 name: pr-open
-description: 把一个已提交的 feature branch 开成 pull request——检测 base、同步并推送、写出以图示和证据为核心的 PR body、用 gh 创建。在用户要求提 PR / 开 PR、或已有 PR 的 title 与 body 需要按当前 diff 重写时使用。不负责 commit、review 与合并。
+description: Open a pull request from a committed feature branch. Detect the base, sync and push, write a visual summary with evidence, and create the PR with gh. Use when asked to open a PR or rewrite an existing PR title and body for the current diff. Excludes committing, review, and merging.
 metadata:
   credits:
     skill: show-me
@@ -9,11 +9,11 @@ metadata:
     url: "https://github.com/humanlayer/skills/blob/main/plugins/show-me/skills/show-me/SKILL.md"
 ---
 
-# pr-open：开 PR
+# pr-open
 
-PR body 是写给一个没读过你会话的 reviewer 的：他要在一屏之内看懂**改了什么**（Summary）、**凭什么相信它能用**（Evidence）、**合进去有多危险**（Merge Danger）。本 skill 只负责把分支变成这样一个 PR。
+Write the PR body for a reviewer who has not read your conversation. Within one screen, they should understand **what changed** (Summary), **why they can trust it** (Evidence), and **how risky it is to merge** (Merge Danger). This skill turns a branch into that PR.
 
-用户要求开 PR，即授权推送**自己的** feature branch 并创建 PR。超出这个范围的动作（force-push 共享分支、改 base、拆分分支）先问。
+A request to open a PR authorizes pushing **your own** feature branch and creating the PR. Ask before actions outside that scope, such as force-pushing a shared branch, changing the base, or splitting the branch.
 
 ## Step 1: Preflight
 
@@ -24,13 +24,13 @@ git remote get-url origin && gh auth status          # remote and gh login must 
 gh pr list --head "$(git branch --show-current)" --state open --json number,url
 ```
 
-`gh pr list` 在没有 PR 时输出 `[]` 并以 0 退出；非零退出是环境问题（网络、权限），不是「没有 PR」。
+`gh pr list` returns `[]` with exit code 0 when no PR exists. A nonzero exit indicates an environment problem, such as network or permissions, not the absence of a PR.
 
-- 工作树不干净 → 停下，交给用户。
-- 当前在 `main` / `master` / base 分支上 → 停下，PR 需要 feature branch。
-- 没有 remote、`gh` 未登录，或 `gh pr list` 非零退出 → 停下报告，不要继续。
-- 该分支已有 open 的 PR → 不重复创建；跳到 Step 4，最后用 `gh pr edit` 更新 title 与 body。
-- commit subject 带 `WIP` / `fixup!`，或 commit 里有 `Co-Authored-By` / 模型署名 → 停下，先整理历史。
+- Dirty worktree: stop and return control to the user.
+- Current branch is `main`, `master`, or the base: stop; a PR needs a feature branch.
+- Missing remote, unauthenticated `gh`, or nonzero `gh pr list`: stop and report.
+- An open PR already exists for this branch: skip creation and go to Step 4, then use `gh pr edit` to update its title and body.
+- Commit subjects contain `WIP` or `fixup!`, or commits contain `Co-Authored-By` or model attribution: stop for history cleanup first.
 
 ## Step 2: Detect base and sync
 
@@ -41,13 +41,13 @@ git log --oneline "HEAD..origin/$BASE" | head        # commits on base you don't
 git diff --stat "origin/$BASE...HEAD" | tail -1      # diff size
 ```
 
-- 用户指定了别的目标（release 分支、`develop`）就用它；默认分支与团队实际目标看起来不一致时，问。
-- base 已前进 → `git rebase "origin/$BASE"`。冲突在推送前解决；解不开就停下报告。
-- 按 diff 规模决定：≤ ~800 行照常开；超过 ~800 行先向用户提议拆分（叠 PR、重构与 feature 分开）。整文件删除、lockfile、codemod 例外，在 body 里注明。
+- Use an explicit user target, such as a release branch or `develop`. Ask if the default branch appears inconsistent with the team's actual target.
+- If the base advanced, run `git rebase "origin/$BASE"`. Resolve conflicts before pushing; stop and report if they cannot be resolved.
+- Open normally for a diff up to about 800 lines. Above that, propose splitting it, such as stacked PRs or separate refactor and feature PRs. Whole-file deletions, lockfiles, and codemods are exceptions; explain them in the body.
 
 ## Step 3: Push
 
-按情况只跑一条：
+Run only the command appropriate to the situation:
 
 ```bash
 BRANCH=$(git branch --show-current)
@@ -59,15 +59,15 @@ git push -u origin "$BRANCH"
 git push --force-with-lease -u origin "$BRANCH"
 ```
 
-推送被拒时，先分清原因：auth / 权限 / 分支保护 → 停下报告，不要绕过；远端有新提交 → 回到 Step 2 同步后再推。推送后用 `git status -sb` 确认分支与 `origin/$BRANCH` 同步。
+If rejected, identify why. For authentication, permissions, or branch protection, stop and report without bypassing controls. For new remote commits, return to Step 2, sync, and retry. After pushing, use `git status -sb` to confirm synchronization with `origin/$BRANCH`.
 
 ## Step 4: Compose title and body
 
-先读完整 diff（`git diff "origin/$BASE...HEAD"`，与 Step 2 用同一个范围）和 commit 列表，再写。仓库里有术语表（`CONTEXT.md`、`GLOSSARY.md` 之类）时用它的领域词汇。语言跟随仓库最近的 PR（`gh pr list --state merged --limit 5`），没有先例就用英文。
+Read the full diff with `git diff "origin/$BASE...HEAD"`, using the same range as Step 2, and the commit list before writing. Use domain vocabulary from the repository's glossary, such as `CONTEXT.md` or `GLOSSARY.md`. Follow the language of recent PRs from `gh pr list --state merged --limit 5`, or English if there is no precedent.
 
-**Title**：conventional-commit 格式，祈使、独立成句，≤ 70 字符，例如 `feat(auth): add session refresh endpoint`。issue 编号放 body。
+**Title**: use conventional-commit format, an imperative, self-contained statement, and at most 70 characters, such as `feat(auth): add session refresh endpoint`. Put issue numbers in the body.
 
-**Body**：
+**Body**:
 
 ```markdown
 ## Summary
@@ -96,9 +96,9 @@ git push --force-with-lease -u origin "$BRANCH"
 Closes #<n>
 ```
 
-- **Summary**：一两句话说结果，再配**一个**最能说明问题的图示——伪代码、调用树、组件树、文件树、Mermaid，或这些形状的 `diff`。怎么选、各自的写法见 [references/summary-visuals.md](references/summary-visuals.md)。图示只保留回答「改了什么」所需的调用、文件、状态与边界。
-- **Evidence**：只放你**实际运行**得到的东西。截图优先（改动是可视的且环境能截图时），其次是测试 / 命令输出——点名那条从失败变为通过的测试。没有可展示的证据时写明 `Not verified: <reason>`，不要编造。
-  - Before 的来源，按优先级：本次会话里 TDD 时实际看到的 red 输出；否则在仓库外的临时 worktree 里，把新测试放到 base 上跑一次：
+- **Summary**: state the outcome in one or two sentences, followed by **one** visual that best explains it: pseudocode, call tree, component tree, file tree, Mermaid, or a `diff` of one of these shapes. See [references/summary-visuals.md](references/summary-visuals.md) for selection and examples. Include only calls, files, states, and boundaries needed to explain the change.
+- **Evidence**: include only results you **actually obtained**. Prefer screenshots for visual changes when capture is available, then test or command output. Name the test that failed before and passed after. Without presentable evidence, write `Not verified: <reason>`; do not invent it.
+  - Prefer Red output actually observed during TDD in this session. Otherwise, run the new test against the base in a temporary worktree outside the repository:
 
     ```bash
     wt="$(mktemp -d)/before"
@@ -107,13 +107,13 @@ Closes #<n>
     (cd "$wt" && <test-command>)                       # expect red
     git worktree remove --force "$wt"
     ```
-- **Merge Danger**：two-way door 可以低成本回退（revert、翻 flag）；涉及数据迁移、破坏性操作、对外发布，或已被外部消费者依赖、发布后无法收回的公共 API 改动，是 one-way door。仓库内部能随 revert 一起回退的行为变化（包括返回值语义变化）仍是 two-way，但要在 Blast Radius 里写明谁会受影响。Blast Radius 用一个词概括影响面（`none`、`internal`、`consumers`、`data`、`layout`……），影响不显然时补一两句。
-- **Linked Issues**：用 `Closes #n` / `Refs #n`；没有就删掉这一节。
-- 不写开场白，不留占位符，不写空节。title、body 里不出现工具、模型或 agent 署名（`Co-Authored-By`、`Generated with ...`）。
+- **Merge Danger**: a two-way door is cheaply reversible through a revert or flag. Data migrations, destructive operations, external releases, or public API changes that external consumers depend on and cannot be withdrawn after release are one-way doors. Repository-internal behavior changes, including return-value semantics, remain two-way when reverted together; identify affected consumers in Blast Radius. Use one word for the affected area, such as `none`, `internal`, `consumers`, `data`, or `layout`, with one or two explanatory sentences when needed.
+- **Linked Issues**: use `Closes #n` or `Refs #n`. Omit the section when none apply.
+- Omit preambles, placeholders, and empty sections. Exclude tool, model, or agent attribution from the title and body, including `Co-Authored-By` and `Generated with ...`.
 
 ## Step 5: Create or update
 
-body 一律经 stdin 传入；`--body` 里的 `\n` 不会被展开。默认创建 ready-for-review 的 PR；仅当用户要求时加 `--draft`。
+Pass the body through stdin. Literal `\n` in `--body` does not expand. Create a ready-for-review PR by default; add `--draft` only when requested.
 
 ```bash
 gh pr create --base "$BASE" --head "$BRANCH" --title "<title>" --body-file - <<'EOF'
@@ -130,13 +130,13 @@ gh pr view --json number,url,baseRefName,headRefName,isDraft
 
 ## Step 6: Report
 
-把 PR 编号、URL、`base ← head`、draft / ready 状态交给用户。
+Return the PR number, URL, `base ← head`, and draft or ready status.
 
 ## Verification
 
-- [ ] 工作树干净，head 是 feature branch，且已与最新的 `origin/$BASE` 同步
-- [ ] 没有为同一分支重复创建 PR
-- [ ] title 是 ≤ 70 字符的 conventional-commit 格式
-- [ ] body 含 Summary（含一个图示）/ Evidence / Merge Danger；Evidence 全部来自实际执行，或明确写了 `Not verified`
-- [ ] title、body、commit 中没有工具、模型或 agent 署名
-- [ ] 已把 `gh pr view` 确认过的 PR URL 交给用户
+- [ ] The worktree is clean, head is a feature branch, and it is synchronized with the latest `origin/$BASE`.
+- [ ] No duplicate PR was created for the same branch.
+- [ ] The title uses conventional-commit format and is at most 70 characters.
+- [ ] The body includes Summary with a visual, Evidence, and Merge Danger. Evidence comes from actual execution or is explicitly marked `Not verified`.
+- [ ] The title, body, and commits contain no tool, model, or agent attribution.
+- [ ] The user received the PR URL verified through `gh pr view`.

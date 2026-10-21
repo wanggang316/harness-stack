@@ -1,39 +1,39 @@
 ---
 name: document
-description: 维护项目长期知识。用于已确认的行为、架构边界、术语、决策或操作方式发生变化，或把已验证的调查结论整理为可复用知识。
+description: Maintain durable project knowledge when confirmed behavior, architecture boundaries, terminology, decisions, or operations change, or turn verified investigation results into reusable knowledge.
 ---
 
 # document
 
-更新与本次事实或决定相关的最小知识集合。输入可以是会话、代码变更、任务、PR 或指定文档；不要求已有 proposal，也不扫描无关模块。
+Update the smallest knowledge set related to the current facts or decisions. Input can be a conversation, code change, task, PR, or named document. No proposal is required; do not scan unrelated modules.
 
 ## 1. Locate the knowledge
 
-读取项目指令、文档入口和相关文档，再核查输入涉及的代码、测试及决定。先找到每项知识的主要维护位置；沿用项目目录和正文语言。没有约定、或内容应放在哪里不清楚时，读 [references/placement.md](references/placement.md)。没有长期知识变化时说明理由并结束，不创建文件。
+Read project instructions, documentation entry points, and relevant documents, then verify the code, tests, and decisions involved. Find the primary maintenance location for each topic. Follow existing directories and document language. Read [references/placement.md](references/placement.md) when conventions are absent or placement is unclear. If no durable knowledge changed, explain why and finish without creating files.
 
 ## 2. Resolve claims
 
-逐项区分：
+Distinguish:
 
-- **契约**：已批准的行为、不变量、外部约束。代码偏离时可能是缺陷；未经决定，不改契约迎合实现。
-- **实现说明**：当前结构与机制。依据当前代码核实；代码存在不等于用户入口可用。
-- **决策**：已作出的选择、理由和代价。待定选择留在任务或 proposal。
-- **验证证据**：某版本、环境下的实际结果。保留范围和出处，不把合并、部署或测试通过相互替代。
+- **Contracts**: approved behavior, invariants, and external constraints. Deviating code may be defective; do not change the contract to fit the implementation without a decision.
+- **Implementation descriptions**: current structure and mechanisms. Verify against current code; code presence does not prove a user entry point works.
+- **Decisions**: choices made, reasons, and trade-offs. Keep pending choices in the task or proposal.
+- **Verification evidence**: actual results for a particular version and environment. Preserve scope and provenance; merge, deployment, and passing tests are not interchangeable.
 
-无法解决的冲突保留原规则并报告，继续处理不依赖该冲突的内容。外部资料注明来源与适用版本；不把旧调查直接写成当前事实。
+Preserve existing rules when conflicts remain unresolved. Report them and continue independent content. Cite external sources and applicable versions. Do not present an old investigation as a current fact without verification.
 
 ## 3. Update in place
 
-在权威位置更新当前知识，清除本次变更造成的重复或失效表述。按领域组织，读者无需按时间重放交付记录。路径只保留能帮助定位的少量入口，引用前核实。
+Update current knowledge at its authoritative location. Remove duplication or obsolete statements caused by this change. Organize by domain so readers need not replay delivery records chronologically. Keep only useful entry-point paths and verify them before citing.
 
-新内容必须能帮助后续修改或操作：行为契约、跨模块关系、不明显的约束，或难以重新发现的经验。单条配置查询、逐文件改动清单和普通调试经过留在原任务；可由局部注释或回归测试充分表达的结论不另建文章。
+New content must support later changes or operations: behavior contracts, cross-module relationships, non-obvious constraints, or lessons that are difficult to rediscover. Keep simple configuration lookups, per-file change lists, and ordinary debugging history in the original task. Do not create an article for a conclusion adequately expressed by a local comment or regression test.
 
-需要记录决策时，先查相关 ADR。记录背景、选择、理由、代价与重新考虑的条件，明确 `Proposed`、`Accepted` 或 `Superseded` 状态。已批准的新决定若替代旧决定，创建新记录并双向链接；保留旧背景。是否值得记录取决于缺失理由是否容易导致有害修改，不只看回退成本。
+Before recording a decision, check related ADRs. State context, choice, reason, trade-offs, and reconsideration conditions, with an explicit `Proposed`, `Accepted`, or `Superseded` status. When an approved decision replaces an earlier one, create a new record, link both directions, and preserve the old context. Record-worthiness depends on whether missing rationale could cause harmful changes, not only on reversal cost.
 
-新增知识文件时，在现有主题索引或文档入口加链接。只有项目指令缺少到文档入口的路由时，才补最小的条件式指针；不把正文复制到 `AGENTS.md`。只创建实际需要的文件，不批量搭建空目录或模板。
+Link new knowledge files from an existing topic index or documentation entry point. Add a minimal conditional pointer to project instructions only if they lack a route to the documentation. Do not copy the body into `AGENTS.md`. Create only needed files, not empty directory trees or template collections.
 
 ## 4. Verify and report
 
-复读改动，检查引用路径、链接、术语和状态。命令或操作步骤发生变化时，执行安全且相关的验证；有外部副作用或无法验证时明确边界。历史记录只补状态和链接，不重写成今天的事实。
+Reread changes and check paths, links, terminology, and status. Safely validate relevant changed commands or procedures. State limits when validation has external effects or cannot be performed. Update only status and links in historical records; do not rewrite them as today's facts.
 
-报告更新了哪些知识、证据来源、未决冲突和未验证项。允许结论是无需修改；不为凑齐产物写总结文档，也不自行发布、关闭任务或部署。
+Report updated knowledge, evidence sources, unresolved conflicts, and unverified items. No changes needed is a valid result. Do not write a summary document merely to produce an artifact, or independently publish, close tasks, or deploy.

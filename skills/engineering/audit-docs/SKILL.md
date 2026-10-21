@@ -1,45 +1,45 @@
 ---
 name: audit-docs
-description: 审计并维护指定范围的项目知识，检查准确性、可发现性、重复与保留价值。
+description: Audit and maintain project knowledge within a defined scope for accuracy, discoverability, duplication, and lasting value.
 disable-model-invocation: true
 ---
 
 # audit-docs
 
-默认审计并修复文档；用户只要求报告时只读。只改文档和必要的导航，不改产品代码、测试或开发工作流指令。
+Audit and repair documentation by default. Stay read-only when the user requests a report only. Change documentation and necessary navigation, not product code, tests, or development workflow instructions.
 
 ## 1. Bound the audit
 
-读取项目指令与文档入口，确定用户指定的模块、目录或主题。没有范围时以文档入口及其直接链接的当前知识为起点，列明实际覆盖范围；指定路径不存在时报告，不自行扩大到全仓库。
+Read project instructions and documentation entry points. Identify the requested module, directory, or topic. Without an explicit scope, start at the documentation entry point and its directly linked current knowledge, and state actual coverage. Report missing paths rather than expanding to the whole repository.
 
-先区分当前知识、决策记录和过程历史。历史背景与现状不同并不构成错误；只检查其身份、状态、替代关系和可追溯性。
+Distinguish current knowledge, decision records, and process history first. Historical context that differs from today's state is not inherently wrong. Check its identity, status, supersession links, and traceability.
 
 ## 2. Check evidence and value
 
-对每份当前知识核查相关代码入口、契约、配置、测试和决定。需要外部事实时查一手来源并记录适用版本。检查：
+For each current knowledge document, inspect relevant code entry points, contracts, configuration, tests, and decisions. Use primary sources for external facts and record the applicable version. Check:
 
-- 当前说明是否准确；是否把未实现、未部署或未执行的验证写成事实。
-- 契约是否与实现冲突；此时报告潜在产品缺陷或待决定事项，不直接改契约。
-- 同一知识是否有多个维护位置；有效 ADR 是否可识别。
-- 新读者能否从项目入口找到相关主题，无需重读交付历史。
-- 删掉该段内容后，读者是否仍能低成本恢复同样的理解；跨模块解释、约束和决策理由仍有独立价值。
+- Whether current descriptions are accurate, including claims about implementation, deployment, or verification that has not occurred.
+- Whether contracts conflict with implementation. Report a potential product defect or pending decision rather than changing the contract directly.
+- Whether the same knowledge has multiple maintenance locations and whether active ADRs are identifiable.
+- Whether a new reader can find relevant topics from the project entry point without replaying delivery history.
+- Whether deleting a passage would still let readers recover the same understanding at low cost. Cross-module explanations, constraints, and decision rationale retain independent value.
 
-给每个问题附证据。没有证据只能判定未验证，不能判定错误或据此删除。
+Attach evidence to each finding. Without evidence, classify a claim as unverified, not wrong; do not delete it on that basis.
 
 ## 3. Apply bounded repairs
 
-逐份选择 `Keep`、`Update`、`Consolidate`、`Retire` 或 `Unresolved`：
+Assign each document `Keep`, `Update`, `Consolidate`, `Retire`, or `Unresolved`:
 
-- `Keep`：仍准确、有用、可发现。
-- `Update`：证据支持的事实、状态或链接修正。
-- `Consolidate`：在已有权威位置保留有效内容，其他位置改成链接；修正受影响的入口。
-- `Retire`：已失效或被完整替代的当前说明退出当前知识入口；保留必要的历史或替代指针。
-- `Unresolved`：证据不足或需要产品决定，保留原规则并报告。
+- `Keep`: still accurate, useful, and discoverable.
+- `Update`: correct facts, status, or links where evidence supports it.
+- `Consolidate`: retain valid content in the existing authoritative location, replace duplicates with links, and repair affected entry points.
+- `Retire`: remove obsolete or fully replaced descriptions from current knowledge navigation; preserve necessary history or replacement pointers.
+- `Unresolved`: evidence is insufficient or a product decision is required. Preserve the existing rule and report the issue.
 
-删除整份文档仅在用户已授权清理、且确认无独有知识或历史价值时进行；其他情况保留替代指针并建议删除。保留 ADR 和交付记录中的原始背景。沿用项目目录，不以审计为由全面重组。
+Delete a whole document only when cleanup is authorized and it has no unique knowledge or historical value. Otherwise, preserve a replacement pointer and recommend deletion. Retain original context in ADRs and delivery records. Follow the project's directories instead of using an audit to reorganize everything.
 
 ## 4. Verify and report
 
-复读修改后的知识及入口，检查相对链接、路径、术语和替代关系；涉及操作命令时做安全的相关验证。链接检查通过不代表运行行为已验证。
+Reread changed knowledge and entry points. Check relative links, paths, terminology, and supersession relationships. Safely validate relevant operating commands. Link checks do not prove runtime behavior.
 
-逐份报告处理结果、关键证据、实际修改和未验证项；只读模式下把所有修复标为建议。列出仍需用户决定的冲突及审计范围之外的内容。没有发现问题时不产生新文档。
+Report each document's disposition, key evidence, actual changes, and unverified items. In read-only mode, label all repairs as recommendations. List unresolved conflicts that need user decisions and content outside the audit scope. Create no new document when there are no findings.
