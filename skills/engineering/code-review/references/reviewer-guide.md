@@ -1,53 +1,53 @@
-# Reviewer 指导
+# Reviewer guide
 
-只读评审 brief 指定的一个轴，返回该轴的 findings、依据、验证限制和结论。读取相同的代码快照与必要上下文，独立形成判断，不读取另一轴的报告，不继续派发 reviewer。
+Perform a read-only review of the single axis assigned in the brief. Return findings, evidence, validation limits, and a conclusion for that axis. Read the shared code snapshot and necessary context, then form an independent judgment. Do not read the other axis's report or dispatch more reviewers.
 
 ## Standards
 
-对照项目指令、编码规范和有效决定检查实现质量。文档中的规则必须引用具体出处；没有明文规则的设计问题作为工程判断，说明实际影响。工具已覆盖的格式检查引用工具结果，不重复制造人工 findings。
+Check implementation quality against project instructions, coding standards, and active decisions. Cite the source of documented rules. Present design concerns without an explicit rule as engineering judgments and explain their actual impact. Reference tool results for automated formatting checks instead of duplicating them as manual findings.
 
-留意含义不明的命名、重复业务规则、分散的状态判断、职责混杂、过早抽象、过长的依赖链和仅转发的间接层。这些是调查线索，不是必然缺陷；结合调用方、约束和真实修改成本判断。项目明确约定优先于通用偏好。
+Look for unclear names, duplicated business rules, scattered state checks, mixed responsibilities, premature abstraction, long dependency chains, and forwarding-only indirection. These are investigation leads, not automatic defects. Evaluate callers, constraints, and actual change cost. Explicit project conventions override general preferences.
 
-同时检查可证实的正确性、安全、兼容性和验证缺口，不能因为没有写进风格规范就忽略实际缺陷。
+Also check provable correctness, security, compatibility, and validation gaps. A real defect still matters when no style rule names it.
 
 ## Spec
 
-逐项核对 brief 提供的任务或 spec：哪些已完成、遗漏、部分完成或改变了行为；实现是否满足目标，是否增加未经要求的能力。每条需求偏差引用对应条款或已确认的任务要求。
+Check each requirement in the task or spec supplied by the brief. Identify complete, missing, partial, or changed behavior. Determine whether the implementation meets the goal or adds unrequested capabilities. Cite the corresponding clause or confirmed task requirement for every deviation.
 
-相关调用方、测试和文档可能是完成需求所必需的工作，不因它们未被逐文件点名就判为越界。无法确定的语义写为待确认问题，不替用户编造要求。
+Related callers, tests, and documentation can be necessary to meet requirements. Their absence from a file-by-file task list does not make them scope creep. Report uncertain semantics as questions; do not invent requirements for the user.
 
-## 沿行为路径检查
+## Follow behavior paths
 
-先看测试与断言揭示的行为，再沿改动追踪输入、状态变化、输出和失败路径。读取必要的 diff 外代码，包括调用方、枚举消费者、授权边界、持久化约束和迁移流程，确认问题是否真实可达。
+Start with the behavior exposed by tests and assertions, then trace inputs, state changes, outputs, and failure paths through the change. Read necessary code outside the diff, including callers, enum consumers, authorization boundaries, persistence constraints, and migrations. Confirm that each problem is reachable.
 
-检查以下风险在本次改动中是否成立：
+Check whether these risks apply:
 
-- **行为与契约**：遗漏需求、错误状态转换、边界输入、错误恢复、重复调用、并发及兼容性。
-- **测试与证据**：断言是否能发现目标错误，是否仅验证替身，已有测试是否覆盖新路径。没有新增测试不是自动 finding；指出具体未守住的行为及回归风险。
-- **设计与知识**：责任边界、调用方迁移、不必要的复杂度，以及因改动失效的说明和操作步骤。
-- **安全与资源**：不可信输入的使用、权限与租户隔离、敏感信息、副作用、资源释放和有实际负载依据的性能风险。
+- **Behavior and contracts**: missing requirements, incorrect state transitions, boundary inputs, recovery, repeated calls, concurrency, and compatibility.
+- **Tests and evidence**: whether assertions detect the target error, whether tests only exercise doubles, and whether existing tests cover new paths. No new test is not an automatic finding; identify the unprotected behavior and regression risk.
+- **Design and knowledge**: responsibility boundaries, caller migration, unnecessary complexity, and descriptions or operating procedures invalidated by the change.
+- **Security and resources**: untrusted input, authorization and tenant isolation, sensitive information, side effects, resource release, and performance risks supported by actual workload evidence.
 
-需要展开某类风险时读 [评审检查参考](../../../../references/review-checklist.md)。清单帮助形成假设；每条 finding 仍须回到当前代码证明。
+Read the [Review checklist](../../../../references/review-checklist.md) when a risk needs further investigation. The checklist helps form hypotheses; each finding still requires evidence in the current code.
 
-必要时运行安全、聚焦的检查或复现。区分作者提供的证据与自己执行的结果；完整测试套件、UI 验收和线上行为没有实际执行就不声称通过。第三方 API、依赖或安全事实有疑问时核实对应版本的权威资料。
+Run safe, focused checks or reproductions when needed. Distinguish author-supplied evidence from results you obtained. Do not claim that full suites, UI acceptance, or production behavior passed without execution. Verify authoritative information for the relevant version when third-party APIs, dependencies, or security facts are uncertain.
 
-## 写可行动的 findings
+## Write actionable findings
 
-每条 finding 给出严重度、当前版本的 `file:line`、触发条件、具体影响及证据。引用尽量指向引入问题的最小位置；若问题体现在调用方，说明与改动的因果关系。给出修复方向即可，只有代码片段确实帮助消除歧义时才附代码。
+For each finding, provide severity, current-version `file:line`, trigger conditions, concrete impact, and evidence. Point to the smallest location that introduces the problem. If it appears in a caller, explain the causal link to the change. Suggest a fix direction; include code only when it removes ambiguity.
 
-| 严重度 | 判断依据 |
+| Severity | Basis |
 | --- | --- |
-| Critical | 可证实的严重安全、数据完整性或核心功能损坏，必须解决 |
-| Important | 必需行为遗漏、实际回归或有明确影响的设计与验证缺口，需要修复或有权者明确接受风险 |
-| Suggestion | 有具体收益的改进，当前改动可以不采纳 |
-| Nit / FYI | 局部润色或背景信息，仅在有帮助时报告 |
+| Critical | Proven severe security, data-integrity, or core-function damage; must be resolved |
+| Important | Missing required behavior, actual regression, or a design or validation gap with clear impact; requires a fix or explicit risk acceptance by an authorized decision-maker |
+| Suggestion | An improvement with concrete benefit that need not be adopted in this change |
+| Nit / FYI | Local polish or background information; report only when useful |
 
-严重度由触发条件和影响决定。未核实的怀疑列为待确认问题，写明缺少什么证据；不靠置信度数字把猜测包装成事实。既有问题与本次引入或加重的问题分开，避免要求本次顺手修完历史债务。
+Set severity from trigger conditions and impact. List unverified suspicions as questions and state missing evidence. Confidence numbers do not turn guesses into facts. Separate pre-existing problems from those introduced or worsened by this change; do not require unrelated historical cleanup.
 
-在自己的评审轴内合并同一根因的重复 findings，按影响排序。没有实际问题时报告没有 findings。
+Within your axis, combine duplicate findings with the same root cause and order them by impact. Report no findings when no actual issue is found.
 
-## 返回当前轴的报告
+## Return the assigned axis report
 
-以轴名为标题，注明评审范围、依据、已核实 findings、待确认问题、实际执行的验证和未覆盖内容。代码和评审对象身份必须与 brief 一致；变化时报告覆盖失效。
+Use the axis name as the heading. State review scope, basis, verified findings, open questions, checks actually run, and uncovered areas. Code and target identity must match the brief; report invalidated coverage if they changed.
 
-结论使用 `Request changes`（存在未解决的 Critical / Important）、`No blocking findings`（该轴约定范围审完且无阻塞问题）或 `Incomplete`（该轴关键依据或范围不足）。有已证实的阻塞问题且另有未覆盖部分时，给出 `Request changes` 并列明限制。结论只代表当前轴，不代替另一轴、运行验收或合并授权。
+Use `Request changes` for unresolved Critical / Important findings, `No blocking findings` when the agreed axis scope is complete with no blockers, or `Incomplete` when essential evidence or scope is missing. If blockers are proven but other areas remain uncovered, use `Request changes` and list limits. The conclusion applies only to this axis; it does not replace the other axis, runtime acceptance, or merge authorization.

@@ -1,35 +1,35 @@
-# 测试边界与证据示例
+# Test seams and evidence examples
 
-## 独立的期望值
+## Independent expected values
 
-假设规格规定每个包裹收取 4 元基础费，超出 1 kg 的重量每 kg 加收 3 元，不足 1 kg 向上取整。2.2 kg 的已知结果是 10 元。测试写入这个独立算例，而不是复写运费函数的分支和取整过程。
+Suppose the spec charges a base fee of 4 currency units per parcel, plus 3 for each kilogram above 1 kg, rounded up. The known result for 2.2 kg is 10. Encode that independent worked example instead of repeating the shipping function's branches and rounding logic.
 
 ```python
 def test_shipping_fee_rounds_up_extra_weight():
     assert shipping_fee(weight_kg=2.2) == 10
 ```
 
-测试名称说明规则，输入选择能区分错误实现的边界。只有一个 happy path 的算例并不能证明临界重量正确，下一轮再选相应切片。
+The test name states the rule. Choose boundary inputs that distinguish incorrect implementations. One happy-path example does not prove behavior at critical weights; select the corresponding slice in the next cycle.
 
-## 观察调用方关心的结果
+## Observe results callers care about
 
-订单服务的调用方关心订单能否创建并读取。通过 `place_order` 和 `get_order` 检查结果，可以在内部存储方式变化时继续守住契约；断言某个私有 repository 方法被调用则容易随结构变化失效。
+Callers of an order service care whether an order can be placed and retrieved. Check results through `place_order` and `get_order` to protect the contract when internal storage changes. Asserting a private repository call can couple the test to structure.
 
-如果被测对象本身是存储适配器，检查测试数据库的唯一约束或事务回滚就是有效的集成测试。不要把“公共接口”误解成所有测试都必须穿过最外层 UI，也不要为测试额外公开私有方法。
+If the subject itself is a storage adapter, checking uniqueness constraints or transaction rollback in a test database is a valid integration test. A public interface does not mean every test must cross the outermost UI. Do not expose private methods solely for tests.
 
-## 测试替身的边界
+## Test-double boundaries
 
-支付网关不可在普通测试中真实扣款。可在网关边界提供可控替身，令其返回拒付，检查订单状态没有完成、配送没有发出；订单领域内部的状态计算仍使用真实代码。
+An ordinary test must not charge a real payment gateway. Provide a controlled double at the gateway boundary that returns a decline. Check that the order is not completed and no shipment is sent. Use real code for state calculations inside the order domain.
 
-若需求包含“同一幂等键只扣款一次”，调用次数和键值属于外部契约，可以断言。若只因内部实现使用两次 helper 就固定该次数，则会约束无关的实现细节。
+If the requirement says one idempotency key must cause at most one charge, the call count and key belong to the external contract and can be asserted. Fixing a helper's call count merely because the implementation currently calls it twice constrains an unrelated detail.
 
-替身不能证明第三方协议、凭据或网络接线正确。需要这些保证时，补隔离的适配器契约检查或已授权的集成验证，并单独报告结果。
+A double cannot prove a third-party protocol, credentials, or network wiring. Add isolated adapter contract checks or authorized integration validation when these guarantees are needed, and report their results separately.
 
-## 识别无效的红灯
+## Recognize an invalid red signal
 
-- 测试运行器找不到文件：执行故障，尚未检验行为。
-- 请求拒付却返回已支付：目标行为失败，可以驱动修复。
-- 新增函数的导入失败：接口尚不存在；补最小声明后继续验证目标断言，避免把环境错误误当缺陷复现。
-- 特征测试在改动前通过：行为基线有效，适合守住重构；它不是缺陷已复现的证据。
+- The runner cannot find a file: execution failed before behavior was checked.
+- A declined payment returns a paid result: target behavior failed and can drive the fix.
+- A new function cannot be imported: the interface does not yet exist. Add a minimal declaration, then check the target assertion. Do not mistake an environment failure for a bug reproduction.
+- A characterization test passes before the change: the behavioral baseline is valid for a refactor. This is not evidence that a bug was reproduced.
 
-红灯说明检查能发现当前缺口，绿灯说明当前样例通过。两者都不能替代遗漏行为的分析或最终集成检查。
+Red shows that the check detects the current gap. Green shows that the current example passes. Neither replaces analysis of missing behavior or final integration checks.

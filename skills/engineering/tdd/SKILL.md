@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: 测试驱动开发。新增或修改可观察行为、修复缺陷，或明确要求先写测试时使用。
+description: Test-driven development. Use when adding or changing observable behavior, fixing bugs, or explicitly asked to write tests first.
 metadata:
   credits:
     - skill: tdd
@@ -14,56 +14,56 @@ metadata:
 
 # tdd
 
-用一个可观察行为驱动一轮 Red → Green → Refactor。先证明测试能发现行为缺失，再实现它；每轮反馈用于决定下一步，避免一次写完所有测试后再实现想象中的设计。
+Drive each Red → Green → Refactor cycle with one observable behavior. First prove that the test detects the missing behavior, then implement it. Use each cycle's feedback to choose the next step, instead of writing all tests before implementing an imagined design.
 
-纯文档、静态内容和没有行为影响的配置变更使用对应校验。行为保持重构先固定现有行为，再保持测试为绿；特征测试直接通过是有效基线，无需故意制造失败。
+Use appropriate validation for documentation, static content, and configuration changes with no behavioral effect. For behavior-preserving refactors, pin existing behavior first and keep tests green. A characterization test that passes immediately is a valid baseline; do not manufacture a failure.
 
-## 选择测试边界
+## Choose the test seam
 
-读取相关领域知识、有效决定、实现及现有测试。从项目配置确定命令和运行环境，沿用项目术语与测试约定。
+Read relevant domain knowledge, active decisions, implementation, and existing tests. Derive commands and the runtime environment from project configuration. Use project terminology and testing conventions.
 
-选择调用方可使用的接口作为测试边界，简要说明它能证明什么、遗漏什么。模块 API、组件交互、HTTP 接口或 CLI 都可以是边界，不必一律使用 UI 或完整系统。优先选择能捕获目标风险且成本最低的层级；跨模块接线、持久化或协议风险需要相应的集成检查，测试数量不按固定比例分配。
+Test at an interface available to callers. Briefly state what the seam proves and what it misses. A module API, component interaction, HTTP endpoint, or CLI can be a seam; not every test needs the UI or complete system. Prefer the lowest-cost level that catches the target risk. Use integration checks for wiring, persistence, or protocol risks. Do not allocate tests by fixed ratios.
 
-已有明确接口和行为时直接沿用；只有新的公共契约、业务语义或重大设计取舍未决时才询问。测试困难时先检查接口和依赖是否耦合过深，不为测试引入不必要的生产抽象。
+Reuse established interfaces and behavior. Ask only about unresolved public contracts, business semantics, or major design choices. If testing is difficult, first inspect interface and dependency coupling; do not add unnecessary production abstractions for tests.
 
-列出需要覆盖的行为，先选择关键路径、原始缺陷或高风险边界。这里是行为清单，不是批量写测试；每次只推进一个可验证切片。
+List the behaviors to cover and start with the critical path, original defect, or a high-risk boundary. This is a behavior list, not a batch of tests. Advance one verifiable slice at a time.
 
-## Red：取得有效失败
+## Red: establish a valid failure
 
-为当前行为写一个测试，从所选接口执行真实逻辑。期望值来自规格、独立算例或已确认的基线；复制被测算法会让测试和实现一起犯错。
+Write one test for the current behavior, exercising real logic through the chosen interface. Derive expected values from the spec, an independent worked example, or a confirmed baseline. Copying the algorithm under test can reproduce the same error in both places.
 
-运行该测试并检查失败原因。目标行为缺失产生的断言失败才是有效信号；缺依赖、错误路径或运行器故障先修复。新增接口导致编译或导入失败时，可补最小声明使测试进入目标行为，再确认它失败，而不提前写完实现。
+Run the test and inspect why it fails. An assertion failure caused by missing target behavior is a valid signal. Fix missing dependencies, wrong paths, or runner failures first. If a new interface causes a compilation or import failure, add the minimum declaration needed to reach the target behavior, then confirm the test fails without implementing it in advance.
 
-缺陷修复先捕获原始失败，再尽量将它固化为确定性回归测试。若测试直接通过，检查是否已实现、复现条件不完整或断言无效；不能把它当成已经证明的回归测试。
+For a bug fix, capture the original failure first and make it a deterministic regression test where practical. If the test passes immediately, check whether the behavior already exists, reproduction conditions are incomplete, or assertions are ineffective. It is not yet a proven regression test.
 
-## Green：通过当前切片
+## Green: pass the current slice
 
-只实现当前行为所需的代码，沿用项目模式。运行同一测试，再运行直接受影响的已有测试；看到实际通过结果后再选择下一条行为。
+Implement only what the current behavior needs, using project patterns. Run the same test, then directly affected existing tests. Observe actual passing results before choosing the next behavior.
 
-既有断言与实现冲突时，依据契约判断谁错。只有预期行为确实改变才调整断言并说明原因；不能靠跳过测试、放宽断言或更新未经检查的快照掩盖失败。
+When an existing assertion conflicts with the implementation, use the contract to determine which is wrong. Change assertions only when expected behavior has changed, and explain why. Do not hide failures by skipping tests, weakening assertions, or accepting uninspected snapshots.
 
-意外失败先收窄原因：实现、测试、环境还是已有基线。未取得改前证据的失败标为未知，不能推定与本次无关。
+Narrow unexpected failures to implementation, tests, environment, or the established baseline. Without before-change evidence, classify a failure as unknown rather than unrelated to this change.
 
-## Refactor：在绿灯下改善结构
+## Refactor: improve structure while green
 
-在测试为绿时整理本轮引入的重复、命名或职责混杂，每次结构调整后重跑相关检查，保持行为不变。小步整理防止最小实现不断堆积为难以维护的结构；没有具体收益则无需改动。
+While tests pass, remove duplication, unclear names, or mixed responsibilities introduced in this cycle. Rerun relevant checks after each structural change and preserve behavior. Small improvements prevent minimal implementations from accumulating into an unmaintainable structure. Make no change without a concrete benefit.
 
-新的行为回到 Red。跨模块重构或新的架构选择先明确范围与取舍，不把无关改造混进当前循环。需要比较接口设计时暂停实现，先解决设计问题。
+Return to Red for new behavior. Establish scope and trade-offs before a cross-module refactor or new architectural choice; keep unrelated redesign out of this cycle. Pause implementation to resolve interface design questions when needed.
 
-## 测试应守住的契约
+## Contracts tests must protect
 
-- 从调用方可见的结果判断行为，优先运行内部真实协作。私有方法、内部调用次序和实现布局通常不属于契约。
-- 一个测试讲清一个行为，可使用多条相关断言。例如拒绝支付后没有发货，也是该失败行为的一部分。
-- 时间、随机性及外部服务等不可控边界可使用 fake、stub 或 mock。优先采用已有隔离设施或测试服务，避免只验证 mock 返回了自己设定的值。
-- 外部副作用本身属于契约时，可以检查发送内容或调用次数；存储适配器的契约也可直接检查测试数据库。边界由被测职责决定，不机械禁止所有交互断言。
-- 固定输入并隔离测试状态。间歇性缺陷应控制触发条件或保留可复现证据，靠反复运行偶然变绿不能证明修复。
+- Assert caller-visible results and prefer real internal collaboration. Private methods, internal call order, and implementation layout are usually not contracts.
+- Each test explains one behavior and may use several related assertions. For example, no shipment after a declined payment is part of that failure behavior.
+- Use fakes, stubs, or mocks at uncontrollable boundaries such as time, randomness, and external services. Prefer existing isolation facilities or test services. Avoid tests that only confirm a mock returns its configured value.
+- When an external side effect is part of the contract, assert its payload or call count. A storage adapter's contract may also be checked directly against a test database. The responsibility under test determines the boundary; do not ban all interaction assertions.
+- Fix inputs and isolate test state. Control flaky triggers or preserve reproducible evidence. Repeated execution until an accidental pass does not prove a fix.
 
-需要判断接口断言、测试替身或期望值是否有效时，读 [测试边界与证据示例](references/test-design.md)。
+Read [Test seams and evidence examples](references/test-design.md) when assessing interface assertions, test doubles, or independent expected values.
 
-## 收口与证据
+## Close with evidence
 
-完成各切片后，运行受影响的测试集合及项目要求的完整检查。单元测试覆盖不到的接线或用户流程，在对应运行入口补验证；编译、静态检查和运行结果分别报告。
+After completing the slices, run affected test suites and the project's required full checks. Verify wiring or user flows that unit tests cannot cover at the relevant runtime entry point. Report compilation, static checks, and runtime results separately.
 
-自动化路径受工具、权限或外部状态阻塞时，先检查更窄的可执行方式，例如针对性脚本、组件测试或实际操作。说明替代检查能证明的范围、不能覆盖的风险，以及恢复自动化所需条件。关键行为仍无法验证就报告未完成；手动验证不能冒充自动回归保障或 TDD。
+If tools, permissions, or external state block automation, look for a narrower executable check, such as a targeted script, component test, or real interaction. State what the substitute proves, which risks it misses, and what is needed to restore automation. Report incomplete work if critical behavior remains unverified. Manual validation is not automated regression protection or TDD.
 
-交接包含 Red 的命令和实际失败原因、Green 的命令和结果、回归范围及未验证项。证据对应最终改动；如果没有取得改前失败，明确说明。测试覆盖率可帮助发现遗漏，不能单独作为行为正确或完成的判据。
+The handoff includes the Red command and actual failure reason, the Green command and result, regression scope, and unverified items. Evidence must match the final change. Explicitly state when no before-change failure was obtained. Coverage can reveal omissions, but cannot alone prove behavior or completion.

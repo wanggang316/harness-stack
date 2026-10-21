@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: 将已讨论清楚的需求与设计整理成一份完整 spec，并发布为一张 GitHub Issue。
+description: Turn agreed requirements and design decisions into a complete spec and publish it as one GitHub issue.
 disable-model-invocation: true
 metadata:
   credits:
@@ -11,76 +11,77 @@ metadata:
 
 # to-spec
 
-综合当前会话和代码库理解，产出可直接交给执行者的 spec。只发布一张 Issue，不拆票、不实现、不默认写设计文件；它不预设自己是父任务。
+Synthesize the current conversation and codebase understanding into a spec an implementer can execute. Publish one issue. Do not split work into tickets, implement it, or write a design file by default. The spec is not automatically a parent task.
 
 ## 1. Resolve the target
 
-仅要求草稿时跳过目标仓库、认证和标签检查，直接进入第 2 步；准备发布时才执行本节。
+For a draft-only request, skip repository, authentication, and label checks and go to step 2. Use this section only when preparing to publish.
 
-从 `origin` 得到项目的 `<owner>/<repo>`，读取 `~/.harness-stack/<owner>.<repo>/`：
+Derive the project's `<owner>/<repo>` from `origin`, then read `~/.harness-stack/<owner>.<repo>/`:
 
-- `issue-tracker.md` 指定发布仓库；缺失时用 `origin`，用户指定的目标优先。
-- `triage-labels.md` 指定 triage 角色到 label 的映射；缺失时不加 triage label。
+- `issue-tracker.md` specifies the publishing repository. Fall back to `origin` when absent. An explicit user target takes priority.
+- `triage-labels.md` maps triage roles to labels. Apply no triage label when absent.
 
-没有 GitHub `origin` 时跳过项目配置；用户未指定目标仓库时询问目标。确认 `gh` 已登录，并读取目标仓库已有的 label。有 `agent-todo` 映射且目标 label 存在时使用它，不猜测或自动创建 label。映射失效时报告，发布前确认是否不带该 label。`gh` 未登录或无权限时仍完成草稿，报告发布未完成。
+Without a GitHub `origin`, skip project configuration and ask for a target if the user has not supplied one. Confirm that `gh` is authenticated and read the target repository's existing labels. Use the `agent-todo` mapping only if its label exists; do not guess or automatically create labels. Report invalid mappings and confirm whether to publish without that label. If authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
 
-## 2. Synthesize the context
+## 2. Gather context
 
-已有讨论足够时直接综合，不重做需求访谈。传入文件或 Issue 引用时读完整内容；Issue 同时读评论，它是上下文来源，不自动成为父任务或编辑目标。
+If the existing discussion is sufficient, synthesize it without repeating the requirements interview. Read referenced files or issues in full, including issue comments. A source issue supplies context; it does not automatically become a parent or an edit target.
 
-按需读相关代码、领域文档和有效 ADR，使用项目已有术语。区分当前行为、已确认的改变和假设。缺少会影响范围、行为或关键取舍的信息时，只询问这些缺口；未解决时交付草稿并列出阻塞，不把假设写成已确认决定或发布为待执行任务。
+Read relevant code, domain documentation, and active ADRs as needed. Use project terminology. Distinguish current behavior, confirmed changes, and assumptions. Ask only for missing information that affects scope, behavior, or major trade-offs. If it remains unresolved, deliver a draft with blockers; do not present assumptions as confirmed decisions or publish an executable task.
 
-明确测试接口，优先已有、较高层的行为接口，以尽量少的测试边界覆盖功能。沿用已确认的测试决定；需要新增测试接口或改变测试策略时，向用户说明并取得决定。
+Identify the test seams. Prefer existing, higher-level behavioral interfaces that cover the feature with as few seams as practical. Reuse confirmed testing decisions. Explain any new test seam or change in test strategy and obtain the user's decision.
 
 ## 3. Write the spec
 
-正文跟随项目文档语言，无先例时用英文。使用下列七个章节；Further Notes 没有内容时省略。
+Follow the project's document language, or use English when there is no precedent. Use these seven sections; omit Further Notes when empty.
 
 <spec-template>
 
 ## Problem Statement
 
-用户遇到的问题，从用户视角描述。
+The problem the user faces, from the user's perspective.
 
 ## Solution
 
-解决问题后用户获得的能力，从用户视角描述。
+The capability the user gains when the problem is solved, from the user's perspective.
 
 ## User Stories
 
-编号列出用户故事，覆盖功能的主要行为、权限、边界与失败场景；用可观察结果表达需求，不靠重复凑数量。
+A numbered list covering the feature's main behaviors, permissions, boundaries, and failure cases. Express requirements as observable outcomes; avoid repetition to inflate the list.
 
-1. As an <actor>, I want <feature>, so that <benefit>.
+1. As an <actor>, I want <capability>, so that <benefit>.
 
 ## Implementation Decisions
 
-已确认的模块及接口变化、技术约束、架构决定、schema、API 契约与交互。记录让执行者无需重新猜测的共同约束，相关理由可链接已有 ADR。
+Confirmed changes to modules and interfaces, technical constraints, architectural decisions, schemas, API contracts, and interactions. Include shared constraints that prevent implementers from guessing again. Link existing ADRs for relevant rationale.
 
 ## Testing Decisions
 
-以可观察行为为测试依据。说明测试哪些模块或接口、关键成功与失败场景，以及代码库中可复用的测试模式。这里写验证计划，不声称尚未运行的测试已经通过。
+Base tests on observable behavior. Identify modules or interfaces under test, key success and failure cases, and reusable testing patterns in the codebase. This is a validation plan, not a claim that unrun tests passed.
 
 ## Out of Scope
 
-明确本次不包含的工作，尤其是读者可能合理期待但已排除的内容。
+Explicit exclusions, especially work a reader might reasonably expect but that has been excluded.
 
 ## Further Notes
 
-其他影响执行的信息与可访问的来源链接。
+Other information that affects execution, with accessible source links.
 
 </spec-template>
 
-避免具体文件路径与代码片段，它们容易过时。例外：原型中的状态机、schema 或类型形状比文字更精确时，只保留承载决定的片段并注明来自原型。需要引用仓库文档时用可从 GitHub Issue 访问的链接，不写机器本地路径。读者不依赖原会话也能理解正文；不留占位内容。
+Avoid specific file paths and code snippets because they become stale. Exception: when a prototype's state machine, schema, or type shape expresses a decision more precisely than prose, retain only the decision-bearing fragment and identify its prototype origin. Link repository documents with URLs accessible from the GitHub issue, not machine-local paths. The body must stand alone without the original conversation and contain no unfilled placeholders.
 
-## 4. Publish and verify
+## 4. Confirm and publish
 
-展示目标仓库、标题、正文和标签。发布需要用户明确授权；会话已明确授权向该目标发布此范围的 spec 时直接继续，不重复询问。只要求草稿或仍有关键未决事项时停在草稿。
+Show the target repository, title, body, and labels. Publishing requires explicit user authorization. Proceed without asking again if the conversation already authorizes this spec scope and target. Stop at a draft when that is all the user requested or key decisions remain open.
 
-将正文写入仓库外的临时文件，使用 `gh issue create --repo "$repo" --title "$title" --body-file "$body_file"` 发布；仅在有已确认标签时附加 `--label`。
+Write the body to a temporary file outside the repository. Publish with `gh issue create --repo "$repo" --title "$title" --body-file "$body_file"`. Add `--label` only for confirmed labels.
 
-- 只创建这一张 spec Issue，不修改或关闭来源 Issue，不建立父子或 blocked-by 关系。
-- 请求超时、返回含糊或回读失败时，先查询目标仓库近期 Issue，核对作者、标题与正文；未确定是否已创建前不重试创建，避免重复。
-- 取得 URL 后用 `gh issue view` 回读，核对仓库、标题、正文与标签。回读失败时区分已获得的创建结果与尚未验证的内容。
+- Create only this spec issue. Do not edit or close a source issue or create parent-child or blocked-by relationships.
+- After a timeout, ambiguous response, or failed readback, query recent issues in the target repository and compare author, title, and body. Do not retry creation until you know whether it succeeded.
+- After obtaining a URL, use `gh issue view` to check the repository, title, body, and labels. If readback fails, distinguish the observed creation result from content that remains unverified.
 
-返回 Issue URL 与回读结果。失败时报告已知状态和剩余阻塞，不把草稿当作已发布。
+## 5. Report
 
+Return the issue URL and any unverified items. For draft-only or blocked publishing, return the complete draft and the conditions needed to publish. Do not claim publication without a confirmed result.

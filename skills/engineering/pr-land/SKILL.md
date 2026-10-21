@@ -1,48 +1,48 @@
 ---
 name: pr-land
-description: 把一个已打开的 pull request 推进到干净合并——盯 CI、处理 review 反馈、解决冲突，全绿时 squash-merge。在用户要求把改动合进去、或推进一个已开的 PR 直到合并时使用。不涉及 commit、code review 与发布事务。
+description: Drive an open pull request to a clean merge by watching CI, addressing review feedback, resolving conflicts, and squash-merging when green. Use when asked to land a change or advance an open PR through merge. Does not replace commit, code-review, or release workflows.
 ---
 
-# pr-land：推进 PR 到合并
+# pr-land
 
-你是作者，PR 已打开且不是 draft，目标就是合并。进入推进循环：盯 CI、处理 review 反馈、保持可合并状态，全绿时 squash-merge。**坚持到底**——只要还有可处理的工作（待修的 CI 失败、待回的 comment、待解的冲突），就不交还控制权；只在 PR 合并、或遇到 *Yield Conditions* 时才停。
+Act as the author of an open, non-draft PR whose goal is merge. Watch CI, address review feedback, keep the branch mergeable, and squash-merge when green. **Persist** while actionable work remains, including CI failures, unanswered comments, and conflicts. Stop only after merge or a Yield Condition.
 
-用户要求把改动合进去，即授权推送修复 commit 并在全绿时合并。超出这个范围的动作（改 base、force-push 共享分支、绕过 required checks）先问。
+A request to land the change authorizes pushing fix commits and merging when green. Ask before actions outside that scope, such as changing the base, force-pushing a shared branch, or bypassing required checks.
 
 ## Preconditions
 
-- `gh` CLI 已认证。
-- 当前分支已有 open 的 PR（或手上有它的编号）。没有 → 停下告诉用户。
-- 本地工作树干净，本地全套检查在 head commit 上已通过——本地全绿是个便宜的信号，意味着 CI 不该给你惊喜。
+- `gh` is authenticated.
+- The current branch has an open PR, or its number is available. Otherwise, stop and tell the user.
+- The local worktree is clean and the full local checks passed at the head commit. Local green is an inexpensive signal that reduces CI surprises.
 
 ## Workflow
 
-1. **定位 PR**
+1. **Locate the PR**
 
    ```bash
    gh pr view --json number,url,headRefOid,mergeable,mergeStateStatus,title,body
    ```
 
-2. **冲突检查**
-   - 若 `mergeable == "CONFLICTING"` 或 `mergeStateStatus == "DIRTY"`：`git fetch origin <base>` 后 rebase 到 `origin/<base>`（团队惯例是 merge 就 merge），解决冲突后推送。只有 rebase 了自己独占的分支，才用 `git push --force-with-lease`。
-   - 若 `mergeable == "UNKNOWN"`，稍候（10–30s）再查；GitHub 正在计算。
+2. **Check conflicts**
+   - If `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"`, fetch `origin <base>` and rebase onto `origin/<base>`, or merge if that is the team's convention. Resolve conflicts and push. Use `git push --force-with-lease` only after rebasing a branch you alone push to.
+   - If `mergeable == "UNKNOWN"`, wait 10–30 seconds and check again; GitHub is computing mergeability.
 
-3. **并行盯 CI、review 与 head 漂移**
+3. **Watch CI, reviews, and head changes in parallel**
 
-   PR 打开期间有三个独立信号：**CI checks 完成**（通过 / 失败 / pending）、**reviewer 留下反馈**（inline / 顶层 comment / 带状态的 review）、**PR head 移动**（有人或 bot 推了）。以 ~10s 间隔轮询这三者，谁先触发就先响应谁。
+   An open PR has three independent signals: **CI completion** with passing, failing, or pending checks; **reviewer feedback** through inline comments, top-level comments, or submitted reviews; and **PR head movement** from a person or bot. Poll all three about every 10 seconds and respond to whichever changes first.
 
-4. **响应**
+4. **Respond**
 
-   | 信号 | 动作 |
-   |---|---|
-   | Mergeable `CONFLICTING` | 同步、解决、推送。回到 step 3。 |
-   | Mergeable `UNKNOWN` | 等待，重查。 |
-   | CI check 失败（真失败） | 拉日志，本地修，提交，推送，回到 step 3。 |
-   | CI check 失败（flake——孤立超时、瞬态基础设施问题） | 重跑那个具体 job。重试通过即继续。 |
-   | head 上出现 CI 自动 commit | 见下文「Auto-Commit on Head」。 |
-   | 有未处理的 review comment | 按下文 Review-Feedback Handling 处理。在确认并（如需要）处理前别合并。 |
-   | 推送被拒（auth / permission / policy） | 把错误呈上来，别掩盖。 |
-   | 所有 check 通过、无未处理反馈 | 合并（step 5）。 |
+   | Signal | Action |
+   | --- | --- |
+   | Mergeable `CONFLICTING` | Sync, resolve, push, and return to step 3. |
+   | Mergeable `UNKNOWN` | Wait and recheck. |
+   | Real CI failure | Read logs, fix locally, commit, push, and return to step 3. |
+   | Flaky CI failure, such as an isolated timeout or transient infrastructure issue | Rerun the specific job. Continue if it passes. |
+   | CI adds a commit to head | Follow Auto-Commit on Head below. |
+   | Unaddressed review comment | Follow Review-Feedback Handling. Acknowledge and address it as needed before merging. |
+   | Push rejected for authentication, permissions, or policy | Surface the error without hiding it. |
+   | All checks pass and no feedback remains unaddressed | Merge in step 5. |
 
 5. **Squash-merge**
 
@@ -52,61 +52,61 @@ description: 把一个已打开的 pull request 推进到干净合并——盯 C
    gh pr merge --squash --subject "$title" --body "$body"
    ```
 
-   - 用 PR *当前*的 title/body 作为 merge 的 subject/body。若范围有变，先在 step 4 刷新它们。
-   - 在没有 required checks 的 repo 里别开 `--auto`（auto-merge）——它可能在 CI 跑之前就落地。
-   - 若 repo 不会在合并时自动删除 head branch，手动删掉该分支。
+   - Use the PR's *current* title and body for the merge. Update them in step 4 if scope changed.
+   - Do not enable `--auto` in a repository without required checks; it may merge before CI runs.
+   - Delete the head branch if repository settings do not delete it automatically on merge.
 
 ## Review-Feedback Handling
 
-在为某条 comment 改代码之前：
+Before changing code for a comment:
 
-1. **上下文护栏。** 确认该反馈不与用户对本次改动的既定意图冲突。若冲突，先在 inline 里附理由回复并询问用户，再改代码。
-2. **逐条 comment 选定模式**（推送改动*之前*于 inline 回复中表明）：**Accept**（会修，方案如下）/ **Clarify**（需要更多信息）/ **Push back**（不同意，理由 + 替代方案）。
-3. **分类。** correctness / design / style / clarification / scope。correctness 必须处理，或用具体验证反驳；design / style / clarification 可延后——明确说明并附理由。
-4. **先回复再改动。** 推送代码前始终先表明打算做什么——这比「force-pushed；这是 10 个新 commit」更便于 reviewer 跟进。
-5. **批量修复。** 一批修复之后一条汇总的「review addressed」comment，胜过十条零碎回复。
+1. **Check intent.** Confirm the feedback does not conflict with the user's established intent. If it does, explain in an inline reply and ask the user before changing code.
+2. **Choose a disposition per comment** and state it inline before pushing: **Accept** with the intended fix, **Clarify** with missing information, or **Push back** with reasons and an alternative.
+3. **Classify** as correctness, design, style, clarification, or scope. Address correctness or refute it with concrete validation. Design, style, and clarification may be deferred with an explicit reason.
+4. **Reply before changes.** State the intended action before pushing so reviewers can follow it, rather than discovering a force-push and ten new commits.
+5. **Batch fixes.** Prefer one summary comment after a set of review fixes over many fragmented replies.
 
 ## CI Failure Handling
 
-- **先拉日志。** 概览用 `gh pr checks`，细节用 `gh run view <run-id> --log`。
-- 可能的话**本地复现**——这是个便宜的信号，能证明你的修复真的修好了。
-- **flaky 还是真失败。** 单平台、不复现的超时大概率是 flaky——重跑那个 job。本地能复现的失败断言是真失败。用判断力；别无限自动重试。
-- **merge commit 上的 lockfile / 依赖同步错误**（例如 pnpm 报 lockfile 损坏）：通常的补救是 fetch 最新的 `origin/<base>`、同步、推送、重跑 CI。
-- **别用 `--no-verify` 或跳过 job** 来让 CI 通过。修 root cause。
+- **Read logs first.** Use `gh pr checks` for an overview and `gh run view <run-id> --log` for details.
+- **Reproduce locally** when possible to establish that the fix addresses the failure.
+- **Distinguish flakes from real failures.** A non-reproducible timeout on one platform is likely flaky; rerun that job. A locally reproducible assertion failure is real. Use judgment and bound retries.
+- **Lockfile or dependency-sync errors on the merge commit**, such as a corrupt pnpm lockfile, usually require fetching the latest `origin/<base>`, syncing, pushing, and rerunning CI.
+- **Fix the root cause.** Do not use `--no-verify` or skip jobs to obtain green CI.
 
 ## Auto-Commit on Head
 
-有些 CI 配置会把修复推回 PR（formatter、codegen、auto-changelog）。这些 commit 通常由某个 bot 账号署名，而**部分 CI 提供方不会对 bot 署名的推送重新触发新一轮运行**。
+Some CI setups push formatter, codegen, or changelog fixes back to the PR. These commits are usually bot-authored, and **some CI providers do not start another run for bot-authored pushes**.
 
-若 head 移动、且新 commit 是 bot 署名的：拉到本地 → 若 `origin/<base>` 也动了则同步 → 加一个真实作者署名的 commit（必要时 `--allow-empty`，但更建议有意义的 commit）来重新触发 CI → 若同步重写了历史用 `--force-with-lease` 否则普通 push → 继续盯。若 head 是因你自己早前的推送而移动，无需特殊处理。
+If head moves to a bot-authored commit, pull it locally, sync if `origin/<base>` also advanced, then add a commit attributed to the real author to retrigger CI. Use a meaningful commit when possible, or `--allow-empty` if needed. Push with `--force-with-lease` if synchronization rewrote history; otherwise, push normally and keep watching. Head movement caused by your own earlier push needs no special handling.
 
 ## Anti-Patterns
 
-| 别做 | 为什么 |
-|---|---|
-| 在没有 required checks 的 repo 里开 `gh pr merge --auto` | auto-merge 可能在 CI 还没开始就把 PR 落地。 |
-| 用 `--merge` 而非 `--squash`（当 squash 是项目默认时） | 与项目历史策略不符。若 repo 偏好 merge commit 则相应调整。 |
-| 回一句「好的会修」却始终不处理那条 comment | 接受了反馈就把活干了，或用一个后续引用明确延后。 |
-| 在 PR 还有可处理工作时就把控制权交还用户 | 本技能的全部意义就在于推进到合并。只在受阻时才停。 |
-| 在还有未处理的人类 review comment 时就合并 | 即便你不同意，合并前也要先确认。 |
-| review 期间裸 `--force` 重触发 CI | 用 `--force-with-lease`，且仅对自己的分支；在 PR 线程里告知 rebase。 |
+| Avoid | Reason |
+| --- | --- |
+| `gh pr merge --auto` without required checks | It may merge before CI starts. |
+| `--merge` when squash is the project default | It conflicts with project history policy. Adapt if the repository prefers merge commits. |
+| Accepting feedback without addressing it | Complete accepted work or explicitly defer it with a follow-up reference. |
+| Returning control while actionable work remains | This skill owns progress through merge. Stop only when blocked. |
+| Merging with unaddressed human review comments | Acknowledge them before merge even when you disagree. |
+| Bare `--force` during review to retrigger CI | Use `--force-with-lease` only on your own branch and disclose the rebase in the PR thread. |
 
 ## Yield Conditions
 
-在以下情况停下并呈给用户：
+Stop and report to the user when:
 
-- 冲突需要产品层面的决策（API 形状变更、schema 迁移、数据丢失风险）。
-- review 反馈与用户意图相悖，正确取舍不明朗。
-- 推送因 auth / permission / policy 原因被拒（别掩盖）。
-- 一次修复尝试后，CI 仍以同一错误反复失败——root cause 不明。
-- 人类 reviewer 请求变更却没有具体的 inline comment——需要问清他们想要什么。
-- 某项必需的改动只能在 base branch 上做（例如为整个 repo 升级一个依赖）。
+- Conflicts require product decisions, such as API shape, schema migration, or data-loss risk.
+- Review feedback conflicts with user intent and the right trade-off is unclear.
+- Authentication, permissions, or policy reject a push; do not conceal the error.
+- After a fix attempt, CI repeatedly fails with the same error and the root cause remains unknown.
+- A human reviewer requests changes without specific inline comments; clarify what they need.
+- A required change can only be made on the base branch, such as a repository-wide dependency upgrade.
 
-否则：继续推进。
+Otherwise, keep going.
 
 ## Verification
 
-- [ ] PR 在 base branch 上处于 `MERGED` 状态。
-- [ ] 合并时 CI 为绿（不是在未受保护的 repo 里靠 auto-merge 绕过）。
-- [ ] 无未处理的 review comment；合并前 PR title/body 已反映最终范围。
-- [ ] head branch 已删除（或由 repo 设置自动删除）。
+- [ ] The PR is `MERGED` into the base branch.
+- [ ] CI was green at merge, not bypassed through auto-merge in an unprotected repository.
+- [ ] No review comment remains unaddressed, and the title and body reflected final scope before merge.
+- [ ] The head branch was deleted manually or by repository settings.

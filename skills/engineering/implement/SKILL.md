@@ -1,6 +1,6 @@
 ---
 name: implement
-description: 将明确的任务、Issue 或 spec 实现为经过验证、可供评审的改动。
+description: Implement a defined task, issue, or spec as a verified change ready for review.
 disable-model-invocation: true
 metadata:
   credits:
@@ -15,73 +15,73 @@ metadata:
 
 # implement
 
-完成用户指定范围内的实现、验证、自检和相关知识更新。输入可以是会话要求、任务引用、spec 或已有计划；不要求预先拆票、配置状态或运行其他 Skill。
+Complete implementation, verification, self-review, and related knowledge updates within the requested scope. Input can be a conversation request, task reference, spec, or existing plan. No prior ticket breakdown, state configuration, or skill invocation is required.
 
-## 1. 确定目标
+## 1. Establish the goal
 
-读取输入；给了任务引用就获取正文、相关约束与依赖，并确认标题。提取预期行为、范围、明确禁区和完成条件。沿用已确认的决定，不重新审批。
+Read the input. For a task reference, fetch its full content, constraints, and dependencies, and state its title. Extract expected behavior, scope, explicit exclusions, and completion criteria. Reuse confirmed decisions without requesting approval again.
 
-先调查可查明的事实；不影响正确性的缺失自行作合理假设并说明。只有影响行为、公共契约或重大取舍且无法从上下文解决的问题才询问用户，等待期间继续不依赖答案的工作。引用无法读取时，不根据标题猜测完整要求。
+Investigate facts first. State reasonable assumptions for gaps that do not affect correctness. Ask only about unresolved choices that affect behavior, public contracts, or major trade-offs and cannot be resolved from context. Continue independent work while waiting. If a reference is inaccessible, do not infer its full requirements from the title.
 
-无人值守时，使用宿主已经给定的授权和决策边界自主推进；只有确实缺少信息、能力或授权时报告阻塞，不把“无人答复”视为扩大权限的许可。
+In unattended execution, proceed within the host's existing authorization and decision boundaries. Report a blocker only when required information, capability, or authorization is missing. Silence does not expand authority.
 
-## 2. 理解现状
+## 2. Understand the current state
 
-读取项目指令、相关当前知识与有效决定，检查受影响的实现、调用方和测试，优先复用已有模式。确认工作目录、分支、起始提交和现有改动，遵守项目的 worktree 约定；保护用户的文件与未提交修改。
+Read project instructions, relevant current knowledge, and active decisions. Inspect the affected implementation, callers, and tests; prefer existing patterns. Confirm the working directory, branch, starting commit, and existing changes. Follow the project's worktree conventions and protect user files and uncommitted work.
 
-从项目配置和现有流程确定验证命令，不假设语言、包管理器或测试工具。按风险取得必要基线：已有测试失败、原始缺陷复现、重构前行为或性能测量。无法取得的基线明确记为未知，不能归类为既有问题。
+Derive validation commands from project configuration and existing workflows. Do not assume a language, package manager, or test runner. Establish the baseline appropriate to the risk: existing test failures, the original bug reproduction, behavior before a refactor, or performance measurements. Mark unavailable baselines as unknown, not pre-existing problems.
 
-续跑时以当前 Git、任务记录和证据核对进度，复用仍有效的结果；已提交不等于已验证，已有 PR 也不等于任务完成。只补未完成或证据已失效的部分，避免重复实施。
+When resuming, reconcile progress against current Git state, task records, and evidence. Reuse results that remain valid. A commit does not prove verification, and a PR does not prove completion. Complete only unfinished work or work whose evidence is no longer valid.
 
-## 3. 安排可验证的小步
+## 3. Plan small, verifiable steps
 
-小任务直接执行。复杂任务列出简短步骤，每步有可观察的完成条件；优先验证最高风险假设或打通关键路径。已有明确计划时沿用并核对前置条件，不为形式生成新计划文件或任务。
+Execute small tasks directly. For complex work, use a short plan with an observable completion condition for each step. Test the highest-risk assumption or establish the critical path first. Reuse a clear existing plan and check its prerequisites; do not create plan files or tasks merely for formality.
 
-默认由当前 agent 执行。仅在运行环境允许、任务具有独立边界且委派确有收益时使用 subagent；明确目标、上下文指针、写入范围、验证方式和交接要求。并行写入须隔离工作区及共享资源；集成后验证组合结果，主 agent 核查实际 diff 与证据。
+The current agent executes by default. Use subagents only when the environment permits it, the work has independent boundaries, and delegation adds value. Specify the goal, context pointers, write scope, validation, and handoff requirements. Isolate workspaces and shared resources for concurrent writes. Verify the combined result after integration; the primary agent checks the actual diff and evidence.
 
-文件清单用于定位影响面，除非明确规定为禁区。完成目标所需的调用方、测试和文档可一并更新；发现新的产品范围或重要设计决定时，先与用户对齐。用户中途调整要求时更新完成条件和受影响步骤，不沿用已失效的验证结论。
+Treat file lists as an impact map unless they are explicit boundaries. Update callers, tests, and documentation needed to complete the goal. Align with the user before adding product scope or making a new major design decision. If requirements change mid-task, update completion criteria and affected steps; discard validation conclusions that no longer apply.
 
-宿主已提供 workpad 或其他任务记录且允许写入时，复用原记录，保持计划、验收和验证状态与实际进度一致；写入后核对结果。没有持久记录要求时使用会话任务清单，不额外建立状态系统。
+If the host provides a workpad or task record and permits updates, reuse it. Keep the plan, acceptance criteria, and validation status aligned with actual progress, and check each write. If no persistent record is required, use the conversation task list without adding a state system.
 
-## 4. 实现并持续验证
+## 4. Implement and verify continuously
 
-按任务类型选择证明方式；混合任务分别核对其行为：
+Choose evidence by task type. For mixed tasks, check each behavior separately:
 
-| 类型 | 实现前 | 实现后 |
+| Type | Before implementation | After implementation |
 | --- | --- | --- |
-| 新功能或行为变化 | 明确可观察结果，为新行为先写失败测试 | 最小实现使测试通过，并验证关键入口的接线与结果 |
-| 缺陷修复 | 复现原始失败，定位根因，优先写回归测试 | 同一复现通过，相关回归检查通过 |
-| 行为保持重构 | 用已有测试、特征测试或等价性检查固定行为 | 小步调整结构，证明行为保持不变 |
-| 配置、文档或静态内容 | 确定相关格式、引用或运行约束 | 执行对应校验；没有行为变化不强造单元测试 |
+| Feature or behavior change | Define observable results and write a failing test for the new behavior | Make the smallest implementation pass, then verify wiring and results at key entry points |
+| Bug fix | Reproduce the original failure, identify the root cause, and prefer a regression test | Pass the same reproduction and relevant regression checks |
+| Behavior-preserving refactor | Pin behavior with existing tests, characterization tests, or equivalence checks | Change structure in small steps and prove behavior is unchanged |
+| Configuration, documentation, or static content | Identify format, reference, or runtime constraints | Run the corresponding checks; do not invent unit tests when behavior is unchanged |
 
-新增或修复行为时，读取并使用 `harness-stack:tdd`，由它指导测试边界、Red → Green → Refactor 和证据要求；已有目标与接口直接传入，不重复确认。该 Skill 不可用时，逐个行为先写并运行有效失败测试，再最小实现、重跑测试，在绿灯下整理结构。自动化受阻时说明替代检查和证据缺口。
+For new or corrected behavior, read and use `harness-stack:tdd` for test boundaries, Red → Green → Refactor, and evidence requirements. Pass in the established goal and interfaces without asking for confirmation again. If the skill is unavailable, write and run a valid failing test for one behavior, implement the minimum, rerun, and improve structure while green. If automation is blocked, state substitute checks and evidence gaps.
 
-每步运行相关检查，通过后再构建依赖它的下一步。意外失败时保留输出、收窄复现并验证根因假设；连续修复仍在同一处失败时，重新检查前提与观察方法。不得削弱断言迎合错误实现，也不以重复执行相同失败步骤代替调查。
+Run relevant checks after each step and require them to pass before building dependent work. On unexpected failure, preserve output, narrow the reproduction, and test root-cause hypotheses. If successive fixes fail at the same point, revisit assumptions and the observation method. Do not weaken assertions to fit incorrect code or replace investigation with repeated failed commands.
 
-按项目约定提交已验证的完整小步，只暂存本次拥有的路径或 hunks。无关问题单独报告，不顺手扩大修改范围。
+Commit verified, coherent steps under project conventions. Stage only paths or hunks owned by this task. Report unrelated issues separately instead of expanding scope.
 
-## 5. 核对完整结果
+## 5. Check the complete result
 
-对照原始要求及后续调整检查完整改动，包括未提交和新增文件。自检遗漏行为、边界与失败路径、调用方、测试质量和不必要的复杂度；修复发现并重验受影响部分。
+Compare all changes, including uncommitted and new files, with the original request and later adjustments. Check missing behavior, boundaries, failure paths, callers, test quality, and unnecessary complexity. Fix findings and reverify affected work.
 
-运行项目要求的测试、类型检查、lint 或构建，并按影响范围补集成验证。用户可见流程在对应实际入口验证；测试通过、构建成功和运行验收分别记录。检查证据是否仍对应最终代码和环境，相关改动使旧证据失效时重跑。
+Run required tests, type checks, lint, or builds, plus integration checks appropriate to the impact. Verify user-visible flows at their actual entry points. Record test success, build success, and runtime acceptance separately. Ensure evidence still matches the final code and environment; rerun checks invalidated by later changes.
 
-视觉改动在真实应用中检查受影响的页面与状态，保留截图；交互或动画需要动态证据时录制短片。只采集相关界面，避免包含无关或敏感内容。证据路径写入交接；宿主要求上传时使用已授权的工具与位置，并确认结果可访问。无法采集的关键证据记为验证缺口。
+For visual changes, inspect affected pages and states in the real application and retain screenshots. Record a short video when interactions or animation require dynamic evidence. Capture only relevant surfaces, excluding unrelated or sensitive content. Include evidence paths in the handoff. If the host requires uploads, use authorized tools and destinations and confirm accessibility. Record missing critical evidence as a validation gap.
 
-行为契约、架构、术语或操作方式变化时，原位更新相关权威文档；必要时记录已确认的重要决定及理由。没有长期知识变化就不创建文档。执行进度和验证证据留在现有任务记录或最终报告中，不写入长期知识正文。
+When behavior contracts, architecture, terminology, or operations change, update the authoritative documentation in place. Record confirmed important decisions and their reasons when needed. Create no document without a durable knowledge change. Keep execution progress and validation evidence in task records or the final report, not in long-lived knowledge prose.
 
-自检与验证完成后，对非平凡改动调用 `harness-stack:code-review`，由它派发 Standards 和 Spec 两个独立 subagent。权限、数据、并发或公共契约的变化即使 diff 很小也需要评审。提供本次起始提交、最终代码及约定的未提交文件、需求与证据；评审期间保持该范围稳定。
+After self-review and verification, invoke `harness-stack:code-review` for nontrivial changes. It dispatches independent Standards and Spec subagents. Changes to authorization, data, concurrency, or public contracts require review even with a small diff. Supply the starting commit, final code, agreed uncommitted files, requirements, and evidence. Keep that scope stable during review.
 
-两个轴返回后使用 `harness-stack:review-receive` 核实反馈，保留各轴记录。修复成立的问题，按根因重验，并对受影响的轴请求独立复审；未解决的阻塞项和未完成的轴保留在交接中。复审发现相同问题时先调查原因，不能靠重复请求评审推进状态。
+Use `harness-stack:review-receive` to verify feedback from both axes, retaining each report. Fix valid findings, reverify according to the root cause, and request independent re-review of affected axes. Keep unresolved blockers and incomplete axes in the handoff. If re-review repeats a finding, investigate why; repeated review requests alone do not advance the state.
 
-评审或反馈 Skill 不可用时，按上述输入分别请求只读的规范与需求 reviewer、逐项核实并处理 findings。没有独立 reviewer 能力时，对照需求检查完整 diff、调用方与验证证据，明确独立评审未完成。自检结果不能替代独立评审。
+If the review or feedback skill is unavailable, request separate read-only standards and requirements reviewers with the same inputs, then verify and address each finding. If independent reviewers are unavailable, check the complete diff, callers, and evidence against the requirements, and explicitly report independent review as incomplete. Self-review does not replace independent review.
 
-## 6. 提交与交接
+## 6. Commit and hand off
 
-核对并提交剩余的本次改动，遵守项目提交约定。工作区可保留用户原有改动，不为追求干净树而清理或提交它们。未经已有明确授权，不推送、开 PR、关闭任务、合并或部署。
+Check and commit the remaining task-owned changes under project conventions. The workspace may retain the user's existing work; do not clean up or commit it to obtain a clean tree. Push, PR creation, task closure, merge, and deployment require existing explicit authorization.
 
-报告实现结果、提交、实际执行的验证及其结果、未完成项和阻塞原因。必需行为未实现或关键验证未完成时报告部分完成或阻塞，说明继续所需条件；无法验证不等于验证失败，也不等于成功。已确认的既有失败单独列出，不能据此宣称检查全绿。
+Report the implementation result, commits, checks actually run and their results, unfinished work, and blockers. If required behavior or critical verification is incomplete, report partial completion or a blocker and the conditions needed to continue. Unverified does not mean failed or passed. List confirmed pre-existing failures separately; they do not justify claiming all checks passed.
 
-宿主指定交付命令、报告格式或状态所有者时，按协议交付并检查返回结果；由引擎管理的工单状态留给引擎处理。交付失败应报告并保留恢复信息，不能只发聊天总结就当作已交付。
+If the host specifies a delivery command, report format, or status owner, follow that protocol and check the result. Leave engine-managed task status to the engine. Report delivery failures and retain recovery information; a chat summary does not substitute for required delivery.
 
-完成意味着约定范围已实现、必要验证有最终证据、已要求的交接成功。实现、独立评审、合并、部署和线上验收分别记录。
+Completion means the agreed scope is implemented, necessary validation has final evidence, and the required handoff succeeded. Track implementation, independent review, merge, deployment, and production acceptance separately.
