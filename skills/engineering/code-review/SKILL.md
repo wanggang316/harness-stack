@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review branches, PRs, selected commits, or uncommitted changes through independent Standards and Spec subagents, with separate findings and evidence.
+description: Review the changes since a fixed point (commit, branch, tag, PR, or merge-base) along two axes, Standards and Spec, in parallel independent subagents, then feed the result back to the ticket when there is one, or to the conversation. Use to review a branch, a PR, work in progress, or "review since X", including re-review after fixes.
 metadata:
   credits:
     skill: code-review
@@ -10,43 +10,71 @@ metadata:
 
 # code-review
 
-Organize an independent two-axis review of a defined change. Deliver findings that can be located and verified, plus a conclusion for each axis. Keep reviewed files unchanged during review. Fixes, published comments, and merges require separate authorization.
+Two-axis review of one pinned change:
 
-## Pin the review target
+- **Standards**: does the code follow this repository's documented standards, and is it correct?
+- **Spec**: does the code do what the originating ticket or spec asked for?
 
-Confirm the working directory, branch, base, commit range, and workspace state. The user's scope takes priority. Use a PR's actual base and head; use the merge-base with the target branch for a branch review. For an explicit comparison between two commits, use their endpoint diff rather than substituting a merge-base comparison. Resolve branch names to SHAs so moving references cannot change the target.
+Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and feeds the result back. It never edits the reviewed code. Fixing findings belongs to `harness-stack:implement`.
 
-For work in progress, include agreed staged, unstaged, and untracked files. For tracked files, `git diff <base-sha>` shows the final workspace's net change from the base. Reconcile it with `git diff --cached`, `git diff`, and `git ls-files --others --exclude-standard`. Read new files separately. Distinguish the user's existing changes; confirm ownership when scope is unclear, rather than automatically including or cleaning them up.
+## 1. Pin the fixed point
 
-Record base/head, the file list, and content snapshots or hashes for uncommitted work. Pause writes to these files during asynchronous review, or provide an isolated snapshot. Check identity before closing. If it changed, report invalidated coverage and request additional review; do not apply an old report to new code.
+Use what the user or host named: a commit SHA, branch, tag, `main`, `HEAD~5`, or a PR (its actual base and head). When nothing was named, use the merge-base of `HEAD` with the default branch if the current branch is a feature branch; ask only when that is ambiguous.
 
-If a reference is invalid, the base cannot be determined, or the agreed scope is empty, report the actual state and request the missing scope information. An empty diff does not produce approval.
+Capture the diff command once, `git diff <fixed-point>...HEAD` (three dots: against the merge-base), and the commit list, `git log <fixed-point>..HEAD --oneline`. For an explicit comparison between two commits, use their endpoint diff instead. Resolve names to SHAs so moving references cannot change the target.
 
-## Establish the review basis
+For work in progress, include the agreed staged, unstaged, and untracked files (`git diff`, `git diff --cached`, `git ls-files --others --exclude-standard`), and record their hashes. Ask about changes whose ownership is unclear rather than including them silently.
 
-Derive expected behavior from the user request, task body, PR description, and relevant current knowledge. Read project instructions, standards, active decisions, and tests for affected directories. A confirmed task description can replace a separate spec file. Missing requirements do not prevent checking provable code defects, but spec conformance must remain unverified.
+Fail here, not inside two subagents, when the fixed point does not resolve (`git rev-parse`) or the diff is empty. An empty diff is not an approval.
 
-Answer two distinct questions: does the change deliver the agreed behavior, and is its implementation correct and consistent with project constraints? Project standards take priority over personal preference. Explain actual maintenance cost or error risk for structural, naming, or abstraction findings; function length, parameter count, or layer count alone does not establish a defect.
+## 2. Find the spec
 
-## Dispatch independent reviews on both axes
+Look for the originating requirements in this order:
 
-Create two read-only subagents with fresh contexts, one for **Standards** and one for **Spec**. Dispatch them concurrently when supported. Each reviewer receives only the common change snapshot, necessary evidence, and its own responsibility. Neither inherits the author's conversation nor reads the other axis's reasoning or report. Separate reviews give standards compliance and requirements compliance distinct conclusions.
+1. A ticket named by the input or the host, or referenced by the commits or the PR body (`#123`, `Closes #45`, `ENG-123`, GitLab `!67`). Read it with its comments as [Working with tickets](../setup-harness-stack/references/tickets.md) describes; it also decides whether this review has a ticket to report to.
+2. A path the user passed.
+3. A spec file under `docs/`, `specs/`, or `.scratch/` that matches the branch or feature.
+4. Ask the user. If there is none, the Spec axis reports `Incomplete: no spec available`.
 
-Use `harness-stack:code-reviewer` or the host's generic subagent. Provide an accessible absolute path to the [Reviewer guide](references/reviewer-guide.md). Include in the brief:
+## 3. Find the standards
 
-- Working directory, pinned base/head, diff command, commit list, agreed uncommitted files, and snapshot identity.
-- Axis name and focus. Both reviewers read the guide's shared method and reporting requirements.
-- Project standards, active decisions, and their locations for Standards; complete requirements or the confirmed task description for Spec.
-- Actual validation records, known limits, and, for re-review, original findings and disposition reasons.
+Collect every file that documents how code is written here: `AGENTS.md` or `CLAUDE.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md`, active decisions in `docs/adr/`, and directory-level instructions for the touched paths. The Standards axis also carries the [smell baseline](references/smell-baseline.md), which applies even when the repository documents nothing; a documented repository standard always overrides it.
 
-Supply necessary content when paths cannot be shared. Each reviewer reviews only its own axis and returns a result; it must not invoke this skill to dispatch more reviewers.
+## 4. Dispatch both axes in parallel
 
-Without requirements, dispatch only Standards and mark Spec `Incomplete: no spec available`, stating what is needed. If the host supports only serial execution, still use separate contexts. If subagents cannot be created, report independent two-axis review as incomplete. Self-review is not an independent report.
+Start two read-only subagents together (`harness-stack:code-reviewer` or the host's generic subagent) and wait for both. Give each only the shared snapshot and its own axis; neither sees the author's conversation or the other axis's reasoning. Each brief contains:
 
-## Present results separately
+- The working directory, the pinned diff command, the commit list, and any uncommitted files with their hashes.
+- The absolute path of the [Reviewer guide](references/reviewer-guide.md), which defines the method, severities, and report format.
+- **Standards**: the standards files from step 3 and the full text of the smell baseline (the subagent has no other access to it).
+- **Spec**: the spec's path or fetched content, including the ticket's acceptance criteria.
+- The validation the author reports (commands, evidence files) as claims to check, not facts.
+- For a re-review: the previous findings and the author's disposition of each, so the reviewer checks every one before looking at new changes.
 
-Wait for both axes. Check report coverage, evidence, and snapshot identity. Missing scope or changed versions require additional review. If one reviewer fails, retain the other report and mark the failed axis `Incomplete`.
+Without a spec, run only Standards. If subagents cannot be created, report the independent review as not done; a self-review is not a substitute. If the host runs subagents only serially, still give each axis a fresh context.
 
-Present reports under `## Standards` and `## Spec`. Lightly edit wording if needed, but retain each axis's findings, severity, evidence, and conclusion. Cross-reference a shared root cause while retaining both records. Do not merge them into one ranked list or use a pass on one axis to offset problems on the other.
+## 5. Aggregate
 
-End with each axis's finding count, most severe issue, and coverage limits. Do not add an overall approval that replaces the two conclusions. `No blocking findings` is a review result, not proof of tests, merge, deployment, or production acceptance. Publish to a PR only when requested, and verify that the target PR matches the reviewed version.
+Check that each report covers the pinned snapshot; if the code changed during review, report the coverage as invalid and review again. If one axis failed, keep the other report and mark the failed axis `Incomplete`.
+
+Present the reports under `## Standards` and `## Spec`, verbatim or lightly cleaned. Do not merge or rerank findings across axes: a change can follow every standard and implement the wrong thing, or do exactly what was asked and break the conventions, and separate reports keep one from masking the other. End with one line per axis: finding count, worst issue, and coverage limits.
+
+Derive the overall verdict from the two conclusions without averaging them:
+
+| Verdict | When |
+| --- | --- |
+| `clean` | Both axes `No blocking findings`, or Standards clean and the user accepted that there is no spec |
+| `issues` | Either axis has unresolved Critical or Important findings (`Request changes`) |
+| `incomplete` | No blocker is proven, but an axis is `Incomplete` (missing spec, failed reviewer, invalid coverage) |
+
+`clean` is a review result, not proof of tests, merge, or production behavior.
+
+## 6. Feed the result back
+
+- **With a ticket**: add a new comment to the ticket (do not edit earlier reviews, so rounds stay visible). Start it with `## Code review`, then the reviewed head SHA and round, the verdict, and the two axis reports. Write in the ticket's language and read back the result. Inside an agent-workflow turn, also deliver the report through the host's Completion instructions with the verdict.
+- **Without a ticket**: the report and verdict are the final message in the conversation.
+- **A PR**: publish review comments to the PR only when asked, after checking that the PR head still matches the reviewed SHA.
+
+State changes: outside agent-workflow, when the ticket is in `In Review` and the verdict is `clean`, move it to `Reviewed` (see the [state machine](../setup-harness-stack/references/state-machine.md)); otherwise leave the state alone. Inside agent-workflow the engine moves the ticket. A review never moves a ticket to `Merging` or `Done`.
+
+When the verdict is `issues`, the findings go to `harness-stack:implement` as rework input; the next review is a re-review with the author's dispositions.

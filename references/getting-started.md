@@ -5,6 +5,7 @@ harness-stack 文档中心。
 ## Core
 - [Golden Rules](golden-rules.md) — 核心原则（必读）
 - [State](state.md) — 按项目存放在 `~/.harness-stack/<project>/` 的配置与状态
+- [Ticket 状态机](../skills/engineering/setup-harness-stack/references/state-machine.md) — ticket 的规范状态、转移归属与各平台表示
 - [skill-create](../.claude/skills/skill-create/SKILL.md) — 在本仓库新增或修改 skill（仓库内工具，不随插件分发）
 
 ## Skills
@@ -22,18 +23,16 @@ harness-stack 文档中心。
 | Knowledge | harness-stack:audit-docs | [SKILL.md](../skills/engineering/audit-docs/SKILL.md) |
 | Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
 | Plan | harness-stack:to-spec | [SKILL.md](../skills/engineering/to-spec/SKILL.md) |
-| Plan | harness-stack:to-github-issues | [SKILL.md](../skills/engineering/to-github-issues/SKILL.md) |
+| Plan | harness-stack:to-tickets | [SKILL.md](../skills/engineering/to-tickets/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:code-review | [SKILL.md](../skills/engineering/code-review/SKILL.md) |
-| Review | harness-stack:review-request | [SKILL.md](../skills/engineering/review-request/SKILL.md) |
-| Review | harness-stack:review-receive | [SKILL.md](../skills/engineering/review-receive/SKILL.md) |
 | Deliberate | harness-stack:debate | [SKILL.md](../skills/productivity/debate/SKILL.md) |
 | Deliberate | harness-stack:decide | [SKILL.md](../skills/productivity/decide/SKILL.md) |
 | Ship | harness-stack:changelog | [SKILL.md](../skills/engineering/changelog/SKILL.md) |
 | Ship | harness-stack:git | [SKILL.md](../skills/productivity/git/SKILL.md) |
 | Ship | harness-stack:pr-open | [SKILL.md](../skills/engineering/pr-open/SKILL.md) |
-| Ship | harness-stack:pr-land | [SKILL.md](../skills/engineering/pr-land/SKILL.md) |
+| Ship | harness-stack:merge | [SKILL.md](../skills/engineering/merge/SKILL.md) |
 | Productivity | harness-stack:screenshot | [SKILL.md](../skills/productivity/screenshot/SKILL.md) |
 | Productivity | harness-stack:screen-record | [SKILL.md](../skills/productivity/screen-record/SKILL.md) |
 
