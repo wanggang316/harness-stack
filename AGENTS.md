@@ -23,20 +23,18 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:audit-docs` - Check documentation accuracy, discoverability, and value; repair supported findings
 
 **Setup** → Per-project config
-- `/harness-stack:setup-harness-stack` - Configure the issue repo and triage labels for this project; writes to `~/.harness-stack/<project>/`, not the repo
+- `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and the ticket state machine, and create missing state labels or states after approval; writes to `~/.harness-stack/<project>/`, not the repo. Its `references/` hold the ticket knowledge other skills read
 
-**Plan** → Capture specs and split work into GitHub issues
-- `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec issue
-- `/harness-stack:to-github-issues` - Split a plan, spec, or conversation into tracer-bullet issues with native blocked-by / sub-issue links; writes nothing into the repo
+**Plan** → Capture specs and split work into tickets
+- `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec ticket
+- `/harness-stack:to-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with native blocking / sub-ticket links; writes nothing into the repo
 
 **Build**
-- `/harness-stack:implement` - Implement a defined task with verification and a reviewable handoff
+- `/harness-stack:implement` - Implement a task, ticket, or spec with tickets (or fix review findings) with verification, a ticket workpad, and a reviewable handoff
 - `/harness-stack:tdd` - Test-driven development
 
 **Review** → Ensure quality
-- `/harness-stack:code-review` - Run independent Standards and Spec subagent reviews of a defined change
-- `/harness-stack:review-request` - Dispatch fresh-context reviewers (code / security / tests) (author side)
-- `/harness-stack:review-receive` - Handle reviewer feedback (author side)
+- `/harness-stack:code-review` - Run independent Standards and Spec subagent reviews of a defined change and feed the result back to the ticket or the conversation
 
 **Deliberate** → Multi-agent reasoning
 - `/harness-stack:debate` - Multi-agent debate among heterogeneous LLM agents on a single question
@@ -46,15 +44,19 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
-- `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
+- `/harness-stack:merge` - Drive an approved PR to a clean merge (watch CI, handle feedback, squash-merge) and move its ticket to Done
 
 **Productivity** → Capture visual evidence
 - `/harness-stack:screenshot` - Capture and process macOS screenshots
 - `/harness-stack:screen-record` - Record macOS screens and process videos
 
+### Ticket workflow
+
+Tickets move through one state machine: `Backlog → Todo → In Progress → In Review → Reviewed → Merging → Done` (see [state-machine.md](skills/engineering/setup-harness-stack/references/state-machine.md)). `implement` takes a ticket from `Todo` to `In Review`, `code-review` from `In Review` to `Reviewed`, a person approves `Merging`, and `merge` finishes at `Done`. Each skill also works without a ticket and then reports in the conversation. agent-workflow runs the same three skills unattended and owns the transitions there.
+
 ### Documentation workflow
 
-Use current domain documentation and active decisions when changing a feature. Use `grill-with-docs` when you want an explicit design interview with durable notes. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-github-issues` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in issues and PRs. Use a design file only when the change needs one.
+Use current domain documentation and active decisions when changing a feature. Use `grill-with-docs` when you want an explicit design interview with durable notes. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-tickets` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in tickets and PRs. Use a design file only when the change needs one.
 
 Make all repository edits in a dedicated worktree on a non-main branch, including documentation and skills. Review code and related knowledge in the same PR; main remains the merged baseline.
 
@@ -98,8 +100,8 @@ Rules 1 and 2 come first in this version.
 ## Getting Started
 
 1. Build: `/harness-stack:implement` for a defined task; `/harness-stack:tdd` for focused test-driven work.
-2. Review: `/harness-stack:code-review` for independent Standards and Spec reviews; `/harness-stack:review-request` to prepare a review brief; `/harness-stack:review-receive` to verify and address feedback.
-3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:pr-land` → `/harness-stack:changelog`.
+2. Review: `/harness-stack:code-review` for independent Standards and Spec reviews; `/harness-stack:implement` with the findings to fix them.
+3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:merge` → `/harness-stack:changelog`.
 
 ## Packages
 

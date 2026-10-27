@@ -1,6 +1,6 @@
 ---
-allowed-tools: Bash(gh pr view:*), Bash(gh pr checks:*), Bash(git branch:*), Skill(harness-stack:review-receive)
-description: Scan a PR; if there's anything to act on, hand it to harness-stack:review-receive
+allowed-tools: Bash(gh pr view:*), Bash(gh pr checks:*), Bash(git branch:*), Skill(harness-stack:implement)
+description: Scan a PR; if there's anything to act on, hand it to harness-stack:implement to fix
 model: claude-haiku-4-5
 argument-hint: "[PR number — defaults to the PR for the current branch]"
 ---
@@ -17,8 +17,8 @@ argument-hint: "[PR number — defaults to the PR for the current branch]"
    comments, failing checks. Use `gh pr view` and `gh pr checks` as needed.
 3. If the PR is merged or closed, report it and stop — nothing to watch.
 4. If there is anything actionable (changes requested, unresolved feedback,
-   genuine check failures), invoke `harness-stack:review-receive` with the findings and
-   let it decide how to respond. Don't modify code yourself.
+   genuine check failures), invoke `harness-stack:implement` with the findings as review
+   findings to fix, and let it decide how to respond. Don't modify code yourself.
 5. Otherwise, print one line summarizing the current state and exit.
 
 ## Periodic follow-up

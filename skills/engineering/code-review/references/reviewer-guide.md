@@ -6,7 +6,7 @@ Perform a read-only review of the single axis assigned in the brief. Return find
 
 Check implementation quality against project instructions, coding standards, and active decisions. Cite the source of documented rules. Present design concerns without an explicit rule as engineering judgments and explain their actual impact. Reference tool results for automated formatting checks instead of duplicating them as manual findings.
 
-Look for unclear names, duplicated business rules, scattered state checks, mixed responsibilities, premature abstraction, long dependency chains, and forwarding-only indirection. These are investigation leads, not automatic defects. Evaluate callers, constraints, and actual change cost. Explicit project conventions override general preferences.
+Match the diff against the smell baseline supplied in the brief. Its smells are investigation leads, not automatic defects: name the smell, quote the hunk, and explain the actual cost after checking callers and constraints. Explicit project conventions override the baseline and general preferences.
 
 Also check provable correctness, security, compatibility, and validation gaps. A real defect still matters when no style rule names it.
 
