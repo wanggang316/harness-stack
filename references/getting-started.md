@@ -25,14 +25,16 @@ harness-stack 文档中心。
 | Plan | harness-stack:to-spec | [SKILL.md](../skills/engineering/to-spec/SKILL.md) |
 | Plan | harness-stack:to-tickets | [SKILL.md](../skills/engineering/to-tickets/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
+| Build | harness-stack:implement-ticket | [SKILL.md](../skills/engineering/implement-ticket/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:code-review | [SKILL.md](../skills/engineering/code-review/SKILL.md) |
+| Review | harness-stack:code-review-ticket | [SKILL.md](../skills/engineering/code-review-ticket/SKILL.md) |
 | Deliberate | harness-stack:debate | [SKILL.md](../skills/productivity/debate/SKILL.md) |
 | Deliberate | harness-stack:decide | [SKILL.md](../skills/productivity/decide/SKILL.md) |
 | Ship | harness-stack:changelog | [SKILL.md](../skills/engineering/changelog/SKILL.md) |
 | Ship | harness-stack:git | [SKILL.md](../skills/productivity/git/SKILL.md) |
 | Ship | harness-stack:pr-open | [SKILL.md](../skills/engineering/pr-open/SKILL.md) |
-| Ship | harness-stack:merge | [SKILL.md](../skills/engineering/merge/SKILL.md) |
+| Ship | harness-stack:pr-land | [SKILL.md](../skills/engineering/pr-land/SKILL.md) |
 | Productivity | harness-stack:screenshot | [SKILL.md](../skills/productivity/screenshot/SKILL.md) |
 | Productivity | harness-stack:screen-record | [SKILL.md](../skills/productivity/screen-record/SKILL.md) |
 

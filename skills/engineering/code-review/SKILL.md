@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, PR, or merge-base) along two axes, Standards and Spec, in parallel independent subagents, then feed the result back to the ticket when there is one, or to the conversation. Use to review a branch, a PR, work in progress, or "review since X", including re-review after fixes.
+description: Review the changes since a fixed point (commit, branch, tag, PR, or merge-base) along two axes, Standards and Spec, in parallel independent subagents, and return both reports with a verdict. Use to review a branch, a PR, work in progress, or "review since X", including re-review after fixes. Does not read or update tickets; for a ticket, use code-review-ticket.
 metadata:
   credits:
     skill: code-review
@@ -13,9 +13,9 @@ metadata:
 Two-axis review of one pinned change:
 
 - **Standards**: does the code follow this repository's documented standards, and is it correct?
-- **Spec**: does the code do what the originating ticket or spec asked for?
+- **Spec**: does the code do what the originating requirements asked for?
 
-Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and feeds the result back. It never edits the reviewed code. Fixing findings belongs to `harness-stack:implement`.
+Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and returns the result. It never edits the reviewed code; fixing findings belongs to `harness-stack:implement`. It does not read or update tickets: when the input is only a ticket reference, use `harness-stack:code-review-ticket`, which reads the ticket and runs this skill.
 
 ## 1. Pin the fixed point
 
@@ -31,9 +31,9 @@ Fail here, not inside two subagents, when the fixed point does not resolve (`git
 
 Look for the originating requirements in this order:
 
-1. A ticket named by the input or the host, or referenced by the commits or the PR body (`#123`, `Closes #45`, `ENG-123`, GitLab `!67`). Read it with its comments as [Working with tickets](../setup-harness-stack/references/tickets.md) describes; it also decides whether this review has a ticket to report to.
+1. Requirements the caller supplied (for example, a ticket's description and acceptance criteria passed in as text).
 2. A path the user passed.
-3. A spec file under `docs/`, `specs/`, or `.scratch/` that matches the branch or feature.
+3. A spec file under `docs/`, `specs/`, or `.scratch/` that matches the branch or feature, or a spec section in the PR body.
 4. Ask the user. If there is none, the Spec axis reports `Incomplete: no spec available`.
 
 ## 3. Find the standards
@@ -47,7 +47,7 @@ Start two read-only subagents together (`harness-stack:code-reviewer` or the hos
 - The working directory, the pinned diff command, the commit list, and any uncommitted files with their hashes.
 - The absolute path of the [Reviewer guide](references/reviewer-guide.md), which defines the method, severities, and report format.
 - **Standards**: the standards files from step 3 and the full text of the smell baseline (the subagent has no other access to it).
-- **Spec**: the spec's path or fetched content, including the ticket's acceptance criteria.
+- **Spec**: the spec's path or content, including its acceptance criteria.
 - The validation the author reports (commands, evidence files) as claims to check, not facts.
 - For a re-review: the previous findings and the author's disposition of each, so the reviewer checks every one before looking at new changes.
 
@@ -69,12 +69,8 @@ Derive the overall verdict from the two conclusions without averaging them:
 
 `clean` is a review result, not proof of tests, merge, or production behavior.
 
-## 6. Feed the result back
+## 6. Return the result
 
-- **With a ticket**: add a new comment to the ticket (do not edit earlier reviews, so rounds stay visible). Start it with `## Code review`, then the reviewed head SHA and round, the verdict, and the two axis reports. Write in the ticket's language and read back the result. Inside an agent-workflow turn, also deliver the report through the host's Completion instructions with the verdict.
-- **Without a ticket**: the report and verdict are the final message in the conversation.
-- **A PR**: publish review comments to the PR only when asked, after checking that the PR head still matches the reviewed SHA.
+Return the two axis reports, the per-axis summary line, the verdict, and the reviewed head SHA. Deliver them the way the caller specified (for example, a command that posts them somewhere or a delivery format), otherwise as the final message in the conversation. Publish review comments to a PR only when asked, after checking that the PR head still matches the reviewed SHA.
 
-State changes: outside agent-workflow, when the ticket is in `In Review` and the verdict is `clean`, move it to `Reviewed` (see the [state machine](../setup-harness-stack/references/state-machine.md)); otherwise leave the state alone. Inside agent-workflow the engine moves the ticket. A review never moves a ticket to `Merging` or `Done`.
-
-When the verdict is `issues`, the findings go to `harness-stack:implement` as rework input; the next review is a re-review with the author's dispositions.
+When the verdict is `issues`, the findings are rework input for `harness-stack:implement`; the next review is a re-review with the author's dispositions.

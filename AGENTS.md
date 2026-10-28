@@ -30,11 +30,13 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:to-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with native blocking / sub-ticket links; writes nothing into the repo
 
 **Build**
-- `/harness-stack:implement` - Implement a task, ticket, or spec with tickets (or fix review findings) with verification, a ticket workpad, and a reviewable handoff
+- `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker
+- `/harness-stack:implement-ticket` - Implement a ticket by driving `implement`: read the ticket, keep its workpad, post the handoff, move Todo → In Progress → In Review
 - `/harness-stack:tdd` - Test-driven development
 
 **Review** → Ensure quality
-- `/harness-stack:code-review` - Run independent Standards and Spec subagent reviews of a defined change and feed the result back to the ticket or the conversation
+- `/harness-stack:code-review` - Run independent Standards and Spec subagent reviews of a defined change and return both reports with a verdict; never touches a tracker
+- `/harness-stack:code-review-ticket` - Review a ticket's change by driving `code-review`: post the review on the ticket, move In Review → Reviewed when clean
 
 **Deliberate** → Multi-agent reasoning
 - `/harness-stack:debate` - Multi-agent debate among heterogeneous LLM agents on a single question
@@ -44,7 +46,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
-- `/harness-stack:merge` - Drive an approved PR to a clean merge (watch CI, handle feedback, squash-merge) and move its ticket to Done
+- `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
 
 **Productivity** → Capture visual evidence
 - `/harness-stack:screenshot` - Capture and process macOS screenshots
@@ -52,7 +54,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-Tickets move through one state machine: `Backlog → Todo → In Progress → In Review → Reviewed → Merging → Done` (see [state-machine.md](skills/engineering/setup-harness-stack/references/state-machine.md)). `implement` takes a ticket from `Todo` to `In Review`, `code-review` from `In Review` to `Reviewed`, a person approves `Merging`, and `merge` finishes at `Done`. Each skill also works without a ticket and then reports in the conversation. agent-workflow runs the same three skills unattended and owns the transitions there.
+`implement` and `code-review` are the core skills: they do the work and return a handoff or review, and never touch a tracker. `implement-ticket` and `code-review-ticket` drive them for a ticket: they read it, keep its workpad and comments, and move it through the state machine `Backlog → Todo → In Progress → In Review → Reviewed → Merging → Done` (see [state-machine.md](skills/engineering/setup-harness-stack/references/state-machine.md)). `implement-ticket` owns `Todo → In Progress → In Review`, `code-review-ticket` owns `In Review → Reviewed`, and a person approves `Merging`. Any other driver of the core skills owns the transitions itself.
 
 ### Documentation workflow
 
@@ -101,7 +103,7 @@ Rules 1 and 2 come first in this version.
 
 1. Build: `/harness-stack:implement` for a defined task; `/harness-stack:tdd` for focused test-driven work.
 2. Review: `/harness-stack:code-review` for independent Standards and Spec reviews; `/harness-stack:implement` with the findings to fix them.
-3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:merge` → `/harness-stack:changelog`.
+3. Ship: `/harness-stack:commit` → `/harness-stack:pr-open` → `/harness-stack:pr-land` → `/harness-stack:changelog`.
 
 ## Packages
 

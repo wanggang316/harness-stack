@@ -90,4 +90,4 @@ This reference does not:
 - Publish to registries such as npm, PyPI, or crates.io.
 - Update version strings in `package.json`, `pyproject.toml`, `Cargo.toml`, or similar manifests.
 
-Those actions belong to `harness-stack:merge` and the release process. Hand off after `CHANGELOG.md` is committed.
+Those actions belong to `harness-stack:pr-land` and the release process. Hand off after `CHANGELOG.md` is committed.
