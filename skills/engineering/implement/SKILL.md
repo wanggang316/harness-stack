@@ -19,7 +19,7 @@ metadata:
 
 Turn the requested scope into a committed, verified change and a handoff a reviewer can trust. The input is the content of the work: a conversation request, a task description, a spec, a set of tasks with dependencies, or review findings on an earlier change. No setup, prior breakdown, or other skill run is required.
 
-This skill implements and verifies. It does not approve its own work; independent review is `harness-stack:code-review`'s job and runs as a separate step. It does not read or update tickets: when the input is only a ticket reference, use `harness-stack:implement-ticket`, which reads the ticket and runs this skill.
+When the input is only a ticket reference, use `harness-stack:implement-ticket`, which reads the ticket and runs this skill.
 
 Pick the mode from the input:
 
@@ -149,7 +149,7 @@ Deliver the handoff and verdict the way the caller specified, otherwise as the f
 
 ## Fix review findings
 
-Review findings arrive as a `harness-stack:code-review` report or text the caller supplies. A finding is a claim about a particular version, so check it against the current code before changing anything:
+Review findings are the report or text the caller supplies. A finding is a claim about a particular version, so check it against the current code before changing anything:
 
 - **Valid**: state the trigger and impact, fix it by root cause (related findings can share a fix), and reverify with a reproduction or regression test.
 - **Invalid or already resolved**: cite the current code, test, or decision that shows it.
