@@ -49,7 +49,7 @@ Present the breakdown as a numbered list. For each ticket show:
 - **Blocked by**: the tickets that must finish first
 - **What it delivers**: the end-to-end behavior it makes work
 
-Ask whether the granularity is right, whether each blocking edge genuinely gates its ticket, and whether any tickets should be merged or split. Then ask which state the tickets start in. Recommend `Backlog`: a ticket in `Todo` is ready for implementation, and automation such as agent-workflow may pick it up immediately without checking blockers. If the user wants work to start, move only the frontier (tickets with no open blockers) to `Todo`.
+Ask whether the granularity is right, whether each blocking edge genuinely gates its ticket, and whether any tickets should be merged or split. Then ask which state the tickets start in. Recommend `Backlog`: a ticket in `Todo` is ready for implementation, and automation may pick it up immediately without checking blockers. If the user wants work to start, move only the frontier (tickets with no open blockers) to `Todo`.
 
 Iterate until the user explicitly approves.
 

@@ -1,8 +1,8 @@
 # Tracker: Linear
 
-Linear has no official CLI. Use the host's Linear tools (an MCP server) when they cover the operation; otherwise call the GraphQL API with `curl` and `jq`. Inside an agent-workflow turn, `agent-workflow ticket` covers reading, comments, state, and PR links (see [tickets.md](tickets.md)).
+Linear has no official CLI. Use the host's Linear tools (an MCP server) when they cover the operation; otherwise call the GraphQL API with `curl` and `jq`.
 
-The API key comes from `$LINEAR_API_KEY`, then `~/.config/linear/api-key`, then `~/.linear-api-key` (the same lookup agent-workflow uses). Never print the key or write it into a ticket, file, or log.
+The API key comes from `$LINEAR_API_KEY`, then `~/.config/linear/api-key`, then `~/.linear-api-key`. Never print the key or write it into a ticket, file, or log.
 
 ```bash
 LINEAR_API_KEY=${LINEAR_API_KEY:-$(cat ~/.config/linear/api-key 2>/dev/null || cat ~/.linear-api-key 2>/dev/null)}

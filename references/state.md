@@ -9,16 +9,16 @@
 └── <project>/
     ├── issue-tracker.md    # Ticket 平台（github / gitlab / linear）与目标
     ├── state-machine.md    # 规范状态到 tracker 上名字的映射
-    ├── evidence/           # implement 采集的截图、录屏，按 ticket 或分支分目录
-    └── notes/              # implement 的 spec 模式里调研子 agent 的笔记
+    ├── evidence/           # implement 采集的截图、录屏，按任务或分支分目录
+    └── notes/              # implement 任务图模式里调研子 agent 的笔记
 ```
 
 | 文件 | 写入方 | 读取方 |
 |---|---|---|
-| `issue-tracker.md` | `setup-harness-stack` | 所有通过 [tickets.md](../skills/engineering/setup-harness-stack/references/tickets.md) 操作 ticket 的 skill |
+| `issue-tracker.md` | `setup-harness-stack` | 通过 [tickets.md](../skills/engineering/setup-harness-stack/references/tickets.md) 操作 ticket 的 skill（`implement-ticket`、`code-review-ticket`、`to-tickets`、`to-spec`） |
 | `state-machine.md` | `setup-harness-stack` | 同上 |
-| `evidence/` | `implement` | `implement`、`code-review` |
-| `notes/` | `implement`（spec 模式） | `implement` 的子 agent |
+| `evidence/` | `implement` | `implement`、`code-review` 及其调用方 |
+| `notes/` | `implement`（任务图模式） | `implement` 的子 agent |
 
 新增文件时在这张表里登记。旧版本的 `triage-labels.md` 已不再读取，`setup-harness-stack` 会提示删除。
 

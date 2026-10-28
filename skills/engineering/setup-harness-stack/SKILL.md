@@ -21,11 +21,11 @@ Explore first, then ask one section at a time, leading each with a recommendatio
 - `~/.harness-stack/<project>/`: update existing `issue-tracker.md` and `state-machine.md` in place. A `triage-labels.md` from an earlier version is no longer read; offer to delete it.
 - Tool access for the likely platform: `gh auth status`, `glab auth status`, or a Linear API key (see [linear.md](references/linear.md)). Report a missing login; the files can still be written.
 - Existing state vocabulary on the tracker: labels (`gh label list`, `glab label list`) or the Linear team's workflow states. Note names that already mean a canonical state, such as `status: in review` or Linear's `In Review`.
-- agent-workflow: if `~/.agent-workflow/projects/*/project.yaml` names this repository or Linear project, read its `tracker` (kind, repo or slug, `state_alias`). Both tools must agree on the state names.
+- Ask whether another tool already drives tickets on this tracker. Its state names must match the ones written here.
 
 ## 2. Ask
 
-**A. Tracker.** Recommend the platform `origin` points to (GitHub or GitLab); recommend Linear when agent-workflow already uses it for this repository. Then confirm the target:
+**A. Tracker.** Recommend the platform `origin` points to (GitHub or GitLab), or the tracker the user already uses for this repository. Then confirm the target:
 
 - GitHub: `owner/repo`, defaulting to `origin`. In a fork, ask whether tickets go to `origin` or `upstream`.
 - GitLab: the project path, defaulting to `origin`.
@@ -33,7 +33,7 @@ Explore first, then ask one section at a time, leading each with a recommendatio
 
 The target must be reachable: `gh repo view <owner/repo>`, `glab repo view <path>`, or a Linear `teams` query returns it. If it cannot, write the files anyway and report what is missing.
 
-**B. State names.** Show the canonical states with the name each would use on this tracker. Recommend the canonical names, reusing an existing equivalent label or state where one exists. Keep names identical to agent-workflow's; if a name differs, say that agent-workflow needs the same spelling or a `state_alias`.
+**B. State names.** Show the canonical states with the name each would use on this tracker. Recommend the canonical names, reusing an existing equivalent label or state where one exists. If another tool drives the same tickets, its names must match; point out any name that differs.
 
 **C. Create what is missing.** List the labels (GitHub, GitLab) or workflow states (Linear) the tracker lacks, with the colors and types from the platform file. Ask whether to create them now. Creating them is the only tracker write this skill makes, and only after an explicit yes.
 
@@ -76,4 +76,4 @@ For Linear, `Done` and `Canceled` are workflow state names like the others.
 
 ## 4. Report
 
-List the files written, the labels or states created, anything that failed or still needs a person (missing login, missing Linear admin rights), and any agent-workflow spelling that must change to match. Tell the user both files can be edited by hand; skills read whatever they contain.
+List the files written, the labels or states created, anything that failed or still needs a person (missing login, missing Linear admin rights), and any name another tool must change to match. Tell the user both files can be edited by hand; skills read whatever they contain.
