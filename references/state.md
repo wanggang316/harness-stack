@@ -20,7 +20,7 @@
 | `evidence/` | `implement` | `implement`、`code-review` 及其调用方 |
 | `notes/` | `implement`（任务图模式） | `implement` 的子 agent |
 
-新增文件时在这张表里登记。旧版本的 `triage-labels.md` 已不再读取，`setup-harness-stack` 会提示删除。
+新增文件时在这张表里登记。
 
 ## `<project>` 的取值
 

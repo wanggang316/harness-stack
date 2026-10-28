@@ -15,7 +15,7 @@ Two-axis review of one pinned change:
 - **Standards**: does the code follow this repository's documented standards, and is it correct?
 - **Spec**: does the code do what the originating requirements asked for?
 
-Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and returns the result. It never edits the reviewed code; fixing findings belongs to `harness-stack:implement`. It does not read or update tickets: when the input is only a ticket reference, use `harness-stack:code-review-ticket`, which reads the ticket and runs this skill.
+Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and returns the result. It never edits the reviewed code. It does not read or update tickets: when the input is only a ticket reference, use `harness-stack:code-review-ticket`, which reads the ticket and runs this skill.
 
 ## 1. Pin the fixed point
 
@@ -72,5 +72,3 @@ Derive the overall verdict from the two conclusions without averaging them:
 ## 6. Return the result
 
 Return the two axis reports, the per-axis summary line, the verdict, and the reviewed head SHA. Deliver them the way the caller specified (for example, a command that posts them somewhere or a delivery format), otherwise as the final message in the conversation. Publish review comments to a PR only when asked, after checking that the PR head still matches the reviewed SHA.
-
-When the verdict is `issues`, the findings are rework input for `harness-stack:implement`; the next review is a re-review with the author's dispositions.

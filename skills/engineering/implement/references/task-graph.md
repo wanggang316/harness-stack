@@ -18,6 +18,4 @@ Communicate with subagents through **context pointers** (the spec, task referenc
 8. Mark the draft PR ready or open the PR when authorized, and deliver one handoff for the whole graph with each task's status.
 9. Remove the implementer worktrees.
 
-Independent review is not part of this mode: request `harness-stack:code-review` on the integration branch as a separate step.
-
 If a task blocks (missing information or a failed dependency), record it in that task's progress record, keep working the rest of the frontier, and list blocked tasks and everything they block in the handoff.
