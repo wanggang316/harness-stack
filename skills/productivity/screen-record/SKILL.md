@@ -1,7 +1,7 @@
 ---
 name: screen-record
 description: |
-  在 macOS 上以脚本方式录屏并处理视频：录整块显示器 / 单个窗口 / 指定区域，定时录（run）、后台录 start/stop、包住一条命令录（wrap，记录操作前后画面），录完按需缩放 / 降帧 / 压缩（h264 / hevc）、转 mp4 / mov / webm / gif、剪辑；以及"拼帧"：从视频里按画面变化抽关键帧，生成带时间标签的 contact sheet 和 metadata.json，方便喂给模型。依赖系统 `screencapture` 与 `ffmpeg`，外加一个首次运行自动编译的 Swift 辅助程序。当需要录下一段操作过程、把演示视频压小 / 转 gif、或让模型"看完一段录屏"时，Agent 调用本 skill 的 `scripts/record.sh`；用户也可显式输入 `/harness-stack:screen-record <子命令> ...` 触发。
+  在 macOS 上以脚本方式录屏并处理视频：录整块显示器 / 单个窗口 / 指定区域，定时录（run）、后台录 start/stop、包住一条命令录（wrap，记录操作前后画面），录完按需缩放 / 降帧 / 压缩（h264 / hevc）、转 mp4 / mov / webm / gif、剪辑；以及"拼帧"：从视频里按画面变化抽关键帧，生成带时间标签的 contact sheet 和 metadata.json，方便喂给模型。依赖系统 `screencapture` 与 `ffmpeg`，外加一个首次运行自动编译的 Swift 辅助程序。当需要录下一段操作过程、把演示视频压小 / 转 gif、或让模型"看完一段录屏"时，Agent 调用本 skill 的 `scripts/record.sh`；用户也可显式输入 `/screen-record <子命令> ...` 触发。
 ---
 
 # Screen Record Skill
@@ -13,9 +13,9 @@ macOS 下无人值守录屏 + 视频后处理 + 关键帧提取。核心是 `scr
 - **录过程**：记录一段 UI 操作、演示、bug 复现；`wrap` 可以包住一条命令，自动在命令前后录。
 - **缩体积 / 转格式**：把 4K 60fps 的原始录屏压成能发的 mp4、gif、webm；剪掉头尾。
 - **给模型看**：`frames` 从视频中抽出有变化的关键帧 + 一张拼图，模型看一张图就能了解全过程，不用逐帧看。
-- **显式触发**：用户输入 `/harness-stack:screen-record <子命令> ...`。
+- **显式触发**：用户输入 `/screen-record <子命令> ...`。
 
-**不要用于**：静态截图（用 `harness-stack:screenshot` skill）；需要可信证据链 / 操作轨迹的 UI 自动化测试（用专门的自动化工具）。
+**不要用于**：静态截图（用 `screenshot` skill）；需要可信证据链 / 操作轨迹的 UI 自动化测试（用专门的自动化工具）。
 
 ## 权限与依赖
 

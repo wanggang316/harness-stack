@@ -15,7 +15,7 @@ Break the work into **tickets**: tracer-bullet vertical slices, each declaring t
 
 ## 1. Resolve the tracker
 
-Find this project's issue tracker and state labels as `harness-stack:setup-harness-stack` defines them. If there are none, tell the user to run `/harness-stack:setup-harness-stack`. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
+Find this project's issue tracker and state labels as `setup-harness-stack` defines them. If there are none, tell the user to run `/setup-harness-stack`. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
 
 ## 2. Gather context
 

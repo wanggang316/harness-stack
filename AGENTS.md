@@ -126,4 +126,4 @@ harness-stack uses **pure Agent-driven architecture**:
 - Subagents provide specialized expertise
 - Self-bootstrapping capability
 
-All skills and agents are addressed through the `harness-stack:` plugin namespace (e.g. `harness-stack:tdd`, `harness-stack:code-reviewer`), which provides collision isolation — no per-skill prefix is needed.
+Installed as a Claude Code plugin, skills, commands, and agents are addressed through the `harness-stack:` namespace (e.g. `/harness-stack:tdd`, `harness-stack:code-reviewer`). Skills can also be installed without the plugin, so inside skill files refer to other skills by their bare name (`tdd`, `/setup-harness-stack`); only plugin-only agents and commands keep the prefix.
