@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: Review the changes since a fixed point (commit, branch, tag, PR, or merge-base) along two axes, Standards and Spec, in parallel independent subagents, and return both reports with a verdict. Use to review a branch, a PR, work in progress, or "review since X", including re-review after fixes. Does not read or update tickets; for a ticket, use code-review-ticket.
+description: Review the changes since a fixed point (commit, branch, tag, PR, or merge-base) along two axes, Standards and Spec, in parallel independent subagents, and return both reports with a verdict. Use to review a branch, a PR, work in progress, or "review since X", including re-review after fixes.
 metadata:
   credits:
     skill: code-review
@@ -15,7 +15,7 @@ Two-axis review of one pinned change:
 - **Standards**: does the code follow this repository's documented standards, and is it correct?
 - **Spec**: does the code do what the originating requirements asked for?
 
-Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and returns the result. It never edits the reviewed code. It does not read or update tickets: when the input is only a ticket reference, use `harness-stack:code-review-ticket`, which reads the ticket and runs this skill.
+Both axes run as parallel subagents with fresh contexts so neither pollutes the other; this skill pins the target, gathers the basis, aggregates the two reports without merging them, and returns the result. It never edits the reviewed code.
 
 ## 1. Pin the fixed point
 
@@ -31,7 +31,7 @@ Fail here, not inside two subagents, when the fixed point does not resolve (`git
 
 Look for the originating requirements in this order:
 
-1. Requirements the caller supplied (for example, a ticket's description and acceptance criteria passed in as text).
+1. Requirements the caller supplied as text or a reference it can read.
 2. A path the user passed.
 3. A spec file under `docs/`, `specs/`, or `.scratch/` that matches the branch or feature, or a spec section in the PR body.
 4. Ask the user. If there is none, the Spec axis reports `Incomplete: no spec available`.

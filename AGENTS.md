@@ -23,7 +23,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:audit-docs` - Check documentation accuracy, discoverability, and value; repair supported findings
 
 **Setup** → Per-project config
-- `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and the ticket state machine, and create missing state labels or states after approval; writes to `~/.harness-stack/<project>/`, not the repo. Its `references/` hold the ticket knowledge other skills read
+- `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and its state labels, and create missing labels or states after approval; defines where that configuration lives, outside the repo
 
 **Plan** → Capture specs and split work into tickets
 - `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec ticket
@@ -54,7 +54,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-`implement` and `code-review` are the core skills: they do the work and return a handoff or review, and never touch a tracker. `implement-ticket` and `code-review-ticket` drive them for a ticket: they read it, keep its workpad and comments, and move it through the state machine `Backlog → Todo → In Progress → In Review → Reviewed → Merging → Done` (see [state-machine.md](skills/engineering/setup-harness-stack/references/state-machine.md)). `implement-ticket` owns `Todo → In Progress → In Review`, `code-review-ticket` owns `In Review → Reviewed`, and a person approves `Merging`. Any other driver of the core skills owns the transitions itself.
+`implement` and `code-review` are the core skills: they do the work and return a handoff or review, and never touch a tracker. `implement-ticket` and `code-review-ticket` drive them for a ticket: they read it, keep its workpad and comments, and move it through the states `Backlog → Todo → In Progress → In Review → Reviewed → Merging → Done` (see [state-labels.md](skills/engineering/setup-harness-stack/state-labels.md)). `implement-ticket` moves `Todo → In Progress → In Review`, `code-review-ticket` moves `In Review → Reviewed`, and a person approves `Merging`.
 
 ### Documentation workflow
 
@@ -66,7 +66,7 @@ For document roles, placement, and lifecycle, read [Project Knowledge](reference
 
 ### State
 
-harness-stack is stateful. Per-project config and state live in `~/.harness-stack/<project>/`, never in the project repo. Skills must still run when the state is missing. See [references/state.md](references/state.md).
+harness-stack is stateful. Per-project configuration lives outside the project repo, in the place `setup-harness-stack` defines; other skills refer to it only through that skill. See [references/state.md](references/state.md).
 
 ### Skill Layout
 

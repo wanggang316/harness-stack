@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Implement a task, spec, or task graph as a verified change ready for review, or fix review findings on such a change. Keeps a progress record and delivers a handoff to the caller or the conversation. Does not read or update tickets; for a ticket, use implement-ticket.
+description: Implement a task, spec, or task graph as a verified change ready for review, or fix review findings on such a change. Keeps a progress record and delivers a handoff to the caller or the conversation.
 metadata:
   credits:
     - skill: implement
@@ -18,8 +18,6 @@ metadata:
 # implement
 
 Turn the requested scope into a committed, verified change and a handoff a reviewer can trust. The input is the content of the work: a conversation request, a task description, a spec, a set of tasks with dependencies, or review findings on an earlier change. No setup, prior breakdown, or other skill run is required.
-
-When the input is only a ticket reference, use `harness-stack:implement-ticket`, which reads the ticket and runs this skill.
 
 Pick the mode from the input:
 
@@ -116,7 +114,7 @@ Run the full test suite once, plus type checks, lint, builds, and the integratio
 
 - Static states: `harness-stack:screenshot`, one window or region per affected page or state, never the full screen (it can include unrelated windows and secrets in terminals). Capture a before image when the comparison helps.
 - Interactions, animation, or transitions: `harness-stack:screen-record`, plus a frame contact sheet when it lets a reviewer see the flow at a glance.
-- Compress with each skill's optimize or compress command, and save under `~/.harness-stack/<project>/evidence/<task or branch>/` (see [State](../../../references/state.md) for `<project>`).
+- Compress with each skill's optimize or compress command, and save the files where the caller says, otherwise in a directory outside the repository.
 
 List each file with the page or state it shows in the progress record's Validation section and in the handoff. Missing evidence (the app does not start, no screen-recording permission, a capture skill is unavailable) is a validation gap: record the reason and do not claim the UI was verified.
 
@@ -126,7 +124,7 @@ When behavior contracts, architecture, terminology, or operations change, update
 
 Commit the remaining task-owned changes. Leave the user's unrelated work untouched rather than cleaning or committing it.
 
-Push and open a PR only when the caller authorized it; merging and deploying are never part of this skill. When opening a PR, use `harness-stack:pr-open` if available, and include any link text the caller asks for (for example, a line that closes a ticket).
+Push and open a PR only when the caller authorized it; merging and deploying are never part of this skill. When opening a PR, use `harness-stack:pr-open` if available, and include any link text the caller asks for.
 
 Finish the progress record: every Plan, Acceptance Criteria, and Validation item checked, and a final Notes line `handoff: PR=<url>` (or the branch when there is no PR). Check for unchecked items before the final write. An item that cannot be checked means the work is not done: complete it, or deliver as blocked.
 

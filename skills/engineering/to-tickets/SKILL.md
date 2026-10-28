@@ -15,7 +15,7 @@ Break the work into **tickets**: tracer-bullet vertical slices, each declaring t
 
 ## 1. Resolve the tracker
 
-Read [Working with tickets](../setup-harness-stack/references/tickets.md) to find the platform, target, and state names, and open the platform file it points to. Check that the CLI or API key works before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
+Find this project's issue tracker and state labels as `harness-stack:setup-harness-stack` defines them. If there are none, tell the user to run `/harness-stack:setup-harness-stack`. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
 
 ## 2. Gather context
 
@@ -55,7 +55,7 @@ Iterate until the user explicitly approves.
 
 ## 6. Publish
 
-Create the tickets in dependency order, blockers first, so each blocking edge can reference a real identifier. Use the platform file's **Create** operations:
+Create the tickets in dependency order, blockers first, so each blocking edge can reference a real identifier. Use the issue tracker's publish-a-ticket operation:
 
 - Set the agreed starting state.
 - Add each blocking edge as a native relationship where the tracker has one; otherwise keep the `## Blocked by` section in the body.
