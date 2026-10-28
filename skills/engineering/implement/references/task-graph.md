@@ -9,7 +9,7 @@ Communicate with subagents through **context pointers** (the spec, task referenc
 ## Steps
 
 1. Read the spec and every task, and build the graph from the declared dependencies. Report cycles or tasks outside the spec instead of guessing an order.
-2. Optional: run an exploration subagent for research the tasks need (code areas, external docs). It writes markdown notes outside the repository, under `~/.harness-stack/<project>/notes/<spec>/`, so implementers can start from them.
+2. Optional: run an exploration subagent for research the tasks need (code areas, external docs). It saves markdown notes in a directory outside the repository that every later subagent can read, so implementers can start from them.
 3. Create the integration branch from the default branch. If the caller authorized a PR, open it as a draft after the first merge in step 5 (a branch with no commits cannot open one).
 4. For each frontier task, run an implementer subagent in its own worktree on its own branch, based on the integration branch tip. Each one follows this skill in single-task mode for its task: it keeps the task's progress record, verifies, commits, and merges the integration branch tip into its branch before reporting done. It does not push or open a PR; the integration branch is the delivery.
 5. When an implementer finishes, merge its branch into the integration branch with a merger subagent, run the affected checks there, and note the integration commit in the task's progress record.

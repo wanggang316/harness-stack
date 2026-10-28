@@ -17,7 +17,7 @@ Synthesize the current conversation and codebase understanding into a spec an im
 
 For a draft-only request, skip tracker and authentication checks and go to step 2. Use this section only when preparing to publish.
 
-Read [Working with tickets](../setup-harness-stack/references/tickets.md) to find the platform (GitHub, GitLab, or Linear), the target, and the state names, and open the platform file it points to. An explicit user target takes priority. Without configuration or an inferable platform, ask for a target. Check that the CLI or API key works; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
+Find this project's issue tracker and state labels as `harness-stack:setup-harness-stack` defines them. If there are none, tell the user to run `/harness-stack:setup-harness-stack`. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
 
 A spec starts in `Backlog` unless the user asks otherwise: it describes work, and moving it to `Todo` would mark it ready for implementation.
 
@@ -73,7 +73,7 @@ Avoid specific file paths and code snippets because they become stale. Exception
 
 Show the target, title, body, and starting state. Publishing requires explicit user authorization. Proceed without asking again if the conversation already authorizes this spec scope and target. Stop at a draft when that is all the user requested or key decisions remain open.
 
-Publish with the platform file's **Create** operation, passing the body through a heredoc, and set the starting state.
+Publish with the issue tracker's publish-a-ticket operation, passing the body through a heredoc, and set the starting state.
 
 - Create only this spec ticket. Do not edit or close a source ticket or create parent-child or blocking relationships.
 - After a timeout, ambiguous response, or failed readback, search recent tickets in the target and compare author, title, and body. Do not retry creation until you know whether it succeeded.
