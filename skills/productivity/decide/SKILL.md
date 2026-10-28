@@ -15,7 +15,7 @@ description: 在单个问题上跑一轮并行多 agent 决策。每个 agent �
 
 **agent 之间相互独立。** 每位顾问作答时都看不到其他人。这是降方差的核心机制——相关样本的价值不如独立样本，哪怕只是隐约觉察到同侪的存在，也会让后写的答案偏向最先写下的那个。
 
-**synthesis 看到的是 anonymized peer。** 当 synthesis agent 聚合各份 recommendation 时，它看到的标签是 `peer-1`、`peer-2` 等。像「Claude 说」「GPT-5 说」这类稳定标识，会在 synthesis 阶段同样引入地位效应——agent 会无意识地给它认为更强的顾问加权。synthesis 阶段的匿名化，与 harness-stack:debate 在轮次之间所用的防护是同一招。
+**synthesis 看到的是 anonymized peer。** 当 synthesis agent 聚合各份 recommendation 时，它看到的标签是 `peer-1`、`peer-2` 等。像「Claude 说」「GPT-5 说」这类稳定标识，会在 synthesis 阶段同样引入地位效应——agent 会无意识地给它认为更强的顾问加权。synthesis 阶段的匿名化，与 debate 在轮次之间所用的防护是同一招。
 
 运行时基座是 `@hs/llm` 包（`packages/hs-llm/`）。所有 LLM I/O 都走它的 CLI 二进制；技能本身不做任何网络工作。
 

@@ -96,7 +96,7 @@ Choose evidence by task type; check each behavior of a mixed task separately:
 | Behavior-preserving refactor | Pin behavior with existing tests, characterization tests, or equivalence checks | Change structure in small steps and prove behavior is unchanged |
 | Configuration, documentation, or static content | Identify format, reference, or runtime constraints | Run the corresponding checks; do not invent unit tests when behavior is unchanged |
 
-For new or corrected behavior, use `harness-stack:tdd` at the agreed seams and pass it the established goal and interfaces. If it is unavailable, write and run one failing test for one behavior, implement the minimum, rerun, and refactor while green. If automation is blocked, state the substitute checks and the evidence gap.
+For new or corrected behavior, use `tdd` at the agreed seams and pass it the established goal and interfaces. If it is unavailable, write and run one failing test for one behavior, implement the minimum, rerun, and refactor while green. If automation is blocked, state the substitute checks and the evidence gap.
 
 Run type checks and the affected test files after each step and keep them green before building on the step. On an unexpected failure, keep the output, narrow the reproduction, and test root-cause hypotheses; if successive fixes fail at the same point, revisit your assumptions and the way you observe the failure. Do not weaken assertions to fit the code.
 
@@ -112,8 +112,8 @@ Run the full test suite once, plus type checks, lint, builds, and the integratio
 
 **Visual evidence.** When the change alters anything a user sees (pages, components, styles, desktop or mobile screens), capture evidence in the real running application:
 
-- Static states: `harness-stack:screenshot`, one window or region per affected page or state, never the full screen (it can include unrelated windows and secrets in terminals). Capture a before image when the comparison helps.
-- Interactions, animation, or transitions: `harness-stack:screen-record`, plus a frame contact sheet when it lets a reviewer see the flow at a glance.
+- Static states: `screenshot`, one window or region per affected page or state, never the full screen (it can include unrelated windows and secrets in terminals). Capture a before image when the comparison helps.
+- Interactions, animation, or transitions: `screen-record`, plus a frame contact sheet when it lets a reviewer see the flow at a glance.
 - Compress with each skill's optimize or compress command, and save the files where the caller says, otherwise in a directory outside the repository.
 
 List each file with the page or state it shows in the progress record's Validation section and in the handoff. Missing evidence (the app does not start, no screen-recording permission, a capture skill is unavailable) is a validation gap: record the reason and do not claim the UI was verified.
@@ -124,7 +124,7 @@ When behavior contracts, architecture, terminology, or operations change, update
 
 Commit the remaining task-owned changes. Leave the user's unrelated work untouched rather than cleaning or committing it.
 
-Push and open a PR only when the caller authorized it; merging and deploying are never part of this skill. When opening a PR, use `harness-stack:pr-open` if available, and include any link text the caller asks for.
+Push and open a PR only when the caller authorized it; merging and deploying are never part of this skill. When opening a PR, use `pr-open` if available, and include any link text the caller asks for.
 
 Finish the progress record: every Plan, Acceptance Criteria, and Validation item checked, and a final Notes line `handoff: PR=<url>` (or the branch when there is no PR). Check for unchecked items before the final write. An item that cannot be checked means the work is not done: complete it, or deliver as blocked.
 

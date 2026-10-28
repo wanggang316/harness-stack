@@ -1,7 +1,7 @@
 ---
 name: screenshot
 description: |
-  在 macOS 上以脚本方式截图并做后处理：全屏 / 指定显示器、按 App 名 / 窗口 ID / 标题 / 前台窗口截单个窗口、按坐标截区域、滚动截长图（自动拼接，支持固定头尾）、网页整页截图（Playwright），以及格式转换（png/jpg/heic/tiff/bmp/gif/pdf/webp）、缩放、压缩和面向 LLM 的 `optimize`。只依赖系统自带的 `screencapture` / `sips` 和一个首次运行自动编译的 Swift 辅助程序，无需安装任何东西。当需要"看一眼屏幕 / 某个窗口 / 某个页面"、把截图喂给模型、或把图片转格式缩体积时，Agent 调用本 skill 的 `scripts/screenshot.sh`；用户也可显式输入 `/harness-stack:screenshot <子命令> ...` 触发。
+  在 macOS 上以脚本方式截图并做后处理：全屏 / 指定显示器、按 App 名 / 窗口 ID / 标题 / 前台窗口截单个窗口、按坐标截区域、滚动截长图（自动拼接，支持固定头尾）、网页整页截图（Playwright），以及格式转换（png/jpg/heic/tiff/bmp/gif/pdf/webp）、缩放、压缩和面向 LLM 的 `optimize`。只依赖系统自带的 `screencapture` / `sips` 和一个首次运行自动编译的 Swift 辅助程序，无需安装任何东西。当需要"看一眼屏幕 / 某个窗口 / 某个页面"、把截图喂给模型、或把图片转格式缩体积时，Agent 调用本 skill 的 `scripts/screenshot.sh`；用户也可显式输入 `/screenshot <子命令> ...` 触发。
 ---
 
 # Screenshot Skill
@@ -13,9 +13,9 @@ macOS 下无人值守截图 + 图片后处理。核心是 `scripts/screenshot.sh
 - **看屏幕**：Agent 需要知道当前屏幕 / 某个窗口 / 某个区域长什么样，截完直接用 Read 工具打开 PNG。
 - **截长图**：可滚动的窗口（文档、聊天记录、网页）一次截全，自动拼接成一张高图。
 - **图片处理**：转格式、缩放到指定尺寸、压缩体积、把截图优化到适合喂给模型的大小。
-- **显式触发**：用户输入 `/harness-stack:screenshot <子命令> ...`。
+- **显式触发**：用户输入 `/screenshot <子命令> ...`。
 
-**不要用于**：录屏（用 `harness-stack:screen-record` skill）；需要点按钮、读 UI 元素树的自动化（用专门的 UI 自动化工具）。
+**不要用于**：录屏（用 `screen-record` skill）；需要点按钮、读 UI 元素树的自动化（用专门的 UI 自动化工具）。
 
 ## 权限（首次使用必读）
 

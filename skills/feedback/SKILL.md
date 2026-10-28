@@ -12,7 +12,7 @@ harness-stack 靠 Self-Bootstrapping 改进自身——但只有当真实使用�
 ## When to Use
 
 **Use when**：
-- 刚用 harness-stack 跑完一项任务、一个 milestone，或用完某个 `harness-stack:*` skill，想回顾体验
+- 刚用 harness-stack 跑完一项任务、一个 milestone，或用完 harness-stack 的某个 skill，想回顾体验
 - 在使用中撞到摩擦：某步骤含糊、文档与行为不符、某个 skill 走了弯路、缺少你需要的能力
 - 你对某个 skill / command / 文档有具体的改进或新增建议
 
@@ -27,7 +27,7 @@ harness-stack 靠 Self-Bootstrapping 改进自身——但只有当真实使用�
 
 回到刚结束的这段使用，逐项自问，只记下有实质内容的条目：
 
-- **用了什么**：哪些 `harness-stack:*` skill / command / agent 参与了？
+- **用了什么**：harness-stack 的哪些 skill / command / agent 参与了？
 - **哪里有摩擦**：哪一步卡住、返工、或让你犹豫？为什么？
 - **哪里不符预期**：skill 的实际行为与它 SKILL.md 的说明 / 你的预期 是否有出入？
 - **缺了什么**：你需要、但框架没有提供的能力、文档、或检查？
@@ -77,7 +77,7 @@ gh search issues --repo <target> "<关键词>"
 Title: [bug|friction|enhancement|docs] <一句话现象>
 
 ## Context
-- Skill / command：harness-stack:<name>（或具体文档路径）
+- Skill / command：<name>（或具体文档路径）
 - Version：<plugin.json version，如 0.1.0>
 - Environment：<OS / 关键工具版本，仅在相关时填>
 

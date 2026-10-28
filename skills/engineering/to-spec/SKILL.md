@@ -17,7 +17,7 @@ Synthesize the current conversation and codebase understanding into a spec an im
 
 For a draft-only request, skip tracker and authentication checks and go to step 2. Use this section only when preparing to publish.
 
-Find this project's issue tracker and state labels as `harness-stack:setup-harness-stack` defines them. If there are none, tell the user to run `/harness-stack:setup-harness-stack`. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
+Find this project's issue tracker and state labels as `setup-harness-stack` defines them. If there are none, tell the user to run `/setup-harness-stack`. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
 
 A spec starts in `Backlog` unless the user asks otherwise: it describes work, and moving it to `Todo` would mark it ready for implementation.
 

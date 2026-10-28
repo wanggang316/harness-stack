@@ -27,7 +27,7 @@ The configuration directory is `~/.harness-stack/<project>/`. Derive `<project>`
 | `issue-tracker.md` | The platform, its target, and the commands for each ticket operation |
 | `state-labels.md` | Each canonical state mapped to the tracker's name for it |
 
-A skill that needs tickets reads both files. When they are missing, it tells the user to run `/harness-stack:setup-harness-stack`.
+A skill that needs tickets reads both files. When they are missing, it tells the user to run `/setup-harness-stack`.
 
 ## 1. Explore
 

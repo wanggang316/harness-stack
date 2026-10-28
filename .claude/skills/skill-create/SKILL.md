@@ -25,7 +25,7 @@ Prefer the target behavior. Pair necessary prohibitions with the safe action, su
 A reference must identify the material and when to read it. A name alone or "see more" does not help the agent decide whether the material is needed now.
 
 - Weak pointer: "See TDD."
-- Explicit pointer: "When adding or fixing behavior, read `harness-stack:tdd` and use its test seams and red-green loop."
+- Explicit pointer: "When adding or fixing behavior, read `tdd` and use its test seams and red-green loop."
 
 A description is also a pointer. Lead with the core capability, then list distinct trigger branches. Remove synonymous triggers for the same branch. Use the project's actual terms, symbols, and filenames. Keep one name per concept rather than inventing abbreviations that need explanation.
 
@@ -51,7 +51,7 @@ Place criteria beside the relevant action or in a shared closing section, whiche
 
 ## Reuse specialist skills
 
-A skill owns its complete responsibility and may call other skills within it. For example, `implement` uses `harness-stack:tdd` for behavior changes without transferring ownership of the whole implementation task.
+A skill owns its complete responsibility and may call other skills within it. For example, `implement` uses `tdd` for behavior changes without transferring ownership of the whole implementation task.
 
 At each reference, state the trigger, what to read or execute, and how the result returns to the current task. Maintain one authoritative version of a shared method rather than copying a full tutorial into each caller. Reference only active, discoverable skills or valid files.
 

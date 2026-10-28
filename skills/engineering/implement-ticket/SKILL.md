@@ -5,9 +5,9 @@ description: Implement a ticket, or a spec ticket with sub-tickets, from GitHub,
 
 # implement-ticket
 
-Implement the work a ticket describes and keep the ticket current while doing it. The work itself is done with `harness-stack:implement`; this skill owns everything on the tracker: reading the ticket, its workpad, the handoff comment, and its state.
+Implement the work a ticket describes and keep the ticket current while doing it. The work itself is done with `implement`; this skill owns everything on the tracker: reading the ticket, its workpad, the handoff comment, and its state.
 
-Find this project's issue tracker and state labels as `harness-stack:setup-harness-stack` defines them. If there are none, tell the user to run `/harness-stack:setup-harness-stack`. Every tracker step below is an operation from the issue tracker file, and every state is a name from the state labels file.
+Find this project's issue tracker and state labels as `setup-harness-stack` defines them. If there are none, tell the user to run `/setup-harness-stack`. Every tracker step below is an operation from the issue tracker file, and every state is a name from the state labels file.
 
 ## 1. Fetch the ticket
 
@@ -30,7 +30,7 @@ If the ticket has sub-tickets, it is a spec: follow [Spec tickets](#spec-tickets
 
 ## 3. Run implement
 
-Run `harness-stack:implement` with:
+Run `implement` with:
 
 - **Input**: the ticket's title, description, and relevant comments (decisions, clarifications), or for rework the findings in the latest `## Code review` comment.
 - **Progress record**: the workpad comment, written with the update-comment operation. Read back each update.
@@ -46,7 +46,7 @@ Run `harness-stack:implement` with:
 
 ## Spec tickets
 
-List the sub-tickets and their blockers, and fetch each sub-ticket. Run `harness-stack:implement` with the sub-tickets as a task graph:
+List the sub-tickets and their blockers, and fetch each sub-ticket. Run `implement` with the sub-tickets as a task graph:
 
 - One task per sub-ticket, its dependencies taken from the blockers.
 - Each sub-ticket's own workpad as that task's progress record. Move a sub-ticket to `In Progress` when work on it starts.

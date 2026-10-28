@@ -5,9 +5,9 @@ description: Review the change delivered for a ticket on GitHub, GitLab, or Line
 
 # code-review-ticket
 
-Review the change a ticket delivered and record the result on the ticket. The review itself is done with `harness-stack:code-review`; this skill finds what to review from the ticket, posts the result, and moves the state.
+Review the change a ticket delivered and record the result on the ticket. The review itself is done with `code-review`; this skill finds what to review from the ticket, posts the result, and moves the state.
 
-Find this project's issue tracker and state labels as `harness-stack:setup-harness-stack` defines them. If there are none, tell the user to run `/harness-stack:setup-harness-stack`. Every tracker step below is an operation from the issue tracker file, and every state is a name from the state labels file.
+Find this project's issue tracker and state labels as `setup-harness-stack` defines them. If there are none, tell the user to run `/setup-harness-stack`. Every tracker step below is an operation from the issue tracker file, and every state is a name from the state labels file.
 
 ## 1. Fetch the ticket
 
@@ -23,7 +23,7 @@ Collect:
 
 ## 2. Run code-review
 
-Run `harness-stack:code-review` with:
+Run `code-review` with:
 
 - **Fixed point**: the PR's base, or the merge-base of the branch with the default branch.
 - **Spec**: the collected requirements, as text.

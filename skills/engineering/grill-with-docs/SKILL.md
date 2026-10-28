@@ -30,7 +30,7 @@ Map the requirements or design as a tree of dependent decisions. In each round, 
 
 ## Record confirmed knowledge as it emerges
 
-Write confirmed terms and durable decisions during each round, rather than waiting for the interview to end. Record only content the user has confirmed. Use the formats in `harness-stack:domain-modeling` when available; otherwise, use these rules:
+Write confirmed terms and durable decisions during each round, rather than waiting for the interview to end. Record only content the user has confirmed. Use the formats in `domain-modeling` when available; otherwise, use these rules:
 
 - **Glossary**: use the existing file, or `docs/glossary.md` if there is no convention. Define each project-specific concept and its boundaries in one or two sentences. List aliases to avoid when useful. Exclude implementation plans.
 - **ADR**: record a decision when missing context could lead a future reader to make a harmful change or repeat an expensive investigation. Use the existing directory and numbering, or `docs/decisions/NNN-<slug>.md` with a number one greater than the current maximum.
