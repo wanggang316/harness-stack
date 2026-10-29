@@ -21,11 +21,17 @@ Find this project's issue tracker and state labels as `setup-harness-stack` defi
 
 Work from the conversation. For a ticket reference, read its full body and comments; that ticket is the **parent**. Read a supplied file in full.
 
-## 3. Explore the codebase as needed
+## 3. Check the documents the tickets rely on
+
+Tickets are implemented from the default branch, so the glossary entries, ADRs, and design notes they rely on must be there. Check whether any of them are uncommitted or exist only on an unmerged branch (`git status`, and `git log origin/<default>..<branch> -- <path>` for the discussion branch).
+
+If they are not on the default branch yet, say which files and recommend landing them first in a pull request of their own. Tickets may still be published in `Backlog`, linking that pull request; none of them moves to `Todo` until it merges. Link documents with default-branch URLs once they are merged, never with machine-local paths.
+
+## 4. Explore the codebase as needed
 
 If you have not explored the code yet, do so. Use the project's domain vocabulary in titles and descriptions, and respect the active decisions in the area. Look for prefactoring: make the change easy, then make the easy change.
 
-## 4. Draft vertical slices
+## 5. Draft vertical slices
 
 <vertical-slice-rules>
 
@@ -41,7 +47,7 @@ Give each ticket its **blocking edges**: the tickets that must be done before it
 
 **Wide refactors are the exception.** A mechanical change whose blast radius fans across the codebase (rename a column, retype a shared symbol) cannot land green as one vertical slice. Sequence it as **expand–contract**: expand first, adding the new form beside the old; migrate call sites in batches sized by blast radius (per package or directory), each batch its own ticket blocked by the expand; contract last, removing the old form in a ticket blocked by every batch. When even the batches cannot stay green alone, let them share an integration branch and all block a final integrate-and-verify ticket.
 
-## 5. Quiz the user
+## 6. Quiz the user
 
 Present the breakdown as a numbered list. For each ticket show:
 
@@ -49,11 +55,11 @@ Present the breakdown as a numbered list. For each ticket show:
 - **Blocked by**: the tickets that must finish first
 - **What it delivers**: the end-to-end behavior it makes work
 
-Ask whether the granularity is right, whether each blocking edge genuinely gates its ticket, and whether any tickets should be merged or split. Then ask which state the tickets start in. Recommend `Backlog`: a ticket in `Todo` is ready for implementation, and automation may pick it up immediately without checking blockers. If the user wants work to start, move only the frontier (tickets with no open blockers) to `Todo`.
+Ask whether the granularity is right, whether each blocking edge genuinely gates its ticket, and whether any tickets should be merged or split. Then ask which state the tickets start in. Recommend `Backlog`: a ticket in `Todo` is ready for implementation, and automation may pick it up immediately without checking blockers. If the user wants work to start, move only the frontier (tickets with no open blockers) to `Todo`, and only once the documents from step 3 are on the default branch.
 
 Iterate until the user explicitly approves.
 
-## 6. Publish
+## 7. Publish
 
 Create the tickets in dependency order, blockers first, so each blocking edge can reference a real identifier. Use the issue tracker's publish-a-ticket operation:
 
@@ -85,6 +91,6 @@ The end-to-end behavior this ticket makes work, from the user's perspective, not
 
 Avoid file paths and code snippets; they go stale fast. Exception: when a prototype produced a snippet that states a decision more precisely than prose (a state machine, reducer, schema, or type shape), inline the decision-bearing part and note that it came from a prototype.
 
-## 7. Report
+## 8. Report
 
 List each ticket's identifier, title, URL, state, and blockers in dependency order. Mark the tickets that can start immediately, and list relationships that could not be created.

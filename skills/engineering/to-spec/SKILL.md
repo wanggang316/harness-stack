@@ -21,6 +21,8 @@ Find this project's issue tracker and state labels as `setup-harness-stack` defi
 
 A spec starts in `Backlog` unless the user asks otherwise: it describes work, and moving it to `Todo` would mark it ready for implementation.
 
+The spec is implemented from the default branch, so the glossary entries, ADRs, and design notes it relies on must be there. If any are uncommitted or exist only on an unmerged branch, say which files and recommend landing them first in a pull request of their own; the spec may link that pull request but stays out of `Todo` until it merges.
+
 ## 2. Gather context
 
 If the existing discussion is sufficient, synthesize it without repeating the requirements interview. Read referenced files or tickets in full, including comments. A source ticket supplies context; it does not automatically become a parent or an edit target.
