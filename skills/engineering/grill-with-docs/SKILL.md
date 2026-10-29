@@ -43,4 +43,4 @@ Confirmed future behavior must not replace descriptions of the current implement
 
 When no branches remain open, summarize the goal, key decisions, scope boundaries, and updated documents. Confirm the shared understanding; do not ask again if the user has already confirmed the same summary. If the user ends early, list the remaining questions without claiming convergence.
 
-Check terminology, statuses, and links in the changed documents. Return their locations and unresolved items. This skill ends with the interview and knowledge records; it does not automatically start implementation, publish an issue, or invoke another workflow.
+Check terminology, statuses, and links in the changed documents. Commit them on the discussion branch. With the user's agreement, push it and open a pull request that contains only these documents, so work planned from this discussion starts from a default branch that already has them. Return the documents, the branch or pull request, and unresolved items. This skill ends with the interview and knowledge records; it does not automatically start implementation, publish an issue, or invoke another workflow.
