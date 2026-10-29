@@ -23,7 +23,6 @@ harness-stack 文档中心。
 | Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
 | Plan | harness-stack:to-spec | [SKILL.md](../skills/engineering/to-spec/SKILL.md) |
 | Plan | harness-stack:to-tickets | [SKILL.md](../skills/engineering/to-tickets/SKILL.md) |
-| Plan | harness-stack:triage | [SKILL.md](../skills/engineering/triage/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:code-review | [SKILL.md](../skills/engineering/code-review/SKILL.md) |

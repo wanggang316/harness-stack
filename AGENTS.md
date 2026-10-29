@@ -25,10 +25,9 @@ An agent-first **development harness** — a curated stack of tools that keep an
 **Setup** → Per-project config
 - `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and the commands for each ticket operation; defines where that configuration lives, outside the repo
 
-**Plan** → Capture specs, split work into tickets, and triage them
+**Plan** → Capture specs and split work into tickets
 - `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec ticket
 - `/harness-stack:to-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with native blocking / sub-ticket links; writes nothing into the repo
-- `/harness-stack:triage` - Judge a new ticket (valid, duplicate, ready, missing information), classify its type, and return a verdict with evidence; never touches a tracker
 
 **Build**
 - `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker
@@ -53,7 +52,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-`to-spec` and `to-tickets` publish tickets; `triage`, `implement`, and `code-review` are the core skills that judge, implement, and review them. The core skills return a verdict, handoff, or review to their caller and never touch a tracker. Ticket states belong to whatever drives the tickets (a person or an automation); no skill moves them.
+`to-spec` and `to-tickets` publish tickets; `implement` and `code-review` are the core skills that implement and review them. The core skills return a handoff or review to their caller and never touch a tracker. Ticket states belong to whatever drives the tickets (a person or an automation); no skill moves them.
 
 ### Documentation workflow
 
