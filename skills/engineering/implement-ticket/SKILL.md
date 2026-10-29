@@ -18,7 +18,7 @@ Fetch the ticket with all its comments and state its title. If it cannot be fetc
 | `Todo` | Start (step 2). |
 | `Backlog` | Start only if the user asked for this ticket explicitly; otherwise report that it is not ready. |
 | `In Progress` | Resume: reconcile the workpad with Git and continue. |
-| `In Review`, latest `## Code review` comment has verdict `issues` | Rework: implement fixes those findings (step 3). The state stays `In Review`. |
+| `In Review`, latest `## Code review` or `## Re-review` comment has verdict `issues` | Rework: implement fixes those findings (step 3). The state stays `In Review`. |
 | Any other state | Report it and ask before doing anything. |
 
 If the ticket has sub-tickets, it is a spec: follow [Spec tickets](#spec-tickets) instead of steps 2–4.
@@ -32,7 +32,7 @@ If the ticket has sub-tickets, it is a spec: follow [Spec tickets](#spec-tickets
 
 Run `implement` with:
 
-- **Input**: the ticket's title, description, and relevant comments (decisions, clarifications), or for rework the findings in the latest `## Code review` comment.
+- **Input**: the ticket's title, description, and relevant comments (decisions, clarifications), or for rework the findings in the latest `## Code review` or `## Re-review` comment.
 - **Progress record**: the workpad comment, written with the update-comment operation. Read back each update.
 - **Authorization**: what the user granted. Opening a PR is normal for this skill; ask once if the user has not said. The PR body links the ticket (the link-the-PR operation).
 - **Delivery**: back to this skill.
