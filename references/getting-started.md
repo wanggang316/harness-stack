@@ -5,7 +5,6 @@ harness-stack 文档中心。
 ## Core
 - [Golden Rules](golden-rules.md) — 核心原则（必读）
 - [State](state.md) — 按项目存放在仓库之外的配置
-- [Ticket 状态](../skills/engineering/setup-harness-stack/state-labels.md) — ticket 的规范状态及其在 tracker 上的名字
 - [skill-create](../.claude/skills/skill-create/SKILL.md) — 在本仓库新增或修改 skill（仓库内工具，不随插件分发）
 
 ## Skills
@@ -24,11 +23,10 @@ harness-stack 文档中心。
 | Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
 | Plan | harness-stack:to-spec | [SKILL.md](../skills/engineering/to-spec/SKILL.md) |
 | Plan | harness-stack:to-tickets | [SKILL.md](../skills/engineering/to-tickets/SKILL.md) |
+| Plan | harness-stack:triage | [SKILL.md](../skills/engineering/triage/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
-| Build | harness-stack:implement-ticket | [SKILL.md](../skills/engineering/implement-ticket/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:code-review | [SKILL.md](../skills/engineering/code-review/SKILL.md) |
-| Review | harness-stack:code-review-ticket | [SKILL.md](../skills/engineering/code-review-ticket/SKILL.md) |
 | Deliberate | harness-stack:debate | [SKILL.md](../skills/productivity/debate/SKILL.md) |
 | Deliberate | harness-stack:decide | [SKILL.md](../skills/productivity/decide/SKILL.md) |
 | Ship | harness-stack:changelog | [SKILL.md](../skills/engineering/changelog/SKILL.md) |

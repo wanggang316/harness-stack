@@ -2,8 +2,6 @@
 
 Tickets for this project live in the Linear team `<TEAM>`, filed under the project `<project, or "none">`. Linear has no official CLI: use the host's Linear tools (an MCP server) when they cover the operation, otherwise the GraphQL API with `curl` and `jq` as below.
 
-States are the team's workflow states (see the state labels file).
-
 The API key comes from `$LINEAR_API_KEY`, then `~/.config/linear/api-key`, then `~/.linear-api-key`. Never print the key or write it into a ticket, file, or log.
 
 ```bash
@@ -43,16 +41,6 @@ linear 'mutation($id: String!, $body: String!) { commentUpdate(id: $id, input: {
   "$(jq -n --arg id "$comment_id" --arg body "$body" '{id: $id, body: $body}')"
 ```
 
-## When a skill says "move the ticket to a state"
-
-Look up the team's state ids once, then update the issue:
-
-```bash
-linear 'query($key: String!) { teams(filter: {key: {eq: $key}}) { nodes { id states { nodes { id name type } } } } }' '{"key": "<TEAM>"}'
-linear 'mutation($id: String!, $state: String!) { issueUpdate(id: $id, input: {stateId: $state}) { success issue { state { name } } } }' \
-  "$(jq -n --arg id "$issue_uuid" --arg state "$state_id" '{id: $id, state: $state}')"
-```
-
 ## When a skill says "link the PR to the ticket"
 
 Put the identifier in the PR body (`Closes ENG-123`); with Linear's GitHub or GitLab integration installed, that links the PR and moves the issue on merge according to the team's settings. Also attach the URL:
@@ -66,12 +54,21 @@ linear 'mutation($id: String!, $url: String!) { attachmentLinkURL(issueId: $id, 
 
 ```bash
 linear 'mutation($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }' \
-  "$(jq -n --arg team "$team_id" --arg title "$title" --arg body "$body" --arg state "$state_id" \
-      '{input: {teamId: $team, title: $title, description: $body, stateId: $state}}')"
+  "$(jq -n --arg team "$team_id" --arg title "$title" --arg body "$body" \
+      '{input: {teamId: $team, title: $title, description: $body}}')"
 ```
 
 - Add `projectId` to file it under the project, and `parentId` to make it a sub-ticket.
 - **Blocking edge**: `issueRelationCreate(input: {issueId: <blocker uuid>, relatedIssueId: <blocked uuid>, type: blocks})`.
+
+## When a skill says "search tickets"
+
+```bash
+linear 'query($q: String!) { searchIssues(term: $q, first: 50) { nodes { identifier title url state { name type } team { key } } } }' \
+  "$(jq -n --arg q "<terms>" '{q: $q}')"
+```
+
+Keep the results whose team is `<TEAM>`.
 
 ## When a skill says "list the sub-tickets and their blockers"
 
@@ -82,13 +79,10 @@ linear 'query($id: String!) { issue(id: $id) { children { nodes { id identifier 
 
 A child is blocked while an inverse relation of type `blocks` points at an issue whose state type is not `completed` or `canceled`.
 
-## Setup
+## Check access
 
-Creating workflow states needs team admin rights. `Backlog`, `Todo`, `In Progress`, `In Review`, `Done`, and `Canceled` exist in a new team by default; create `Reviewed` and `Merging` with type `started`:
+The key works and the team exists:
 
 ```bash
-linear 'mutation($input: WorkflowStateCreateInput!) { workflowStateCreate(input: $input) { success workflowState { id name } } }' \
-  "$(jq -n --arg team "$team_id" '{input: {teamId: $team, name: "Reviewed", type: "started", color: "#0E8A16"}}')"
+linear 'query($key: String!) { teams(filter: {key: {eq: $key}}) { nodes { id name } } }' '{"key": "<TEAM>"}'
 ```
-
-Without the rights, report the missing states and ask the user to add them in the team's Workflow settings.

@@ -15,7 +15,7 @@ Break the work into **tickets**: tracer-bullet vertical slices, each declaring t
 
 ## 1. Resolve the tracker
 
-Find this project's issue tracker and state labels as `setup-harness-stack` defines them. If there are none, tell the user to run `/setup-harness-stack`. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
+Find this project's issue tracker as `setup-harness-stack` defines it. If there are none, tell the user to run `/setup-harness-stack`. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
 
 ## 2. Gather context
 
@@ -25,7 +25,7 @@ Work from the conversation. For a ticket reference, read its full body and comme
 
 Tickets are implemented from the default branch, so the glossary entries, ADRs, and design notes they rely on must be there. Check whether any of them are uncommitted or exist only on an unmerged branch (`git status`, and `git log origin/<default>..<branch> -- <path>` for the discussion branch).
 
-If they are not on the default branch yet, say which files and recommend landing them first in a pull request of their own. Tickets may still be published in `Backlog`, linking that pull request; none of them moves to `Todo` until it merges. Link documents with default-branch URLs once they are merged, never with machine-local paths.
+If they are not on the default branch yet, say which files and recommend landing them first in a pull request of their own, before publishing. When the user publishes anyway, each ticket that relies on them links that pull request, so whoever picks the ticket up can see it is not ready until the pull request merges. Link documents with default-branch URLs once they are merged, never with machine-local paths.
 
 ## 4. Explore the codebase as needed
 
@@ -55,7 +55,7 @@ Present the breakdown as a numbered list. For each ticket show:
 - **Blocked by**: the tickets that must finish first
 - **What it delivers**: the end-to-end behavior it makes work
 
-Ask whether the granularity is right, whether each blocking edge genuinely gates its ticket, and whether any tickets should be merged or split. Then ask which state the tickets start in. Recommend `Backlog`: a ticket in `Todo` is ready for implementation, and automation may pick it up immediately without checking blockers. If the user wants work to start, move only the frontier (tickets with no open blockers) to `Todo`, and only once the documents from step 3 are on the default branch.
+Ask whether the granularity is right, whether each blocking edge genuinely gates its ticket, and whether any tickets should be merged or split.
 
 Iterate until the user explicitly approves.
 
@@ -63,7 +63,6 @@ Iterate until the user explicitly approves.
 
 Create the tickets in dependency order, blockers first, so each blocking edge can reference a real identifier. Use the issue tracker's publish-a-ticket operation:
 
-- Set the agreed starting state.
 - Add each blocking edge as a native relationship where the tracker has one; otherwise keep the `## Blocked by` section in the body.
 - If the source was an existing ticket, make each new ticket its sub-ticket. Do not edit or close the parent.
 - If creating a relationship fails, keep publishing (the body already lists the blockers) and report it at the end. If creating a ticket fails, stop and report the tickets already created; do not retry blindly after a timeout, since the first attempt may have succeeded: search for it first.
@@ -93,4 +92,4 @@ Avoid file paths and code snippets; they go stale fast. Exception: when a protot
 
 ## 8. Report
 
-List each ticket's identifier, title, URL, state, and blockers in dependency order. Mark the tickets that can start immediately, and list relationships that could not be created.
+List each ticket's identifier, title, URL, and blockers in dependency order. Mark the tickets that can start immediately, and list relationships that could not be created.
