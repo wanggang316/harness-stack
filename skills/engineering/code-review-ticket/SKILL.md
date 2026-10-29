@@ -19,7 +19,7 @@ Collect:
 
 - **Requirements**: the description, acceptance criteria, and clarifying comments.
 - **The change**: the PR or branch named in the latest `## Handoff` comment or linked to the ticket. If none can be found, ask for it.
-- **Earlier reviews**: every `## Code review` comment and the dispositions in later `## Handoff` comments. If one exists, this is a re-review.
+- **Earlier reviews**: every `## Code review` and `## Re-review` comment, and the dispositions in later `## Handoff` comments. If one exists, this is a re-review.
 
 ## 2. Run code-review
 
@@ -32,7 +32,12 @@ Run `code-review` with:
 
 ## 3. Post the result
 
-1. Comment on the ticket with `## Code review`, the reviewed head SHA, the round number, the verdict, and the two axis reports, in the ticket's language. Always add a new comment, so every round stays visible. Read back the result.
+1. Comment on the ticket in its language, as a new comment so every round stays visible:
+   - Title: `## Code review (round 1)` for the first review, `## Re-review (round N, after fix)` for a later one.
+   - Body: the reviewed head SHA and the verdict; for a re-review, the outcome of each earlier finding (resolved, unresolved, or reason accepted); then the two axis reports.
+   - Last line: `— reviewer: <agent>`, naming the agent that ran the review (the caller's name for it, otherwise the tool and model).
+
+   Read back the result.
 2. Move the state:
 
 | Verdict | Action |
