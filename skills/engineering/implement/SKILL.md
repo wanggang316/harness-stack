@@ -29,11 +29,12 @@ Pick the mode from the input:
 
 ## The caller's contract
 
-A caller (a person, another skill, or an automation) may specify three things. Follow what it specifies, and use the default otherwise:
+A caller (a person, another skill, or an automation) may specify four things. Follow what it specifies, and use the default otherwise:
 
 | What | Default |
 | --- | --- |
 | Where to keep the progress record, and the command that writes it | The conversation's task list |
+| How to publish evidence files, and the command that does it | Keep them in a directory outside the repository and list their paths |
 | What is authorized: push, open a PR | Commit only; ask before pushing or opening a PR |
 | How to deliver the handoff | The final message in the conversation |
 
@@ -114,9 +115,9 @@ Run the full test suite once, plus type checks, lint, builds, and the integratio
 
 - Static states: `screenshot`, one window or region per affected page or state, never the full screen (it can include unrelated windows and secrets in terminals). Capture a before image when the comparison helps.
 - Interactions, animation, or transitions: `screen-record`, plus a frame contact sheet when it lets a reviewer see the flow at a glance.
-- Compress with each skill's optimize or compress command, and save the files where the caller says, otherwise in a directory outside the repository.
+- Compress with each skill's optimize or compress command, then publish the files the way the caller says.
 
-List each file with the page or state it shows in the progress record's Validation section and in the handoff. Missing evidence (the app does not start, no screen-recording permission, a capture skill is unavailable) is a validation gap: record the reason and do not claim the UI was verified.
+List each file, as the link publishing returned or otherwise as its path, with the page or state it shows in the progress record's Validation section and in the handoff. Missing evidence (the app does not start, no screen-recording permission, a capture skill is unavailable) is a validation gap: record the reason and do not claim the UI was verified.
 
 When behavior contracts, architecture, terminology, or operations change, update the authoritative documentation in place in the same change. Create no document without a durable knowledge change, and keep progress and evidence in the progress record or handoff, not in long-lived knowledge.
 
@@ -135,7 +136,7 @@ Write the handoff with these sections, using "n/a" or "none" when empty:
 <PR url, or the branch when no PR was authorized; when blocked: "Blocked at: <step>">
 
 ## Verification
-<one line on what passed; evidence files; each command actually run, one per line>
+<one line on what passed; evidence links or files; each command actually run, one per line>
 
 ## Adjacent issues
 <real problems seen but not fixed, one line each, or "none">
