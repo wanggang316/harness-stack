@@ -23,7 +23,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:audit-docs` - Check documentation accuracy, discoverability, and value; repair supported findings
 
 **Setup** → Per-project config
-- `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and its state labels, and create missing labels or states after approval; defines where that configuration lives, outside the repo
+- `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and the commands for each ticket operation; defines where that configuration lives, outside the repo
 
 **Plan** → Capture specs and split work into tickets
 - `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec ticket
@@ -31,12 +31,10 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 **Build**
 - `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker
-- `/harness-stack:implement-ticket` - Implement a ticket by driving `implement`: read the ticket, keep its workpad, post the handoff, move Todo → In Progress → In Review
 - `/harness-stack:tdd` - Test-driven development
 
 **Review** → Ensure quality
 - `/harness-stack:code-review` - Run independent Standards and Spec subagent reviews of a defined change and return both reports with a verdict; never touches a tracker
-- `/harness-stack:code-review-ticket` - Review a ticket's change by driving `code-review`: post the review on the ticket, move In Review → Reviewed when clean
 
 **Deliberate** → Multi-agent reasoning
 - `/harness-stack:debate` - Multi-agent debate among heterogeneous LLM agents on a single question
@@ -54,7 +52,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-`implement` and `code-review` are the core skills: they do the work and return a handoff or review, and never touch a tracker. `implement-ticket` and `code-review-ticket` drive them for a ticket: they read it, keep its workpad and comments, and move it through the states `Backlog → Todo → In Progress → In Review → Reviewed → Merging → Done` (see [state-labels.md](skills/engineering/setup-harness-stack/state-labels.md)). `implement-ticket` moves `Todo → In Progress → In Review`, `code-review-ticket` moves `In Review → Reviewed`, and a person approves `Merging`.
+`to-spec` and `to-tickets` publish tickets; `implement` and `code-review` are the core skills that implement and review them. The core skills return a handoff or review to their caller and never touch a tracker. Ticket states belong to whatever drives the tickets (a person or an automation); no skill moves them.
 
 ### Documentation workflow
 

@@ -4,8 +4,7 @@ harness-stack 是有状态的。配置按项目存放在仓库之外，位置和
 
 | 文件 | 写入方 | 读取方 |
 |---|---|---|
-| `issue-tracker.md` | `setup-harness-stack` | 处理工单的 skill（`implement-ticket`、`code-review-ticket`、`to-tickets`、`to-spec`） |
-| `state-labels.md` | `setup-harness-stack` | 同上 |
+| `issue-tracker.md` | `setup-harness-stack` | 发布工单的 skill（`to-tickets`、`to-spec`） |
 
 新增文件时在这张表里登记，并在 setup-harness-stack 里说明它的位置。
 

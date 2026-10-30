@@ -17,11 +17,9 @@ Synthesize the current conversation and codebase understanding into a spec an im
 
 For a draft-only request, skip tracker and authentication checks and go to step 2. Use this section only when preparing to publish.
 
-Find this project's issue tracker and state labels as `setup-harness-stack` defines them. If there are none, tell the user to run `/setup-harness-stack`. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
+Find this project's issue tracker as `setup-harness-stack` defines it. If there are none, tell the user to run `/setup-harness-stack`. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
 
-A spec starts in `Backlog` unless the user asks otherwise: it describes work, and moving it to `Todo` would mark it ready for implementation.
-
-The spec is implemented from the default branch, so the glossary entries, ADRs, and design notes it relies on must be there. If any are uncommitted or exist only on an unmerged branch, say which files and recommend landing them first in a pull request of their own; the spec may link that pull request but stays out of `Todo` until it merges.
+The spec is implemented from the default branch, so the glossary entries, ADRs, and design notes it relies on must be there. If any are uncommitted or exist only on an unmerged branch, say which files and recommend landing them first in a pull request of their own; a spec published before then links that pull request.
 
 ## 2. Gather context
 
@@ -73,13 +71,13 @@ Avoid specific file paths and code snippets because they become stale. Exception
 
 ## 4. Confirm and publish
 
-Show the target, title, body, and starting state. Publishing requires explicit user authorization. Proceed without asking again if the conversation already authorizes this spec scope and target. Stop at a draft when that is all the user requested or key decisions remain open.
+Show the target, title, and body. Publishing requires explicit user authorization. Proceed without asking again if the conversation already authorizes this spec scope and target. Stop at a draft when that is all the user requested or key decisions remain open.
 
-Publish with the issue tracker's publish-a-ticket operation, passing the body through a heredoc, and set the starting state.
+Publish with the issue tracker's publish-a-ticket operation, passing the body through a heredoc.
 
 - Create only this spec ticket. Do not edit or close a source ticket or create parent-child or blocking relationships.
 - After a timeout, ambiguous response, or failed readback, search recent tickets in the target and compare author, title, and body. Do not retry creation until you know whether it succeeded.
-- After obtaining a URL, read the ticket back and check the target, title, body, and state. If readback fails, distinguish the observed creation result from content that remains unverified.
+- After obtaining a URL, read the ticket back and check the target, title, and body. If readback fails, distinguish the observed creation result from content that remains unverified.
 
 ## 5. Report
 
