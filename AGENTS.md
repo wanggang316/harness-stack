@@ -27,7 +27,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 **Plan** → Capture specs and split work into tickets
 - `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec ticket
-- `/harness-stack:to-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with native blocking / sub-ticket links; writes nothing into the repo
+- `/harness-stack:to-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with native blocking / sub-ticket links, on a base branch when earlier work for them is on one; edits no repo files
 
 **Build**
 - `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker
