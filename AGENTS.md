@@ -22,12 +22,15 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:document` - Update current domain knowledge, decisions, and runbooks from confirmed changes
 - `/harness-stack:audit-docs` - Check documentation accuracy, discoverability, and value; repair supported findings
 
-**Setup** → Per-project config
-- `/harness-stack:setup-harness-stack` - Configure the ticket tracker (GitHub / GitLab / Linear) and the commands for each ticket operation; defines where that configuration lives, outside the repo
+**Plan** → Write specs and tickets as drafts (no tracker)
+- `/harness-stack:write-spec` - Write agreed requirements and design decisions as one executable spec draft
+- `/harness-stack:write-tickets` - Split a plan, spec, or conversation into tracer-bullet ticket drafts with blocking edges
 
-**Plan** → Capture specs and split work into tickets
-- `/harness-stack:to-spec` - Publish agreed requirements and design decisions as one executable spec ticket
-- `/harness-stack:to-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with native blocking / sub-ticket links, on a base branch when earlier work for them is on one; edits no repo files
+**Workflow** → Ticket lifecycle on the tracker (stateful)
+- `/harness-stack:setup-tracker` - Configure the ticket tracker (GitHub / GitLab / Linear): target, workflow states, assignee, labels, and the commands for each ticket operation; creates missing states and labels; defines where that configuration lives, outside the repo
+- `/harness-stack:to-spec` - Interview if needed, write the spec with `write-spec`, publish it as todo or backlog
+- `/harness-stack:to-tickets` - Interview if needed, choose the base branch, write tickets with `write-tickets`, publish them as todo with native blocking / sub-ticket links
+- `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, needs-human): clarify, give feedback, approve merges, hand off the rest; run with `/loop 10m`
 
 **Build**
 - `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker
@@ -52,11 +55,13 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-`to-spec` and `to-tickets` publish tickets; `implement` and `code-review` are the core skills that implement and review them. The core skills return a handoff or review to their caller and never touch a tracker. Ticket states belong to whatever drives the tickets (a person or an automation); no skill moves them.
+Skills come in two layers ([ADR 0001](docs/decisions/0001-ticket-workflow-layer.md)). The workflow layer (`skills/workflow/`) reads the tracker configuration and operates the tracker; it may call content and core skills. Every other skill never reads that configuration or touches a tracker, and does not know the workflow layer exists.
+
+Tickets move through `backlog → todo → in-progress → in-review → reviewed → merging → done`, with `needs-human` when a run needs a person; `setup-tracker` maps these to tracker names. `to-spec` and `to-tickets` publish tickets with their state, assignee, and labels set; there is no triage. Whatever drives the tickets (a person or an automation such as agent-workflow) moves them through the work; `shepherd-tickets` moves them only at the human gates. `implement` and `code-review` return a handoff or review to their caller and never touch a tracker.
 
 ### Documentation workflow
 
-Use current domain documentation and active decisions when changing a feature. Use `grill-with-docs` when you want an explicit design interview with durable notes. Capture agreed requirements and design decisions with `to-spec` when a complete spec issue helps execution. Use `to-tickets` when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in tickets and PRs. Use a design file only when the change needs one.
+Use current domain documentation and active decisions when changing a feature. Use `grill-with-docs` when you want an explicit design interview with durable notes. Capture agreed requirements and design decisions with `to-spec` (or `write-spec` for a draft only) when a complete spec issue helps execution. Use `to-tickets` (or `write-tickets`) when the work needs smaller tickets; neither skill requires the other. Keep current knowledge accurate with the implementation, and keep execution state and evidence in tickets and PRs. Use a design file only when the change needs one.
 
 Make all repository edits in a dedicated worktree on a non-main branch, including documentation and skills. Review code and related knowledge in the same PR; main remains the merged baseline.
 
@@ -64,11 +69,11 @@ For document roles, placement, and lifecycle, read [Project Knowledge](reference
 
 ### State
 
-harness-stack is stateful. Per-project configuration lives outside the project repo, in the place `setup-harness-stack` defines; other skills refer to it only through that skill. See [references/state.md](references/state.md).
+harness-stack is stateful. Per-project configuration lives outside the project repo, in the place `setup-tracker` defines; only workflow-layer skills read it, and only through that skill. See [references/state.md](references/state.md).
 
 ### Skill Layout
 
-Skills are grouped by category: `skills/{engineering,productivity,ui}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`).
+Skills are grouped by category: `skills/{engineering,productivity,ui,workflow}/<name>/SKILL.md`. Each category directory must be listed in the `skills` array of `.claude-plugin/plugin.json`; the default scan only finds `skills/<name>/SKILL.md` (`feedback`).
 
 To add or change a skill in this repo, use the repo-local `/skill-create` (`.claude/skills/skill-create/`). It is not shipped with the plugin.
 
@@ -87,7 +92,7 @@ Kept from the retired fdd flow (no active skill dispatches them):
 
 Rules 1 and 2 come first in this version.
 
-1. **Atomic** - A skill owns one complete job and does not assume which skill runs before or after it
+1. **Atomic** - A skill owns one complete job and does not assume which skill runs before or after it. Exception: workflow-layer skills compose content and core skills; never the other way
 2. **Self-Contained** - A skill owns its goal and completion criteria; it may call specialist skills with explicit fallback or blocking behavior
 3. **Progressive Disclosure** - AGENTS.md is a map, not a manual
 4. **Repository Knowledge** - All context versioned in-repo
@@ -124,4 +129,4 @@ harness-stack uses **pure Agent-driven architecture**:
 - Subagents provide specialized expertise
 - Self-bootstrapping capability
 
-Installed as a Claude Code plugin, skills, commands, and agents are addressed through the `harness-stack:` namespace (e.g. `/harness-stack:tdd`, `harness-stack:code-reviewer`). Skills can also be installed without the plugin, so inside skill files refer to other skills by their bare name (`tdd`, `/setup-harness-stack`); only plugin-only agents and commands keep the prefix.
+Installed as a Claude Code plugin, skills, commands, and agents are addressed through the `harness-stack:` namespace (e.g. `/harness-stack:tdd`, `harness-stack:code-reviewer`). Skills can also be installed without the plugin, so inside skill files refer to other skills by their bare name (`tdd`, `/setup-tracker`); only plugin-only agents and commands keep the prefix.

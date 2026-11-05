@@ -21,9 +21,12 @@ harness-stack 文档中心。
 | Define | harness-stack:define-ui-spec | [SKILL.md](../skills/ui/define-ui-spec/SKILL.md) |
 | Knowledge | harness-stack:document | [SKILL.md](../skills/engineering/document/SKILL.md) |
 | Knowledge | harness-stack:audit-docs | [SKILL.md](../skills/engineering/audit-docs/SKILL.md) |
-| Setup | harness-stack:setup-harness-stack | [SKILL.md](../skills/engineering/setup-harness-stack/SKILL.md) |
-| Plan | harness-stack:to-spec | [SKILL.md](../skills/engineering/to-spec/SKILL.md) |
-| Plan | harness-stack:to-tickets | [SKILL.md](../skills/engineering/to-tickets/SKILL.md) |
+| Plan | harness-stack:write-spec | [SKILL.md](../skills/engineering/write-spec/SKILL.md) |
+| Plan | harness-stack:write-tickets | [SKILL.md](../skills/engineering/write-tickets/SKILL.md) |
+| Workflow | harness-stack:setup-tracker | [SKILL.md](../skills/workflow/setup-tracker/SKILL.md) |
+| Workflow | harness-stack:to-spec | [SKILL.md](../skills/workflow/to-spec/SKILL.md) |
+| Workflow | harness-stack:to-tickets | [SKILL.md](../skills/workflow/to-tickets/SKILL.md) |
+| Workflow | harness-stack:shepherd-tickets | [SKILL.md](../skills/workflow/shepherd-tickets/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
 | Review | harness-stack:code-review | [SKILL.md](../skills/engineering/code-review/SKILL.md) |
