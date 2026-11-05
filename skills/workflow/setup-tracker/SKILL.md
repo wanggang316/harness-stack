@@ -1,6 +1,6 @@
 ---
 name: setup-tracker
-description: Configure this project's ticket tracker (GitHub, GitLab, or Linear): where tickets live, the workflow states and labels, who tickets are assigned to, and how each ticket operation runs there. Also defines where that configuration lives.
+description: "Configure this project's ticket tracker (GitHub, GitLab, or Linear): where tickets live, the workflow states and labels, who tickets are assigned to, and how each ticket operation runs there. Also defines where that configuration lives."
 disable-model-invocation: true
 metadata:
   credits:
