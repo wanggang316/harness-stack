@@ -11,6 +11,7 @@
   "skills": [
     "./skills/engineering/",
     "./skills/productivity/",
-    "./skills/ui/"
+    "./skills/ui/",
+    "./skills/workflow/"
   ]
 }
