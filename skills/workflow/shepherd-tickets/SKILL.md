@@ -1,6 +1,6 @@
 ---
 name: shepherd-tickets
-description: Act as the requirement owner for the tickets this conversation manages: at the human gates (backlog, reviewed, needs-human) clarify and unblock, give feedback on thin evidence, approve well-evidenced work for merge, and hand the rest to the user; keep their state, assignee, and labels right. One pass per run; repeat with the agent's loop.
+description: "Act as the requirement owner for the tickets this conversation manages: at the human gates (backlog, reviewed, needs-human) clarify and unblock, give feedback on thin evidence, approve well-evidenced work for merge, and hand the rest to the user; keep their state, assignee, and labels right. One pass per run; repeat with the agent's loop."
 disable-model-invocation: true
 ---
 
