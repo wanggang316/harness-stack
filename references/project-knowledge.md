@@ -30,8 +30,8 @@
 ## 独立能力
 
 - `grill-with-docs`：用户主动发起的分轮设计访谈，在讨论中记录已确认的术语与重要决定。
-- `to-spec`：把已讨论清楚的需求与设计发布为一张 spec Issue，不自动拆票。
-- `to-tickets`：把 spec、plan 或会话拆成带依赖的执行任务。
+- `write-spec` / `to-spec`：把已讨论清楚的需求与设计写成 spec；`to-spec` 再把它发布为一张 spec Issue，不自动拆票。
+- `write-tickets` / `to-tickets`：把 spec、plan 或会话拆成带依赖的执行任务；`to-tickets` 再把它们发布到 tracker。
 - `document`：将已确认变化落实到最小的长期知识集合。
 - `audit-docs`：检查准确性、可发现性和保留价值，修复有证据的问题。
 - `domain-modeling`：在讨论中澄清概念并及时记录确定的术语和决定。
