@@ -16,6 +16,25 @@ linear() {  # linear '<query>' '<variables JSON>'
 
 `jq -e` fails the command when the response carries `errors`, so a failed write never looks like success. Pass bodies as variables (`jq -n --arg body "$body" …`), never by splicing text into the query. Mutations take the issue UUID (`.issue.id`), not the identifier.
 
+## Workflow
+
+| State | Linear state (type) |
+| --- | --- |
+| backlog | `Backlog` (backlog) |
+| todo | `Todo` (unstarted) |
+| in-progress | `In Progress` (started) |
+| in-review | `In Review` (started) |
+| reviewed | `Reviewed` (started) |
+| merging | `Merging` (started) |
+| needs-human | `Needs Human` (started) |
+| done | `Done` (completed) |
+
+- **Assignee**: `<user name>` (id `<user uuid>`)
+- **Type labels** (one per ticket, the one that fits): `bug`, `enhancement`, `documentation`
+- **Labels on every ticket**: none
+
+Mutations take ids. Look up state and label ids with **list the states and labels**.
+
 ## When a skill says "fetch the ticket"
 
 `issue(id:)` accepts the identifier (`ENG-123`) or the UUID:
@@ -24,6 +43,7 @@ linear() {  # linear '<query>' '<variables JSON>'
 linear 'query($id: String!) { issue(id: $id) {
   id identifier title description url
   state { name type } team { id key } project { name }
+  assignee { id name } labels { nodes { id name } }
   comments { nodes { id body user { name displayName } } } } }' '{"id": "ENG-123"}'
 ```
 
@@ -58,6 +78,7 @@ linear 'mutation($input: IssueCreateInput!) { issueCreate(input: $input) { succe
       '{input: {teamId: $team, title: $title, description: $body}}')"
 ```
 
+- Always add `stateId` (the initial state), `assigneeId`, and `labelIds` (the type label and the labels on every ticket).
 - Add `projectId` to file it under the project, and `parentId` to make it a sub-ticket.
 - **Blocking edge**: `issueRelationCreate(input: {issueId: <blocker uuid>, relatedIssueId: <blocked uuid>, type: blocks})`.
 
@@ -78,6 +99,42 @@ linear 'query($id: String!) { issue(id: $id) { children { nodes { id identifier 
 ```
 
 A child is blocked while an inverse relation of type `blocks` points at an issue whose state type is not `completed` or `canceled`.
+
+## When a skill says "set the state"
+
+```bash
+linear 'mutation($id: String!, $state: String!) { issueUpdate(id: $id, input: {stateId: $state}) { success issue { state { name } } } }' \
+  "$(jq -n --arg id "$issue_uuid" --arg state "$state_id" '{id: $id, state: $state}')"
+```
+
+## When a skill says "set the assignee and labels"
+
+```bash
+linear 'mutation($id: String!, $input: IssueUpdateInput!) { issueUpdate(id: $id, input: $input) { success } }' \
+  "$(jq -n --arg id "$issue_uuid" --arg user "$user_id" --argjson add '["<label id>"]' --argjson remove '[]' \
+      '{id: $id, input: {assigneeId: $user, addedLabelIds: $add, removedLabelIds: $remove}}')"
+```
+
+## When a skill says "list the states and labels"
+
+```bash
+linear 'query($key: String!) { teams(filter: {key: {eq: $key}}) { nodes { id
+  states { nodes { id name type } } labels { nodes { id name } } } } viewer { id name } }' '{"key": "<TEAM>"}'
+```
+
+## When a skill says "create a missing state or label"
+
+One item per command. A state takes the type in the **Workflow** table:
+
+```bash
+linear 'mutation($input: WorkflowStateCreateInput!) { workflowStateCreate(input: $input) { success } }' \
+  "$(jq -n --arg team "$team_id" --arg name "<name>" --arg type "<type>" --arg color "#<color>" \
+      '{input: {teamId: $team, name: $name, type: $type, color: $color}}')"
+linear 'mutation($input: IssueLabelCreateInput!) { issueLabelCreate(input: $input) { success } }' \
+  "$(jq -n --arg team "$team_id" --arg name "<name>" '{input: {teamId: $team, name: $name}}')"
+```
+
+Colors: Backlog `ededed`, Todo `c5def5`, In Progress `1d76db`, In Review `fbca04`, Reviewed `0e8a16`, Merging `5319e7`, Needs Human `b60205`, Done `0e8a16`.
 
 ## Check access
 
