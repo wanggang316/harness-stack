@@ -5,6 +5,7 @@ harness-stack 文档中心。
 ## Core
 - [Golden Rules](golden-rules.md) — 核心原则（必读）
 - [State](state.md) — 按项目存放在仓库之外的配置
+- [Decisions](../docs/decisions/) — 决策记录（ADR）
 - [skill-create](../.claude/skills/skill-create/SKILL.md) — 在本仓库新增或修改 skill（仓库内工具，不随插件分发）
 
 ## Skills
