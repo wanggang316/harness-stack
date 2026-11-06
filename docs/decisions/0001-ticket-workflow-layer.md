@@ -5,7 +5,7 @@ Status: Accepted
 工单相关的 skill 原先混在 `skills/engineering/` 里：`to-spec`、`to-tickets` 既写内容又操作 tracker，配置位置由 `setup-harness-stack` 定义，新工单的状态、assignee 和 label 由 agent-workflow 的 triage workflow 补齐，人工关口（评审后放行、卡住的工单）没有 skill 负责。现在把工单工作拆成两层：
 
 - **内容层**（`skills/engineering/`）：`write-spec`、`write-tickets` 综合上下文，按约定格式编写 spec 或工单并返回给使用者。它们不负责发布，不感知文档、tracker 等去处，也不知道工作流层的存在。
-- **工作流层**（`skills/workflow/`）：有状态，读取仓库外的项目配置并按工作流操作 tracker。`setup-tracker` 写配置；`to-spec`、`to-tickets` 在信息不足时先用 `grill-with-docs` 访谈，再调用内容层，最后带状态、assignee 和 label 发布；`grill-spec-tickets` 把访谈、spec、拆票串成一次运行；`shepherd-tickets` 作为需求负责人跟进工单。工作流层可以编排内容层，这是 Golden Rule 1 的明确例外，反方向不允许。
+- **工作流层**（`skills/workflow/`）：有状态，读取仓库外的项目配置并按工作流操作 tracker。`setup-tracker` 写配置；`to-spec`、`to-tickets` 在信息不足时先用 `grill-with-docs` 访谈，再调用内容层，最后带状态、assignee 和 label 发布；`grill-spec-tickets` 把访谈、spec、拆票串成一次运行，`grill-tickets` 跳过 spec，把访谈和拆票串成一次运行；`shepherd-tickets` 作为需求负责人跟进工单。工作流层可以编排内容层，这是 Golden Rule 1 的明确例外，反方向不允许。
 
 随之确定：
 

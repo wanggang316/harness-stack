@@ -27,6 +27,7 @@ harness-stack 文档中心。
 | Workflow | harness-stack:to-spec | [SKILL.md](../skills/workflow/to-spec/SKILL.md) |
 | Workflow | harness-stack:to-tickets | [SKILL.md](../skills/workflow/to-tickets/SKILL.md) |
 | Workflow | harness-stack:grill-spec-tickets | [SKILL.md](../skills/workflow/grill-spec-tickets/SKILL.md) |
+| Workflow | harness-stack:grill-tickets | [SKILL.md](../skills/workflow/grill-tickets/SKILL.md) |
 | Workflow | harness-stack:shepherd-tickets | [SKILL.md](../skills/workflow/shepherd-tickets/SKILL.md) |
 | Build | harness-stack:implement | [SKILL.md](../skills/engineering/implement/SKILL.md) |
 | Build | harness-stack:tdd | [SKILL.md](../skills/engineering/tdd/SKILL.md) |
