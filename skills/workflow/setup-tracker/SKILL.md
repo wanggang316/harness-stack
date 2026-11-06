@@ -1,6 +1,6 @@
 ---
 name: setup-tracker
-description: "Set up this project's ticket tracker for the workflow skills: where tickets live (GitHub, GitLab, or Linear), the workflow state labels, the assignee, and the type labels. Run before the first to-spec, to-tickets, grill-spec-tickets, or shepherd-tickets, or to change any of these."
+description: "Set up this project's ticket tracker for the workflow skills: where tickets live (GitHub, GitLab, or Linear), the workflow state labels, the assignee, and the type labels. Run before the first to-spec, to-tickets, grill-spec-tickets, grill-tickets, or shepherd-tickets, or to change any of these."
 disable-model-invocation: true
 ---
 
