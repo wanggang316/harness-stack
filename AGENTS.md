@@ -22,14 +22,15 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:document` - Update current domain knowledge, decisions, and runbooks from confirmed changes
 - `/harness-stack:audit-docs` - Check documentation accuracy, discoverability, and value; repair supported findings
 
-**Plan** → Write specs and tickets as drafts (no tracker)
-- `/harness-stack:write-spec` - Write agreed requirements and design decisions as one executable spec draft
-- `/harness-stack:write-tickets` - Split a plan, spec, or conversation into tracer-bullet ticket drafts with blocking edges
+**Plan** → Write specs and tickets in a fixed format
+- `/harness-stack:write-spec` - Write agreed requirements and design decisions as one executable spec, to a document, a tracker, or a temporary file
+- `/harness-stack:write-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with blocking edges, to a document, a tracker, or a temporary file
 
 **Workflow** → Ticket lifecycle on the tracker (stateful)
 - `/harness-stack:setup-tracker` - Configure the ticket tracker (GitHub / GitLab / Linear): target, workflow states, assignee, labels, and the commands for each ticket operation; creates missing states and labels; defines where that configuration lives, outside the repo
-- `/harness-stack:to-spec` - Interview if needed, write the spec with `write-spec`, publish it as todo or backlog
-- `/harness-stack:to-tickets` - Interview if needed, choose the base branch, write tickets with `write-tickets`, publish them as todo with native blocking / sub-ticket links
+- `/harness-stack:to-spec` - Grill with `grill-with-docs` if needed, write the spec with `write-spec`, publish it as todo or backlog
+- `/harness-stack:to-tickets` - Grill with `grill-with-docs` if needed, choose the base branch, write tickets with `write-tickets`, publish them as todo with native blocking / sub-ticket links
+- `/harness-stack:grill-spec-tickets` - Run `grill-with-docs` → `to-spec` → `to-tickets` (when the spec needs splitting) in one run
 - `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, needs-human): clarify, give feedback, approve merges, hand off the rest; run with `/loop 10m`
 
 **Build**
@@ -55,7 +56,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-Skills come in two layers ([ADR 0001](docs/decisions/0001-ticket-workflow-layer.md)). The workflow layer (`skills/workflow/`) reads the tracker configuration and operates the tracker; it may call content and core skills. Every other skill never reads that configuration or touches a tracker, and does not know the workflow layer exists.
+Skills come in two layers ([ADR 0001](docs/decisions/0001-ticket-workflow-layer.md)). The workflow layer (`skills/workflow/`) reads the tracker configuration, sets ticket states, assignee, and labels, and may call other skills. Every other skill never reads that configuration and does not know the workflow layer exists; `write-spec` and `write-tickets` write their content wherever the request says, a tracker included.
 
 Tickets move through `backlog → todo → in-progress → in-review → reviewed → merging → done`, with `needs-human` when a run needs a person; `setup-tracker` maps these to tracker names. `to-spec` and `to-tickets` publish tickets with their state, assignee, and labels set; there is no triage. Whatever drives the tickets (a person or an automation such as agent-workflow) moves them through the work; `shepherd-tickets` moves them only at the human gates. `implement` and `code-review` return a handoff or review to their caller and never touch a tracker.
 
