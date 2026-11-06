@@ -53,7 +53,7 @@ gh pr view <pr> --json commits --jq '.commits[] | .messageHeadline + "\n" + .mes
 ```
 
 - Skip a method the repository does not allow.
-- Rebase and merge commit copy every commit to the base. Skip both and use squash when a commit is not fit for the base history: its subject starts with `WIP`, `fixup!`, `squash!`, or `amend!`, or its message has a `Co-Authored-By` line or other tool or agent attribution. When squash is not allowed either, report `blocked`: the branch history needs cleanup first.
+- Rebase and merge commit copy every commit to the base. Skip both and use squash when a commit is not fit for the base history: its subject starts with `WIP`, `fixup!`, `squash!`, or `amend!`. When squash is not allowed either, report `blocked`: the branch history needs cleanup first.
 - When GitHub refuses a method for this PR (for example, "This branch can't be rebased"), try the next one.
 
 ## 5. Merge
