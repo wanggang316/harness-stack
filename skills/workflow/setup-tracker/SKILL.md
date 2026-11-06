@@ -2,11 +2,6 @@
 name: setup-tracker
 description: "Configure this project's ticket tracker (GitHub, GitLab, or Linear): where tickets live, the workflow states and labels, who tickets are assigned to, and how each ticket operation runs there. Also defines where that configuration lives."
 disable-model-invocation: true
-metadata:
-  credits:
-    skill: setup-matt-pocock-skills
-    author: Matt Pocock
-    url: "https://github.com/mattpocock/skills/blob/main/skills/engineering/setup-matt-pocock-skills/SKILL.md"
 ---
 
 # setup-tracker
