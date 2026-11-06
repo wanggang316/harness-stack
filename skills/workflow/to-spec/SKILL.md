@@ -26,7 +26,7 @@ Skip this step when the discussion already settled the spec.
 
 ## 3. Write the spec
 
-Use `write-spec` with the conversation, the referenced files, and the full body and comments of any referenced ticket, and ask it to return the spec in the conversation: this skill publishes it. It returns the title, body, size, relied-on documents, and blockers. If `write-spec` is unavailable, report the missing skill and stop; do not improvise a different spec format.
+Use `write-spec` with the conversation, the referenced files, and the full body and comments of any referenced ticket. It returns the title, body, size, relied-on documents, and blockers. If `write-spec` is unavailable, report the missing skill and stop; do not improvise a different spec format.
 
 The spec is implemented from the default branch, so the documents it relies on must be there. If any are uncommitted or exist only on an unmerged branch, say which files and recommend landing them first in a pull request of their own; a spec published before then links that pull request.
 

@@ -37,7 +37,7 @@ Present the base branch to the user: its name and the commits and files on it th
 
 ## 4. Write the tickets
 
-Use `write-tickets` with the source, the parent ticket's content, and the base branch, and ask it to return the tickets in the conversation: this skill publishes them. It drafts the slices, quizzes the user until they approve the breakdown, and returns the tickets in dependency order with their types. If `write-tickets` is unavailable, report the missing skill and stop.
+Use `write-tickets` with the source, the parent ticket's content, and the base branch. It drafts the slices, quizzes the user until they approve the breakdown, and returns the tickets in dependency order with their types. If `write-tickets` is unavailable, report the missing skill and stop.
 
 Search the tracker for open tickets that already cover the same work. Show possible duplicates; the user decides whether to drop, merge, or keep each overlapping ticket.
 
