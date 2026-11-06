@@ -1,7 +1,6 @@
 ---
 name: to-tickets
 description: Break a plan, spec, existing ticket, or the conversation into tracer-bullet tickets and publish them to the configured tracker (GitHub, GitLab, or Linear) in the todo state, assigned and labelled, with native blocking and sub-ticket links where available.
-disable-model-invocation: true
 metadata:
   credits:
     skill: to-tickets
@@ -21,7 +20,9 @@ Read this project's `issue-tracker.md` as `setup-tracker` defines it. If it is m
 
 Work from the conversation. For a ticket reference, fetch its full body and comments; that ticket is the **parent**. Read a supplied file in full.
 
-When decisions that change scope, slicing, or observable behavior are still open, interview the user before drafting. Ask in rounds: only questions whose prerequisites are settled, numbered, each with a recommended answer, its reason, and the main trade-off. Investigate facts yourself; the user owns product trade-offs. Skip this when the source already settles the work.
+When decisions that change scope, slicing, or observable behavior are still open, run `grill-with-docs` on them before writing. It interviews in rounds and records confirmed terms and decisions as it goes; continue here with its confirmed summary when the interview closes. If the user ends it with branches still open, carry them as blockers. If `grill-with-docs` is unavailable, interview in rounds yourself: only questions whose prerequisites are settled, numbered, each with a recommended answer, its reason, and the main trade-off.
+
+Skip the interview when the source already settles the work.
 
 ## 3. Choose the base branch
 
@@ -36,7 +37,7 @@ Present the base branch to the user: its name and the commits and files on it th
 
 ## 4. Write the tickets
 
-Use `write-tickets` with the source, the parent ticket's content, and the base branch. It drafts the slices, quizzes the user until they approve the breakdown, and returns the tickets in dependency order with their types. If `write-tickets` is unavailable, report the missing skill and stop.
+Use `write-tickets` with the source, the parent ticket's content, and the base branch, and ask it to return the tickets in the conversation: this skill publishes them. It drafts the slices, quizzes the user until they approve the breakdown, and returns the tickets in dependency order with their types. If `write-tickets` is unavailable, report the missing skill and stop.
 
 Search the tracker for open tickets that already cover the same work. Show possible duplicates; the user decides whether to drop, merge, or keep each overlapping ticket.
 

@@ -1,7 +1,6 @@
 ---
 name: grill-with-docs
 description: Interview the user in depth about requirements or design, clarify decision dependencies, and record confirmed domain terms and important decisions as the discussion proceeds.
-disable-model-invocation: true
 metadata:
   credits:
     skill: grill-with-docs
