@@ -14,7 +14,7 @@ Publish a set of tickets that is ready for whoever drives the tickets: interview
 
 ## 1. Resolve the tracker
 
-Read this project's `issue-tracker.md` as `setup-tracker` defines it. If it is missing, tell the user to run `/setup-tracker`. It gives the operations, the state names, the assignee, and the labels. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
+Read this project's `issue-tracker.md` and `workflow.md` as `setup-tracker` defines them. If they are missing, tell the user to run `/setup-tracker`. They give the operations, the state names, the assignee, and the labels. Check that the tracker's tools work before drafting, so a publishing problem shows up early. An explicit target from the user takes priority.
 
 ## 2. Gather context and close the open questions
 

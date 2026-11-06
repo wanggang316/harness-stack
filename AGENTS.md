@@ -27,11 +27,11 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:write-tickets` - Split a plan, spec, or conversation into tracer-bullet tickets with blocking edges and return them
 
 **Workflow** → Ticket lifecycle on the tracker (stateful)
-- `/harness-stack:setup-tracker` - Configure the ticket tracker (GitHub / GitLab / Linear): target, workflow states, assignee, labels, and the commands for each ticket operation; creates missing states and labels; defines where that configuration lives, outside the repo
+- `/harness-stack:setup-tracker` - Set up the ticket tracker (GitHub / GitLab / Linear): `issue-tracker.md` (target and commands) and `workflow.md` (state labels, assignee, type labels); creates, renames, or retires labels as the user chooses; defines where that configuration lives, outside the repo
 - `/harness-stack:to-spec` - Grill with `grill-with-docs` if needed, write the spec with `write-spec`, publish it as todo or backlog
 - `/harness-stack:to-tickets` - Grill with `grill-with-docs` if needed, choose the base branch, write tickets with `write-tickets`, publish them as todo with native blocking / sub-ticket links
 - `/harness-stack:grill-spec-tickets` - Run `grill-with-docs` → `to-spec` → `to-tickets` (when the spec needs splitting) in one run
-- `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, needs-human): clarify, give feedback, approve merges, hand off the rest; run with `/loop 10m`
+- `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, blocked): clarify, give feedback, approve merges, hand off the rest; run with `/loop 10m`
 
 **Build**
 - `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker
@@ -58,7 +58,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 Skills come in two layers ([ADR 0001](docs/decisions/0001-ticket-workflow-layer.md)). The workflow layer (`skills/workflow/`) reads the tracker configuration, sets ticket states, assignee, and labels, and may call other skills. Every other skill never reads that configuration or touches a tracker, and does not know the workflow layer exists; `write-spec` and `write-tickets` only write the content and return it.
 
-Tickets move through `backlog → todo → in-progress → in-review → reviewed → merging → done`, with `needs-human` when a run needs a person; `setup-tracker` maps these to tracker names. `to-spec` and `to-tickets` publish tickets with their state, assignee, and labels set; there is no triage. Whatever drives the tickets (a person or an automation such as agent-workflow) moves them through the work; `shepherd-tickets` moves them only at the human gates. `implement` and `code-review` return a handoff or review to their caller and never touch a tracker.
+Tickets move through `backlog → todo → in-progress → in-review → reviewed → merging → done`, with `blocked` when a run needs a person; `setup-tracker` maps these to tracker names. `to-spec` and `to-tickets` publish tickets with their state, assignee, and labels set; there is no triage. Whatever drives the tickets (a person or an automation such as agent-workflow) moves them through the work; `shepherd-tickets` moves them only at the human gates. `implement` and `code-review` return a handoff or review to their caller and never touch a tracker.
 
 ### Documentation workflow
 

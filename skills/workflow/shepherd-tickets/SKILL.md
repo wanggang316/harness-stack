@@ -1,6 +1,6 @@
 ---
 name: shepherd-tickets
-description: "Act as the requirement owner for the tickets this conversation manages: at the human gates (backlog, reviewed, needs-human) clarify and unblock, give feedback on thin evidence, approve well-evidenced work for merge, and hand the rest to the user; keep their state, assignee, and labels right. One pass per run; repeat with the agent's loop."
+description: "Act as the requirement owner for the tickets this conversation manages: at the human gates (backlog, reviewed, blocked) clarify and unblock, give feedback on thin evidence, approve well-evidenced work for merge, and hand the rest to the user; keep their state, assignee, and labels right. One pass per run; repeat with the agent's loop."
 disable-model-invocation: true
 ---
 
@@ -14,7 +14,7 @@ The **managed tickets** are the identifiers passed in, plus the sub-tickets of a
 
 Leave every other ticket alone, even when it looks wrong.
 
-Read this project's `issue-tracker.md` as `setup-tracker` defines it. If it is missing, tell the user to run `/setup-tracker` and stop. It gives the operations, the state names, the assignee, and the labels.
+Read this project's `issue-tracker.md` and `workflow.md` as `setup-tracker` defines them. If they are missing, tell the user to run `/setup-tracker` and stop. They give the operations, the state names, the assignee, and the labels.
 
 ## 1. Read every managed ticket
 
@@ -24,7 +24,7 @@ Sign every comment this skill writes with a last line `— shepherd-tickets`. Be
 
 ## 2. Repair the metadata
 
-The managed tickets must carry what `issue-tracker.md` says:
+The managed tickets must carry what `workflow.md` says:
 
 - The configured assignee. Add a missing one; replace a different one only when nobody else has started work on the ticket (no linked branch or PR), otherwise report it.
 - Exactly one state on an open ticket. With none, restore the state the ticket was published with when this conversation shows it; otherwise derive it from unambiguous evidence (a merged PR means done), or hand it off. With several, keep the one the evidence supports and remove the rest.
@@ -42,7 +42,7 @@ Tickets in todo, in-progress, in-review, and merging belong to whoever drives th
 - Work that waited on a condition that is now met (a decision recorded, an external dependency available): move it to todo with a comment that names the evidence.
 - A spec that must be split first, or deferred work whose condition is not met: leave it, and in the report propose the next step (`to-tickets` on the spec, or what is still awaited).
 
-### needs-human
+### blocked
 
 Read why the work stopped: the latest attention or blocked comment, the progress record (workpad), and the latest `## Handoff`.
 
@@ -50,7 +50,7 @@ Read why the work stopped: the latest attention or blocked comment, the progress
 - **A defect in the ticket** (acceptance criteria unclear, contradictory, or already true; the ticket too large for one context window): propose the corrected ticket or a split from `write-tickets`, and hand it to the user. Edit the ticket only after the user approves; then move it back as above.
 - **Anything else** (a product decision, credentials or permissions, a broken environment, a failure that repeats after your answer): hand it to the user.
 
-When a ticket returns to needs-human for the same reason after you answered once, do not answer again; hand it off.
+When a ticket returns to blocked for the same reason after you answered once, do not answer again; hand it off.
 
 ### reviewed
 
