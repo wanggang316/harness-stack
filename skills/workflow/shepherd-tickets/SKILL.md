@@ -62,7 +62,7 @@ Judge whether the delivered work proves the ticket's acceptance criteria. Read t
 | **Feedback**: move to in-progress | Any criterion lacks evidence, the evidence contradicts it, the review is on an older head, or checks fail. Comment `## Acceptance feedback (round N)` with one numbered item per gap: the criterion, what is missing or wrong, and what evidence would settle it |
 | **Hand off**: leave in reviewed | Merge Danger is a one-way door (data migration, destructive operation, external release, public API others depend on); a criterion needs a person to verify it in a real environment or judge it (look and feel, product wording); or the change touches security |
 
-When unsure between merge and hand off, hand off: a wrong merge costs more than a wait. Moving to merging is the approval; whoever drives the tickets performs the merge.
+When unsure between merge and hand off, hand off: a wrong merge costs more than a wait. Moving to merging is the approval; whoever drives the tickets performs the merge, for example with `pr-land`.
 
 ### done
 

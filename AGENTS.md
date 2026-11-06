@@ -48,7 +48,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:changelog` - Changelog management
 - `/harness-stack:git` - Git workflow and versioning
 - `/harness-stack:pr-open` - Open a PR: sync, push, and write a body built on a visual summary, evidence, and merge danger
-- `/harness-stack:pr-land` - Drive an open PR to a clean merge: watch CI, handle review, squash-merge
+- `/harness-stack:pr-land` - Merge a PR that is approved to land: wait for checks, merge by rebase, merge commit, or squash, report merged, returned, or blocked
 
 **Productivity** → Capture visual evidence
 - `/harness-stack:screenshot` - Capture and process macOS screenshots
