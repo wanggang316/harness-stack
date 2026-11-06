@@ -16,7 +16,7 @@ Publish one spec ticket that is ready for whoever drives the tickets: interview 
 
 For a draft-only request, skip tracker and authentication checks and go to step 2.
 
-Read this project's `issue-tracker.md` as `setup-tracker` defines it. If it is missing, tell the user to run `/setup-tracker`. It gives the operations, the state names, the assignee, and the labels. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
+Read this project's `issue-tracker.md` and `workflow.md` as `setup-tracker` defines them. If they are missing, tell the user to run `/setup-tracker`. They give the operations, the state names, the assignee, and the labels. An explicit user target takes priority. Check that the tracker's tools work; if authentication or permissions are unavailable, still complete the draft and report publishing as incomplete.
 
 ## 2. Close the open questions
 

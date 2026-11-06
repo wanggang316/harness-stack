@@ -16,25 +16,6 @@ linear() {  # linear '<query>' '<variables JSON>'
 
 `jq -e` fails the command when the response carries `errors`, so a failed write never looks like success. Pass bodies as variables (`jq -n --arg body "$body" …`), never by splicing text into the query. Mutations take the issue UUID (`.issue.id`), not the identifier.
 
-## Workflow
-
-| State | Linear state (type) |
-| --- | --- |
-| backlog | `Backlog` (backlog) |
-| todo | `Todo` (unstarted) |
-| in-progress | `In Progress` (started) |
-| in-review | `In Review` (started) |
-| reviewed | `Reviewed` (started) |
-| merging | `Merging` (started) |
-| needs-human | `agent-blocked` (started) |
-| done | `Done` (completed) |
-
-- **Assignee**: `<user name>` (id `<user uuid>`)
-- **Type labels** (one per ticket, the one that fits): `bug`, `enhancement`, `documentation`
-- **Labels on every ticket**: none
-
-Mutations take ids. Look up state and label ids with **list the states and labels**.
-
 ## When a skill says "fetch the ticket"
 
 `issue(id:)` accepts the identifier (`ENG-123`) or the UUID:
@@ -122,19 +103,24 @@ linear 'query($key: String!) { teams(filter: {key: {eq: $key}}) { nodes { id
   states { nodes { id name type } } labels { nodes { id name } } } } viewer { id name } }' '{"key": "<TEAM>"}'
 ```
 
-## When a skill says "create a missing state or label"
+## When setup creates, renames, or deletes a state or label
 
-One item per command. A state takes the type in the **Workflow** table:
+One change per command. Mutations take the id from **list the states and labels**. A new state takes the type `workflow.md`'s state implies (backlog: `backlog`, todo: `unstarted`, done: `completed`, every other state: `started`):
 
 ```bash
 linear 'mutation($input: WorkflowStateCreateInput!) { workflowStateCreate(input: $input) { success } }' \
   "$(jq -n --arg team "$team_id" --arg name "<name>" --arg type "<type>" --arg color "#<color>" \
       '{input: {teamId: $team, name: $name, type: $type, color: $color}}')"
+linear 'mutation($id: String!, $name: String!) { workflowStateUpdate(id: $id, input: {name: $name}) { success } }' \
+  "$(jq -n --arg id "$state_id" --arg name "<new name>" '{id: $id, name: $name}')"
 linear 'mutation($input: IssueLabelCreateInput!) { issueLabelCreate(input: $input) { success } }' \
   "$(jq -n --arg team "$team_id" --arg name "<name>" '{input: {teamId: $team, name: $name}}')"
+linear 'mutation($id: String!, $name: String!) { issueLabelUpdate(id: $id, input: {name: $name}) { success } }' \
+  "$(jq -n --arg id "$label_id" --arg name "<new name>" '{id: $id, name: $name}')"
+linear 'mutation($id: String!) { issueLabelDelete(id: $id) { success } }' "$(jq -n --arg id "$label_id" '{id: $id}')"
 ```
 
-Colors: Backlog `ededed`, Todo `c5def5`, In Progress `1d76db`, In Review `fbca04`, Reviewed `0e8a16`, Merging `5319e7`, agent-blocked `b60205`, Done `0e8a16`.
+Linear does not delete a workflow state through this skill: archive it in the team settings after moving its tickets. Colors: Backlog `ededed`, Todo `c5def5`, In Progress `1d76db`, In Review `fbca04`, Reviewed `0e8a16`, Merging `5319e7`, Blocked `b60205`, Done `0e8a16`.
 
 ## Check access
 

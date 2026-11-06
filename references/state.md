@@ -7,6 +7,7 @@ harness-stack 是有状态的。配置按项目存放在仓库之外，位置和
 | 文件 | 写入方 | 读取方 |
 |---|---|---|
 | `issue-tracker.md` | `setup-tracker` | `to-spec`、`to-tickets`、`grill-spec-tickets`、`shepherd-tickets` |
+| `workflow.md` | `setup-tracker` | 同上 |
 
 新增文件时在这张表里登记，并在 setup-tracker 里说明它的位置。
 

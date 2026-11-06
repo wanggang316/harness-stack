@@ -10,7 +10,7 @@ Run the whole planning path for one requirement: interview until the design is s
 
 ## 1. Check the tracker
 
-Read this project's `issue-tracker.md` as `setup-tracker` defines it. If it is missing, tell the user to run `/setup-tracker` now. The interview can still run, but nothing is published until the configuration exists. Checking first saves the user from finishing an interview that cannot be published.
+Read this project's `issue-tracker.md` and `workflow.md` as `setup-tracker` defines them. If they are missing, tell the user to run `/setup-tracker` now. The interview can still run, but nothing is published until the configuration exists. Checking first saves the user from finishing an interview that cannot be published.
 
 ## 2. Grill
 
