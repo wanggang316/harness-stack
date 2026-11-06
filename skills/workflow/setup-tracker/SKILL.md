@@ -32,7 +32,7 @@ Every tracker holds the same states, so tickets move the same way whoever drives
 | in-review | Implemented, under review | `In Review` |
 | reviewed | Review is clean; waits for a merge decision | `Reviewed` |
 | merging | Approved to merge | `Merging` |
-| needs-human | A run cannot continue without a person | `Needs Human` |
+| needs-human | A run cannot continue without a person | `agent-blocked` |
 | done | Merged or otherwise complete | GitHub/GitLab: closed issue; Linear: `Done` |
 
 On GitHub and GitLab a state is a label; an open issue carries exactly one state label. On Linear it is the team's workflow state. Keep the default names unless the user or an existing tracker already spells them differently; whatever drives the tickets must use the same names.
