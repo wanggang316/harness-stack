@@ -26,7 +26,7 @@ linear() {  # linear '<query>' '<variables JSON>'
 | in-review | `In Review` (started) |
 | reviewed | `Reviewed` (started) |
 | merging | `Merging` (started) |
-| needs-human | `Needs Human` (started) |
+| needs-human | `agent-blocked` (started) |
 | done | `Done` (completed) |
 
 - **Assignee**: `<user name>` (id `<user uuid>`)
@@ -134,7 +134,7 @@ linear 'mutation($input: IssueLabelCreateInput!) { issueLabelCreate(input: $inpu
   "$(jq -n --arg team "$team_id" --arg name "<name>" '{input: {teamId: $team, name: $name}}')"
 ```
 
-Colors: Backlog `ededed`, Todo `c5def5`, In Progress `1d76db`, In Review `fbca04`, Reviewed `0e8a16`, Merging `5319e7`, Needs Human `b60205`, Done `0e8a16`.
+Colors: Backlog `ededed`, Todo `c5def5`, In Progress `1d76db`, In Review `fbca04`, Reviewed `0e8a16`, Merging `5319e7`, agent-blocked `b60205`, Done `0e8a16`.
 
 ## Check access
 

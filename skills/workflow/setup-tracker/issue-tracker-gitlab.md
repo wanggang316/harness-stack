@@ -14,7 +14,7 @@ Pass multi-line bodies through a heredoc into a variable, never through a shared
 | in-review | `In Review` |
 | reviewed | `Reviewed` |
 | merging | `Merging` |
-| needs-human | `Needs Human` |
+| needs-human | `agent-blocked` |
 | done | the issue is closed |
 
 An open issue carries exactly one state label; without one it has no state.
@@ -119,7 +119,7 @@ glab api -X POST "projects/:id/labels" -f name="<name>" -f color="#<color>" -f d
 | `In Review` | `fbca04` | Workflow state: under review |
 | `Reviewed` | `0e8a16` | Workflow state: review clean, waits for a merge decision |
 | `Merging` | `5319e7` | Workflow state: approved to merge |
-| `Needs Human` | `b60205` | Workflow state: needs a person |
+| `agent-blocked` | `b60205` | Workflow state: needs a person |
 | `bug` | `d73a4a` | Something isn't working |
 | `enhancement` | `a2eeef` | New feature or request |
 | `documentation` | `0075ca` | Improvements or additions to documentation |
