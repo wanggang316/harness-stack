@@ -31,6 +31,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:to-spec` - Grill with `grill-with-docs` if needed, write the spec with `write-spec`, publish it as todo or backlog
 - `/harness-stack:to-tickets` - Grill with `grill-with-docs` if needed, choose the base branch, write tickets with `write-tickets`, publish them as todo with native blocking / sub-ticket links
 - `/harness-stack:grill-spec-tickets` - Run `grill-with-docs` → `to-spec` → `to-tickets` (when the spec needs splitting) in one run
+- `/harness-stack:grill-tickets` - Run `grill-with-docs` → `to-tickets` in one run, without a spec ticket
 - `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, blocked): clarify, give feedback, approve merges, hand off the rest; run with `/loop 10m`
 
 **Build**
