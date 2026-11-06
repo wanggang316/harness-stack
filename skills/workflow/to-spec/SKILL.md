@@ -1,7 +1,6 @@
 ---
 name: to-spec
 description: Turn requirements and design decisions into a complete spec and publish it as one ticket on the configured tracker (GitHub, GitLab, or Linear), in the todo or backlog state, assigned and labelled.
-disable-model-invocation: true
 metadata:
   credits:
     skill: to-spec
@@ -21,13 +20,13 @@ Read this project's `issue-tracker.md` as `setup-tracker` defines it. If it is m
 
 ## 2. Close the open questions
 
-When the conversation leaves decisions open that change scope, observable behavior, failure semantics, or the design, interview the user before writing. Ask in rounds: only questions whose prerequisites are settled, numbered, each with a recommended answer, its reason, and the main trade-off. Investigate facts yourself; the user owns product trade-offs. Stop when no open branch remains or the user ends the interview; carry what is still open to the draft as blockers.
+When decisions that change scope, observable behavior, failure semantics, or the design are still open, run `grill-with-docs` on them before writing. It interviews in rounds and records confirmed terms and decisions as it goes; continue here with its confirmed summary when the interview closes. If the user ends it with branches still open, carry them as blockers. If `grill-with-docs` is unavailable, interview in rounds yourself: only questions whose prerequisites are settled, numbered, each with a recommended answer, its reason, and the main trade-off.
 
 Skip this step when the discussion already settled the spec.
 
 ## 3. Write the spec
 
-Use `write-spec` with the conversation, the referenced files, and the full body and comments of any referenced ticket. It returns the title, body, size, relied-on documents, and blockers. If `write-spec` is unavailable, report the missing skill and stop; do not improvise a different spec format.
+Use `write-spec` with the conversation, the referenced files, and the full body and comments of any referenced ticket, and ask it to return the spec in the conversation: this skill publishes it. It returns the title, body, size, relied-on documents, and blockers. If `write-spec` is unavailable, report the missing skill and stop; do not improvise a different spec format.
 
 The spec is implemented from the default branch, so the documents it relies on must be there. If any are uncommitted or exist only on an unmerged branch, say which files and recommend landing them first in a pull request of their own; a spec published before then links that pull request.
 
