@@ -1,112 +1,105 @@
 ---
 name: pr-land
-description: Drive an open pull request to a clean merge by watching CI, addressing review feedback, resolving conflicts, and squash-merging when green. Use when asked to land a change or advance an open PR through merge. Does not replace commit, code-review, or release workflows.
+description: "Merge an open pull request that is approved to land: wait for its checks, merge it with the method that keeps the most history (rebase, then merge commit, then squash), and report merged, returned, or blocked. Use when asked to land or merge a PR. It does not decide whether the change should land, and it does not change code."
 ---
 
 # pr-land
 
-Act as the author of an open, non-draft PR whose goal is merge. Watch CI, address review feedback, keep the branch mergeable, and squash-merge when green. **Persist** while actionable work remains, including CI failures, unanswered comments, and conflicts. Stop only after merge or a Yield Condition.
+The caller has already decided that this PR lands: a person, or `shepherd-tickets` moving the ticket to merging after it checked the evidence. This skill only does the merge. It does not review the change, edit code, resolve conflicts, or touch a ticket tracker. When the PR needs any of these, it stops and says so.
 
-A request to land the change authorizes pushing fix commits and merging when green. Ask before actions outside that scope, such as changing the base, force-pushing a shared branch, or bypassing required checks.
+A request to land a PR authorizes merging it and deleting its head branch. It does not authorize pushing commits, force-pushing, changing the base, or bypassing branch protection (`--admin`).
 
-## Preconditions
+## 1. Read the PR
 
-- `gh` is authenticated.
-- The current branch has an open PR, or its number is available. Otherwise, stop and tell the user.
-- The local worktree is clean and the full local checks passed at the head commit. Local green is an inexpensive signal that reduces CI surprises.
+```bash
+gh pr view <pr> --json number,url,state,isDraft,baseRefName,headRefName,mergeable,mergeStateStatus,reviewDecision,title,body
+```
 
-## Workflow
+- `MERGED`: nothing to do. Report `merged`.
+- `CLOSED` or draft: report `blocked`.
+- `mergeable` is `UNKNOWN`: GitHub is still computing it. Wait 10–30 seconds and read again.
 
-1. **Locate the PR**
+## 2. Wait for the checks
 
-   ```bash
-   gh pr view --json number,url,headRefOid,mergeable,mergeStateStatus,title,body
-   ```
+```bash
+gh pr checks <pr> --watch --interval 30
+```
 
-2. **Check conflicts**
-   - If `mergeable == "CONFLICTING"` or `mergeStateStatus == "DIRTY"`, fetch `origin <base>` and rebase onto `origin/<base>`, or merge if that is the team's convention. Resolve conflicts and push. Use `git push --force-with-lease` only after rebasing a branch you alone push to.
-   - If `mergeable == "UNKNOWN"`, wait 10–30 seconds and check again; GitHub is computing mergeability.
+Run it again while checks are still pending, up to about 60 minutes in total. A PR without checks continues at once.
 
-3. **Watch CI, reviews, and head changes in parallel**
+- A check fails once without a cause in the change (a timeout, a runner or network error): rerun only the failed jobs once with `gh run rerun <run-id> --failed`, then wait again.
+- A check fails because of the change, or fails again after the rerun: report `returned`.
+- Checks are still pending after the limit: report `blocked`.
 
-   An open PR has three independent signals: **CI completion** with passing, failing, or pending checks; **reviewer feedback** through inline comments, top-level comments, or submitted reviews; and **PR head movement** from a person or bot. Poll all three about every 10 seconds and respond to whichever changes first.
+## 3. Check that the PR can merge
 
-4. **Respond**
+Read the PR again (step 1) and decide from `mergeable`, `mergeStateStatus`, and `reviewDecision`:
 
-   | Signal | Action |
-   | --- | --- |
-   | Mergeable `CONFLICTING` | Sync, resolve, push, and return to step 3. |
-   | Mergeable `UNKNOWN` | Wait and recheck. |
-   | Real CI failure | Read logs, fix locally, commit, push, and return to step 3. |
-   | Flaky CI failure, such as an isolated timeout or transient infrastructure issue | Rerun the specific job. Continue if it passes. |
-   | CI adds a commit to head | Follow Auto-Commit on Head below. |
-   | Unaddressed review comment | Follow Review-Feedback Handling. Acknowledge and address it as needed before merging. |
-   | Push rejected for authentication, permissions, or policy | Surface the error without hiding it. |
-   | All checks pass and no feedback remains unaddressed | Merge in step 5. |
-
-5. **Squash-merge**
-
-   ```bash
-   title=$(gh pr view --json title -q .title)
-   body=$(gh pr view --json body -q .body)
-   gh pr merge --squash --subject "$title" --body "$body"
-   ```
-
-   - Use the PR's *current* title and body for the merge. Update them in step 4 if scope changed.
-   - Do not enable `--auto` in a repository without required checks; it may merge before CI runs.
-   - Delete the head branch if repository settings do not delete it automatically on merge.
-
-## Review-Feedback Handling
-
-Before changing code for a comment:
-
-1. **Check intent.** Confirm the feedback does not conflict with the user's established intent. If it does, explain in an inline reply and ask the user before changing code.
-2. **Choose a disposition per comment** and state it inline before pushing: **Accept** with the intended fix, **Clarify** with missing information, or **Push back** with reasons and an alternative.
-3. **Classify** as correctness, design, style, clarification, or scope. Address correctness or refute it with concrete validation. Design, style, and clarification may be deferred with an explicit reason.
-4. **Reply before changes.** State the intended action before pushing so reviewers can follow it, rather than discovering a force-push and ten new commits.
-5. **Batch fixes.** Prefer one summary comment after a set of review fixes over many fragmented replies.
-
-## CI Failure Handling
-
-- **Read logs first.** Use `gh pr checks` for an overview and `gh run view <run-id> --log` for details.
-- **Reproduce locally** when possible to establish that the fix addresses the failure.
-- **Distinguish flakes from real failures.** A non-reproducible timeout on one platform is likely flaky; rerun that job. A locally reproducible assertion failure is real. Use judgment and bound retries.
-- **Lockfile or dependency-sync errors on the merge commit**, such as a corrupt pnpm lockfile, usually require fetching the latest `origin/<base>`, syncing, pushing, and rerunning CI.
-- **Fix the root cause.** Do not use `--no-verify` or skip jobs to obtain green CI.
-
-## Auto-Commit on Head
-
-Some CI setups push formatter, codegen, or changelog fixes back to the PR. These commits are usually bot-authored, and **some CI providers do not start another run for bot-authored pushes**.
-
-If head moves to a bot-authored commit, pull it locally, sync if `origin/<base>` also advanced, then add a commit attributed to the real author to retrigger CI. Use a meaningful commit when possible, or `--allow-empty` if needed. Push with `--force-with-lease` if synchronization rewrote history; otherwise, push normally and keep watching. Head movement caused by your own earlier push needs no special handling.
-
-## Anti-Patterns
-
-| Avoid | Reason |
+| State | Action |
 | --- | --- |
-| `gh pr merge --auto` without required checks | It may merge before CI starts. |
-| `--merge` when squash is the project default | It conflicts with project history policy. Adapt if the repository prefers merge commits. |
-| Accepting feedback without addressing it | Complete accepted work or explicitly defer it with a follow-up reference. |
-| Returning control while actionable work remains | This skill owns progress through merge. Stop only when blocked. |
-| Merging with unaddressed human review comments | Acknowledge them before merge even when you disagree. |
-| Bare `--force` during review to retrigger CI | Use `--force-with-lease` only on your own branch and disclose the rebase in the PR thread. |
+| `CONFLICTING` or `DIRTY` | Report `returned`: the branch needs the base merged in and the change verified again. |
+| `reviewDecision` is `CHANGES_REQUESTED` | Report `returned`. |
+| `BEHIND` (the base requires an up-to-date branch) | Run `gh pr update-branch <pr> --rebase`; if GitHub cannot rebase it, run `gh pr update-branch <pr>`. Then go back to step 2. A conflict here means `returned`. |
+| `BLOCKED`, or `reviewDecision` is `REVIEW_REQUIRED` | Report `blocked` and name the missing requirement (an approval, a required check, a protection rule). |
+| `CLEAN`, `HAS_HOOKS`, or `UNSTABLE` with only optional checks failing | Continue. |
 
-## Yield Conditions
+## 4. Choose the merge method
 
-Stop and report to the user when:
+Keep as much history as the repository allows. Try the methods in this order: **rebase**, then **merge commit**, then **squash**.
 
-- Conflicts require product decisions, such as API shape, schema migration, or data-loss risk.
-- Review feedback conflicts with user intent and the right trade-off is unclear.
-- Authentication, permissions, or policy reject a push; do not conceal the error.
-- After a fix attempt, CI repeatedly fails with the same error and the root cause remains unknown.
-- A human reviewer requests changes without specific inline comments; clarify what they need.
-- A required change can only be made on the base branch, such as a repository-wide dependency upgrade.
+```bash
+gh repo view --json rebaseMergeAllowed,mergeCommitAllowed,squashMergeAllowed,deleteBranchOnMerge
+gh pr view <pr> --json commits --jq '.commits[] | .messageHeadline + "\n" + .messageBody'
+```
 
-Otherwise, keep going.
+- Skip a method the repository does not allow.
+- Rebase and merge commit copy every commit to the base. Skip both and use squash when a commit is not fit for the base history: its subject starts with `WIP`, `fixup!`, `squash!`, or `amend!`, or its message has a `Co-Authored-By` line or other tool or agent attribution. When squash is not allowed either, report `blocked`: the branch history needs cleanup first.
+- When GitHub refuses a method for this PR (for example, "This branch can't be rebased"), try the next one.
+
+## 5. Merge
+
+```bash
+gh pr merge <pr> --rebase
+gh pr merge <pr> --merge  --subject "<title> (#<number>)" --body "<summary>"
+gh pr merge <pr> --squash --subject "<title> (#<number>)" --body "<summary>"
+```
+
+`<summary>` is the first paragraph of the PR body's `## Summary`, followed by its `Closes` or `Refs` lines. Do not copy the whole body: the Evidence and Merge Danger sections are for reviewers, not for the base history.
+
+Then read the PR again. Only `state == MERGED` means it merged; the exit code of `gh pr merge` alone does not. When the base uses a merge queue, `gh pr merge` only adds the PR to the queue: wait for `MERGED` with the same limit as step 2. When the queue removes the PR, go back to step 2.
+
+## 6. Delete the head branch
+
+Skip this when `deleteBranchOnMerge` is true. Otherwise, keep the branch when an open PR uses it as its base (`gh pr list --base <head> --state open`), and say so in the report. Else delete it:
+
+```bash
+gh api -X DELETE "repos/{owner}/{repo}/git/refs/heads/<head>"
+```
+
+## 7. Report
+
+Return this to the caller, with the verdict `merged`, `returned`, or `blocked`:
+
+```markdown
+## PR
+
+<url> (<base> ← <head>)
+
+## Merge
+
+- Method: rebase | merge | squash | none
+- Commit: <the base commit that contains the change, when merged>
+- Reason: <when returned or blocked: what failed and what is needed next>
+```
+
+| Verdict | Meaning |
+| --- | --- |
+| `merged` | The PR is `MERGED`. |
+| `returned` | The change needs work: a conflict, a failing check, or requested changes. Whoever implemented it continues. |
+| `blocked` | A person must act: a permission, a protection rule, a missing approval, checks that do not finish, or history that cannot land. |
 
 ## Verification
 
-- [ ] The PR is `MERGED` into the base branch.
-- [ ] CI was green at merge, not bypassed through auto-merge in an unprotected repository.
-- [ ] No review comment remains unaddressed, and the title and body reflected final scope before merge.
-- [ ] The head branch was deleted manually or by repository settings.
+- [ ] The verdict comes from the PR state that GitHub reports after the last action.
+- [ ] The method used is the first one in rebase → merge → squash that the repository allows and the commits are fit for.
+- [ ] No commit was pushed, no protection was bypassed, and no branch that an open PR depends on was deleted.
