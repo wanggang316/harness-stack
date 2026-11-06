@@ -99,13 +99,13 @@ gh label delete "<name>" --yes                          # only when no open issu
 
 | Label | Color | Description |
 | --- | --- | --- |
-| `backlog` | `ededed` | Workflow state: published, not to start yet |
-| `todo` | `c5def5` | Workflow state: ready to start |
-| `in-progress` | `1d76db` | Workflow state: being implemented |
-| `in-review` | `fbca04` | Workflow state: under review |
-| `reviewed` | `0e8a16` | Workflow state: review clean, waits for a merge decision |
-| `merging` | `5319e7` | Workflow state: approved to merge |
-| `blocked` | `b60205` | Workflow state: needs a person |
+| `Backlog` | `ededed` | Workflow state: published, not to start yet |
+| `Todo` | `c5def5` | Workflow state: ready to start |
+| `In Progress` | `1d76db` | Workflow state: being implemented |
+| `In Review` | `fbca04` | Workflow state: under review |
+| `Reviewed` | `0e8a16` | Workflow state: review clean, waits for a merge decision |
+| `Merging` | `5319e7` | Workflow state: approved to merge |
+| `Blocked` | `b60205` | Workflow state: needs a person |
 | `bug` | `d73a4a` | Something isn't working |
 | `enhancement` | `a2eeef` | New feature or request |
 | `documentation` | `0075ca` | Improvements or additions to documentation |

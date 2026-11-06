@@ -9,7 +9,7 @@ Status: Accepted
 
 随之确定：
 
-- **状态词表由 harness-stack 定义**：`backlog → todo → in-progress → in-review → reviewed → merging → done`，任何 run 需要人时进入 `blocked`。GitHub/GitLab 的 label 统一用小写连字符（`in-progress`、`blocked`），Linear 状态沿用其 Title Case。`setup-tracker` 把语义状态映射到 tracker 上的实际名字记在 `workflow.md`，对已有的同义 label 让用户选择重命名或沿用，对缺失的选择新建或映射，对退役的状态 label 选择保留、迁移后删除或删除；agent-workflow 的 rule set 按这份约定使用状态名，不再自带 `setup-project`。
+- **状态词表由 harness-stack 定义**：`backlog → todo → in-progress → in-review → reviewed → merging → done`，任何 run 需要人时进入 `blocked`。tracker 上的名字在 GitHub、GitLab、Linear 上统一用 Title Case（`In Progress`、`Blocked`），与 Linear 原生状态和 agent-workflow 模板一致，并和小写的类型 label（`bug`、`enhancement`）在视觉上区分开；skill 文本里的状态 id 仍用小写连字符。`setup-tracker` 把语义状态映射到 tracker 上的实际名字记在 `workflow.md`，对已有的同义 label 让用户选择重命名或沿用，对缺失的选择新建或映射，对退役的状态 label 选择保留、迁移后删除或删除；agent-workflow 的 rule set 按这份约定使用状态名，不再自带 `setup-project`。
 - **去掉 triage**：发布工单时一次写好状态、assignee 和默认 label，不再有 triage 评论。`to-tickets` 的工单发布为 `todo`（被阻塞的工单由 implement 等待阻塞解除）；`to-spec` 按 spec 能否直接执行，发布为 `todo` 或 `backlog`。`Needs Info` 不再有来源，从词表删除。
 - **backlog 只表示“已发布但现在不应开工”**：等待拆票的 spec、等待非工单外部条件的工作、有意延后的工作。受管工单缺状态是异常，不等于 backlog，所以 backlog 保留为显式状态。
 - **只有工作流层移动状态**：`to-*` 设置初始状态；`shepherd-tickets` 在人工关口（`backlog`、`reviewed`、`blocked`）代替人放行、反馈或交给用户，并修正受管工单的 assignee 和 label。核心 skill（`implement`、`code-review`）仍然不碰 tracker。

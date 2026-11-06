@@ -56,26 +56,26 @@ Recommend the platform `origin` points to (GitHub or GitLab), or the tracker the
 
 The standard names, used unless the user chooses otherwise:
 
-| State | GitHub / GitLab label | Linear state (type) |
+| State | Name on the tracker | Linear state type |
 | --- | --- | --- |
-| backlog | `backlog` | `Backlog` (backlog) |
-| todo | `todo` | `Todo` (unstarted) |
-| in-progress | `in-progress` | `In Progress` (started) |
-| in-review | `in-review` | `In Review` (started) |
-| reviewed | `reviewed` | `Reviewed` (started) |
-| merging | `merging` | `Merging` (started) |
-| blocked | `blocked` | `Blocked` (started) |
-| done | the issue is closed | `Done` (completed) |
+| backlog | `Backlog` | backlog |
+| todo | `Todo` | unstarted |
+| in-progress | `In Progress` | started |
+| in-review | `In Review` | started |
+| reviewed | `Reviewed` | started |
+| merging | `Merging` | started |
+| blocked | `Blocked` | started |
+| done | GitHub / GitLab: the issue is closed. Linear: `Done` | completed |
 
-Labels are lowercase and hyphenated, like the platforms' own default labels (`bug`, `good first issue` aside). Linear states follow Linear's own Title Case. On GitHub and GitLab an open issue carries exactly one state label.
+Every tracker uses the same Title Case names, so a state reads the same on a GitHub label, a GitLab label, a Linear state, and an agent-workflow rule set, and stands apart from the lowercase type labels (`bug`, `enhancement`). The state ids in the first column are what the skills say; the tracker shows the names. On GitHub and GitLab an open issue carries exactly one state label.
 
 Compare the standard names with what exploration found, and sort every state into one case:
 
 | Case | Example | Options (recommended first) |
 | --- | --- | --- |
-| The standard label exists | `todo` | Use it. Nothing to decide |
-| An equivalent exists under another spelling | `In Progress` for in-progress | **Rename** it to the standard name: issues keep the label, only its name changes. **Keep** the existing name and record it in `workflow.md`. |
-| No equivalent exists | no `merging` label | **Create** the standard label. **Map** the state to another existing label the user names. |
+| The standard label exists | `Todo` | Use it. Nothing to decide |
+| An equivalent exists under another spelling | `in-progress` or `WIP` for In Progress | **Rename** it to the standard name: issues keep the label, only its name changes. **Keep** the existing name and record it in `workflow.md`. |
+| No equivalent exists | no `Merging` label | **Create** the standard label. **Map** the state to another existing label the user names. |
 
 Then list the labels that look like retired workflow states (for example `Needs Info`, `needs-triage`, `Triage`), with the number of open tickets carrying each:
 
