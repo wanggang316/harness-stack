@@ -28,7 +28,11 @@ SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 KIT_SRC="$SCRIPT_DIR/capturekit.swift"
 KIT_CACHE="${CAPTUREKIT_CACHE:-$HOME/.cache/capturekit}"
 OUT_DIR="${RECORD_DIR:-$HOME/.screen-record}"
-STATE_DIR="${RECORD_STATE_DIR:-$HOME/.cache/screen-record}"
+# Each agent session gets its own start/stop slot, so a session cannot stop a
+# recording that another session started. Without a session ID, all callers
+# share one slot.
+SESSION_ID=$(printf '%s' "${RECORD_SESSION_ID:-${CLAUDE_CODE_SESSION_ID:-}}" | tr -c 'A-Za-z0-9_-' '_')
+STATE_DIR="${RECORD_STATE_DIR:-$HOME/.cache/screen-record${SESSION_ID:+/sessions/$SESSION_ID}}"
 STATE="$STATE_DIR/active"
 
 die() { printf 'record: %s\n' "$1" >&2; exit "${2:-1}"; }
@@ -68,6 +72,8 @@ Post (applied after capture, via ffmpeg; without any the raw file is only remuxe
 
 Exit codes: 0 ok, 1 runtime, 2 permission missing, 3 target not found, 64 usage.
 Set RECORD_DIR to change the default output directory (currently $OUT_DIR).
+start/stop/status keep their state in $STATE_DIR: one slot per session
+(RECORD_SESSION_ID, else CLAUDE_CODE_SESSION_ID). Set RECORD_STATE_DIR to override.
 EOF
   exit 64
 }
