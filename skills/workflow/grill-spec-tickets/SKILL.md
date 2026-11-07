@@ -1,12 +1,12 @@
 ---
 name: grill-spec-tickets
-description: Take a requirement from discussion to published, ready work in one run. Grill it with grill-with-docs, publish the spec with to-spec, and split it into tickets with to-tickets when it is too large for one implementer.
+description: Take a requirement from discussion to merged work. Grill it with grill-with-docs, publish the spec with to-spec, split it into tickets with to-tickets when it is too large for one implementer, then follow the work with shepherd-tickets until it is merged or needs the user.
 disable-model-invocation: true
 ---
 
 # grill-spec-tickets
 
-Run the whole planning path for one requirement: interview until the design is settled, publish one spec, and publish its tickets when the spec needs splitting. Each stage is an existing skill; this skill decides the order, carries the context between them, and stops cleanly when a stage cannot finish. It implements nothing.
+Run the whole path for one requirement: interview until the design is settled, publish one spec, publish its tickets when the spec needs splitting, then follow the work to the end. Each stage is an existing skill; this skill decides the order, carries the context between them, and stops cleanly when a stage cannot finish. It implements nothing.
 
 ## 1. Check the tracker
 
@@ -41,10 +41,16 @@ If `to-tickets` stops before publishing or fails partway, report the tickets alr
 
 Every publishing stage shows its draft and asks for approval, unless the user authorized the whole run up front for this target. An approval covers only its own stage: approving the spec does not approve the ticket breakdown.
 
-## 5. Report
+## 5. Shepherd the work
+
+After the spec (and its tickets) are published, follow the work by default: the requirement is finished when its work is merged, not when its tickets exist. Unless the user said not to, start a recurring runner that runs `shepherd-tickets` on the spec ticket: the agent's loop or scheduler (in Claude Code, `/loop 10m /shepherd-tickets <spec>`), or a monitor that wakes on ticket changes. Its sub-tickets are managed with it. Write the identifier in the command, because it survives context compaction and the conversation does not. `shepherd-tickets` stops the runner when every ticket is merged (done) or waits on the user.
+
+A spec left in backlog for another reason (step 3) still gets the runner: `shepherd-tickets` moves it to todo when its condition is met. If the agent has no recurring runner, run one pass of `shepherd-tickets` now and give the user the command to repeat it. If nothing was published, skip this step.
+
+## 6. Report
 
 - The documents recorded and where they are (the discussion branch, its pull request, or the base branch).
 - The spec ticket: URL and state.
 - The tickets, if any: identifier, title, URL, and blockers in dependency order, with the ones that can start immediately marked.
 - Anything unfinished, and the stage it stopped at.
-- How to follow the work: `/loop 10m /shepherd-tickets <spec>`. Its sub-tickets are managed with it.
+- How the work is followed: the recurring runner and its command from step 5, or why it did not start.

@@ -1,12 +1,12 @@
 ---
 name: grill-tickets
-description: Take a requirement from discussion to published tickets in one run, without a spec ticket. Grill it with grill-with-docs, then split it into tickets and publish them with to-tickets. Use when the work is clear enough to slice once the interview settles it.
+description: Take a requirement from discussion to merged work, without a spec ticket. Grill it with grill-with-docs, split it into tickets and publish them with to-tickets, then follow them with shepherd-tickets until they are merged or need the user. Use when the work is clear enough to slice once the interview settles it.
 disable-model-invocation: true
 ---
 
 # grill-tickets
 
-Run the short planning path for one requirement: interview until the design is settled, then publish its tickets. Each stage is an existing skill; this skill decides the order, carries the context between them, and stops cleanly when a stage cannot finish. It implements nothing.
+Run the short path for one requirement: interview until the design is settled, publish its tickets, then follow them to the end. Each stage is an existing skill; this skill decides the order, carries the context between them, and stops cleanly when a stage cannot finish. It implements nothing.
 
 Use `grill-spec-tickets` instead when the requirement needs a spec ticket of its own: when it must wait in backlog, or when its decisions should live on one parent ticket.
 
@@ -36,9 +36,15 @@ If `to-tickets` stops before publishing or fails partway, report the tickets alr
 
 The ticket breakdown is shown and approved in `to-tickets` before anything is published, unless the user authorized the whole run up front for this target.
 
-## 4. Report
+## 4. Shepherd the tickets
+
+After the tickets are published, follow them by default: the requirement is finished when its work is merged, not when its tickets exist. Unless the user said not to, start a recurring runner that runs `shepherd-tickets` on every published ticket: the agent's loop or scheduler (in Claude Code, `/loop 10m /shepherd-tickets <ticket> <ticket> ...`), or a monitor that wakes on ticket changes. Write the identifiers in the command, because they survive context compaction and the conversation does not. `shepherd-tickets` stops the runner when every ticket is merged (done) or waits on the user.
+
+If the agent has no recurring runner, run one pass of `shepherd-tickets` now and give the user the command to repeat it. If no ticket was published, skip this step.
+
+## 5. Report
 
 - The documents recorded and where they are (the base branch or its pull request).
 - The tickets: identifier, title, URL, and blockers in dependency order, with the ones that can start immediately marked.
 - Anything unfinished, and the stage it stopped at.
-- How to follow the work: `/loop 10m /shepherd-tickets <ticket> <ticket> ...` with every published ticket.
+- How the tickets are followed: the recurring runner and its command from step 4, or why it did not start.

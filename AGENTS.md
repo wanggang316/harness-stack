@@ -30,9 +30,9 @@ An agent-first **development harness** — a curated stack of tools that keep an
 - `/harness-stack:setup-tracker` - Set up the ticket tracker (GitHub / GitLab / Linear): `issue-tracker.md` (target and commands) and `workflow.md` (state labels, assignee, type labels); creates, renames, or retires labels as the user chooses; defines where that configuration lives, outside the repo
 - `/harness-stack:to-spec` - Grill with `grill-with-docs` if needed, write the spec with `write-spec`, publish it as todo or backlog
 - `/harness-stack:to-tickets` - Grill with `grill-with-docs` if needed, choose the base branch, write tickets with `write-tickets`, publish them as todo with native blocking / sub-ticket links
-- `/harness-stack:grill-spec-tickets` - Run `grill-with-docs` → `to-spec` → `to-tickets` (when the spec needs splitting) in one run
-- `/harness-stack:grill-tickets` - Run `grill-with-docs` → `to-tickets` in one run, without a spec ticket
-- `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, blocked): clarify, give feedback, approve merges, hand off the rest; run with `/loop 10m`
+- `/harness-stack:grill-spec-tickets` - Run `grill-with-docs` → `to-spec` → `to-tickets` (when the spec needs splitting) → `shepherd-tickets` until the work is merged or needs the user
+- `/harness-stack:grill-tickets` - Run `grill-with-docs` → `to-tickets` → `shepherd-tickets` until the work is merged or needs the user, without a spec ticket
+- `/harness-stack:shepherd-tickets` - Act as requirement owner for the managed tickets at the human gates (backlog, reviewed, blocked): clarify, give feedback, approve merges, hand off the rest, and publish important unplanned work as follow-up tickets; started by the grill skills, repeated by a loop, scheduler, or monitor
 
 **Build**
 - `/harness-stack:implement` - Implement a task, spec, or task graph (or fix review findings) with verification, a progress record, and a reviewable handoff; never touches a tracker

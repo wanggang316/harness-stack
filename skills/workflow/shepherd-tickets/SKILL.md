@@ -1,16 +1,15 @@
 ---
 name: shepherd-tickets
-description: "Act as the requirement owner for the tickets this conversation manages: at the human gates (backlog, reviewed, blocked) clarify and unblock, give feedback on thin evidence, approve well-evidenced work for merge, and hand the rest to the user; keep their state, assignee, and labels right. One pass per run; repeat with the agent's loop."
-disable-model-invocation: true
+description: "Act as the requirement owner for the tickets this conversation manages: at the human gates (backlog, reviewed, blocked) clarify and unblock, give feedback on thin evidence, approve well-evidenced work for merge, and hand the rest to the user; turn important work found on the way into follow-up tickets; keep their state, assignee, and labels right. One pass per run, repeated by the agent's loop or scheduler until every ticket is done or waits on the user. Use after tickets are published, for example by grill-tickets or grill-spec-tickets."
 ---
 
 # shepherd-tickets
 
-Keep the managed tickets flowing to done the way their owner would. Automation (or a person) implements, reviews, and merges; this skill decides at the points where the workflow waits for a human. Each run is one pass over the managed tickets. Repeat it with the agent's built-in loop, for example `/loop 10m /shepherd-tickets <identifiers>`.
+Keep the managed tickets flowing to done the way their owner would. Automation (or a person) implements, reviews, and merges; this skill decides at the points where the workflow waits for a human, and keeps track of important work that the tickets did not plan for. Each run is one pass over the managed tickets. A recurring runner repeats it: the agent's loop or scheduler, for example `/loop 10m /shepherd-tickets <identifiers>`, or a monitor that wakes on ticket changes.
 
 ## Scope
 
-The **managed tickets** are the identifiers passed in, plus the sub-tickets of any managed ticket. Without identifiers, collect the tickets that `to-spec` or `to-tickets` published in this conversation, and show the user the `/loop 10m /shepherd-tickets <identifiers>` command with them filled in: identifiers in the command survive context compaction, memory does not. Without any, ask for them and stop.
+The **managed tickets** are the identifiers passed in, plus the sub-tickets of any managed ticket, plus the tickets named in a `Follow-up:` comment that this skill wrote on a managed ticket (step 4). Without identifiers, collect the tickets that `to-spec` or `to-tickets` published in this conversation, and show the user the `/loop 10m /shepherd-tickets <identifiers>` command with them filled in: identifiers in the command survive context compaction, memory does not. Without any, ask for them and stop.
 
 Leave every other ticket alone, even when it looks wrong.
 
@@ -66,8 +65,32 @@ When unsure between merge and hand off, hand off: a wrong merge costs more than 
 
 ### done
 
-Nothing to do. When every managed ticket is done, say so and tell the user the loop can stop; stop it when the agent can.
+Nothing to do.
 
-## 4. Report
+## 4. Turn important discoveries into follow-up tickets
 
-One line per managed ticket: identifier, state before → after, the action taken, and its reason. Then the **hand-offs**, each with what the user must decide or verify and the link to start from. Then the failures: fetches or writes that did not succeed. An action whose write failed did not happen; say so.
+An owner keeps the current work on course and does not lose what the work found on the way. Read what the managed tickets surfaced since your last pass: the `## Adjacent issues` of each handoff, problems an implementer reported, review findings or open questions outside the ticket's scope, and gaps you found while you judged evidence.
+
+Sort each item:
+
+- **Not important** (style drift, a nice-to-have, already covered by an open ticket): list it in the report only. An item is important when, without it, correctness, security, data, or user-visible behavior is wrong, or the requirement's goal is not met.
+- **The current ticket cannot meet its acceptance criteria without it**: it is not follow-up work. Handle it at the ticket's gate (feedback, or the blocked rules).
+- **Outside the requirement** (a new feature, a product decision): hand it to the user.
+- **Otherwise**: it is follow-up work. Do not add it to the current ticket, and do not stop or move the current ticket for it: the current ticket finishes against its own acceptance criteria.
+
+Publish the follow-up work at the right time:
+
+- **It does not depend on the current ticket's change**: publish it now, so it runs in parallel.
+- **It builds on that change** (the same code, or behavior that exists only after the merge): wait until the current ticket is done, then publish it. Until then, comment on the current ticket `Follow-up planned after this ticket is done:` with the item, so later passes remember it.
+
+Publish with `to-tickets`, from the default branch. Give it the item as the source, with a link to the ticket it came from. When the requirement has a spec ticket, give that spec as the parent so the new tickets become its sub-tickets; never use the current ticket as the parent, because a sub-ticket would hold the current ticket open. Before publishing, check your earlier `Follow-up:` comments, so a later pass does not publish the same item again. You act as the owner in its quiz and approval: approve a breakdown that stays inside the requirement, gives each ticket to one implementer, and does not duplicate an open ticket. The user's request to shepherd these tickets authorizes this publication. Then comment `Follow-up: <identifiers>` on the source ticket. The new tickets are now managed tickets, and the comment keeps them in scope after context compaction.
+
+If `to-tickets` is unavailable or fails, report the item as a hand-off; report tickets already created.
+
+## 5. Stop or continue
+
+When no managed ticket can move without the user (each is done, or waits on a hand-off that has not changed since you made it) and no follow-up waits to be published, stop the recurring runner when the agent can, and say so in the report. Otherwise the runner continues.
+
+## 6. Report
+
+One line per managed ticket: identifier, state before → after, the action taken, and its reason. Then the **follow-ups**: tickets published this pass, follow-ups planned after a ticket is done, and items judged not important. Then the **hand-offs**, each with what the user must decide or verify and the link to start from. Then the failures: fetches or writes that did not succeed. An action whose write failed did not happen; say so.
