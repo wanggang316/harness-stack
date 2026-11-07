@@ -50,7 +50,7 @@ post   : --max PX  --out-fps N  --crf N  --codec ...  --keep-raw                
 | 子命令 | 说明 |
 |---|---|
 | `run` | 前台录固定时长，结束后应用 post 选项输出 mp4 |
-| `start` / `stop` / `status` | 后台录制；状态存 `~/.cache/screen-record/active`，同一时间只允许一个。`--max-duration` 到时自动停，之后仍需 `stop` 做收尾 |
+| `start` / `stop` / `status` | 后台录制；每个会话一个槽位，同一会话同一时间只允许一个。状态存 `~/.cache/screen-record/sessions/<会话 ID>/active`，会话 ID 取 `RECORD_SESSION_ID`，否则取 `CLAUDE_CODE_SESSION_ID`；都没有时所有调用方共用 `~/.cache/screen-record/active`。`RECORD_STATE_DIR` 可直接指定目录。其他会话的录制看不到也停不了。`--max-duration` 到时自动停，之后仍需 `stop` 做收尾 |
 | `wrap` | `start` → 等 `--pre-roll` → 执行命令 → 等 `--post-roll` → `stop`；退出码等于命令的退出码，`--json` 时输出 `{"exit_code", "video"}` |
 | `compress` | 重新编码：`--max` 长边（默认 1280）、`--fps`、`--crf`（默认 28）、`--codec hevc` 更小、`h264_vt` 硬件编码更快 |
 | `convert` | mp4/mov 在无需缩放时直接 remux（不重编码）；gif 走两遍调色板（默认 10fps、长边 800）；webm 用 VP9 |
