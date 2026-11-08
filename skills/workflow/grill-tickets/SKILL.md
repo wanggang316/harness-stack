@@ -27,7 +27,7 @@ When `grill-with-docs` offers to open a pull request for the documents, defer it
 
 Run `to-tickets` with the confirmed summary as its source. The interview is done, so `to-tickets` skips its own. It proposes the discussion branch as the base branch, quizzes the user on the breakdown, pushes the base branch, and publishes the tickets as todo.
 
-- **The discussion branch recorded no documents**: the tickets start from the default branch.
+- **The discussion branch recorded no documents**: `to-tickets` still proposes it when it is a dedicated worktree for this work, so the user can follow the tickets there; otherwise the tickets start from the default branch.
 - **The user rejects the discussion branch as the base branch**: land it in its own pull request first, because the tickets rely on its documents.
 
 If `to-tickets` stops before publishing or fails partway, report the tickets already created.

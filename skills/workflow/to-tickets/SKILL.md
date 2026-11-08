@@ -31,7 +31,8 @@ The **base branch** is where the tickets' work starts. Tickets start from the de
 From the conversation and git (`git status`, `git log origin/<default>..HEAD`), decide whether the current branch holds changes these tickets rely on: glossary entries, ADRs, or design notes recorded while discussing them, or code that prepares for them. Judge by relevance to the tickets, not by the branch name. A branch that is not the default branch but holds unrelated work is not a base branch.
 
 - **Relevant changes on the current branch**: propose the current branch as the base branch. The tickets then build on those changes without landing them on the default branch first.
-- **No relevant changes**: use the default branch; the tickets get no branch line.
+- **A dedicated worktree for this work**: the current branch is not the default branch, is checked out in a linked worktree (`git rev-parse --git-dir` differs from `git rev-parse --git-common-dir`), and holds nothing yet (`git log origin/<default>..HEAD` and `git status --porcelain` are empty). The user opened it to follow this work, so propose it as the base branch. The tickets' work then lands on a branch the user already has checked out: automation on the same machine can work in that worktree, and on another machine the user pulls the branch.
+- **Otherwise**: use the default branch; the tickets get no branch line.
 
 Present the base branch to the user: its name and the commits and files on it that the tickets rely on. The user may choose another base branch or none.
 
@@ -47,7 +48,7 @@ Show the target, the base branch, and for every ticket its title, `todo` state, 
 
 ## 6. Publish
 
-With a base branch, first make it available to whoever picks the tickets up. Commit uncommitted changes the tickets rely on only after the user confirms them, then push the base branch (`git push -u origin <base branch>`). If the push fails, stop before creating any ticket.
+With a base branch, first make it available to whoever picks the tickets up. Commit uncommitted changes the tickets rely on only after the user confirms them, then push the base branch (`git push -u origin <base branch>`), also when it holds no commits yet. `-u` makes the local branch track its own remote branch, so the user sees the work arrive there. If the push fails, stop before creating any ticket.
 
 Create the tickets in dependency order, blockers first, so each blocking edge can reference a real identifier. Use the publish-a-ticket operation, setting the state, assignee, and labels in the same call:
 
