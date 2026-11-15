@@ -2,7 +2,7 @@
 
 harness-stack 是有状态的。配置按项目存放在仓库之外，位置和推导规则只由 [setup-tracker](../skills/workflow/setup-tracker/SKILL.md#where-the-configuration-lives) 定义；其他 skill 只说"按 setup-tracker 的规则找到配置"，不写路径。
 
-只有 `skills/workflow/` 下的工作流层 skill 读取配置、操作 tracker；`skills/engineering/` 下的 skill 不读配置。分层理由见 [ADR 0001](../docs/decisions/0001-ticket-workflow-layer.md)。
+只有 `skills/workflow/` 下的工作流层 skill 读取配置、操作 tracker；`skills/engineering/` 下的 skill 不读配置。分层理由见 [ADR 0001](../docs/adrs/0001-ticket-workflow-layer.md)。
 
 | 文件 | 写入方 | 读取方 |
 |---|---|---|

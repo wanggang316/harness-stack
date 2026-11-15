@@ -1,6 +1,6 @@
 # ADR format
 
-Use the existing decision directory, or `docs/decisions/` if no convention exists. Increment its numbering without reusing numbers.
+Use the existing decision directory, or `docs/adrs/` if no convention exists. Increment its numbering without reusing numbers.
 
 ```markdown
 # <Decision title>

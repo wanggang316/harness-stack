@@ -14,7 +14,7 @@
 
 ## 知识入口
 
-沿用项目已有目录、语言与索引。没有约定时，可按需使用 `docs/README.md`、`docs/glossary.md`、`docs/architecture.md`、`docs/domains/`、`docs/decisions/` 和 `docs/runbooks/`。小项目可先用 README；不建立空目录或平行词汇表。
+沿用项目已有目录、语言与索引。没有约定时，可按需使用 `docs/README.md`、`docs/glossary.md`、`docs/architecture.md`、`docs/domains/`、`docs/adrs/` 和 `docs/runbooks/`。小项目可先用 README；不建立空目录或平行词汇表。
 
 领域可以是业务领域、技术子系统或稳定能力，不要求对应 DDD 边界；已有的组件文档、子系统文档或包 README 可继续作为权威位置，不另建平行的 `docs/domains/`。领域文档是行为与边界的主要维护位置。全局架构说明跨模块关系，ADR 保存理由，runbook 保存可执行步骤。用链接连接证据和决定；同一项规则只有一个主要维护位置。
 
