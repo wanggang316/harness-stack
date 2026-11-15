@@ -6,7 +6,7 @@ Without a convention, choose locations as needed:
 
 | Content | Default location | Boundary |
 | --- | --- | --- |
-| Documentation navigation | `docs/index.md` | Topics, authoritative locations, and reading conditions |
+| Documentation navigation | `docs/README.md` | Topics, authoritative locations, and reading conditions |
 | Project-specific terms | `docs/glossary.md` | Concept definitions and boundaries, not implementation plans |
 | System architecture | `docs/architecture.md` | Responsibilities, dependency direction, and cross-module relationships |
 | Domain knowledge | `docs/domains/<domain>.md` | Behavior contracts, invariants, interactions, and failure semantics |
