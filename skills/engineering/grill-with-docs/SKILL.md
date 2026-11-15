@@ -32,7 +32,7 @@ Map the requirements or design as a tree of dependent decisions. In each round, 
 Write confirmed terms and durable decisions during each round, rather than waiting for the interview to end. Record only content the user has confirmed. Use the formats in `domain-modeling` when available; otherwise, use these rules:
 
 - **Glossary**: use the existing file, or `docs/glossary.md` if there is no convention. Define each project-specific concept and its boundaries in one or two sentences. List aliases to avoid when useful. Exclude implementation plans.
-- **ADR**: record a decision when missing context could lead a future reader to make a harmful change or repeat an expensive investigation. Use the existing directory and numbering, or `docs/decisions/NNN-<slug>.md` with a number one greater than the current maximum.
+- **ADR**: record a decision when missing context could lead a future reader to make a harmful change or repeat an expensive investigation. Use the existing directory and numbering, or `docs/adrs/NNN-<slug>.md` with a number one greater than the current maximum.
 - **Decision content**: state the context, choice, reason, trade-offs, and conditions for reconsideration. Mark it `Status: Accepted`. Acceptance does not mean implementation or deployment. When a new decision replaces an ADR, create a new record, link both directions, and mark the old record `Superseded by <link>`. Preserve its original context.
 - **Discovery**: link new knowledge files from the existing documentation index. If none exists, add an entry to the README or a minimal `docs/README.md`. Do not generate empty documentation scaffolding.
 

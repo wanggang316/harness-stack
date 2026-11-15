@@ -20,7 +20,7 @@ Use the project's existing glossary, ADR directory, and language. Do not create 
 /
 ├── docs/
 │   ├── glossary.md
-│   └── decisions/
+│   └── adrs/
 │       ├── 0001-event-sourced-orders.md
 │       └── 0002-postgres-for-write-model.md
 └── src/

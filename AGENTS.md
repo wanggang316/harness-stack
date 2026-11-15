@@ -58,7 +58,7 @@ An agent-first **development harness** — a curated stack of tools that keep an
 
 ### Ticket workflow
 
-Skills come in two layers ([ADR 0001](docs/decisions/0001-ticket-workflow-layer.md)). The workflow layer (`skills/workflow/`) reads the tracker configuration, sets ticket states, assignee, and labels, and may call other skills. Every other skill never reads that configuration or touches a tracker, and does not know the workflow layer exists; `write-spec` and `write-tickets` only write the content and return it.
+Skills come in two layers ([ADR 0001](docs/adrs/0001-ticket-workflow-layer.md)). The workflow layer (`skills/workflow/`) reads the tracker configuration, sets ticket states, assignee, and labels, and may call other skills. Every other skill never reads that configuration or touches a tracker, and does not know the workflow layer exists; `write-spec` and `write-tickets` only write the content and return it.
 
 Tickets move through `backlog → todo → in-progress → in-review → reviewed → merging → done`, with `blocked` when a run needs a person; `setup-tracker` maps these to tracker names. `to-spec` and `to-tickets` publish tickets with their state, assignee, and labels set; there is no triage. Whatever drives the tickets (a person or an automation such as agent-workflow) moves them through the work; `shepherd-tickets` moves them only at the human gates. `implement` and `code-review` return a handoff or review to their caller and never touch a tracker.
 

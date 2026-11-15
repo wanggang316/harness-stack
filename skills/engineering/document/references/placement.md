@@ -1,6 +1,6 @@
 # Knowledge placement
 
-Follow the target project's existing names and entry points, including `CONTEXT.md`, `docs/adr/`, and module READMEs. A filename does not determine a document's role. Identify the question it answers and whether it promises to describe the current state.
+Follow the target project's existing names and entry points, including `CONTEXT.md`, `docs/adrs/`, and module READMEs. A filename does not determine a document's role. Identify the question it answers and whether it promises to describe the current state.
 
 Without a convention, choose locations as needed:
 
@@ -10,7 +10,7 @@ Without a convention, choose locations as needed:
 | Project-specific terms | `docs/glossary.md` | Concept definitions and boundaries, not implementation plans |
 | System architecture | `docs/architecture.md` | Responsibilities, dependency direction, and cross-module relationships |
 | Domain knowledge | `docs/domains/<domain>.md` | Behavior contracts, invariants, interactions, and failure semantics |
-| Decision records | `docs/decisions/NNN-<slug>.md` | Context, rationale, trade-offs, and current status |
+| Decision records | `docs/adrs/NNN-<slug>.md` | Context, rationale, trade-offs, and current status |
 | Operational knowledge | `docs/runbooks/<operation>.md` | Prerequisites, steps, result checks, and failure recovery |
 
 Small projects can start in the existing README. Split content when it becomes an independent reading topic, not once per delivery.
