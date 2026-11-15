@@ -38,7 +38,7 @@ Look for the originating requirements in this order:
 
 ## 3. Find the standards
 
-Collect every file that documents how code is written here: `AGENTS.md` or `CLAUDE.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md`, active decisions in `docs/adr/`, and directory-level instructions for the touched paths. The Standards axis also carries the [smell baseline](references/smell-baseline.md), which applies even when the repository documents nothing; a documented repository standard always overrides it.
+Collect every file that documents how code is written here: `AGENTS.md` or `CLAUDE.md`, `CODING_STANDARDS.md`, `CONTRIBUTING.md`, active decisions in the project's decision directories, and directory-level instructions for the touched paths. Include the documentation entry point, current knowledge that owns affected behavior, and applicable documentation rules, even when those files are absent from the diff. The Standards axis also carries the [smell baseline](references/smell-baseline.md), which applies even when the repository documents nothing; a documented repository standard always overrides it.
 
 ## 4. Dispatch both axes in parallel
 

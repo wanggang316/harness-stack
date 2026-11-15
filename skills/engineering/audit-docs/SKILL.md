@@ -18,6 +18,7 @@ Distinguish current knowledge, decision records, and process history first. Hist
 
 For each current knowledge document, inspect relevant code entry points, contracts, configuration, tests, and decisions. Use primary sources for external facts and record the applicable version. Check:
 
+- Whether the topic explains its scope, relevant behavior and constraints, failure semantics, change impact, and decision links. Use these as coverage questions, not required headings; preserve useful project-specific structure. When placement or a substantial rewrite needs guidance, read `document` and its placement reference; if unavailable, retain existing ownership, one primary location per fact, and only sections the topic needs.
 - Whether current descriptions are accurate, including claims about implementation, deployment, or verification that has not occurred.
 - Whether contracts conflict with implementation. Report a potential product defect or pending decision rather than changing the contract directly.
 - Whether the same knowledge has multiple maintenance locations and whether active ADRs are identifiable.

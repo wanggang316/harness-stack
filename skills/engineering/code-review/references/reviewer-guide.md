@@ -8,6 +8,8 @@ Check implementation quality against project instructions, coding standards, and
 
 Match the diff against the smell baseline supplied in the brief. Its smells are investigation leads, not automatic defects: name the smell, quote the hunk, and explain the actual cost after checking callers and constraints. Explicit project conventions override the baseline and general preferences.
 
+Check documentation coverage against the changed behavior, including affected pages absent from the diff. Verify current contracts, failure semantics, ownership, navigation, and any generated-reference checks required by the project. Cite the stale claim or missing knowledge and its concrete impact. Judge content against project rules, not a preferred heading template; no documentation change is valid when durable knowledge is unchanged. Include the checked document paths or a reason no update was needed in the report, and mark unavailable essential context as a coverage limit.
+
 Also check provable correctness, security, compatibility, and validation gaps. A real defect still matters when no style rule names it.
 
 ## Spec

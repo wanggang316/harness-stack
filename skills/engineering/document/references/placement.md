@@ -15,9 +15,13 @@ Without a convention, choose locations as needed:
 
 Small projects can start in the existing README. Split content when it becomes an independent reading topic, not once per delivery.
 
-## Domain documents
+## Topic boundaries and structure
 
-Describe current agreements directly in the project's language. Include only sections the reader needs:
+A domain can be a business area, a technical subsystem, or a stable capability; it need not be a domain-driven design boundary. Existing `components/`, `subsystems/`, or package READMEs may already own this knowledge. Do not create a parallel `docs/domains/` copy.
+
+Be strict about scope, current claims, ownership, and discoverability; adapt headings and order to the subject. Each fact has one primary maintenance location. A parent page explains relationships and links to the owner of detailed contracts. Separate substantial tutorials from reference content so readers can look up behavior without following a lesson.
+
+For a new topic page, start with the following structure, then rename, combine, or omit sections as needed. It is a writing aid, not a required schema:
 
 ```markdown
 # <Domain>
@@ -26,10 +30,19 @@ Describe current agreements directly in the project's language. Include only sec
 ## Behavior and invariants
 ## Interactions and failure modes
 ## Implementation map
-## Decisions and evidence
+## Related decisions
 ```
 
-Separate contracts from implementation descriptions and mark known discrepancies. Link implementation entry points, tests, schemas, and ADRs. Do not copy function inventories or entire decisions into the body.
+Use the structure to check coverage:
+
+- Identify the topic's responsibility and boundaries; define unfamiliar concepts locally or link the shared glossary.
+- State observable behavior and constraints, including permissions, transitions, and failure or recovery semantics where relevant.
+- Explain dependencies and change impact; link a few verified code, test, or schema entry points when they help future edits.
+- Link durable decision rationale rather than repeating ADRs. Keep task progress and run-specific verification reports in their delivery records.
+
+A notification page might use trigger, suppression, and unread-clearing sections; an installation page might use identity, ownership, and recovery. Do not add a state diagram to a stateless topic or reject a useful page because its headings differ.
+
+Separate contracts from implementation descriptions and mark known discrepancies. Accepted future behavior belongs in a decision or spec until implemented; it must not silently replace current behavior. Update current pages with the corresponding code version, without claiming deployment. Keep generated API and configuration references generated, and validate their freshness using the project's existing checks instead of maintaining handwritten copies.
 
 ## Investigation results
 

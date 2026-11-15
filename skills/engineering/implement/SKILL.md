@@ -74,6 +74,8 @@ In unattended execution, act within the caller's authorization and do not stop t
 
 Read project instructions, relevant current knowledge, and active decisions. Inspect the affected implementation, callers, and tests; prefer existing patterns. Confirm the working directory, branch, starting commit, and existing changes (`git status`, `git log --oneline -10`). Work on a non-default branch under the project's worktree conventions, and protect user files and uncommitted work.
 
+Identify which current knowledge owns the affected behavior and which approved decisions constrain it. Record the expected documentation updates in the plan or validation record, or why no durable knowledge is expected to change; revisit this assessment when scope changes.
+
 Derive validation commands from project configuration and existing workflows; do not assume a language, package manager, or test runner. Establish the baseline the risk calls for: existing test failures, a reproduction of the original bug, behavior before a refactor, or performance measurements. Mark an unavailable baseline as unknown, not as a pre-existing problem.
 
 When resuming, reconcile progress against Git, the progress record, and existing evidence. Reuse results that remain valid and finish only unfinished work. A commit does not prove verification, and a PR does not prove completion.
@@ -101,6 +103,8 @@ For new or corrected behavior, use `tdd` at the agreed seams and pass it the est
 
 Run type checks and the affected test files after each step and keep them green before building on the step. On an unexpected failure, keep the output, narrow the reproduction, and test root-cause hypotheses; if successive fixes fail at the same point, revisit your assumptions and the way you observe the failure. Do not weaken assertions to fit the code.
 
+When a step changes durable behavior, contracts, architecture, terminology, or operations, use `document` to update the owning knowledge in the same step before committing. If unavailable, update the existing authoritative pages from the changed code and approved decisions, check links and claims, and keep future plans and run-specific evidence separate. Follow existing document structure; add only sections the topic needs.
+
 Commit each verified step under project conventions, staging only the paths or hunks this task owns. Then tick the step in the progress record and add a Notes line with the short SHA.
 
 Stay inside the scope: no opportunistic refactors and no features the input did not ask for. Record a real but unrelated problem as an adjacent issue in the handoff instead of fixing it.
@@ -119,7 +123,7 @@ Run the full test suite once, plus type checks, lint, builds, and the integratio
 
 List each file, as the link publishing returned or otherwise as its path, with the page or state it shows in the progress record's Validation section and in the handoff. Missing evidence (the app does not start, no screen-recording permission, a capture skill is unavailable) is a validation gap: record the reason and do not claim the UI was verified.
 
-When behavior contracts, architecture, terminology, or operations change, update the authoritative documentation in place in the same change. Create no document without a durable knowledge change, and keep progress and evidence in the progress record or handoff, not in long-lived knowledge.
+Reconcile the complete diff with the documentation impact recorded in step 2, including affected pages outside the diff. In Validation, list each affected topic and its updated or checked document path, or a concrete reason that no durable update is needed. Check behavior, failure semantics, links, and generated-reference freshness with the project's available checks. Report unresolved contract conflicts and unverified claims explicitly; a heading checklist or passing link check alone does not establish documentation accuracy.
 
 ## 6. Deliver
 
