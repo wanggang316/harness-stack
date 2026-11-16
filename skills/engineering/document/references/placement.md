@@ -29,7 +29,7 @@ For a new topic page, start with the following structure, then rename, combine, 
 ## Scope and ownership
 ## Behavior and invariants
 ## Interactions and failure modes
-## Implementation map
+## Implementation shape
 ## Related decisions
 ```
 
@@ -37,12 +37,51 @@ Use the structure to check coverage:
 
 - Identify the topic's responsibility and boundaries; define unfamiliar concepts locally or link the shared glossary.
 - State observable behavior and constraints, including permissions, transitions, and failure or recovery semantics where relevant.
-- Explain dependencies and change impact; link a few verified code, test, or schema entry points when they help future edits.
+- Explain dependencies and change impact. Describe the shape of the implementation: the main parts, the owner of the state, and the direction of data. Do not list files, functions, or tests.
 - Link durable decision rationale rather than repeating ADRs. Keep task progress and run-specific verification reports in their delivery records.
 
 A notification page might use trigger, suppression, and unread-clearing sections; an installation page might use identity, ownership, and recovery. Do not add a state diagram to a stateless topic or reject a useful page because its headings differ.
 
-Separate contracts from implementation descriptions and mark known discrepancies. Accepted future behavior belongs in a decision or spec until implemented; it must not silently replace current behavior. Update current pages with the corresponding code version, without claiming deployment. Keep generated API and configuration references generated, and validate their freshness using the project's existing checks instead of maintaining handwritten copies.
+Separate contracts from implementation descriptions. When an existing document and the code disagree, first decide which kind of difference it is:
+
+- **Stale statement**: the code changed on purpose and the document was not updated, or the document contradicts itself. Write what the code does. Do not mark it; report it.
+- **Broken rule**: the code does not follow a rule that it is still expected to follow, such as an accepted ADR, an invariant that tests or other code rely on, or a rule whose violation gives a user-visible defect. Write what the code does, mark the difference in place, and report it. Do not change the rule to fit the code.
+
+Most differences in an old document are stale statements. A page with many discrepancy marks usually confuses the two. Accepted future behavior belongs in a decision or spec until implemented; it must not silently replace current behavior. Update current pages with the corresponding code version, without claiming deployment. Keep generated API and configuration references generated, and validate their freshness using the project's existing checks instead of maintaining handwritten copies.
+
+## Level of a topic page
+
+The reader is a person or an agent who is about to change or debug the area and does not know it. The page gives the mental model; the reader then opens the code for details. A page that follows the code function by function is hard to read and goes out of date with each refactor. Make the trade-off on purpose: say less, and make each sentence carry a fact that the reader cannot get quickly from the code.
+
+Write, in roughly this priority:
+
+1. What the topic is and why it exists.
+2. Concepts and data model: the entities, their relations, what is saved and where, what is only in memory.
+3. Core state and logic: states, transitions, the main flows, the order that matters.
+4. Rules and principles: invariants, with the reason when it is short.
+5. Boundaries with neighbor topics, as links.
+6. Failure and edge behavior, and the traps that are not obvious.
+7. The shape of the implementation, in a few lines.
+
+Keep out:
+
+- Lists of files, functions, call sites, or test suites.
+- Walk-throughs of one function or one component.
+- Constants and thresholds, unless the user sees them or a rule depends on them.
+- Full enumerations (each menu item, each field, each case) when a rule or one example says it.
+- Type definitions and schemas field by field. Keep the fields that carry a rule.
+
+Code and diagrams:
+
+- Name a type, function, file, or directory only when it is the anchor that lets the reader find the mechanism, or when it is the name of a concept. Prefer the module or directory when that is enough.
+- Show a snippet only when its exact form is the contract: a command line shape, a file layout, a key name.
+- Use a small text diagram where a structure, a flow, or a state machine is clearer as a picture than as prose. Most pages need zero to two. Do not draw what one sentence says.
+
+A higher level does not lower the bar for accuracy: verify a general sentence against the code as strictly as a detailed one. For a UI entry point, find where the view is placed on screen; a view or handler that exists can still be unmounted.
+
+As a size check, most topic pages fit in 60 to 150 lines, and a large topic in about 200. When a page is longer, cut constants, enumerations, and code walk-throughs before rules.
+
+When you write from an existing proposal-style document, do not translate it section by section. Drop goals, alternatives, risks, test plans, and progress notes. Keep a rejected alternative only as a decision record, and only when the missing reason could cause a harmful change.
 
 ## Investigation results
 
